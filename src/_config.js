@@ -4,6 +4,11 @@ module.exports = {
 
 	behaviors: BEHAVIORS,
 
+	intervals : {
+		'checkPopulation' : 10,
+		'checkConstructions': 100
+	},
+
 	getBehavior: function (name) {
 		if (name && this.behaviors[name]) {
 			return this.behaviors[name];
@@ -37,13 +42,14 @@ module.exports = {
 				BEHAVIORS.TRANSPORT_ENERGY,
 				BEHAVIORS.STRUCTURES_BUILD,
 				BEHAVIORS.STURCUTRES_REPAIR
-			]
+			],
 			canBuild : function(roomController) {
 				return (roomController.findCreeps("builder") < 3);
 			}
 		},
 
 		"miner": {
+			priority: 2,
 			levelRequired: 3,
 			body: [
 				[MOVE, WORK],
@@ -62,6 +68,7 @@ module.exports = {
 		},
 
 		"transporter": {
+			priority : 1,
 			levelRequired: 3,
 			body: [
 				[MOVE, CARRY],
@@ -78,7 +85,7 @@ module.exports = {
 
 				return ( miners.length * 2 != transpoters.length );
 			}
-		}
+		},
 
 		"upgrader": {
 

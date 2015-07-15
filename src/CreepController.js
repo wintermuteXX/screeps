@@ -12,15 +12,17 @@ CreepController.prototype.run(creep) {
       if ( creep.behavior != null ) {
         // creep has current behavior, check if completed
         var b = config.behaviors[behavior];
-        if ( !b.completed() ) {
+        if ( !b.completed(creep, this.roomController) ) {
           behavior = b;
+        } else {
+          creep.target = null;
         }
       }
 
       if ( behavior == null ) {
         // no behavior assigned, find new
         for ( var b of config[creep.role].behaviors ) {
-          if ( b.when() ) {
+          if ( b.when(creep, this.roomController) ) {
             behavior = b;
             break;
           }

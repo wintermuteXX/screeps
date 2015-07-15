@@ -13,6 +13,7 @@ function GameController() {
 GameController.prototype.processRooms = function () {
 	for (var rc of this._rooms) {
 		rc.populate();
+		rc.commandCreeps();
 	}
 }
 

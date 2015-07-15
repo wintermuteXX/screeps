@@ -1,15 +1,11 @@
 var SpawnController = require("SpawnController");
 var CreepController = require("CreepController");
 
-var _config = {
-	'checkConstructions': 100
-	'checkPopulation' : 10
-};
-
 function RoomController(room, gameController) {
-	this.room = room;
-	this.gameController = gameController;
+	// this.gameController = gameController;
 
+	this.room = room;
+	this.config = gameController.config;
 	this._find = {};
 
 	this._spawns = [];
@@ -19,6 +15,34 @@ function RoomController(room, gameController) {
 
 }
 
+
+/**
+ * RoomController.populate()
+ */
+RoomController.prototype.populate = function () {
+	if ( Game.time % this.config.interval.checkPopulation != 0 ) return;
+
+	var cfgCreeps = _(this.config.creeps).sort(function(cfg) {
+		return cfg.priority || 99;
+	});
+
+	var spawn = this.getIdleSpawn();
+	if (spawn == null) return;
+
+	for ( var role in cfgCreeps ) {
+		var cfg = cfgCreeps[role];
+		if ( cfg.canBuild && cfg.canBuild(this) ) {
+			if ( spawn.createCreep(role, cfg) ) {
+				spawn = this.getIdleSpawn();
+			}
+		}
+	}
+}
+
+
+/**
+ * RoomController.commandCreeps()
+ */
 RoomController.prototype.commandCreeps = function() {
 	var cc = new CreepController(this);
 	for ( var creep of this.find(FIND_MY_CREEPS) ) {
@@ -26,6 +50,10 @@ RoomController.prototype.commandCreeps = function() {
 	}
 }
 
+
+/**
+ * RoomController.find(type)
+ */
 RoomController.prototype.find = function (type) {
 	if (!this._find[type]) {
 		this._find[type] = this.room.find(type);
@@ -33,34 +61,34 @@ RoomController.prototype.find = function (type) {
 	return this._find[type];
 }
 
+
+/**
+ * RoomController.getCreeps(role, target)
+ */
 RoomController.prototype.getCreeps = function(role, target) {
 	var creeps = this.find(FIND_MY_CREEPS);
 
 	if ( role || target ) {
 		var filter = { 'memory' : {}};
+
 		if ( role ) {
 			filter.memory.role = role;
 		}
+
 		if ( target ) {
 			filter.memory.target = target;
 		}
 
 		creeps = _(creeps).filter(filter);
-
-	}
-
-	if ( role && role !== '' ) {
-		creeps = _.filter(creeps, {memory : { 'role' : role }});
-	}
-
-	if ( target ) {
-		creeps = _.filter
-
 	}
 
 	return creep;
 }
 
+
+/**
+ * RoomController.getLevel()
+ */
 RoomController.prototype.getLevel = function () {
 	if (this.room.controller && this.room.controller.my) {
 		return this.room.controller.level;
@@ -68,18 +96,13 @@ RoomController.prototype.getLevel = function () {
 	return null;
 }
 
-RoomController.prototype.populate = function () {
-	if ( Game.time % _config.checkPopulation != 0 ) return;
 
-	var spawn = this.getIdleSpawn();
-	if (spawn == null) return;
-
-	// TODO: Check population, create Creeps
-
-}
-
+/**
+ * RoomController.getIdleSpawn()
+ */
 RoomController.prototype.getIdleSpawn = function () {
-	for (var sc of this._spawns) {
+	for (var i in this._spawns) {
+		var sc = this._spawn[i];
 		if (sc.idle()) {
 			return sc;
 		}
@@ -87,6 +110,10 @@ RoomController.prototype.getIdleSpawn = function () {
 	return null;
 }
 
+
+/**
+ * RoomController.getMaxEnergy()
+ */
 RoomController.prototype.getMaxEnergy = function () {
 	var extensionCount = _.filter(this.find(FIND_MY_STRUCTURES), {
 		structureType: STRUCTURE_EXTENSION
@@ -94,6 +121,10 @@ RoomController.prototype.getMaxEnergy = function () {
 	return 300 + (extensionCount * 50);
 }
 
+
+/**
+ * RoomController.getSources()
+ */
 RoomController.prototype.getSources = function () {
 	return _.filter(this.find(FIND_SOURCES), function (s) {
 		// TODO: Check, if source is defended by Source Keeper
@@ -101,8 +132,12 @@ RoomController.prototype.getSources = function () {
 	});
 }
 
+
+/**
+ * RoomController.planConstructions()
+ */
 RoomController.prototyp.planConstructions = function () {
-	if (Game.time % _config.checkConstructions != 0) return;
+	if (Game.time % this.config.interval.checkConstructions != 0) return;
 
   if ( this.getLevel() >= 3 ) {
     // NOTE: http://support.screeps.com/hc/en-us/articles/203079011-Room#findPath

@@ -20,7 +20,26 @@ addBehavior("HARVEST",
 		return (creep.energy < creep.energyCapacity);
 	},
 	function (creep, rc) {
-		// TODO Implement HARVEST
+		var source = null;
+
+		if ( !creep.target ) {
+			source = creep.pos.findClosest(rc.getSources());
+			if ( closest != null ) {
+				creep.target = closest.id;
+			}
+		}
+
+		if ( source == null ) {
+			source = Game.getObjectById(creep.target);
+		}
+
+		if ( source ) {
+			if ( !creep.isNearTo(source) ) {
+				creep.move(source);
+			} else {
+				creep.harvest(source);
+			}
+		}
 	},
 	function (creep, rc) {
 		return (creep.energy == creep.energyCapacity);
@@ -32,13 +51,45 @@ addBehavior("HARVETS_MINER",
 		return true;
 	},
 	function (creep, rc) {
+		var source = null;
 
+		if ( !creep.target ) {
+			var source = _(rc.getSources()).find(function(s){
+					return (rc.getCreeps("miner", source.id).length = 0)
+			});
+		}
+
+		if ( source == null ) {
+			source = Game.getObjectById(creep.target);
+		}
+
+		if ( source != ) {
+			if ( !creep.pos.isNearTo(source) ) {
+				creep.move(source);
+			} else {
+				creep.harvest(source);
+			}
+		}
 	},
 	function (creep, rc) {
 		return false;
 	}
-
 );
+
+/** Template: addBehavior
+addBehavior("<name>",
+	function (creep, rc) {
+		return false;
+	},
+	function (creep, rc) {
+
+	},
+	function (creep, rc) {
+		return true;
+	}
+);
+ */
+
 
 module.exports = behavior;
 
