@@ -28,9 +28,22 @@
    }
  });
 
+Object.defineProperty(Creep.prototype, "target", {
+  get : function() {
+    return this.memory['target'] || null;
+  },
+  set : function(newTarget) {
+    if ( newTarget != null ) {
+        this.memory['target'] = newTarget
+    } else {
+      delete this.memory['target'];
+    }
+  }
+})
+
 
 var _moveOptions = {
-  // TODO: insert move options  
+  // TODO: insert move options
 };
 Creep.prototype.move = function(target) {
   if ( this.fatigue == 0 ) {

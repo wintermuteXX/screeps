@@ -17,7 +17,7 @@ GameController.prototype.processRooms = function () {
 }
 
 GameController.prototype.processGlobal = function () {
-
+	// TODO: implement global logic
 }
 
 GameController.prototype.garbageCollection = function () {

@@ -33,6 +33,34 @@ RoomController.prototype.find = function (type) {
 	return this._find[type];
 }
 
+RoomController.prototype.getCreeps = function(role, target) {
+	var creeps = this.find(FIND_MY_CREEPS);
+
+	if ( role || target ) {
+		var filter = { 'memory' : {}};
+		if ( role ) {
+			filter.memory.role = role;
+		}
+		if ( target ) {
+			filter.memory.target = target;
+		}
+
+		creeps = _(creeps).filter(filter);
+
+	}
+
+	if ( role && role !== '' ) {
+		creeps = _.filter(creeps, {memory : { 'role' : role }});
+	}
+
+	if ( target ) {
+		creeps = _.filter
+
+	}
+
+	return creep;
+}
+
 RoomController.prototype.getLevel = function () {
 	if (this.room.controller && this.room.controller.my) {
 		return this.room.controller.level;

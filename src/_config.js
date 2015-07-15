@@ -22,7 +22,7 @@ module.exports = {
 		var cfg = this.getCreepConfig(role);
 		return (cfg != null ? cfg.behaviors : []);
 	},
-  
+
 	creeps: {
 
 		"builder": {
@@ -38,6 +38,9 @@ module.exports = {
 				BEHAVIORS.STRUCTURES_BUILD,
 				BEHAVIORS.STURCUTRES_REPAIR
 			]
+			canBuild : function(roomController) {
+				return (roomController.findCreeps("builder") < 3);
+			}
 		},
 
 		"miner": {
@@ -49,7 +52,13 @@ module.exports = {
 			],
 			behaviors = [
 				BEHAVIORS.HARVETS_MINER
-			]
+			],
+			canBuild : function(roomController) {
+				var miners = roomController.getCreeps("miner");
+				var sources = roomController.getSources();
+
+				return ( sources.length != miners.length);
+			}
 		},
 
 		"transporter": {
@@ -62,7 +71,13 @@ module.exports = {
 			behaviors: [
 				BEHAVIORS.FIND_ENERGY,
 				BEHAVIORS.TRANSPORT_ENERGY
-			]
+			],
+			canBuild : function(roomController) {
+				var miners = roomController.getCreeps('miner');
+				var transpoters = roomController.getCreep('transporter');
+
+				return ( miners.length * 2 != transpoters.length );
+			}
 		}
 
 		"upgrader": {

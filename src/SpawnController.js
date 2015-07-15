@@ -9,9 +9,11 @@ SpawnController.prototyp.idle = function() {
 
 SpawnController.prototyp.create = function(role, creepConfig, memory) {
     var roomLevel = this.roomController.getLevel();
-    var maxEnergy = this.roomController.getMaxEnergy();
 
-    var bodyConfig = this.evalCreepBody(roomLevel, maxEnergy, creepConfig.body);
+    if ( roomLevel < creepConfig.levelRequired ) return;
+    if ( creepConfig.levelMax && roomLevel > creepConfig.levelMax ) return;
+
+    var bodyConfig = this.evalCreepBody(roomLevel, creepConfig.body);
     if ( body != null && body.length ) {
       // spawn creep
 
@@ -26,7 +28,8 @@ SpawnController.prototyp.create = function(role, creepConfig, memory) {
     }
 }
 
-SpawnController.prototype.evalCreepBody = function(level, maxEnergy, body) {
+SpawnController.prototype.evalCreepBody = function(level, body) {
+  var maxEnergy = this.roomController.getMaxEnergy();
   var start = ( body.length < level ? body.length : level) - 1 ;
 
   for ( var i = start; i >= 0; i-- ) {
