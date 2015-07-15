@@ -1,59 +1,78 @@
-var BEHAVIORS = require("behaviors");
+var BEHAVIORS = require("_config.behaviors");
 
 module.exports = {
 
-  behaviors: BEHAVIORS,
+	behaviors: BEHAVIORS,
 
-  creeps: {
+	getBehavior: function (name) {
+		if (name && this.behaviors[name]) {
+			return this.behaviors[name];
+		}
+		return null;
+	},
 
-    "builder": {
-      levelRequired: 1,
-      levelMax: 2,
-      body: [
-        [MOVE, CARRY, WORK],
-        [MOVE, MOVE, CARRY, CARRY, WORK]
-      ],
-      behaviors: [
-        BEHAVIORS.HARVERST,
-        BEHAVIORS.TRANSPORT_ENERGY,
-        BEHAVIORS.STRUCTURES_BUILD,
-        BEHAVIORS.STURCUTRES_REPAIR
-      ]
-    },
+	getCreepConfig: function (role) {
+		if (role && this.creeps[role]) {
+			return this.creeps[role];
+		}
+		return null;
+	},
 
-    "miner": {
-      levelRequired: 3,
-      body: [
-        [],
-        [],
-        [MOVE, WORK, WORK]
-      ],
-      behaviors = [
-        BEHAVIORS.HARVETS_MINER
-      ]
-    },
+	getCreepBehaviors: function (role) {
+		var cfg = this.getCreepConfig(role);
+		return (cfg != null ? cfg.behaviors : []);
+	},
+  
+	creeps: {
 
-    "transporter": {
-      levelRequired: 3,
-      body: [
-        [],
-        [],
-        [MOVE, MOVE, CARRY, CARRY]
-      ],
-      behaviors: [
-        BEHAVIORS.FIND_ENERGY,
-        BEHAVIORS.TRANSPORT_ENERGY
-      ]
-    }
+		"builder": {
+			levelRequired: 1,
+			levelMax: 2,
+			body: [
+				[MOVE, CARRY, WORK],
+				[MOVE, MOVE, CARRY, CARRY, WORK]
+			],
+			behaviors: [
+				BEHAVIORS.HARVERST,
+				BEHAVIORS.TRANSPORT_ENERGY,
+				BEHAVIORS.STRUCTURES_BUILD,
+				BEHAVIORS.STURCUTRES_REPAIR
+			]
+		},
 
-    "upgrader": {
+		"miner": {
+			levelRequired: 3,
+			body: [
+				[MOVE, WORK],
+				[MOVE, WORK],
+				[MOVE, WORK, WORK],
+			],
+			behaviors = [
+				BEHAVIORS.HARVETS_MINER
+			]
+		},
 
-    },
+		"transporter": {
+			levelRequired: 3,
+			body: [
+				[MOVE, CARRY],
+				[MOVE, MOVE, CARRY, CARRY],
+				[MOVE, MOVE, MOVE, CARRY, CARRY, CARRY]
+			],
+			behaviors: [
+				BEHAVIORS.FIND_ENERGY,
+				BEHAVIORS.TRANSPORT_ENERGY
+			]
+		}
 
-    "constructor": {
+		"upgrader": {
 
-    }
+		},
 
-  }
+		"constructor": {
+
+		}
+
+	}
 
 }

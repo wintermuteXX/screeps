@@ -1,9 +1,9 @@
 var SpawnController = require("SpawnController");
+var CreepController = require("CreepController");
 
 var _config = {
-
 	'checkConstructions': 100
-
+	'checkPopulation' : 10
 };
 
 function RoomController(room, gameController) {
@@ -17,6 +17,13 @@ function RoomController(room, gameController) {
 		this._spawns.push(new SpawnController(spawn, this));
 	}
 
+}
+
+RoomController.prototype.commandCreeps = function() {
+	var cc = new CreepController(this);
+	for ( var creep of this.find(FIND_MY_CREEPS) ) {
+		cc.run(creep);
+	}
 }
 
 RoomController.prototype.find = function (type) {
@@ -34,9 +41,12 @@ RoomController.prototype.getLevel = function () {
 }
 
 RoomController.prototype.populate = function () {
+	if ( Game.time % _config.checkPopulation != 0 ) return;
+
 	var spawn = this.getIdleSpawn();
 	if (spawn == null) return;
 
+	// TODO: Check population, create Creeps
 
 }
 
