@@ -76,6 +76,39 @@ addBehavior("HARVETS_MINER",
 	}
 );
 
+addBehavior("FIND_ENERGY",
+	function (creep, rc) {
+		return (creep.energy == 0);
+	},
+	function (creep, rc) {
+		var droppedEnergy = rc.find(FIND_DROPPED_ENERGY);
+
+		
+
+
+	},
+	function (creep, rc) {
+		var target = Game.getObjectById(creep.target);
+		return ( target == null || creep.energy == creep.energyCapacity );
+	}
+);
+
+
+
+addBehavior("TRANSFER_ENERGY_SPAWN",
+	function (creep, rc) {
+		return false;
+	},
+	function (creep, rc) {
+
+	},
+	function (creep, rc) {
+		return true;
+	}
+);
+
+
+
 /** Template: addBehavior
 addBehavior("<name>",
 	function (creep, rc) {
@@ -92,30 +125,3 @@ addBehavior("<name>",
 
 
 module.exports = behavior;
-
-
-
-//
-// module.exports = {
-//
-//   "HARVEST" : new Behavior(
-//
-//   ),
-//
-//   // "HARVETS_MINER" : new Behavior(),
-//
-//   "TRANSPORT_ENERGY" : new Behavior(),
-//
-//   "STRUCTURES_BUILD" : new Behavior(),
-//
-//   "STURCUTRES_REPAIR" : new Behavior(),
-//
-//   "UPGRADE_CONTROLLE" : new Behavior(),
-//
-//   "FIND_ENERGY" : new Behavior(),
-//
-//   "GET_ENERGY" : new Behavior(),
-//
-//   "GET_ENERGY_SPAWN" : new Behavior(),
-//
-// };

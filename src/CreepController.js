@@ -1,11 +1,16 @@
 function CreepController(roomController) {
   this.roomController = roomController;
-  this.config = roomController.gameController.config;
+  this.config = roomController.config;
 }
 
-CreepController.prototype.run(creep) {
-  var config = this.config;
 
+/**
+ * CreepController.run(creep)
+ */
+CreepController.prototype.run(creep) {
+  if  ( creep.fatigue > 0 ) return;
+
+  var config = this.config;
   if ( config != null ) {
       var behavior = null;
 

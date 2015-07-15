@@ -7,7 +7,7 @@ var behaviors = [
 			return (creep.energy == 0);
 		},
 		work: function (creep, rc) {
-			// TODO Implement HARVEST
+			
 		},
 		completed: function (creep, rc) {
 			return (creep.energy == creep.energyCapacity);

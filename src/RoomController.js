@@ -12,7 +12,6 @@ function RoomController(room, gameController) {
 	for (var spawn of this.find(FIND_MY_SPAWNS)) {
 		this._spawns.push(new SpawnController(spawn, this));
 	}
-
 }
 
 
@@ -125,11 +124,11 @@ RoomController.prototype.getMaxEnergy = function () {
 /**
  * RoomController.getSources()
  */
-RoomController.prototype.getSources = function () {
-	return _.filter(this.find(FIND_SOURCES), function (s) {
-		// TODO: Check, if source is defended by Source Keeper
-		return true;
+RoomController.prototype.getSources = function(defended) {
+	var sources = _(this.find(FIND_SOURCES)).filter(functions(s){
+		return (defended || false ) == s.defended;
 	});
+	return sources;
 }
 
 

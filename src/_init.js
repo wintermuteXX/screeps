@@ -50,3 +50,24 @@ Creep.prototype.move = function(target) {
     this.moveTo(target, _moveOptions);
   }
 }
+
+/**
+ * Extend source
+ */
+Object.defineProperty(Source.prototype, "defended"), {
+  get : function() {
+    var RANGE = 5;
+
+    var targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, RANGE);
+    if (targets.length) {
+      return true;
+    }
+
+    targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
+    if (targets.length) {
+      return true;
+    }
+
+    return false;
+  }
+});
