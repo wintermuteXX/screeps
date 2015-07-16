@@ -22,11 +22,11 @@ GameController.prototype.processGlobal = function () {
 }
 
 GameController.prototype.garbageCollection = function () {
-  for ( var c in Memory.creeps ) {
-    if ( !Game.creeps[c] ) {
-      delete Memory.creeps[c];
-    }
-  }
+	for (var c in Memory.creeps) {
+		if (!Game.creeps[c]) {
+			delete Memory.creeps[c];
+		}
+	}
 }
 
 module.exports = GameController;

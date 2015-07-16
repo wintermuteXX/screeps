@@ -19,7 +19,7 @@ function RoomController(room, gameController) {
 /**
  * RoomController.run()
  */
-RoomController.prototype.run = function() {
+RoomController.prototype.run = function () {
 
 }
 
@@ -28,22 +28,22 @@ RoomController.prototype.run = function() {
  * RoomController.populate()
  */
 RoomController.prototype.populate = function () {
-	if ( Game.time % this.config.interval.checkPopulation != 0 ) return;
+	if (Game.time % this.config.interval.checkPopulation != 0) return;
 
-	var cfgCreeps = _(this.config.creeps).sort(function(cfg) {
+	var cfgCreeps = _(this.config.creeps).sort(function (cfg) {
 		return cfg.priority || 99;
 	});
 
 	var spawn = null;
-	for ( var role in cfgCreeps ) {
-		if ( spawn == null ) spawn = this.getIdleSpawn();
-		if ( spawn == null ) return;
+	for (var role in cfgCreeps) {
+		if (spawn == null) spawn = this.getIdleSpawn();
+		if (spawn == null) return;
 
 		var cfg = cfgCreeps[role];
 
-		if ( this._shouldCreateCreep(role, cfg) ) {
-			if ( !spawn.createCreep(role, cfg) ) {
-					return;
+		if (this._shouldCreateCreep(role, cfg)) {
+			if (!spawn.createCreep(role, cfg)) {
+				return;
 			}
 			spawn = null;
 		}
@@ -56,32 +56,32 @@ RoomController.prototype.populate = function () {
  * Check, if creep should be created
  */
 
-RoomController.prototype._shouldCreateCreep = function(role, cfg) {
-		var level = this.getLevel();
-		var lReq = cfg.levelRequired || 1;
+RoomController.prototype._shouldCreateCreep = function (role, cfg) {
+	var level = this.getLevel();
+	var lReq = cfg.levelRequired || 1;
 
-		if ( level < lReq ) {
-			return false;
-		}
+	if (level < lReq) {
+		return false;
+	}
 
-		if ( cfg.levelMax && level > cfg.levelMax )	 {
-			return false;
-		}
+	if (cfg.levelMax && level > cfg.levelMax) {
+		return false;
+	}
 
-		if ( !cfg.canBuild )	 {
-			console.log(role + " : no canBuild() implemented");
-			return false;
-		}
+	if (!cfg.canBuild) {
+		console.log(role + " : no canBuild() implemented");
+		return false;
+	}
 
-		return cfg.canBuild(this);
+	return cfg.canBuild(this);
 }
 
 /**
  * RoomController.commandCreeps()
  */
-RoomController.prototype.commandCreeps = function() {
+RoomController.prototype.commandCreeps = function () {
 	var cc = new CreepController(this);
-	for ( var creep of this.find(FIND_MY_CREEPS) ) {
+	for (var creep of this.find(FIND_MY_CREEPS)) {
 		cc.run(creep);
 	}
 }
@@ -101,17 +101,19 @@ RoomController.prototype.find = function (type) {
 /**
  * RoomController.getCreeps(role, target)
  */
-RoomController.prototype.getCreeps = function(role, target) {
+RoomController.prototype.getCreeps = function (role, target) {
 	var creeps = this.find(FIND_MY_CREEPS);
 
-	if ( role || target ) {
-		var filter = { 'memory' : {}};
+	if (role || target) {
+		var filter = {
+			'memory': {}
+		};
 
-		if ( role ) {
+		if (role) {
 			filter.memory.role = role;
 		}
 
-		if ( target ) {
+		if (target) {
 			filter.memory.target = target;
 		}
 
@@ -161,9 +163,9 @@ RoomController.prototype.getMaxEnergy = function () {
 /**
  * RoomController.getSources()
  */
-RoomController.prototype.getSources = function(defended) {
-	var sources = _(this.find(FIND_SOURCES)).filter(functions(s){
-		return (defended || false ) == s.defended;
+RoomController.prototype.getSources = function (defended) {
+	var sources = _(this.find(FIND_SOURCES)).filter(functions(s) {
+		return (defended || false) == s.defended;
 	});
 	return sources;
 }
@@ -175,24 +177,24 @@ RoomController.prototype.getSources = function(defended) {
 RoomController.prototyp.planConstructions = function () {
 	if (Game.time % this.config.interval.checkConstructions != 0) return;
 
-  if ( this.getLevel() >= 3 ) {
-    // NOTE: http://support.screeps.com/hc/en-us/articles/203079011-Room#findPath
+	if (this.getLevel() >= 3) {
+		// NOTE: http://support.screeps.com/hc/en-us/articles/203079011-Room#findPath
 
-    // check roads
-    for (var spawn of this.find(FIND_MY_SPAWNS)) {
-  		for (var source of this.getSources()) {
-  			var path = _findConstructionPath(this.room, spawn, source);
-  			if (path.length) {
-          for ( var pos of path ) {
-            // check, if pos is road
+		// check roads
+		for (var spawn of this.find(FIND_MY_SPAWNS)) {
+			for (var source of this.getSources()) {
+				var path = _findConstructionPath(this.room, spawn, source);
+				if (path.length) {
+					for (var pos of path) {
+						// check, if pos is road
 
 
 
-          }
-  			}
-  		}
-  	}
-  }
+					}
+				}
+			}
+		}
+	}
 
 }
 

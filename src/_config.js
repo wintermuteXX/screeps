@@ -4,8 +4,8 @@ module.exports = {
 
 	behaviors: BEHAVIORS,
 
-	intervals : {
-		'checkPopulation' : 10,
+	intervals: {
+		'checkPopulation': 10,
 		'checkConstructions': 100
 	},
 
@@ -43,7 +43,7 @@ module.exports = {
 				BEHAVIORS.STRUCTURES_BUILD,
 				BEHAVIORS.STURCUTRES_REPAIR
 			],
-			canBuild : function(roomController) {
+			canBuild: function (roomController) {
 				return (roomController.findCreeps("builder") < 3);
 			}
 		},
@@ -59,16 +59,16 @@ module.exports = {
 			behaviors = [
 				BEHAVIORS.HARVETS_MINER
 			],
-			canBuild : function(roomController) {
+			canBuild: function (roomController) {
 				var miners = roomController.getCreeps("miner");
 				var sources = roomController.getSources();
 
-				return ( miners.length < sources.length );
+				return (miners.length < sources.length);
 			}
 		},
 
 		"transporter": {
-			priority : 1,
+			priority: 1,
 			levelRequired: 3,
 			body: [
 				[MOVE, CARRY],
@@ -79,11 +79,11 @@ module.exports = {
 				BEHAVIORS.FIND_ENERGY,
 				BEHAVIORS.TRANSPORT_ENERGY
 			],
-			canBuild : function(roomController) {
+			canBuild: function (roomController) {
 				var miners = roomController.getCreeps('miner');
 				var transpoters = roomController.getCreep('transporter');
 
-				return ( transpoters.length < miners.length * 2 );
+				return (transpoters.length < miners.length * 2);
 			}
 		},
 

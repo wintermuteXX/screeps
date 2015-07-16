@@ -1,27 +1,27 @@
 function LinkController(rc) {
-  this.roomController = rc;
+	this.roomController = rc;
 }
 
 Object.defineProperty(LinkController.prototype, "senders", {
-  get : function() {
-    return [];
-  }
+	get: function () {
+		return [];
+	}
 });
 
 Object.defineProperty(LinkController.prototype, "receivers", {
-  get : function() {
-    return [];
-  }
+	get: function () {
+		return [];
+	}
 })
 
-LinkController.prototype.transferEnergy = function() {
-  var senders = this.senders;
-  var receivers = this.receivers;
+LinkController.prototype.transferEnergy = function () {
+	var senders = this.senders;
+	var receivers = this.receivers;
 
-  for ( var s in senders ) {
-      var sender = senders[s];
+	for (var s in senders) {
+		var sender = senders[s];
 
-  }
+	}
 }
 
 module.exports = LinkController;
