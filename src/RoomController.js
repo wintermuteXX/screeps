@@ -3,14 +3,18 @@ var CreepController = require("CreepController");
 var LinkController = require("LinkController");
 
 function RoomController(room, gameController) {
+	console.log("RoomController");
 	// this.gameController = gameController;
 
 	this.room = room;
 	this.config = gameController.config;
-	this._find = {};
 
+	this._find = {};
 	this._spawns = [];
-	for (var spawn of this.find(FIND_MY_SPAWNS)) {
+
+	var spawns = this.find(FIND_MY_SPAWNS);
+	for (var s in spawns) {
+		var spawn = spawns[s];
 		this._spawns.push(new SpawnController(spawn, this));
 	}
 }
@@ -20,24 +24,30 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
-
-}
+	console.log("run");
+};
 
 
 /**
  * RoomController.populate()
  */
 RoomController.prototype.populate = function () {
-	if (Game.time % this.config.interval.checkPopulation != 0) return;
+	console.log("populate");
+	// if (Game.time % this.config.intervals.checkPopulation !== 0) return;
 
-	var cfgCreeps = _(this.config.creeps).sort(function (cfg) {
+
+    var roles = this.config.creeps;
+
+    console.log(roles.miner);
+
+	var cfgCreeps = _.sortBy(roles, function (cfg) {
 		return cfg.priority || 99;
 	});
 
 	var spawn = null;
 	for (var role in cfgCreeps) {
-		if (spawn == null) spawn = this.getIdleSpawn();
-		if (spawn == null) return;
+		if (spawn === null) spawn = this.getIdleSpawn();
+		if (spawn === null) return;
 
 		var cfg = cfgCreeps[role];
 
@@ -48,7 +58,7 @@ RoomController.prototype.populate = function () {
 			spawn = null;
 		}
 	}
-}
+};
 
 /**
  * RoomController._shouldCreateCreep(role, cfg) : boolean
@@ -57,6 +67,8 @@ RoomController.prototype.populate = function () {
  */
 
 RoomController.prototype._shouldCreateCreep = function (role, cfg) {
+	console.log("_shouldCreateCreep('" + role + "')");
+
 	var level = this.getLevel();
 	var lReq = cfg.levelRequired || 1;
 
@@ -69,22 +81,24 @@ RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 	}
 
 	if (!cfg.canBuild) {
-		console.log(role + " : no canBuild() implemented");
+		console.log(cfg + " : no canBuild() implemented");
 		return false;
 	}
 
 	return cfg.canBuild(this);
-}
+};
 
 /**
  * RoomController.commandCreeps()
  */
 RoomController.prototype.commandCreeps = function () {
 	var cc = new CreepController(this);
-	for (var creep of this.find(FIND_MY_CREEPS)) {
-		cc.run(creep);
+	var creeps = this.find(FIND_MY_CREEPS);
+
+	for (var c in creeps) {
+		cc.run(creeps[c]);
 	}
-}
+};
 
 
 /**
@@ -95,7 +109,7 @@ RoomController.prototype.find = function (type) {
 		this._find[type] = this.room.find(type);
 	}
 	return this._find[type];
-}
+};
 
 
 /**
@@ -121,7 +135,7 @@ RoomController.prototype.getCreeps = function (role, target) {
 	}
 
 	return creep;
-}
+};
 
 
 /**
@@ -132,7 +146,7 @@ RoomController.prototype.getLevel = function () {
 		return this.room.controller.level;
 	}
 	return null;
-}
+};
 
 
 /**
@@ -140,13 +154,13 @@ RoomController.prototype.getLevel = function () {
  */
 RoomController.prototype.getIdleSpawn = function () {
 	for (var i in this._spawns) {
-		var sc = this._spawn[i];
+		var sc = this._spawns[i];
 		if (sc.idle()) {
 			return sc;
 		}
 	}
 	return null;
-}
+};
 
 
 /**
@@ -157,25 +171,27 @@ RoomController.prototype.getMaxEnergy = function () {
 		structureType: STRUCTURE_EXTENSION
 	}).length;
 	return 300 + (extensionCount * 50);
-}
+};
 
 
 /**
  * RoomController.getSources()
  */
 RoomController.prototype.getSources = function (defended) {
-	var sources = _(this.find(FIND_SOURCES)).filter(functions(s) {
+	var sources = _(this.find(FIND_SOURCES)).filter(function(s) {
 		return (defended || false) == s.defended;
 	});
 	return sources;
-}
+};
 
 
 /**
  * RoomController.planConstructions()
  */
-RoomController.prototyp.planConstructions = function () {
-	if (Game.time % this.config.interval.checkConstructions != 0) return;
+
+/**
+RoomController.prototype.planConstructions = function () {
+	if (Game.time % this.config.interval.checkConstructions !== 0) return;
 
 	if (this.getLevel() >= 3) {
 		// NOTE: http://support.screeps.com/hc/en-us/articles/203079011-Room#findPath
@@ -185,8 +201,9 @@ RoomController.prototyp.planConstructions = function () {
 			for (var source of this.getSources()) {
 				var path = _findConstructionPath(this.room, spawn, source);
 				if (path.length) {
-					for (var pos of path) {
+					for (var i in path) {
 						// check, if pos is road
+						var pos = path[i];
 
 
 
@@ -196,13 +213,13 @@ RoomController.prototyp.planConstructions = function () {
 		}
 	}
 
-}
+};
 
 function _findConstructionPath(room, from, to) {
 	return room.findPath(from, to, {
 		ignoreCreeps: true
 	});
 }
-
+*/
 
 module.exports = RoomController;

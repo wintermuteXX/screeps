@@ -12,7 +12,7 @@ Object.defineProperty(LinkController.prototype, "receivers", {
 	get: function () {
 		return [];
 	}
-})
+});
 
 LinkController.prototype.transferEnergy = function () {
 	var senders = this.senders;
@@ -22,6 +22,6 @@ LinkController.prototype.transferEnergy = function () {
 		var sender = senders[s];
 
 	}
-}
+};
 
 module.exports = LinkController;

@@ -13,7 +13,7 @@ module.exports = (function () {
 		if (used > this.minUsed) {
 			console.log("Debugger", this.name, "Used CPU: " + used);
 		}
-	}
+	};
 
 	return Debugger;
 }());

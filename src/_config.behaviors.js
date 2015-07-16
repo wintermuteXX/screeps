@@ -1,15 +1,15 @@
+var behaviors = {};
+
 function Behavior(name, when, work, completed) {
 	this.name = name;
 	this.when = when || function () {
 		return false;
-	}
+	};
 	this.work = work || function () {};
 	this.completed = completed || function () {
 		return true;
 	};
-};
-
-var behaviors = {};
+}
 
 function addBehavior(name, when, work, completed) {
 	behaviors[name] = new Behavior(name, when, work, completed);
@@ -24,12 +24,12 @@ addBehavior("HARVEST",
 
 		if (!creep.target) {
 			source = creep.pos.findClosest(rc.getSources());
-			if (closest != null) {
+			if (closest !== null) {
 				creep.target = closest.id;
 			}
 		}
 
-		if (source == null) {
+		if (source === null) {
 			source = Game.getObjectById(creep.target);
 		}
 
@@ -54,16 +54,16 @@ addBehavior("HARVETS_MINER",
 		var source = null;
 
 		if (!creep.target) {
-			var source = _(rc.getSources()).find(function (s) {
-				return (rc.getCreeps("miner", source.id).length = 0)
+			source = _(rc.getSources()).find(function (s) {
+				return (rc.getCreeps("miner", source.id).length === 0);
 			});
 		}
 
-		if (source == null) {
+		if (source === null) {
 			source = Game.getObjectById(creep.target);
 		}
 
-		if (source != ) {
+		if (source !== null) {
 			if (!creep.pos.isNearTo(source)) {
 				creep.move(source);
 			} else {
@@ -78,7 +78,7 @@ addBehavior("HARVETS_MINER",
 
 addBehavior("FIND_ENERGY",
 	function (creep, rc) {
-		return (creep.energy == 0);
+		return (creep.energy === 0);
 	},
 	function (creep, rc) {
 		var droppedEnergy = rc.find(FIND_DROPPED_ENERGY);
@@ -89,7 +89,7 @@ addBehavior("FIND_ENERGY",
 	},
 	function (creep, rc) {
 		var target = Game.getObjectById(creep.target);
-		return (target == null || creep.energy == creep.energyCapacity);
+		return (target === null || creep.energy === creep.energyCapacity);
 	}
 );
 
@@ -124,4 +124,4 @@ addBehavior("<name>",
  */
 
 
-module.exports = behavior;
+module.exports = behaviors;

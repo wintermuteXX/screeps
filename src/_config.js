@@ -1,4 +1,4 @@
-var BEHAVIORS = require("_config.behaviors");
+var BEHAVIORS = require('_config.behaviors');
 
 module.exports = {
 
@@ -10,10 +10,10 @@ module.exports = {
 	},
 
 	getBehavior: function (name) {
-		if (name && this.behaviors[name]) {
-			return this.behaviors[name];
-		}
-		return null;
+			if (name && this.behaviors[name]) {
+					return this.behaviors[name];
+			}
+			return null;
 	},
 
 	getCreepConfig: function (role) {
@@ -25,7 +25,7 @@ module.exports = {
 
 	getCreepBehaviors: function (role) {
 		var cfg = this.getCreepConfig(role);
-		return (cfg != null ? cfg.behaviors : []);
+		return (cfg !== null ? cfg.behaviors : []);
 	},
 
 	creeps: {
@@ -56,7 +56,7 @@ module.exports = {
 				[MOVE, WORK],
 				[MOVE, WORK, WORK],
 			],
-			behaviors = [
+			behaviors : [
 				BEHAVIORS.HARVETS_MINER
 			],
 			canBuild: function (roomController) {
@@ -97,4 +97,4 @@ module.exports = {
 
 	}
 
-}
+};

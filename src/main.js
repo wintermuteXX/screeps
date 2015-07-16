@@ -1,6 +1,13 @@
-require("_init");
-var GameController = require('GameController')();
+// hello, fsdfksajdfas
 
-var gc = new GameController();
-gc.processRooms();
-// gc.processGlobal();
+try {
+	require("_init");
+	var GameController = require('GameController');
+
+	var gc = new GameController();
+	gc.garbageCollection();
+	gc.processRooms();
+	// gc.processGlobal();
+} catch (e) {
+	console.log(e);
+}

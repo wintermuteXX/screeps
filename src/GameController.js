@@ -1,25 +1,27 @@
 var RoomController = require("RoomController");
 
-function GameController() {
+var GameController = function() {
 	this.garbageCollection();
 
 	this.config = require("_config");
 	this._rooms = {};
-	for (var room of Game.rooms) {
+	for (var r in Game.rooms) {
+		var room = Game.rooms[r];
 		this._rooms[room.name] = new RoomController(room, this);
 	}
-}
+};
 
 GameController.prototype.processRooms = function () {
-	for (var rc of this._rooms) {
+	for (var i in this._rooms) {
+		var rc = this._rooms[i];
 		rc.populate();
 		rc.commandCreeps();
 	}
-}
+};
 
 GameController.prototype.processGlobal = function () {
 	// TODO: implement global logic
-}
+};
 
 GameController.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
@@ -27,6 +29,6 @@ GameController.prototype.garbageCollection = function () {
 			delete Memory.creeps[c];
 		}
 	}
-}
+};
 
 module.exports = GameController;
