@@ -25,19 +25,47 @@ RoomController.prototype.populate = function () {
 		return cfg.priority || 99;
 	});
 
-	var spawn = this.getIdleSpawn();
-	if (spawn == null) return;
-
+	var spawn = null;
 	for ( var role in cfgCreeps ) {
+		if ( spawn == null ) spawn = this.getIdleSpawn();
+		if ( spawn == null ) return;
+
 		var cfg = cfgCreeps[role];
-		if ( cfg.canBuild && cfg.canBuild(this) ) {
-			if ( spawn.createCreep(role, cfg) ) {
-				spawn = this.getIdleSpawn();
+
+		if ( this._shouldCreateCreep(role, cfg) ) {
+			if ( !spawn.createCreep(role, cfg) ) {
+					return;
 			}
+			spawn = null;
 		}
 	}
 }
 
+/**
+ * RoomController._shouldCreateCreep(role, cfg) : boolean
+ *
+ * Check, if creep should be created
+ */
+
+RoomController.prototype._shouldCreateCreep = function(role, cfg) {
+		var level = this.getLevel();
+		var lReq = cfg.levelRequired || 1;
+				
+		if ( level < lReq ) {
+			return false;
+		}
+
+		if ( cfg.levelMax && level > cfg.levelMax )	 {
+			return false;
+		}
+
+		if ( !cfg.canBuild )	 {
+			console.log(role + " : no canBuild() implemented");
+			return false;
+		}
+
+		return cfg.canBuild(this);
+}
 
 /**
  * RoomController.commandCreeps()

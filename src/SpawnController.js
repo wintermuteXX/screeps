@@ -8,24 +8,26 @@ SpawnController.prototyp.idle = function() {
 }
 
 SpawnController.prototyp.create = function(role, creepConfig, memory) {
-    var roomLevel = this.roomController.getLevel();
-
-    if ( roomLevel < creepConfig.levelRequired ) return;
-    if ( creepConfig.levelMax && roomLevel > creepConfig.levelMax ) return;
-
     var bodyConfig = this.evalCreepBody(roomLevel, creepConfig.body);
+    var result = null;
+
     if ( body != null && body.length ) {
       // spawn creep
 
       if ( this.spawn.canCreateCreap(body, name) ) {
-
         // init creep memory
         var memory = memory || {};
         memory['role'] = role
 
-        var result = this.spawn.createCreep(body, name, memory);
+        result = this.spawn.createCreep(body, name, memory);
       }
     }
+
+    if ( result != null ) {
+
+    }
+
+    return false;
 }
 
 SpawnController.prototype.evalCreepBody = function(level, body) {
