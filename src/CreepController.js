@@ -8,7 +8,7 @@ function CreepController(roomController) {
  * CreepController.run(creep)
  */
 CreepController.prototype.run(creep) {
-  if  ( creep.fatigue > 0 ) return;
+  // if  ( creep.fatigue > 0 ) return;
 
   var config = this.config;
   if ( config != null ) {

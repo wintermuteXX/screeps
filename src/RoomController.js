@@ -1,5 +1,6 @@
 var SpawnController = require("SpawnController");
 var CreepController = require("CreepController");
+var LinkController = require("LinkController");
 
 function RoomController(room, gameController) {
 	// this.gameController = gameController;
@@ -12,6 +13,14 @@ function RoomController(room, gameController) {
 	for (var spawn of this.find(FIND_MY_SPAWNS)) {
 		this._spawns.push(new SpawnController(spawn, this));
 	}
+}
+
+
+/**
+ * RoomController.run()
+ */
+RoomController.prototype.run = function() {
+
 }
 
 
@@ -50,7 +59,7 @@ RoomController.prototype.populate = function () {
 RoomController.prototype._shouldCreateCreep = function(role, cfg) {
 		var level = this.getLevel();
 		var lReq = cfg.levelRequired || 1;
-				
+
 		if ( level < lReq ) {
 			return false;
 		}

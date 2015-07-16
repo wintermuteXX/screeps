@@ -63,7 +63,7 @@ module.exports = {
 				var miners = roomController.getCreeps("miner");
 				var sources = roomController.getSources();
 
-				return ( sources.length != miners.length);
+				return ( miners.length < sources.length );
 			}
 		},
 
@@ -83,7 +83,7 @@ module.exports = {
 				var miners = roomController.getCreeps('miner');
 				var transpoters = roomController.getCreep('transporter');
 
-				return ( miners.length * 2 != transpoters.length );
+				return ( transpoters.length < miners.length * 2 );
 			}
 		},
 

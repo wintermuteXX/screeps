@@ -41,7 +41,6 @@ Object.defineProperty(Creep.prototype, "target", {
   }
 })
 
-
 var _moveOptions = {
   // TODO: insert move options
 };
@@ -49,6 +48,10 @@ Creep.prototype.move = function(target) {
   if ( this.fatigue == 0 ) {
     this.moveTo(target, _moveOptions);
   }
+}
+
+Creep.prototype.getTarget = function() {
+  return Game.getObjectById(this.target);
 }
 
 /**
