@@ -1,25 +1,25 @@
 function SpawnController (spawn, roomController) {
-  this.spawn = spawn
-  this.roomController = roomController
+  this.spawn = spawn;
+  this.roomController = roomController;
 }
 
 SpawnController.prototype.idle = function () {
 	return (this.spawn.spawning === null);
 };
 
-SpawnController.prototype.create = function (role, creepConfig, memory) {
-	var bodyConfig = this.evalCreepBody(roomLevel, creepConfig.body);
+SpawnController.prototype.createCreep = function (role, creepConfig, memory) {
+	var bodyConfig = this.evalCreepBody(this.roomController.getLevel(), creepConfig.body);
 	var result = null;
 
-	if (body !== null && body.length) {
-		// spawn creep
-
-		if (this.spawn.canCreateCreap(body, name)) {
-			// init creep memory
+	if (bodyConfig !== null && bodyConfig.length) {
+    var name = role + "_" + Math.round(Math.random() * 999);
+		if (this.spawn.canCreateCreep(bodyConfig, name) == OK) {
+	    // init creep memory
 			memory = memory || {};
 			memory.role = role;
 
-			result = this.spawn.createCreep(body, name, memory);
+			result = this.spawn.createCreep(bodyConfig, name, memory);
+      console.log("spawn creep", role, "" + result);
 		}
 	}
 

@@ -26,8 +26,10 @@ CreepController.prototype.run = function(creep) {
 
 		if (behavior === null) {
 			// no behavior assigned, find new
-			for (var i in config[creep.role].behaviors) {
-				b = config[creep.role].behaviors[i];
+			var behaviors = config.getCreepBehaviors(creep.role);
+
+			for (var i in behaviors) {
+				b = behaviors[i];
 				if (b.when(creep, this.roomController)) {
 					behavior = b;
 					break;

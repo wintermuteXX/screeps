@@ -54,8 +54,8 @@ addBehavior("HARVETS_MINER",
 		var source = null;
 
 		if (!creep.target) {
-			source = _(rc.getSources()).find(function (s) {
-				return (rc.getCreeps("miner", source.id).length === 0);
+			source = _.find(rc.getSources(), function (s) {
+				return (rc.getCreeps("miner", s.id).length === 0);
 			});
 		}
 
@@ -65,7 +65,7 @@ addBehavior("HARVETS_MINER",
 
 		if (source !== null) {
 			if (!creep.pos.isNearTo(source)) {
-				creep.move(source);
+				console.log(creep, creep.moveTo(source));
 			} else {
 				creep.harvest(source);
 			}

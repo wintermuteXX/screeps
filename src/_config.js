@@ -9,6 +9,13 @@ module.exports = {
 		'checkConstructions': 100
 	},
 
+	getCreepRoles : function() {
+		var creepsConfig = this.creeps;
+		return _.sortBy(Object.keys(creepsConfig), function(r) {
+			return creepsConfig[r].priority || 999;
+		});
+	},
+
 	getBehavior: function (name) {
 			if (name && this.behaviors[name]) {
 					return this.behaviors[name];
@@ -44,13 +51,14 @@ module.exports = {
 				BEHAVIORS.STURCUTRES_REPAIR
 			],
 			canBuild: function (roomController) {
-				return (roomController.findCreeps("builder") < 3);
+				// return (roomController.getCreeps("builder") < 3);
+				return false;
 			}
 		},
 
 		"miner": {
 			priority: 2,
-			levelRequired: 3,
+			levelRequired: 1,
 			body: [
 				[MOVE, WORK],
 				[MOVE, WORK],
@@ -69,7 +77,7 @@ module.exports = {
 
 		"transporter": {
 			priority: 1,
-			levelRequired: 3,
+			levelRequired: 1,
 			body: [
 				[MOVE, CARRY],
 				[MOVE, MOVE, CARRY, CARRY],
@@ -81,7 +89,7 @@ module.exports = {
 			],
 			canBuild: function (roomController) {
 				var miners = roomController.getCreeps('miner');
-				var transpoters = roomController.getCreep('transporter');
+				var transpoters = roomController.getCreeps('transporter');
 
 				return (transpoters.length < miners.length * 2);
 			}

@@ -1,8 +1,6 @@
-// hello, fsdfksajdfas
-
 try {
-	require("_init");
-	var GameController = require('GameController');
+ 	require("_init");
+ 	var GameController = require('GameController');
 
 	var gc = new GameController();
 	gc.garbageCollection();

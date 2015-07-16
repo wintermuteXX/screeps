@@ -3,9 +3,6 @@ var CreepController = require("CreepController");
 var LinkController = require("LinkController");
 
 function RoomController(room, gameController) {
-	console.log("RoomController");
-	// this.gameController = gameController;
-
 	this.room = room;
 	this.config = gameController.config;
 
@@ -24,7 +21,7 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
-	console.log("run");
+
 };
 
 
@@ -32,32 +29,27 @@ RoomController.prototype.run = function () {
  * RoomController.populate()
  */
 RoomController.prototype.populate = function () {
-	console.log("populate");
 	// if (Game.time % this.config.intervals.checkPopulation !== 0) return;
+		var spawn = null;
 
 
-    var roles = this.config.creeps;
+    var roles = this.config.getCreepRoles();
+		var cfgCreeps = this.config.creeps;
 
-    console.log(roles.miner);
+		for ( var i in roles ) {
+			var role = roles[i];
 
-	var cfgCreeps = _.sortBy(roles, function (cfg) {
-		return cfg.priority || 99;
-	});
+			if (spawn === null) spawn = this.getIdleSpawn();
+			if (spawn === null) return;
 
-	var spawn = null;
-	for (var role in cfgCreeps) {
-		if (spawn === null) spawn = this.getIdleSpawn();
-		if (spawn === null) return;
-
-		var cfg = cfgCreeps[role];
-
-		if (this._shouldCreateCreep(role, cfg)) {
-			if (!spawn.createCreep(role, cfg)) {
-				return;
+			var cfg = cfgCreeps[role];
+			if (this._shouldCreateCreep(role, cfg)) {
+				if (!spawn.createCreep(role, cfg)) {
+					return;
+				}
+				spawn = null;
 			}
-			spawn = null;
 		}
-	}
 };
 
 /**
@@ -67,8 +59,6 @@ RoomController.prototype.populate = function () {
  */
 
 RoomController.prototype._shouldCreateCreep = function (role, cfg) {
-	console.log("_shouldCreateCreep('" + role + "')");
-
 	var level = this.getLevel();
 	var lReq = cfg.levelRequired || 1;
 
@@ -81,7 +71,7 @@ RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 	}
 
 	if (!cfg.canBuild) {
-		console.log(cfg + " : no canBuild() implemented");
+		console.log(role + " : no canBuild() implemented");
 		return false;
 	}
 
@@ -131,10 +121,10 @@ RoomController.prototype.getCreeps = function (role, target) {
 			filter.memory.target = target;
 		}
 
-		creeps = _(creeps).filter(filter);
+		creeps = _.filter(creeps, filter);
 	}
 
-	return creep;
+	return creeps;
 };
 
 
@@ -178,7 +168,7 @@ RoomController.prototype.getMaxEnergy = function () {
  * RoomController.getSources()
  */
 RoomController.prototype.getSources = function (defended) {
-	var sources = _(this.find(FIND_SOURCES)).filter(function(s) {
+	var sources = _.filter(this.find(FIND_SOURCES), function(s) {
 		return (defended || false) == s.defended;
 	});
 	return sources;
