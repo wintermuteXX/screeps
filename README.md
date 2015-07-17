@@ -8,11 +8,9 @@ Development Version
 - Alternating bodies per level and max available energy
 
 ## Todo List
-===
 ...
 
 ## Configuration
-===
 
 ### config.creeps.js
 ```
