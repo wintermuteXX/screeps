@@ -1,4 +1,4 @@
-var Behavior = require("behavior.base");
+var Behavior = require("_behavior");
 
 var b = new Behavior("transfer_energy_spawn");
 
@@ -18,7 +18,7 @@ b.completed = function(creep, rc) {
 
 b.work = function(creep, rc) {
   var spawn = Game.getObjectById(creep.target);
-    
+
   if ( spawn === null ) {
     var spawns = rc.find(FIND_MY_SPAWNS);
     if ( spawns.length ) {

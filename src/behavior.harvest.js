@@ -1,4 +1,4 @@
-var Behavior = require("behavior.base");
+var Behavior = require("_behavior");
 
 var b = new Behavior("harvest");
 

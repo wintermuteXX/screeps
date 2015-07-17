@@ -1,4 +1,4 @@
-var Behavior = require("behavior.base");
+var Behavior = require("_behavior");
 
 var b = new Behavior("miner_harvest");
 
@@ -12,7 +12,7 @@ b.completed = function() {
 
 b.work = function(creep, rc) {
   var source = null;
-  
+
   if (!creep.target) {
     source = _.find(rc.getSources(), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);
