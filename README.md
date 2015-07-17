@@ -1,10 +1,22 @@
 # Screeps_DEV
 Development Version
+===
 
-## Configuration
+# Features
+===
+- Modular Creep Configuration and Behaviors
+- Handling mutliple Spawns
+- Priority list for spawning Creeps
+- Alternating bodies per level and max available energy
 
-### config.creeps.js
+# Todo List
+===
+...
 
+# Configuration
+===
+
+## config.creeps.js
 ```
 module.exports = {
   ...
@@ -30,13 +42,23 @@ module.exports = {
 }
 ```
 
-### behavior.<behavior name>.js
+### behavior.[behavior name].js
+```
+var Behavior = require("behavior.base");
 
+var b = new Behavior("name");
 
+b.when = function(creep, rc) {
+  return true;
+};
 
+b.completed = function(creep, rc) {
+  return false;
+};
 
-## Features
-- Modular Creep Configuration and Behaviors
+b.work = function(creep, rc) {
 
-## Todo List
-...
+};
+
+module.exports = b;
+```
