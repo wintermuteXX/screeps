@@ -5,7 +5,8 @@ Development Version
 
 ### config.creeps.js
 
-'{
+```
+module.exports = {
   ...
 
   <role> : {
@@ -26,8 +27,8 @@ Development Version
   },
 
   ...
-}'
-
+}
+```
 
 ### behavior.<behavior name>.js
 
