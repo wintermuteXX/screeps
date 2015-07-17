@@ -59,15 +59,11 @@ RoomController.prototype.populate = function () {
 
 RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
-	var lReq = cfg.levelRequired || 1;
+	var lReq = cfg.levelMin || 1;
+	var lMax = cfg.levelMax || 10;
 
-	if (level < lReq) {
-		return false;
-	}
-
-	if (cfg.levelMax && level > cfg.levelMax) {
-		return false;
-	}
+	if (level < lReq) return false;
+	if (lMax < level) return false;
 
 	if (!cfg.canBuild) {
 		console.log(role + " : no canBuild() implemented");
@@ -128,13 +124,25 @@ RoomController.prototype.getCreeps = function (role, target) {
 
 
 /**
+ * RoomController.getController()
+ */
+RoomController.prototype.getController = function() {
+	if (this.room.controller) {
+		return this.room.controller;
+	}
+	return null;
+};
+
+
+/**
  * RoomController.getLevel()
  */
 RoomController.prototype.getLevel = function () {
-	if (this.room.controller && this.room.controller.my) {
-		return this.room.controller.level;
+	var controller = this.getController();
+	if ( controller !== null && controller.my ) {
+		return controller.level;
 	}
-	return null;
+	return 0;
 };
 
 

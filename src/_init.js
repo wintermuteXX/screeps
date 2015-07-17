@@ -43,6 +43,10 @@ Object.defineProperty(Creep.prototype, "target", {
 	}
 });
 
+Creep.prototype.getTarget = function() {
+	return Game.getObjectById(this.target);
+};
+
 Creep.prototype.moveToEx = function (target) {
 	if (this.fatigue === 0) {
 		this.moveTo(target, {

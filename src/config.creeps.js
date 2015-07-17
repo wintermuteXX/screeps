@@ -1,45 +1,61 @@
 module.exports = {
 
-	"miner": {
-		priority : 2,
-    levelMin : 1,
+	"builder": {
+		priority: 1,
+		levelMax: 2,
 
-    canBuild : function(rc) {
+		canBuild: function (rc) {
+			return rc.getCreeps("builder").length < 3;
+		},
+
+		body: [
+			[MOVE, WORK, CARRY],
+			[MOVE, WORK, CARRY, CARRY, MOVE]
+		],
+
+		behaviors: ["harvest", "transfer_energy_spawn", "build_structures", "upgrade_controller"]
+
+	},
+
+
+	"miner": {
+		priority: 2,
+		levelMin: 3,
+
+		canBuild: function (rc) {
 			var miners = rc.getCreeps("miner");
 			var sources = rc.getSources();
 
 			return (miners.length < sources.length);
-    },
+		},
 
-    body : [
-      [MOVE, WORK],
-      [MOVE, WORK],
-      [MOVE, WORK, WORK]
-    ],
-    behaviors : [
+		body: [
+			null,
+			null, [MOVE, WORK, WORK, WORK]
+		],
+		behaviors: [
 			"miner_harvest"
 		]
-  },
+	},
 
 	"transporter": {
-		priority : 1,
-    levelMin : 1,
+		priority: 1,
+		levelMin: 3,
 
-		canBuild : function(rc) {
+		canBuild: function (rc) {
 			var miners = rc.getCreeps('miner');
 			var transpoters = rc.getCreeps('transporter');
 
 			return (transpoters.length < miners.length * 2);
 		},
 
-    body : [
-			[MOVE, CARRY],
-			[MOVE, CARRY],
-			[MOVE, MOVE, CARRY, CARRY]
+		body: [
+			null,
+			null, [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY]
 		],
 
-		behaviors : [ "find_energy", "transfer_energy_spawn" ]
+		behaviors: ["find_energy", "transfer_energy_spawn"]
 
-  }
+	}
 
 };
