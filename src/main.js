@@ -1,5 +1,6 @@
+require("_init");
+
 try {
- 	require("_init");
  	var GameController = require('GameController');
 
 	var gc = new GameController();

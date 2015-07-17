@@ -2,8 +2,7 @@ var RoomController = require("RoomController");
 
 var GameController = function() {
 	this.garbageCollection();
-
-	this.config = require("_config");
+	
 	this._rooms = {};
 	for (var r in Game.rooms) {
 		var room = Game.rooms[r];

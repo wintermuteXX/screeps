@@ -1,0 +1,40 @@
+var Behavior = require("behavior.base");
+
+var b = new Behavior("transfer_energy_spawn");
+
+b.when = function(creep, rc) {
+  return (creep.energy > 0);
+};
+
+b.completed = function(creep, rc) {
+  var spawn = Game.getObjectById(creep.target);
+
+  if ( creep.energy === 0 ) return true;
+  if ( spawn && spawn.energy === spawn.energyCapacity ) return true;
+  if ( !spawn ) return true;
+
+  return false;
+};
+
+b.work = function(creep, rc) {
+  var spawn = Game.getObjectById(creep.target);
+    
+  if ( spawn === null ) {
+    var spawns = rc.find(FIND_MY_SPAWNS);
+    if ( spawns.length ) {
+      spawn = spawns[0];
+      creep.target = spawn.id;
+    }
+  }
+
+  if ( spawn ) {
+    if ( !creep.pos.isNearTo(spawn) ) {
+      creep.moveToEx(spawn);
+    } else {
+      creep.transferEnergy(spawn);
+    }
+  }
+
+};
+
+module.exports = b;

@@ -35,7 +35,7 @@ addBehavior("HARVEST",
 
 		if (source) {
 			if (!creep.isNearTo(source)) {
-				creep.move(source);
+				creep.moveToEx(source);
 			} else {
 				creep.harvest(source);
 			}
@@ -81,10 +81,20 @@ addBehavior("FIND_ENERGY",
 		return (creep.energy === 0);
 	},
 	function (creep, rc) {
-		var droppedEnergy = rc.find(FIND_DROPPED_ENERGY);
+		var target = Game.getObjectById(creep.target);
 
+		if ( target === null ) {
+			var droppedEnergy = rc.find(FIND_DROPPED_ENERGY);
+			if ( droppedEnergy.length ) {
+				target = droppedEnergy[0];
+				creep.target = target.id;
+			}
+		}
 
-
+		if ( target !== null ) {
+			creep.moveToEx(target);
+			creep.pickup(target);
+		}
 
 	},
 	function (creep, rc) {

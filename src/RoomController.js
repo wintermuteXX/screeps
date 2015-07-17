@@ -4,7 +4,6 @@ var LinkController = require("LinkController");
 
 function RoomController(room, gameController) {
 	this.room = room;
-	this.config = gameController.config;
 
 	this._find = {};
 	this._spawns = [];
@@ -29,12 +28,12 @@ RoomController.prototype.run = function () {
  * RoomController.populate()
  */
 RoomController.prototype.populate = function () {
-	// if (Game.time % this.config.intervals.checkPopulation !== 0) return;
+		// if (Game.time % global.getInterval('checkPopulation') !== 0) return;
+
 		var spawn = null;
 
-
-    var roles = this.config.getCreepRoles();
-		var cfgCreeps = this.config.creeps;
+    var roles = global.getCreepRoles();
+		var cfgCreeps = global.getCreepsConfig();
 
 		for ( var i in roles ) {
 			var role = roles[i];

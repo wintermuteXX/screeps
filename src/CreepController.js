@@ -1,47 +1,51 @@
 function CreepController(roomController) {
 	this.roomController = roomController;
-	this.config = roomController.config;
 }
 
  /**
  * CreepController.run(creep)
  */
 CreepController.prototype.run = function(creep) {
-	// if  ( creep.fatigue > 0 ) return;
+	var config = global.getCreepConfig(creep.role);
 
-	var config = this.config;
+	console.log(" --- " + creep + " --- ");
+
 	if (config !== null) {
-		var behavior = null;
-		var b = null;
+		var behavior = global.getBehavior(creep.behavior);
 
-		if (creep.behavior !== null) {
-			// creep has current behavior, check if completed
-			b = config.behaviors[behavior];
-			if (!b.completed(creep, this.roomController)) {
-				behavior = b;
-			} else {
+		if ( behavior === null || behavior.completed(creep, this.roomController) ) {
+				behavior = this.findBehavior(config, creep);
 				creep.target = null;
-			}
 		}
 
-		if (behavior === null) {
-			// no behavior assigned, find new
-			var behaviors = config.getCreepBehaviors(creep.role);
+		if ( behavior !== null ) {
+			console.log(creep, "run behavior", behavior.name);
 
-			for (var i in behaviors) {
-				b = behaviors[i];
-				if (b.when(creep, this.roomController)) {
-					behavior = b;
-					break;
-				}
-			}
-		}
-
-		if (behavior !== null) {
-			// send creep to work
+			creep.behavior = behavior.name;
 			behavior.work(creep, this.roomController);
+		} else {
+			creep.behavior = null;
 		}
 	}
 };
+
+
+/**
+ * CreepController.findBehavior;
+ */
+CreepController.prototype.findBehavior = function(config, creep) {
+	var behaviors = config.behaviors;
+
+	for ( var i = 0; i < behaviors.length; i++ ) {
+		var b = global.getBehavior(behaviors[i]);
+
+		if ( b !== null && b.when(creep, this.roomController) )  {
+			return b;
+		}
+	}
+
+	return null;
+};
+
 
 module.exports = CreepController;

@@ -1,3 +1,5 @@
+require("_initGlobal")(global);
+
 /**
  * Extend Creep
  */
@@ -41,13 +43,12 @@ Object.defineProperty(Creep.prototype, "target", {
 	}
 });
 
-var _moveOptions = {
-	'maxOps': 1000,
-	'heuristicWeight': 5
-};
-Creep.prototype.move = function (target) {
+Creep.prototype.moveToEx = function (target) {
 	if (this.fatigue === 0) {
-		this.moveTo(target, _moveOptions);
+		this.moveTo(target, {
+			'maxOps': 1000,
+			'heuristicWeight': 5
+		});
 	}
 };
 
