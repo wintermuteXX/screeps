@@ -1,22 +1,20 @@
 # Screeps_DEV
 Development Version
-===
 
-# Features
-===
+## Features
 - Modular Creep Configuration and Behaviors
 - Handling mutliple Spawns
 - Priority list for spawning Creeps
 - Alternating bodies per level and max available energy
 
-# Todo List
+## Todo List
 ===
 ...
 
-# Configuration
+## Configuration
 ===
 
-## config.creeps.js
+### config.creeps.js
 ```
 module.exports = {
   ...
