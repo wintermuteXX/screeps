@@ -3,7 +3,13 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_spawn");
 
 b.when = function(creep, rc) {
-  return (creep.energy > 0);
+  if ( creep.energy === 0 ) return false;
+
+  var spawn = _.find(rc.find(FIND_MY_SPAWNS), function(s){
+    return (s.energy < s.energyCapacity);
+  });
+  
+  return !!spawn;
 };
 
 b.completed = function(creep, rc) {

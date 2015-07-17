@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("name");
+var b = new Behavior("upgrade_controller");
 
 b.when = function(creep, rc) {
   return (rc.getController() !== null && creep.energy > 0);
