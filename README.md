@@ -2,13 +2,10 @@
 Development Version
 
 ## Configuration
- - _initGlobal.js
- - config.creeps.js
- - behavior.<behavior>.js
 
 ### config.creeps.js
 
-{
+'{
   ...
 
   <role> : {
@@ -29,7 +26,7 @@ Development Version
   },
 
   ...
-}
+}'
 
 
 ### behavior.<behavior name>.js
