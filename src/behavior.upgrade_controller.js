@@ -21,7 +21,6 @@ b.work = function(creep, rc) {
     }
   }
 
-
 };
 
 module.exports = b;
