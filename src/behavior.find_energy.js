@@ -12,7 +12,7 @@ b.completed = function(creep, rc) {
 };
 
 b.work = function(creep, rc) {
-  var target = Game.getObjectById(creep.target);
+  var target = creep.getTarget();
 
   if ( target === null ) {
     var droppedEnergy = rc.find(FIND_DROPPED_ENERGY);
