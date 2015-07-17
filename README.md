@@ -2,10 +2,10 @@
 Development Version
 
 ## Features
-- Modular Creep Configuration and Behaviors
-- Handling mutliple Spawns
-- Priority list for spawning Creeps
-- Alternating bodies per level and max available energy
+- modular Creep configuration and behaviors
+- handling of mutliple spawns
+- priority list for spawning Creeps
+- alternating bodies per level and max available energy
 
 ## Todo List
 ...
