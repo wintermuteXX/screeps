@@ -9,6 +9,7 @@ function initGlobal(g) {
     'checkPopulation': 10,
 		'checkConstructions': 100
   };
+  
   g.getInterval = function(key){
     if ( key && this._intervals[key] ) {
       return this._intervals[key];
@@ -22,6 +23,7 @@ function initGlobal(g) {
    */
 
   g._behaviors = {};
+
   g.getBehavior = function(key){
     return this._registerBehavior(key);
   };

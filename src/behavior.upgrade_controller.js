@@ -13,8 +13,8 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   var controller = rc.getController();
 
-  if ( controller !== null ) {
-    if ( !creep.pos.isNearTo(controller) ) {
+  if (controller !== null) {
+    if (!creep.pos.isNearTo(controller)) {
       creep.moveToEx(controller);
     } else {
       creep.upgradeController(controller);

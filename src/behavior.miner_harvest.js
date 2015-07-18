@@ -11,10 +11,10 @@ b.completed = function() {
 };
 
 b.work = function(creep, rc) {
-  var source = null;
+  var source = creep.getTarget();
 
   if (!creep.target) {
-    source = _.find(rc.getSources(), function (s) {
+    source = _.find(rc.getSources(), function(s) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }
@@ -24,6 +24,7 @@ b.work = function(creep, rc) {
   }
 
   if (source !== null) {
+    creep.target = source.id;
     if (!creep.pos.isNearTo(source)) {
       console.log(creep, creep.moveTo(source));
     } else {
