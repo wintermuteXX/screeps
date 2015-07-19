@@ -19,7 +19,7 @@ b.completed = function(creep, rc) {
 
   if ( creep.energy === 0 ) return true;
   if ( link && link.energy === link.energyCapacity ) return true;
-  
+
   return false;
 };
 
@@ -27,7 +27,7 @@ b.work = function(creep, rc) {
   var link = creep.getTarget();
 
   if ( link === null ) {
-    var links = findExtension(rc);
+    var links = findLinks(rc);
     if ( links.length ) {
       link = creep.pos.findClosestByRange(links);
       creep.target = link.id;
