@@ -15,11 +15,11 @@ b.when = function(creep, rc) {
 };
 
 b.completed = function(creep, rc) {
-  var ext = creep.getTarget();
+  var link = creep.getTarget();
 
   if ( creep.energy === 0 ) return true;
-  if ( !links.length ) return true;
-
+  if ( link && link.energy === link.energyCapacity ) return true;
+  
   return false;
 };
 
