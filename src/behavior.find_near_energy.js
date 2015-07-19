@@ -8,7 +8,8 @@ function findEnergy(creep, rc) {
 }
 
 function findNearLink(creep, rc) {
-  var links = rc.links.receiver;
+  var links = rc.links.receivers;
+
   return creep.pos.findInRange(links, 2);
 }
 
@@ -25,7 +26,7 @@ b.completed = function(creep, rc) {
   var target = creep.getTarget();
 
   if (creep.energy > 0 || !target) return true;
-  if ( target && target.structureType ) {
+  if (target && target.structureType) {
     return target.energy === 0;
   }
 
@@ -33,26 +34,30 @@ b.completed = function(creep, rc) {
 };
 b.work = function(creep, rc) {
   var energy = creep.getTarget();
-  if ( !energy ) {
+
+  if (!energy) {
     var dropped = findEnergy(creep, rc);
-    if ( dropped.length ) {
+    if (dropped.length) {
       energy = dropped[0];
       creep.target = energy.id;
     }
   }
 
-  if ( !energy ) {
+  if (!energy) {
     energy = findNearLink(creep, rc);
-    if ( energy ) {
+    if (energy.length) {
+      energy = energy[0];
       creep.target = energy.id;
+    } else {
+      energy = null;
     }
   }
 
-  if ( energy )  {
-    if ( !creep.pos.isNearTo(energy) ){
+  if (energy) {
+    if (!creep.pos.isNearTo(energy)) {
       creep.moveToEx(energy);
     } else {
-      if ( energy.structureType ) {
+      if (energy.structureType) {
         energy.transferEnergy(creep);
       } else {
         creep.pickup(energy);
