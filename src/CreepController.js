@@ -8,7 +8,6 @@ function CreepController(roomController) {
  * CreepController.run(creep)
  */
 CreepController.prototype.run = function(creep) {
-  var debug = new Debugger(creep + ": run behavior");
 
   var config = global.getCreepConfig(creep.role);
   if (config !== null) {
@@ -23,12 +22,13 @@ CreepController.prototype.run = function(creep) {
       if (creep.behavior !== behavior.name) {
         creep.behavior = behavior.name;
       }
+      var debug = new Debugger("CreepController.run: " + creep + ", behavior: " + behavior.name);
       behavior.work(creep, this.roomController);
+      debug.end();
     } else {
       creep.behavior = null;
     }
   }
-  debug.end();
 };
 
 
