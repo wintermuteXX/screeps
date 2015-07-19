@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("transfer_energy_link");
+var b = new Behavior("transfer_energy_links");
 
 function findLinks(rc) {
   return _.filter(rc.links.senders, function(s){
