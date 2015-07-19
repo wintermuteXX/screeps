@@ -2,13 +2,18 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("transfer_energy_extensions");
 
+var _cache = {};
+
 function findExtension(rc) {
-  return _.find(rc.find(FIND_MY_STRUCTURES), function(s){
-    if (s.structureType === STRUCTURE_EXTENSION) {
-          return s.energy < s.energyCapacity;
-    }
-    return false;
-  });
+  if ( !_cache[rc.room.name] ) {
+    !_cache[rc.room.name] = _.find(rc.find(FIND_MY_STRUCTURES), function(s){
+      if (s.structureType === STRUCTURE_EXTENSION) {
+            return s.energy < s.energyCapacity;
+      }
+      return false;
+    });
+  }
+  return !_cache[rc.room.name];
 }
 
 b.when = function(creep, rc) {
