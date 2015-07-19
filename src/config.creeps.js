@@ -16,7 +16,7 @@ module.exports = {
       [MOVE, WORK, CARRY, CARRY, MOVE, MOVE]
     ],
 
-    behaviors: ["harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
+    behaviors: ["find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
 
   },
 
