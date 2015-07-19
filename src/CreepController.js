@@ -1,3 +1,5 @@
+var Debugger = require("_debugger");
+
 function CreepController(roomController) {
   this.roomController = roomController;
 }
@@ -6,6 +8,8 @@ function CreepController(roomController) {
  * CreepController.run(creep)
  */
 CreepController.prototype.run = function(creep) {
+  var debug = new Debugger(creep + ": run behavior");
+
   var config = global.getCreepConfig(creep.role);
   if (config !== null) {
     var behavior = global.getBehavior(creep.behavior);
@@ -24,6 +28,7 @@ CreepController.prototype.run = function(creep) {
       creep.behavior = null;
     }
   }
+  debug.end();
 };
 
 
