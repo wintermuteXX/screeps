@@ -1,8 +1,18 @@
 var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_upgrader");
 
+var _cache = {};
+
+function getUpgraders(rc) {
+  if ( !_cache[rc.room.name] ) {
+    _cache[rc.room.name] = rc.getCreeps('upgrader')
+  }
+  return _cache[rc.room.name];
+}
+
+
 b.when = function(creep, rc) {
-  return (creep.energy > 0 && rc.getCreeps('upgrader').length);
+  return (creep.energy > 0 && getUpgraders(rc).length);
 };
 b.completed = function(creep, rc) {
   return (creep.energy === 0);
