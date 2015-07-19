@@ -14,7 +14,7 @@ function RoomController(room, gameController) {
 		this._spawns.push(new SpawnController(spawn, this));
 	}
 
-	this.links = new LinkController(this);	
+	this.links = new LinkController(this);
 }
 
 
@@ -23,6 +23,8 @@ function RoomController(room, gameController) {
  */
 RoomController.prototype.run = function () {
 	this.populate();
+	this.links.transferEnergy();
+
 	this.commandCreeps();
 };
 
