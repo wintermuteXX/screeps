@@ -13,10 +13,6 @@ var GameController = function() {
 GameController.prototype.processRooms = function () {
 	for (var i in this._rooms) {
 		this._rooms[i].run();
-
-
-		rc.populate();
-		rc.commandCreeps();
 	}
 };
 
