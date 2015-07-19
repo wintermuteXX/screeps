@@ -2,7 +2,7 @@ var RoomController = require("RoomController");
 
 var GameController = function() {
 	this.garbageCollection();
-	
+
 	this._rooms = {};
 	for (var r in Game.rooms) {
 		var room = Game.rooms[r];
@@ -12,7 +12,9 @@ var GameController = function() {
 
 GameController.prototype.processRooms = function () {
 	for (var i in this._rooms) {
-		var rc = this._rooms[i];
+		this._rooms[i].run();
+
+
 		rc.populate();
 		rc.commandCreeps();
 	}

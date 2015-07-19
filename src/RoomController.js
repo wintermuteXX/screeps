@@ -13,6 +13,8 @@ function RoomController(room, gameController) {
 		var spawn = spawns[s];
 		this._spawns.push(new SpawnController(spawn, this));
 	}
+
+	this.links = new LinkController(this);	
 }
 
 
@@ -20,7 +22,8 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
-
+	this.populate();
+	this.commandCreeps();
 };
 
 
@@ -28,7 +31,7 @@ RoomController.prototype.run = function () {
  * RoomController.populate()
  */
 RoomController.prototype.populate = function () {
-		// if (Game.time % global.getInterval('checkPopulation') !== 0) return;
+		if (Game.time % global.getInterval('checkPopulation') !== 0) return;
 
 		var spawn = null;
 
