@@ -70,7 +70,9 @@ module.exports = {
     canBuild : function(rc) {
       var controller = rc.getController();
       var max = controller.getFreeFields();
-
+      if ( max > 3 ) {
+        max = 3;
+      }
       return ( rc.getCreeps('upgrader').length < max) ;
     },
 
