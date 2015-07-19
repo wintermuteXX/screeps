@@ -40,7 +40,7 @@ LinkController.prototype.transferEnergy = function() {
   var senders = this.senders;
   var receivers = this.receivers;
 
-  var receiver = _.find(this.getReceivers(), function(r) {
+  var receiver = _.find(receivers, function(r) {
     return (r.energy < r.energyCapacity - 100);
   });
 
