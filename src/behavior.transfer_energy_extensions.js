@@ -40,7 +40,7 @@ b.work = function(creep, rc) {
   if ( ext === null ) {
     ext = findExtension(rc);
     if ( ext.length ) {
-      ext = ext[0];
+      ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
     }
   }
