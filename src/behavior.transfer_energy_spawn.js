@@ -2,13 +2,15 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("transfer_energy_spawn");
 
-b.when = function(creep, rc) {
-  if (creep.energy === 0) return false;
-
-  var spawn = _.find(rc.find(FIND_MY_SPAWNS), function(s) {
+function findEmptySpawn(rc) {
+  return _.find(rc.find(FIND_MY_SPAWNS), function(s) {
     return (s.energy < s.energyCapacity);
   });
+}
 
+b.when = function(creep, rc) {
+  if (creep.energy === 0) return false;
+  var spawn = findEmptySpawn(rc);
   return !!spawn;
 };
 
@@ -26,9 +28,8 @@ b.work = function(creep, rc) {
   var spawn = Game.getObjectById(creep.target);
 
   if (spawn === null) {
-    var spawns = rc.find(FIND_MY_SPAWNS);
-    if (spawns.length) {
-      spawn = spawns[0];
+    spawn = findEmptySpawn(rc);
+    if (spawn) {
       creep.target = spawn.id;
     }
   }

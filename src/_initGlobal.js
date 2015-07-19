@@ -1,6 +1,12 @@
 
 function initGlobal(g) {
 
+  g.killAll = function() {
+    for ( var c in Game.creeps ) {
+      Game.creeps[c].suicide();
+    }
+  };
+
   /**
    * Intervals
    */
@@ -9,7 +15,7 @@ function initGlobal(g) {
     'checkPopulation': 10,
 		'checkConstructions': 100
   };
-  
+
   g.getInterval = function(key){
     if ( key && this._intervals[key] ) {
       return this._intervals[key];

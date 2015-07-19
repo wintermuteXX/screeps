@@ -2,10 +2,13 @@ module.exports = {
 
   "builder": {
     priority: 1,
-    levelMax: 2,
 
     canBuild: function(rc) {
-      return rc.getCreeps("builder").length < 3;
+      if ( rc.getLevel() > 2 ) {
+        return (rc.getCreeps().length === 0);
+      } else {
+        return rc.getCreeps("builder").length < 5;
+      }
     },
 
     body: [
@@ -31,7 +34,8 @@ module.exports = {
 
     body: [
       null,
-      null, [MOVE, WORK, WORK, WORK]
+      null,
+      [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK]
     ],
     behaviors: [
       "miner_harvest"
@@ -51,10 +55,54 @@ module.exports = {
 
     body: [
       null,
-      null, [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY]
+      null,
+      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["find_energy", "transfer_energy_spawn", "transfer_energy_extensions"]
+    behaviors: ["find_energy", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_upgrader"]
+  },
+
+  "upgrader" : {
+    priority : 3,
+    levelMin : 3,
+
+    canBuild : function(rc) {
+      var controller = rc.getController();
+      var max = controller.getFreeFields();
+
+      return ( rc.getCreeps('upgrader').length < max) ;
+    },
+
+    body : [
+      null,
+      null,
+      [MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
+    ],
+
+    behaviors : ["goto_controller", "find_near_energy", "upgrade_controller"]
+  },
+
+  "constructor" : {
+    priority : 4,
+    levelMin : 3,
+
+    canBuild : function(rc) {
+      return rc.getCreeps("constructor").length < 3;
+    },
+
+    body : [
+      null,
+      null,
+      [MOVE, WORK, CARRY],
+      [MOVE, MOVE, WORK, CARRY],
+      [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
+      [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
+    ],
+
+    behaviors : [ "get_energy", "build_structures", "repair" ]
 
   }
 

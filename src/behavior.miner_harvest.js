@@ -26,7 +26,7 @@ b.work = function(creep, rc) {
   if (source !== null) {
     creep.target = source.id;
     if (!creep.pos.isNearTo(source)) {
-      console.log(creep, creep.moveTo(source));
+      creep.moveTo(source);
     } else {
       creep.harvest(source);
     }
