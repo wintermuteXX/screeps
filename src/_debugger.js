@@ -1,5 +1,5 @@
 module.exports = (function () {
-	var DEFAULT_MIN_USED = 10;
+	var DEFAULT_MIN_USED = 15;
 
 	function Debugger(name, minUsed) {
 		this.name = name;
