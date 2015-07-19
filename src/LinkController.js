@@ -1,6 +1,7 @@
 var RANGE_TO_SOURCE = 4;
 
 function LinkController(rc) {
+  this.room = rc;
   this.links = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
     return (s.structureType === STRUCTURE_LINK);
   });
