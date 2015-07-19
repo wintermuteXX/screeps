@@ -8,7 +8,7 @@ function findEnergy(creep, rc) {
 }
 
 function findNearLink(creep, rc) {
-  var links = rc.lins.receiver;
+  var links = rc.links.receiver;
   return creep.pos.findInRange(links, 2);
 }
 
