@@ -8,7 +8,7 @@ function LinkController(rc) {
 
 Object.defineProperty(LinkController.prototype, "senders", {
   get: function() {
-    var sources = this.room.sources();
+    var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
       for (var s in sources) {
         if (link.pos.inRangeTo(sources[s], RANGE_TO_SOURCE)) {
@@ -22,7 +22,7 @@ Object.defineProperty(LinkController.prototype, "senders", {
 
 Object.defineProperty(LinkController.prototype, "receivers", {
   get: function() {
-    var sources = this.room.sources();
+    var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
       for (var s in sources) {
         if (!link.pos.inRangeTo(sources[s], RANGE_TO_SOURCE)) {
