@@ -6,7 +6,7 @@ var _cache = {};
 
 function findExtension(rc) {
   if ( !_cache[rc.room.name] ) {
-    _cache[rc.room.name] = _.find(rc.find(FIND_MY_STRUCTURES), function(s){
+    _cache[rc.room.name] = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
       }
@@ -21,7 +21,7 @@ b.when = function(creep, rc) {
 
   var ext = findExtension(rc);
 
-  return !!ext;
+  return ext.length > 0;
 };
 
 b.completed = function(creep, rc) {
@@ -39,7 +39,8 @@ b.work = function(creep, rc) {
 
   if ( ext === null ) {
     ext = findExtension(rc);
-    if ( ext ) {
+    if ( ext.length ) {
+      ext = ext[0];
       creep.target = ext.id;
     }
   }
