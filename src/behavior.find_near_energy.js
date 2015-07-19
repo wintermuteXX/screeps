@@ -7,16 +7,29 @@ function findEnergy(creep, rc) {
   return creep.pos.findInRange(dropped, RANGE_TO_ENERGY);
 }
 
+function findNearLink(creep, rc) {
+  var links = rc.lins.receiver;
+  return creep.pos.findInRange(links, 2);
+}
 
 var b = new Behavior("find_near_energy");
 b.when = function(creep, rc) {
   if (creep.energy === 0) {
-    return (findEnergy(creep, rc).length > 0);
+    var energy = findEnergy(creep, rc);
+    var link = findNearLink(creep, rc);
+    return (energy.length > 0 || link);
   }
   return false;
 };
 b.completed = function(creep, rc) {
-  return (creep.energy > 0 || !creep.getTarget());
+  var target = creep.getTarget();
+
+  if (creep.energy > 0 || !target) return true;
+  if ( target && target.structureType ) {
+    return target.energy === 0;
+  }
+
+  return false;
 };
 b.work = function(creep, rc) {
   var energy = creep.getTarget();
@@ -28,11 +41,22 @@ b.work = function(creep, rc) {
     }
   }
 
+  if ( !energy ) {
+    energy = findNearLink(creep, rc);
+    if ( energy ) {
+      creep.target = energy.id;
+    }
+  }
+
   if ( energy )  {
     if ( !creep.pos.isNearTo(energy) ){
       creep.moveToEx(energy);
     } else {
-      creep.pickup(energy);
+      if ( energy.structureType ) {
+        energy.transferEnergy(creep);
+      } else {
+        creep.pickup(energy);
+      }
     }
   }
 };
