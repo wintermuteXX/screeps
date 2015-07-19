@@ -1,6 +1,7 @@
 var SpawnController = require("SpawnController");
 var CreepController = require("CreepController");
 var LinkController = require("LinkController");
+var Debugger = require("_debugger");
 
 function RoomController(room, gameController) {
 	this.room = room;
@@ -22,10 +23,17 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
+	var debug = new Debugger(this.room + ": populate");
 	this.populate();
-	this.links.transferEnergy();
+	debug.end();
 
+	debug = new Debugger(this.room + ": transferEnergy");
+	this.links.transferEnergy();
+	debug.end();
+
+	debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
+	debug.end();
 };
 
 
