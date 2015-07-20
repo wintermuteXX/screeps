@@ -33,13 +33,6 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("find_energy_transporter");
 
-function findDroppedEnergy(rc) {
-  var dropped = rc.find(FIND_DROPPED_ENERGY);
-  return _.filter(dropped, function(d) {
-    return !d.pos.inRangeTo(rc.getController(), 2);
-  });
-}
-
 b.when = function(creep, rc) {
   return (creep.energy === 0);
 };
