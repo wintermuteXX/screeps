@@ -52,13 +52,14 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   applyMiner(creep, rc);
 
-
   var target = creep.getTarget();
+
   if ( !target ) {
-    var miner = Game.getObjectById(creep.memory.minerId || null);
-    if ( miner != null ) {
+    var miner = Game.getObjectById(creep.memory.miner || null);
+
+    if ( miner !== null ) {
       var minerSource = miner.getTarget();
-      if ( !minerSource || !miner.pos.isNear(minerSource) ) {
+      if ( !minerSource || !miner.pos.isNearTo(minerSource) ) {
         return;
       }
 
