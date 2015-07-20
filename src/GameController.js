@@ -23,6 +23,17 @@ GameController.prototype.processGlobal = function () {
 	// TODO: implement global logic
 };
 
+GameController.prototype.scout = function() {
+	var whiteFlags = _.filter(Game.flags, {filter: { 'color' : COLOR_WHITE }});
+
+	for ( var f in whiteFlags ) {
+		var flag = whiteFlags[f];
+
+		var spawn = flag.pos.findClosest(Game.spawns);
+		console.log(spawn);
+	}
+};
+
 GameController.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
 		if (!Game.creeps[c]) {
