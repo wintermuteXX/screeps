@@ -55,7 +55,7 @@ b.work = function(creep, rc) {
 
   var target = creep.getTarget();
   if ( !target ) {
-    var miner = game.getObjectById(creep.memory.minerId || null);
+    var miner = Game.getObjectById(creep.memory.minerId || null);
     if ( !miner ) {
       var minerSource = miner.getTarget();
       if ( !minerSource || !miner.pos.isNear(minerSource) ) {
