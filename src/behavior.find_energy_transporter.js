@@ -43,7 +43,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-	applyMiner(creep, rc);
+	// applyMiner(creep, rc);
 
 	var target = creep.getTarget();
 

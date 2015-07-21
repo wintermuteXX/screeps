@@ -50,6 +50,13 @@ function initGlobal(g) {
     return g._behaviors[n] || null;
   };
 
+  /**
+   * Global Config
+   */
+  g._globalConfig = require("config.global");
+  g.initRoom = function(rc){
+    g._globalConfig.rooms.init(rc);
+  };
 
   /**
    * Creeps
