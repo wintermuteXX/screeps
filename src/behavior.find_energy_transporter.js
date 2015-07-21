@@ -56,9 +56,11 @@ b.work = function (creep, rc) {
 				return;
 			}
 
-			var energy = _.filter(rc.find(FIND_DROPPED_ENERGY), function (e) {
-				return e.pos.inRangeTo(miner, 2);
-			});
+			var energy = miner.pos.findInRange(rc.find(FIND_DROPPED_ENERGY), 2);
+
+			// var energy = _.filter(rc.find(FIND_DROPPED_ENERGY), function (e) {
+			// 	return e.pos.inRangeTo(miner, 2);
+			// });
 
 			if (energy.length) {
 				target = energy[0];
