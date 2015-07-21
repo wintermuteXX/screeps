@@ -4,7 +4,7 @@ var _cache = {};
 
 function findFlag(rc) {
   if (!_cache[rc.room.name]) {
-    _cache[rc.room.name] = _.filter(rc.find(FIND_FLAG, {'color' : COLOR_BLUE}));
+    _cache[rc.room.name] = _.filter(rc.find(FIND_FLAGS, {'color' : COLOR_BLUE}));
   }
   return _cache[rc.room.name];
 }
