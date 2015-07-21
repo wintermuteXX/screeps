@@ -13,7 +13,7 @@ var b = new Behavior("wait_blue_flag");
 
 b.when = function(creep, rc) {
   var flag = findFlag(rc);
-  return !!flag;
+  return !!flag && !creep.pos.inRangeTo(flag, 2);
 };
 b.completed = function(creep, rc) {
   var flag = findFlag(rc);
