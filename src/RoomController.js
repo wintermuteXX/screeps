@@ -16,6 +16,8 @@ function RoomController(room, gameController) {
 	}
 
 	this.links = new LinkController(this);
+
+	global.initRoom(this);
 }
 
 
