@@ -24,13 +24,17 @@ GameController.prototype.processGlobal = function () {
 };
 
 GameController.prototype.scout = function() {
-	var whiteFlags = _.filter(Game.flags, {filter: { 'color' : COLOR_WHITE }});
+	var whiteFlags = _.filter(Game.flags, { 'color' : COLOR_WHITE });
+    var rooms = _.filter(Game.rooms, function(r){
+        return (r.controller && r.controller.my);
+    });
 
 	for ( var f in whiteFlags ) {
 		var flag = whiteFlags[f];
-
-		var spawn = flag.pos.findClosest(Game.spawns);
-		console.log(spawn);
+        try {
+		    var spawn = flag.pos.findClosestByRange(rooms);
+		    console.log(spawn);
+        } catch ( e ) {}
 	}
 };
 
