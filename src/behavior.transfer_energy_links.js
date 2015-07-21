@@ -26,8 +26,10 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   var link = creep.getTarget();
 
+
   if ( link === null ) {
-    var links = findLinks(rc);
+    var miner = Game.getObjectById(creep.memory.miner);
+    var links = miner.pos.findInRange(findLinks(rc), 5);
     if ( links.length ) {
       link = creep.pos.findClosestByRange(links);
       creep.target = link.id;
