@@ -56,11 +56,14 @@ Creep.prototype.isNearTo = function(t) {
 Creep.prototype.moveToEx = function(target) {
   if (this.fatigue === 0) {
     this.moveTo(target, {
-      'maxOps': 1000,
-      'heuristicWeight': 5
+      'reusePath' : 10,
+      'maxOps': 1000
+      // 'heuristicWeight': 5
     });
   }
 };
+
+
 
 Creep.prototype.getTarget = function() {
   return Game.getObjectById(this.target);
