@@ -4,7 +4,7 @@ var _cache = {};
 
 function findFlag(rc) {
   if (!_cache[rc.room.name]) {
-    _cache[rc.room.name] = _.filter(rc.find(FIND_FLAGS, {'color' : COLOR_BLUE}));
+    _cache[rc.room.name] = _.find(rc.find(FIND_FLAGS, {'color' : COLOR_BLUE}));
   }
   return _cache[rc.room.name];
 }
@@ -20,6 +20,9 @@ b.completed = function(creep, rc) {
   return !flag || creep.pos.inRangeTo(flag, 2);
 };
 b.work = function(creep, rc) {
-  creep.moveToEx(findFlag(rc));
+    var flag = findFlag(rc);
+    if ( flag ) {
+        creep.moveToEx(flag);
+    }
 };
 module.exports = b;
