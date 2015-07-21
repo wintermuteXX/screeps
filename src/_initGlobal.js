@@ -14,7 +14,7 @@ function initGlobal(g) {
   g._intervals = {
     'checkPopulation': 10,
 		'checkConstructions': 100,
-    'checkLinks' : 10
+    'checkLinks' : 5
   };
 
   g.getInterval = function(key){
