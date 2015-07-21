@@ -7,8 +7,7 @@ function applyMiner(rc) {
 
 	for (var t in transporters) {
 		var creep = transporters[t];
-    connsole.log("apply miner", creep);
-
+    
 		for (var m in miners) {
 			var miner = miners[m];
 

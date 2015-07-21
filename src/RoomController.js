@@ -25,17 +25,17 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
-	var debug = new Debugger(this.room + ": populate");
+	// var debug = new Debugger(this.room + ": populate");
 	this.populate();
-	debug.end();
+	// debug.end();
 
-	debug = new Debugger(this.room + ": transferEnergy");
+	// debug = new Debugger(this.room + ": transferEnergy");
 	this.links.transferEnergy();
-	debug.end();
+	// debug.end();
 
-	debug = new Debugger(this.room + ": commandCreeps");
+	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
-	debug.end();
+	// debug.end();
 };
 
 
