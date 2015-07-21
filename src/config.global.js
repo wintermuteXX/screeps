@@ -13,12 +13,12 @@ function applyMiner(rc) {
 		for (var m in miners) {
 			var miner = miners[m];
 
-			var tm = _.filter(transporters, { 'memory' : { 'miner' : miner.id } });
-
-			// var tm = _.filter(transporters, function (t) {
-			// 	return (t.memory.miner == miner.id);
-			// });
-
+			var tm = _.filter(transporters, {
+				'memory': {
+					'miner': miner.id
+				}
+			});
+			
 			if (tm.length < perMiner) {
 				creep.memory.miner = miner.id;
 				break;
