@@ -11,12 +11,7 @@ Object.defineProperty(LinkController.prototype, "senders", {
   get: function() {
     var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
-      for (var s in sources) {
-        if (link.pos.inRangeTo(sources[s], RANGE_TO_SOURCE)) {
-          return true;
-        }
-      }
-      return false;
+      return link.pos.findInRange(sources, RANGE_TO_SOURCE).length > 0;
     });
   }
 });
@@ -25,17 +20,13 @@ Object.defineProperty(LinkController.prototype, "receivers", {
   get: function() {
     var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
-      for (var s in sources) {
-        if (!link.pos.inRangeTo(sources[s], RANGE_TO_SOURCE)) {
-          return true;
-        }
-      }
+      return link.pos.findInRange(sources, RANGE_TO_SOURCE).length === 0;
     });
   }
 });
 
 LinkController.prototype.transferEnergy = function() {
-	if ( Game.time % global.getInterval("checkLinks") !== 0 ) return;
+  if ( Game.time % global.getInterval("checkLinks") !== 0 ) return;
 
   var senders = this.senders;
   var receivers = this.receivers;
