@@ -67,7 +67,7 @@ SpawnController.prototype.getCosts = function(body) {
           break;
 
         case HEAL:
-          costs += 200;
+          costs += 250;
           break;
 
         case TOUGH:

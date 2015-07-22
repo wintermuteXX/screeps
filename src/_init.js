@@ -19,6 +19,18 @@ Object.defineProperty(Creep.prototype, "behavior", {
   }
 });
 
+Object.defineProperty(Creep.prototype, "energy", {
+  get : function() {
+    return this.carry.energy;
+  }
+});
+
+Object.defineProperty(Creep.prototype, "energyCapacity", {
+  get : function() {
+    return this.carryCapacity;
+  }
+});
+
 Object.defineProperty(Creep.prototype, "role", {
   get: function() {
     return this.memory.role || null;
