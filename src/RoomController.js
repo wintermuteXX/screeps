@@ -200,6 +200,23 @@ RoomController.prototype.getSources = function (defended) {
 	return sources;
 };
 
+RoomController.prototype._getStructures = function(filter) {
+	var result = {};
+
+	var structures = this.room.memory._structures;
+	if ( this.room.memory._structures && type ) {
+		var values = _.filter(structures, filter);
+		values.each(function(value, key){
+			var obj = Game.getObjectById(key);
+			if ( obj !== null ) {
+				result[id] = obj;
+			}
+		});
+	}
+
+	return result;
+};
+
 RoomController.prototype.analyse = function() {
 	if ( Game.cpuLimit <= 100 ) return;
 	var memory = this.room.memory;
@@ -208,7 +225,7 @@ RoomController.prototype.analyse = function() {
 		var sources = {};
 		for ( var source of this.find(FIND_SOURCES) ) {
 			sources[source.id] = {
-				defended : source.defended
+				'defended' : source.defended
 			};
 		}
 		memory._sources = sources;
@@ -216,12 +233,18 @@ RoomController.prototype.analyse = function() {
 		var structures = {};
 		for ( var s of this.find(FIND_STRUCTURES) ) {
 			structures[s.id] = {
-				type : s.structureType,
-				hits : s.hits,
-				hitsMax : s.hitsMax
+				'structureType' : s.structureType,
+				'hits' : s.hits,
+				'hitsMax' : s.hitsMax
 			};
 		}
 		memory._structures = structures;
+
+
+		console.log(this._getStructures({
+			'structureType' : STRUCTURE_EXTENSION
+		}));
+
 	} catch ( e ) {
 		console.log(e);
 	}
