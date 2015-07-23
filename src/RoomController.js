@@ -204,12 +204,14 @@ RoomController.prototype._getStructures = function(filter) {
 	var result = {};
 
 	var structures = this.room.memory._structures;
-	if ( this.room.memory._structures && type ) {
+	if ( structures && filter ) {
 		var values = _.filter(structures, filter);
-		values.each(function(value, key){
+
+		_.each(values, function(value, key){
 			var obj = Game.getObjectById(key);
 			if ( obj !== null ) {
-				result[id] = obj;
+			    console.log(key, obj);
+					result[key] = obj;
 			}
 		});
 	}
@@ -241,9 +243,11 @@ RoomController.prototype.analyse = function() {
 		memory._structures = structures;
 
 
-		console.log(this._getStructures({
-			'structureType' : STRUCTURE_EXTENSION
-		}));
+		// var test = this._getStructures({
+		// 	'structureType' : STRUCTURE_EXTENSION
+		// });
+		//
+		// console.log(this.room, test, test.length);
 
 	} catch ( e ) {
 		console.log(e);
