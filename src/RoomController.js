@@ -205,7 +205,7 @@ RoomController.prototype.analyse = function() {
 
 	try {
 		for ( var s of this.find(FIND_MY_STRUCTURES) ) {
-			console.log(this.room, s);
+			// console.log(this.room, s);
 		}
 	} catch ( e ) {
 		console.log(e);
