@@ -215,7 +215,7 @@ RoomController.prototype.analyse = function() {
 
 		var structures = {};
 		for ( var s of this.find(FIND_STRUCTURES) ) {
-			structures[id] = {
+			structures[s.id] = {
 				type : s.structureType,
 				hits : s.hits,
 				hitsMax : s.hitsMax
