@@ -202,11 +202,26 @@ RoomController.prototype.getSources = function (defended) {
 
 RoomController.prototype.analyse = function() {
 	if ( Game.cpuLimit <= 100 ) return;
+	var memory = this.room.memory;
 
 	try {
-		for ( var s of this.find(FIND_MY_STRUCTURES) ) {
-			// console.log(this.room, s);
+		var sources = {};
+		for ( var source of this.find(FIND_SOURCES) ) {
+			sources[source.id] = {
+				defended : source.defended
+			};
 		}
+		memory._sources = sources;
+
+		var structures = {};
+		for ( var s of this.find(FIND_STRUCTURES) ) {
+			structures[id] = {
+				type : s.structureType,
+				hits : s.hits,
+				hitsMax : s.hitsMax
+			};
+		}
+		memory._structures = structures;
 	} catch ( e ) {
 		console.log(e);
 	}
