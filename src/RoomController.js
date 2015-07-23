@@ -1,3 +1,5 @@
+/*jshint esnext: true */
+
 var SpawnController = require("SpawnController");
 var CreepController = require("CreepController");
 var LinkController = require("LinkController");
@@ -25,6 +27,8 @@ function RoomController(room, gameController) {
  * RoomController.run()
  */
 RoomController.prototype.run = function () {
+	this.analyse();
+
 	// var debug = new Debugger(this.room + ": populate");
 	this.populate();
 	// debug.end();
@@ -194,6 +198,19 @@ RoomController.prototype.getSources = function (defended) {
 		return (defended || false) == s.defended;
 	});
 	return sources;
+};
+
+RoomController.prototype.analyse = function() {
+	if ( Game.cpuLimit <= 100 ) return;
+
+	try {
+		for ( var s of this.find(FIND_MY_STRUCTURES) ) {
+			console.log(this.room, s);
+		}
+	} catch ( e ) {
+		console.log(e);
+	}
+
 };
 
 
