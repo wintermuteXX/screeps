@@ -13,7 +13,7 @@ module.exports = {
 
     body: [
       [MOVE, WORK, CARRY],
-      [MOVE, WORK, CARRY, CARRY, MOVE, MOVE]
+      [MOVE, WORK, CARRY, CARRY, MOVE]
     ],
 
     behaviors: ["find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
