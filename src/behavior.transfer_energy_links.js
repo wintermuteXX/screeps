@@ -11,7 +11,7 @@ function findLinks(rc) {
 b.when = function(creep, rc) {
   if ( creep.energy === 0 ) return false;
   var links = findLinks(rc);
-  return (links.length);
+  return (creep.pos.findInRange(links, 3) !== null);
 };
 
 b.completed = function(creep, rc) {
