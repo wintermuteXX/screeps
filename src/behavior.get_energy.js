@@ -7,23 +7,35 @@ b.completed = function(creep, rc) {
   return (creep.energy > 0);
 };
 b.work = function(creep, rc) {
-  var spawn = creep.getTarget();
+  var target = creep.getTarget();
 
-  if ( !spawn ) {
-    spawn = _.find(rc.find(FIND_MY_SPAWNS), function(s) {
+  if ( !target ) {
+    var spawn = _.find(rc.find(FIND_MY_SPAWNS), function(s) {
       return s.energy > 0;
     });
 
     if ( spawn ) {
-      creep.target = spawn.id;
+      target = spawn;
+    } else {
+      var extensions = _.filter(rc.getExtensions(), function(e) {
+        return e.energy > 0;
+      });
+      if ( extensions.length ) {
+        target = creep.pos.findClosestByRange(extensions);
+      }
     }
+
+    if ( target ) {
+      creep.target = target.id;
+    }
+
   }
 
-  if ( spawn ) {
-    if ( !creep.pos.isNearTo(spawn) ) {
-      creep.moveToEx(spawn);
+  if ( target ) {
+    if ( !creep.pos.isNearTo(target) ) {
+      creep.moveToEx(target);
     } else {
-      spawn.transferEnergy(creep);
+      target.transferEnergy(creep);
     }
   }
 

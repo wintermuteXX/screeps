@@ -104,7 +104,7 @@ module.exports = {
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
 
-    behaviors : [ "get_energy", "build_structures", "repair", "wait_blue_flag" ]
+    behaviors : [ "get_energy", "repair", "build_structures", "wait_blue_flag" ]
 
   }
 

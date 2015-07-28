@@ -183,10 +183,18 @@ RoomController.prototype.getIdleSpawn = function () {
  * RoomController.getMaxEnergy()
  */
 RoomController.prototype.getMaxEnergy = function () {
-	var extensionCount = _.filter(this.find(FIND_MY_STRUCTURES), {
-		structureType: STRUCTURE_EXTENSION
-	}).length;
+	var extensionCount = this.getExtensions().length;
 	return 300 + (extensionCount * 50);
+};
+
+
+/**
+ * RoomController.getExtensions()
+ */
+RoomController.prototype.getExtensions = function() {
+	return _.filter(this.find(FIND_MY_STRUCTURES), {
+		structureType: STRUCTURE_EXTENSION
+	});
 };
 
 
