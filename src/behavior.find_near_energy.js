@@ -2,22 +2,22 @@ var Behavior = require("_behavior");
 
 var RANGE_TO_ENERGY = 2;
 
-function findEnergy(creep, rc) {
+function findEnergy(obj, rc) {
   var dropped = rc.find(FIND_DROPPED_ENERGY);
-  return creep.pos.findInRange(dropped, RANGE_TO_ENERGY);
+  return obj.pos.findInRange(dropped, RANGE_TO_ENERGY);
 }
 
-function findNearLink(creep, rc) {
+function findNearLink(obj, rc) {
   var links = rc.links.receivers;
-
-  return creep.pos.findInRange(links, 2);
+  return creep.pos.findInRange(obj, 2);
 }
 
 var b = new Behavior("find_near_energy");
 b.when = function(creep, rc) {
   if (creep.energy === 0) {
-    var energy = findEnergy(creep, rc);
-    var link = findNearLink(creep, rc);
+    var controller = rc.getController();
+    var energy = findEnergy(controller, rc);
+    var link = findNearLink(controller, rc);
     return (energy.length > 0 || link);
   }
   return false;
@@ -34,9 +34,9 @@ b.completed = function(creep, rc) {
 };
 b.work = function(creep, rc) {
   var energy = creep.getTarget();
-
+  var controller = rc.getController();
   if (!energy) {
-    var dropped = findEnergy(creep, rc);
+    var dropped = findEnergy(controller, rc);
     if (dropped.length) {
       energy = dropped[0];
       creep.target = energy.id;
@@ -44,7 +44,7 @@ b.work = function(creep, rc) {
   }
 
   if (!energy) {
-    energy = findNearLink(creep, rc);
+    energy = findNearLink(controller, rc);
     if (energy.length) {
       energy = energy[0];
       creep.target = energy.id;
