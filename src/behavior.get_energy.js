@@ -9,6 +9,10 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   var target = creep.getTarget();
 
+  if ( target && target.energy === 0 ) {
+    target = null;
+  }
+
   if ( !target ) {
     var spawn = _.find(rc.find(FIND_MY_SPAWNS), function(s) {
       return s.energy > 0;
@@ -20,6 +24,7 @@ b.work = function(creep, rc) {
       var extensions = _.filter(rc.getExtensions(), function(e) {
         return e.energy > 0;
       });
+
       if ( extensions.length ) {
         target = creep.pos.findClosestByRange(extensions);
       }
