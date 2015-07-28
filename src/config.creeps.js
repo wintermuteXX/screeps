@@ -69,11 +69,13 @@ module.exports = {
 
     canBuild : function(rc) {
       var controller = rc.getController();
-      var max = controller.getFreeFields();
-      if ( max > 3 ) {
-        max = 3;
-      }
-      return ( rc.getCreeps('upgrader').length < max) ;
+      return ( controller && controller.my && rc.getCreeps('upgrader').length < 1);
+
+      // var max = controller.getFreeFields();
+      // if ( max > 3 ) {
+      //   max = 3;
+      // }
+      // return ( rc.getCreeps('upgrader').length < max) ;
     },
 
     body : [
@@ -82,6 +84,7 @@ module.exports = {
       [MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
     ],
 
     behaviors : ["goto_controller", "find_near_energy", "upgrade_controller"]
