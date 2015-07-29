@@ -119,7 +119,7 @@ Structure.prototype.getFreeFields = function() {
     for (var x = -1; x < 2; x++) {
       for (var y = -1; y < 2; y++) {
         var terrain = this.room.lookForAt('terrain', pos.x + x, pos.y + y);
-        if (terrain != 'wall') {
+        if (terrain.length && terrain[0] != 'wall') {
           count++;
         }
       }
