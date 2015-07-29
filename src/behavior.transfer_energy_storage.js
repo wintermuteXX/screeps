@@ -3,12 +3,11 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_storage");
 
 function findStorage(rc) {
-  return _.find(rc.find(FIND_MY_STRUCTURES), function(s){
-    if ( s.structureType === STRUCTURE_STORAGE ) {
-        return s.store.energy < s.storeCapacity;
-    }
-    return false;
-  });
+  var s = rc.room.storage;
+  if ( s && s.store.energy < s.storeCapacity ) {
+    return s;
+  }
+  return null;
 }
 
 b.when = function(creep, rc) {
