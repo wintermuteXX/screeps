@@ -9,7 +9,7 @@ function findEnergy(obj, rc) {
 
 function findNearLink(obj, rc) {
   var links = rc.links.receivers;
-  return obj.pos.findInRange(links, 2);
+  return obj.pos.findInRange(links, 3);
 }
 
 var b = new Behavior("find_near_energy");
