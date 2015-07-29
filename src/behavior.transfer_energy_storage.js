@@ -22,10 +22,6 @@ b.completed = function(creep, rc) {
   if (creep.energy === 0) return true;
   if ( storage && storage.store.energy === storage.storeCapacity ) return true;
 
-
-
-  if (link && link.energy === link.energyCapacity) return true;
-
   return false;
 };
 
