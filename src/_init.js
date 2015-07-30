@@ -106,7 +106,7 @@ Structure.prototype.needsRepair = function() {
   if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
     return this.hits < 1000000;
   }
-  return this.hits < (this.hitsMax - 250);
+  return this.hits < (this.hitsMax / 2);
 };
 
 Structure.prototype.getFreeFields = function() {
