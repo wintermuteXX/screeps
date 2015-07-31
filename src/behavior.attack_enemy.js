@@ -8,6 +8,7 @@ function getTarget(room) {
 
     for ( var i in TARGETS ) {
       var targets = room.find(TARGETS[i], function(t) {
+        if ( t.structureType && t.structureType === STRUCTURE_CONTROLLER ) return false;
         return ( t.owner.username !== 'Source Keeper' );
       });
       if ( targets.length ) {
