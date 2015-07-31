@@ -110,6 +110,25 @@ module.exports = {
     ],
 
     behaviors : [ "get_energy", "build_structures", "repair", "wait_blue_flag" ]
+  },
+
+  'attacker': {
+    priority : 5,
+    minLevel : 4,
+
+    canBuild : function(rc) {
+        var flags = _.filter(Game.flags, { 'color' : COLOR_RED} );
+        if ( flags.length === 0 ) return false;
+
+        var attackers = _.filter(Game.creeps, { 'memory' : { 'role' : 'attacker'}});
+        return attackers.length < 2;
+    },
+
+    body : [
+      [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+    ],
+    
+    behaviors : [ 'goto_red_flag', 'attack_enemy' ]
 
   }
 
