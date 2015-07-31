@@ -19,7 +19,7 @@ function getTarget(room) {
 }
 
 b.when = function(creep, rc) {
-  var target = getTarget(creep, room);
+  var target = getTarget(creep.room);
   return !!target;
 };
 
