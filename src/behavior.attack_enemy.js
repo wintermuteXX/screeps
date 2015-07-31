@@ -4,19 +4,21 @@ var b = new Behavior("attack_enemy");
 
 
 function getTarget(room) {
-    var TARGETS = [FIND_HOSTILE_CREEPS, FIND_HOSTILE_SPAWNS, FIND_HOSTILE_STRUCTURES];
+  var TARGETS = [FIND_HOSTILE_CREEPS, FIND_HOSTILE_SPAWNS, FIND_HOSTILE_STRUCTURES];
 
-    for ( var i in TARGETS ) {
-      var targets = room.find(TARGETS[i], function(t) {
-        if ( t.structureType && t.structureType === STRUCTURE_CONTROLLER ) return false;
-        return ( t.owner.username !== 'Source Keeper' );
-      });
-      if ( targets.length ) {
-        return targets[0];
-      }
+  var filter = function(t) {
+    if (t.structureType && t.structureType === STRUCTURE_CONTROLLER) return false;
+    return (t.owner.username !== 'Source Keeper');
+  };
+
+  for (var i in TARGETS) {
+    var targets = _.filter(room.find(TARGETS[i]), filter);
+    if (targets.length) {
+      return targets[0];
     }
+  }
 
-    return null;
+  return null;
 }
 
 b.when = function(creep, rc) {
@@ -32,9 +34,9 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   var target = creep.getTarget() || getTarget(creep.room);
 
-  if ( target !== null ) {
+  if (target !== null) {
     creep.target = target.id;
-    if ( creep.pos.inRangeTo(target, 3) ) {
+    if (creep.pos.inRangeTo(target, 3)) {
       creep.rangedAttack(target);
 
     } else {
