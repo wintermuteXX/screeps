@@ -61,11 +61,13 @@ RoomController.prototype.populate = function () {
 			if (spawn === null) return;
 
 			var cfg = cfgCreeps[role];
-			if (this._shouldCreateCreep(role, cfg)) {
-				if (!spawn.createCreep(role, cfg)) {
-					return;
+			if ( !cfg.produceGlobal || cfg.produceGlobal === false ) {
+				if (this._shouldCreateCreep(role, cfg)) {
+					if (!spawn.createCreep(role, cfg)) {
+						return;
+					}
+					spawn = null;
 				}
-				spawn = null;
 			}
 		}
 };

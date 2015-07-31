@@ -113,6 +113,7 @@ module.exports = {
   },
 
   'attacker': {
+    produceGlobal : true,
     priority : 5,
     minLevel : 4,
 
@@ -127,7 +128,7 @@ module.exports = {
     body : [
       [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
     ],
-    
+
     behaviors : [ 'goto_red_flag', 'attack_enemy' ]
 
   }
