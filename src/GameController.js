@@ -47,6 +47,7 @@ GameController.prototype.scout = function() {
 };
 
 
+
 GameController.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
 		if (!Game.creeps[c]) {
