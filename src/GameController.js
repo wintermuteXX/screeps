@@ -20,7 +20,11 @@ GameController.prototype.processRooms = function () {
 };
 
 GameController.prototype.processGlobal = function () {
-	// TODO: implement global logic
+
+	// scout
+	if ( Game.cpuLimit > 400 ) {
+    gc.scout();
+	}
 };
 
 GameController.prototype.scout = function() {
