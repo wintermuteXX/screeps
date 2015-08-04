@@ -24,19 +24,28 @@ GameController.prototype.processGlobal = function () {
 };
 
 GameController.prototype.scout = function() {
-	var whiteFlags = _.filter(Game.flags, { 'color' : COLOR_WHITE });
-    var rooms = _.filter(Game.rooms, function(r){
-        return (r.controller && r.controller.my);
-    });
+	var flag = _.find(Game.flags, { 'color' : COLOR_WHITE });
+  if ( !flag ) return;
 
-	for ( var f in whiteFlags ) {
-		var flag = whiteFlags[f];
-        try {
-		    var spawn = flag.pos.findClosestByRange(rooms);
-		    console.log(spawn);
-        } catch ( e ) {}
+	var fRoom = flag.pos.roomName;
+
+	var spawn = null;
+	var steps = 999;
+	for ( var s in Game.spawns ) {
+		var sp = Game.spawns[s];
+
+		var path = sp.pos.findPathTo(flag);
+		if ( path.length && path.length < steps ) {
+			steps = path.length;
+			spawn = sp;
+		}
+	}
+
+	if ( spawn !== null ) {
+		console.log(spawn);
 	}
 };
+
 
 GameController.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
