@@ -12,7 +12,7 @@ module.exports = {
     },
 
     body: [
-      [MOVE, WORK, CARRY],
+      [MOVE, WORK, WORK, CARRY],
       [MOVE, WORK, CARRY, CARRY, MOVE]
     ],
 
