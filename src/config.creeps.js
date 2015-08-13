@@ -97,7 +97,7 @@ module.exports = {
     levelMin : 3,
 
     canBuild : function(rc) {
-      return rc.getCreeps("constructor").length < 3;
+      return rc.getCreeps("constructor").length < 2;
     },
 
     body : [
