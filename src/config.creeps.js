@@ -13,7 +13,7 @@ module.exports = {
 
     body: [
       [MOVE, WORK, WORK, CARRY],
-      [MOVE, WORK, WORK, CARRY, MOVE]
+      [MOVE, WORK, WORK, CARRY, CARRY, MOVE]
     ],
 
     behaviors: ["find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
@@ -35,7 +35,7 @@ module.exports = {
     body: [
       null,
       null,
-      [MOVE, MOVE, WORK, WORK]
+      [MOVE, WORK, WORK, WORK, WORK, WORK]
     ],
     behaviors: [
       "miner_harvest"
@@ -81,7 +81,7 @@ module.exports = {
     body : [
       null,
       null,
-      [MOVE, WORK, WORK, CARRY, CARRY],
+      [MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
@@ -103,7 +103,7 @@ module.exports = {
     body : [
       null,
       null,
-      [MOVE, WORK, CARRY],
+      [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, WORK, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
