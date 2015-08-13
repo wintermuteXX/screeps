@@ -7,7 +7,7 @@ module.exports = {
       if ( rc.getLevel() > 2 ) {
         return (rc.getCreeps().length === 0);
       } else {
-        return rc.getCreeps("builder").length < 4;
+        return rc.getCreeps("builder").length < 5;
       }
     },
 
