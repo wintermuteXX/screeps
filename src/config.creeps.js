@@ -104,7 +104,7 @@ module.exports = {
       null,
       null,
       [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
-      [MOVE, MOVE, WORK, CARRY],
+      [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
