@@ -35,7 +35,7 @@ module.exports = {
     body: [
       null,
       null,
-      [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK]
+      [MOVE, MOVE, WORK, WORK]
     ],
     behaviors: [
       "miner_harvest"
