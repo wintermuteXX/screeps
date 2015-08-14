@@ -1,6 +1,8 @@
 var Behavior = require("_behavior");
 var b = new Behavior("get_energy");
 b.when = function(creep, rc) {
+  if (rc.getCreeps('miner').length === 0) return false;
+  if (rc.getCreeps('transporter').length === 0) return false;
   return (creep.energy === 0);
 };
 b.completed = function(creep, rc) {
