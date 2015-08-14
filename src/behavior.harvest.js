@@ -16,7 +16,7 @@ b.work = function(creep, rc) {
   if ( source === null ) {
     var sources = rc.getSources();
     if ( sources.length ) {
-      source = sources[1];
+      source = sources[Math.floor(Math.random() * sources.length)];
     }
   }
 
