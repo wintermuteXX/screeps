@@ -120,11 +120,9 @@ module.exports = {
 
     canBuild : function(rc) {
         var flags = _.filter(Game.flags, { 'color' : COLOR_RED} );
-        console.log("Red flags: " + flags.length);
         if ( flags.length === 0 ) return false;
         var attackers = _.filter(Game.creeps, { 'memory' : { 'role' : 'attacker'}});
-        console.log("Attackers: " + attackers);
-        return attackers.length < 2;
+        return attackers.length < 1;
     },
 
     body : [

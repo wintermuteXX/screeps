@@ -4,7 +4,7 @@ var b = new Behavior("goto_white_flag");
 
 function findFlag(rc) {
     return _.find(Game.flags, {
-      'color': COLOR_RED
+      'color': COLOR_WHITE
     });
 }
 
