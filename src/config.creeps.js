@@ -69,7 +69,7 @@ module.exports = {
 
     canBuild : function(rc) {
       var controller = rc.getController();
-      return ( controller && controller.my && rc.getCreeps('upgrader').length < 3);
+      return ( controller && controller.my && rc.getCreeps('upgrader').length < 2);
 
       // var max = controller.getFreeFields();
       // if ( max > 3 ) {
@@ -126,7 +126,7 @@ module.exports = {
     },
 
     body : [
-      [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+      [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
     ],
 
     behaviors : [ 'goto_red_flag', 'attack_enemy' ]
