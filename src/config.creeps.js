@@ -114,7 +114,7 @@ module.exports = {
   },
 
   'attacker': {
-    produceGlobal : true,
+    produceGlobal : false,
     priority : 5,
     minLevel : 4,
 
