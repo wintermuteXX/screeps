@@ -144,7 +144,7 @@ module.exports = {
         var flags = _.filter(Game.flags, { 'color' : COLOR_WHITE} );
         if ( flags.length === 0 ) return false;
         var scouts = _.filter(Game.creeps, { 'memory' : { 'role' : 'scout'}});
-        return scouts.length < 1;
+        return scouts.length < 3;
     },
 
     body : [
