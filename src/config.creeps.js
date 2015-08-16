@@ -133,6 +133,29 @@ module.exports = {
 
     behaviors : [ 'goto_red_flag', 'attack_enemy' ]
 
+  },
+  
+  'scout': {
+    produceGlobal : false,
+    priority : 6,
+    minLevel : 3,
+
+    canBuild : function(rc) {
+        var flags = _.filter(Game.flags, { 'color' : COLOR_WHITE} );
+        if ( flags.length === 0 ) return false;
+        var scouts = _.filter(Game.creeps, { 'memory' : { 'role' : 'scout'}});
+        return scouts.length < 1;
+    },
+
+    body : [
+      [CARRY, CARRY, WORK, MOVE, MOVE],
+      [CARRY, CARRY, WORK, WORK, MOVE, MOVE],
+      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE],
+      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
+    ],
+
+    behaviors : [ 'goto_white_flag', "claim_controller", "find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
+
   }
 
 };
