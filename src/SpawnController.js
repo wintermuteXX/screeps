@@ -4,7 +4,6 @@ function SpawnController(spawn, roomController) {
 }
 
 SpawnController.prototype.idle = function() {
-  console.log(this.spawn.id + "  Spawn: " + this.spawn.name + " Spawning: " + this.spawn.spawning);
   return (this.spawn.spawning === null || this.spawn.spawning === undefined);
 };
 
@@ -20,7 +19,7 @@ SpawnController.prototype.createCreep = function(role, creepConfig, memory) {
       memory.role = role;
 
       result = this.spawn.createCreep(bodyConfig, name, memory);
-      console.log("spawn creep", role, "" + result);
+      console.log(this.spawn.room.name + " Spawn creep", role, "" + result);
     }
   }
 
