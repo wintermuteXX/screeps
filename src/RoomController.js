@@ -58,9 +58,11 @@ RoomController.prototype.populate = function () {
 			var role = roles[i];
 
 			if (spawn === null) spawn = this.getIdleSpawn();
+			console.log("Populate, Idle Spawn: " + spawn.name);
 			if (spawn === null) return;
 
 			var cfg = cfgCreeps[role];
+			console.log("Populate, cfg: " + cfg);
 			if ( !cfg.produceGlobal || cfg.produceGlobal === false ) {
 				if (this._shouldCreateCreep(role, cfg)) {
 					if (!spawn.createCreep(role, cfg)) {
