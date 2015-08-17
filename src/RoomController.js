@@ -58,7 +58,7 @@ RoomController.prototype.populate = function () {
 			var role = roles[i];
 
 			if (spawn === null) spawn = this.getIdleSpawn();
-			console.log("Populate, Idle Spawn: " + spawn.name);
+			console.log("Populate, Idle Spawn: " + spawn);
 			if (spawn === null) return;
 
 			var cfg = cfgCreeps[role];
