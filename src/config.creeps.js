@@ -50,9 +50,9 @@ module.exports = {
     canBuild: function(rc) {
       var miners = rc.getCreeps('miner');
       var transpoters = rc.getCreeps('transporter');
-      var level = rc.getLevel();
-      if (level < 5) return (transpoters.length < miners.length * 2);
-      return (transpoters.length < miners.length);
+
+      return (transpoters.length < miners.length * 2);
+
     },
 
     body: [
