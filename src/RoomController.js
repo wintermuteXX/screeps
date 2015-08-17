@@ -14,7 +14,6 @@ function RoomController(room, gameController) {
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
-		console.log("Spawns: " + spawn.name);
 		this._spawns.push(new SpawnController(spawn, this));
 	}
 
@@ -59,7 +58,6 @@ RoomController.prototype.populate = function () {
 			var role = roles[i];
 
 			if (spawn === null) spawn = this.getIdleSpawn();
-			console.log("Spawn: " + spawn);
 			if (spawn === null) return;
 
 			var cfg = cfgCreeps[role];
