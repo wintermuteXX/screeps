@@ -4,7 +4,7 @@ function SpawnController(spawn, roomController) {
 }
 
 SpawnController.prototype.idle = function() {
-  console.log("Spawn: " + this.spawn.name + " Spawning: " + this.spawn.spawning);
+  console.log(this.spawn.id + "  Spawn: " + this.spawn.name + " Spawning: " + this.spawn.spawning);
   return (this.spawn.spawning === null);
 };
 
