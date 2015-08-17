@@ -58,6 +58,7 @@ RoomController.prototype.populate = function () {
 			var role = roles[i];
 
 			if (spawn === null) spawn = this.getIdleSpawn();
+			console.log("Spawn: " + spawn);
 			if (spawn === null) return;
 
 			var cfg = cfgCreeps[role];
@@ -82,7 +83,6 @@ RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
 	var lReq = cfg.levelMin || 1;
 	var lMax = cfg.levelMax || 10;
-	console.log("Level: " + level);
 	if (level < lReq) return false;
 	if (lMax < level) return false;
 
