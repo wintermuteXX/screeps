@@ -4,6 +4,7 @@ function SpawnController(spawn, roomController) {
 }
 
 SpawnController.prototype.idle = function() {
+  console.log(this.spawn.name + " is idle? " + this.spawn.spawning);
   return (this.spawn.spawning === null);
 };
 
