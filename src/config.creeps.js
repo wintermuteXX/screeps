@@ -50,15 +50,17 @@ module.exports = {
     canBuild: function(rc) {
       var miners = rc.getCreeps('miner');
       var transpoters = rc.getCreeps('transporter');
-
-      return (transpoters.length < miners.length * 2);
+      var level = rc.getLevel();
+      if (level < 5) return (transpoters.length < miners.length * 2);
+      return (transpoters.length < miners.length);
     },
 
     body: [
       null,
       null,
       [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
-      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY]
+      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
     behaviors: ["find_energy_transporter", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_links", "transfer_energy_upgrader", "transfer_energy_storage"]
