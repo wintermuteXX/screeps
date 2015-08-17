@@ -1,11 +1,9 @@
 function SpawnController(spawn, roomController) {
   this.spawn = spawn;
   this.roomController = roomController;
-  console.log(this.spawn + " " + this.roomController);
 }
 
 SpawnController.prototype.idle = function() {
-  console.log(this.spawn.name + " is idle? " + this.spawn.spawning);
   return (this.spawn.spawning === null);
 };
 
