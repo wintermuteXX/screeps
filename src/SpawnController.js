@@ -1,7 +1,7 @@
 function SpawnController(spawn, roomController) {
   this.spawn = spawn;
   this.roomController = roomController;
-  console.log(this.room.spawn + " " + this.roomController);
+  console.log(this.spawn + " " + this.roomController);
 }
 
 SpawnController.prototype.idle = function() {
