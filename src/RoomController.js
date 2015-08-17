@@ -174,8 +174,9 @@ RoomController.prototype.getLevel = function () {
 RoomController.prototype.getIdleSpawn = function () {
 	for (var i in this._spawns) {
 		var sc = this._spawns[i];
-		console.log("SC: " + sc);
+		console.log("SC: " + sc.name);
 		if (sc.idle()) {
+			console.log("Idle: " + sc.name);
 			return sc;
 		}
 	}
