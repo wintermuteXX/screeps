@@ -14,6 +14,7 @@ function RoomController(room, gameController) {
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
+		console.log("Spawns: " + spawn.name);
 		this._spawns.push(new SpawnController(spawn, this));
 	}
 
