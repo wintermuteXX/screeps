@@ -82,7 +82,7 @@ RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
 	var lReq = cfg.levelMin || 1;
 	var lMax = cfg.levelMax || 10;
-
+	console.log("Level: " + level + " min: " + 1Req + " max: " + 1Max);
 	if (level < lReq) return false;
 	if (lMax < level) return false;
 
