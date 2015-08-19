@@ -51,6 +51,7 @@ b.work = function(creep, rc) {
 
   if (!energy) {
     energy = findNearLink(controller, rc);
+    console.log("Energy.length link: " + energy.length);
     if (energy.length) {
       energy = energy[0];
       creep.target = energy.id;
@@ -61,6 +62,7 @@ b.work = function(creep, rc) {
 
 if (!energy) {
     energy = findStorage(controller, rc);
+    console.log("Energy.length stor: " + energy.length);
     if (energy.length) {
       energy = energy[0];
       creep.target = energy.id;
