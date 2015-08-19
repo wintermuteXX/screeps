@@ -12,7 +12,13 @@ function findNearLink(obj, rc) {
   return obj.pos.findInRange(links, 3);
 }
 
+function findStorage(obj, rc) {
+  var store = rc.room.storage;
+    return obj.pos.findInRange(store,3);
+} 
+
 var b = new Behavior("find_near_energy");
+// Prüfung muss noch um Controller ergänzt werden
 b.when = function(creep, rc) {
   if (creep.energy === 0) {
     var controller = rc.getController();
@@ -45,6 +51,16 @@ b.work = function(creep, rc) {
 
   if (!energy) {
     energy = findNearLink(controller, rc);
+    if (energy.length) {
+      energy = energy[0];
+      creep.target = energy.id;
+    } else {
+      energy = null;
+    }
+  }
+
+if (!energy) {
+    energy = findStorage(controller, rc);
     if (energy.length) {
       energy = energy[0];
       creep.target = energy.id;
