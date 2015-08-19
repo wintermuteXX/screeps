@@ -7,9 +7,16 @@ function findEnergy(obj, rc) {
   return obj.pos.findInRange(dropped, RANGE_TO_ENERGY);
 }
 
+// function findNearLink(obj, rc) {
+//   var links = rc.links.receivers;
+//   return obj.pos.findInRange(links, 3);
+// }
+
 function findNearLink(obj, rc) {
   var links = rc.links.receivers;
-  return obj.pos.findInRange(links, 3);
+  var thelink = obj.pos.findInRange(links, 3);
+  if (thelink && (thelink.energy != 0))
+  return thelink;
 }
 
 function findStorage(obj, rc) {
