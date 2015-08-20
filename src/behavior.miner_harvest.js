@@ -29,7 +29,8 @@ b.work = function(creep, rc) {
       creep.moveTo(source);
     } else {
       creep.harvest(source);
-        if (creep.pos.isNearTo(rc.room.storage)) creep.transfer.Energy(rc.room.storage);
+        if (creep.pos.isNearTo(rc.room.storage)) {creep.transferEnergy(rc.room.storage);}
+          else {creep.dropEnergy();}
     }
   }
 };
