@@ -21,11 +21,14 @@ function findNearLink(obj, rc) {
 
 function findStorage(obj, rc) {
   var store = rc.room.storage;
-    return obj.pos.findInRange(store,3);
+  if ( store !== null ) {
+    return obj.pos.findInRange([store],3);
+  }
+  return null;
 } 
 
 var b = new Behavior("find_near_energy");
-// Prüfung muss noch um Controller ergänzt werden
+// PrÃ¼fung muss noch um Controller ergÃ¤nzt werden
 b.when = function(creep, rc) {
   if (creep.energy === 0) {
     var controller = rc.getController();
@@ -48,6 +51,8 @@ b.completed = function(creep, rc) {
 b.work = function(creep, rc) {
   var energy = creep.getTarget();
   var controller = rc.getController();
+
+    
   if (!energy) {
     var dropped = findEnergy(controller, rc);
     if (dropped.length) {
@@ -58,8 +63,7 @@ b.work = function(creep, rc) {
 
   if (!energy) {
     energy = findNearLink(controller, rc);
-    console.log("Energy.length link: " + energy.length);
-    if (energy.length) {
+  if (energy.length && energy[0].energy > 0 ) {
       energy = energy[0];
       creep.target = energy.id;
     } else {
@@ -69,15 +73,14 @@ b.work = function(creep, rc) {
 
 if (!energy) {
     energy = findStorage(controller, rc);
-    console.log("Energy.length stor: " + energy.length);
-    if (energy.length) {
+     if (energy.length) {
       energy = energy[0];
       creep.target = energy.id;
     } else {
       energy = null;
     }
   }
-
+  
   if (energy) {
     if (!creep.pos.isNearTo(energy)) {
       creep.moveToEx(energy);
