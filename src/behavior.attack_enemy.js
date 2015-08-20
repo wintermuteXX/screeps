@@ -40,7 +40,10 @@ b.work = function(creep, rc) {
       creep.rangedAttack(target);
 
     } else {
-      creep.moveToEx(target);
+      creep.moveTo(target, {
+        ignoreDestructibleStructures: true
+      }
+      );
     }
   }
 };
