@@ -3,7 +3,6 @@ var Behavior = require("_behavior");
 var b = new Behavior("find_energy_storage");
 
 b.when = function(creep, rc) {
-  console.log(rc.room.storage);
   return (creep.energy === 0 && rc.room.storage);
 };
 
@@ -14,7 +13,7 @@ b.completed = function(creep, rc) {
 
 b.work = function(creep, rc) {
   var target = creep.getTarget();
-
+console.log("Target: " + target);
 
   if ( target === null ) {
      creep.target = rc.room.storage.id;
