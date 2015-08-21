@@ -22,15 +22,15 @@ b.work = function(creep, rc) {
 
     if ( spawn ) {
       target = spawn;
-    } else {
-      var extensions = _.filter(rc.getExtensions(), function(e) {
-        return e.energy > 0;
-      });
+    } // else {
+   //   var extensions = _.filter(rc.getExtensions(), function(e) {
+  //      return e.energy > 0;
+  //    });
 
-      if ( extensions.length ) {
-        target = creep.pos.findClosestByRange(extensions);
-      }
-    }
+  //    if ( extensions.length ) {
+  //      target = creep.pos.findClosestByRange(extensions);
+  //    }
+  //  }
 
     if ( target ) {
       creep.target = target.id;
