@@ -22,8 +22,8 @@ b.work = function(creep, rc) {
   var target = creep.getTarget();
   if ( target === null ) {
      var links = findLinks(rc);
-     console.log("Links: " + links);
-     console.log("Links ID: " + links.id);
+     console.log("Links: " + links[0]);
+     console.log("Links ID: " + links[0].id);
      creep.target = links.id;
   }
 
