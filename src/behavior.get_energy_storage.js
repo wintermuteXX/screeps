@@ -1,10 +1,9 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("find_energy_storage");
+var b = new Behavior("get_energy_storage");
 
 b.when = function(creep, rc) {
-  console.log("Creep Energy: " + creep.energy + " Storage: " + rc.room.storage);
-  return (creep.energy === 0 && rc.room.storage);
+  return (creep.energy === 0 && rc.room.storage && rc.room.storage.energy > 2000);
 };
 
 b.completed = function(creep, rc) {

@@ -63,7 +63,7 @@ module.exports = {
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["find_energy_transporter", "find_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_links", "transfer_energy_storage", "transfer_energy_upgrader"]
+    behaviors: ["find_energy_transporter", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_links", "transfer_energy_storage", "transfer_energy_upgrader"]
   },
 
   "upgrader" : {
@@ -112,7 +112,7 @@ module.exports = {
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
 
-    behaviors : ["find_energy_storage", "build_structures", "repair", "wait_blue_flag" ]
+    behaviors : ["get_energy_storage", "build_structures", "repair", "wait_blue_flag" ]
   },
 
   'attacker': {
