@@ -9,7 +9,7 @@ function findLinks(rc) {
 }
 
 b.when = function(creep, rc) {
-  var links = findLinks();
+  var links = findLinks(rc);
   console.log(links);
   return (creep.energy === 0 && links);
 };
@@ -23,7 +23,7 @@ b.work = function(creep, rc) {
   var target = creep.getTarget();
 
   if ( target === null ) {
-     links = findLinks();
+     links = findLinks(rc);
      creep.target = links.id;
   }
 
