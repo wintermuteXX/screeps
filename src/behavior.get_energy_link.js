@@ -10,7 +10,7 @@ function findLinks(rc) {
 
 b.when = function(creep, rc) {
   var links = findLinks(rc);
-  return (creep.energy === 0 && links);
+  return (creep.energy === 0 && links[0]);
 };
 
 b.completed = function(creep, rc) {
