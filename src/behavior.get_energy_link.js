@@ -1,9 +1,17 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("get_energy_storage");
+var b = new Behavior("get_energy_link");
+
+function findLinks(rc) {
+  return _.filter(rc.links.recievers, function(s) {
+    return s.energy > 0;
+  });
+}
 
 b.when = function(creep, rc) {
-  return (creep.energy === 0 && rc.room.storage);
+  var links = findLinks();
+  console.log(links);
+  return (creep.energy === 0 && links);
 };
 
 b.completed = function(creep, rc) {
@@ -15,7 +23,8 @@ b.work = function(creep, rc) {
   var target = creep.getTarget();
 
   if ( target === null ) {
-     creep.target = rc.room.storage.id;
+     links = findLinks();
+     creep.target = links.id;
   }
 
   if ( target !== null ) {
