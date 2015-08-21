@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_link");
 
 function findLinks(rc) {
-  return _.filter(rc.links.recievers, function(s) {
+  return _.filter(rc.links.receivers, function(s) {
     return s.energy > 0;
   });
 }
