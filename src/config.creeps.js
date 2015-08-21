@@ -38,9 +38,7 @@ module.exports = {
       [MOVE, WORK, WORK, WORK, WORK, WORK],
       [MOVE, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK]
     ],
-    behaviors: [
-      "miner_harvest"
-    ]
+    behaviors: ["miner_harvest"]
   },
 
   "transporter": {

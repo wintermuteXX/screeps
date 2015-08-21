@@ -8,6 +8,8 @@ function findLinks(rc) {
   });
 }
 
+// Evtl noch nach dem nächsten Link suchen findClosestByRange
+
 b.when = function(creep, rc) {
   var links = findLinks(rc);
   return (creep.energy === 0 && links[0]);
