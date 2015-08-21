@@ -112,7 +112,7 @@ module.exports = {
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
 
-    behaviors : [ "get_energy", "find_energy_storage", "build_structures", "repair", "wait_blue_flag" ]
+    behaviors : ["find_energy_storage", "build_structures", "repair", "wait_blue_flag" ]
   },
 
   'attacker': {
