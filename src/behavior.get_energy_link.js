@@ -21,9 +21,10 @@ b.completed = function(creep, rc) {
 
 b.work = function(creep, rc) {
   var target = creep.getTarget();
-
+  console.log("Link Target: " + target);
   if ( target === null ) {
-     links = findLinks(rc);
+     var links = findLinks(rc);
+     console.log("Links ID: " + links.id);
      creep.target = links.id;
   }
 
