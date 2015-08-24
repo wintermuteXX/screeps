@@ -9,7 +9,7 @@ function findFlag(rc) {
   return _cache[rc.room.name];
 }
 
-var b = new Behavior("wait_blue_flag");
+var b = new Behavior("goto_blue_flag");
 
 b.when = function(creep, rc) {
   var flag = findFlag(rc);

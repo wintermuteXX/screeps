@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("find_energy");
+var b = new Behavior("get_energy_dropped");
 
 var _cache = {};
 

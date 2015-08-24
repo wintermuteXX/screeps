@@ -16,7 +16,7 @@ module.exports = {
       [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, MOVE]
     ],
 
-    behaviors: ["find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
+    behaviors: ["get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
 
   },
 
@@ -110,7 +110,7 @@ module.exports = {
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
 
-    behaviors : ["get_energy", "get_energy_link", "get_energy_storage", "build_structures", "repair", "wait_blue_flag" ]
+    behaviors : ["get_energy_dropped", "get_energy_spawn", "get_energy_link", "get_energy_storage", "build_structures", "repair", "goto_blue_flag" ]
   },
 
   'attacker': {
@@ -154,7 +154,7 @@ module.exports = {
       [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
     ],
 
-    behaviors : [ 'goto_white_flag', "claim_controller", "find_energy", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
+    behaviors : [ 'goto_white_flag', "claim_controller", "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
 
   }
 
