@@ -12,11 +12,11 @@ module.exports = {
     },
 
     body: [
-      [MOVE, WORK, WORK, CARRY],
-      [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, MOVE]
+      [MOVE, WORK, CARRY],
+      [MOVE, MOVE, WORK, WORK, CARRY]
     ],
 
-    behaviors: ["get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
+    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
 
   },
 
@@ -61,7 +61,7 @@ module.exports = {
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["find_energy_transporter", "get_energy_link", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_links", "transfer_energy_storage", "transfer_energy_upgrader"]
+    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_links", "transfer_energy_storage", "transfer_energy_upgrader"]
   },
 
   "upgrader" : {
