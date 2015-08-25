@@ -28,14 +28,21 @@ b.work = function(creep, rc) {
   var link = creep.getTarget();
 
 
+//  if (link === null) {
+//    var miner = Game.getObjectById(creep.memory.miner);
+//    if (miner) {
+//      var links = miner.pos.findInRange(findLinks(rc), 5);
+//      if (links.length) {
+//        link = creep.pos.findClosestByRange(links);
+//        creep.target = link.id;
+//      }
+//    }
+//  }
+
   if (link === null) {
-    var miner = Game.getObjectById(creep.memory.miner);
-    if (miner) {
-      var links = miner.pos.findInRange(findLinks(rc), 5);
+      var links = creep.pos.findInRange(findLinks(rc), 5);
       if (links.length) {
-        link = creep.pos.findClosestByRange(links);
-        creep.target = link.id;
-      }
+        creep.target = link[0].id;
     }
   }
 
