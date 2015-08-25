@@ -42,7 +42,7 @@ b.work = function(creep, rc) {
   if (link === null) {
       var links = creep.pos.findInRange(findLinks(rc), 5);
       if (links.length) {
-        creep.target = link[0].id;
+        creep.target = links[0].id;
     }
   }
 
