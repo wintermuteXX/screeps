@@ -8,7 +8,7 @@ b.when = function(creep, rc) {
 
 b.completed = function(creep, rc) {
   var target = Game.getObjectById(creep.target);
-  return (target === null || creep.energy >== 0);
+  return (target === null || creep.energy > 0);
 };
 
 b.work = function(creep, rc) {
