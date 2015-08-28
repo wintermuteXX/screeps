@@ -20,7 +20,7 @@ function findStorage(obj, rc) {
     var thestorage =  obj.pos.findInRange([store],3);
     // console.log("TheStorage: " + thestorage + " | rs " + rc.room.storage.store.energy);
     // console.log(JSON.stringify(thestorage));
-    if (thestorage && rc.room.storage.store.energy > 0) return thestorage;
+    if (thestorage && rc.room.storage.store.energy > 8000) return thestorage;
   }
   return null;
 } 
