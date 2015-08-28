@@ -17,7 +17,8 @@ function findNearLink(obj, rc) {
 function findStorage(obj, rc) {
   var store = rc.room.storage;
   if ( !!store ) {
-    return obj.pos.findInRange([store],3);
+    var thestorage =  obj.pos.findInRange([store],3);
+    if (thestorage.energy > 0) return thestorage;
   }
   return null;
 } 
@@ -29,7 +30,8 @@ b.when = function(creep, rc) {
     var controller = rc.getController();
     var energy = findEnergy(controller, rc);
     var link = findNearLink(controller, rc);
-    return (energy.length > 0 || link);
+    var storage = findStorage(controller, rc);
+    return (energy.length > 0 || link || storage);
   }
   return false;
 };
