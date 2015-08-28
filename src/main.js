@@ -3,8 +3,9 @@
 // X Builder Creeps just harvest 1 source. 
 // X Scout + Behavior.claim_controller umgesetzt
 // - Builders can block themselves if trying to upgrade controller
-// - Buildscreeps can fail if there is not much energy and 3 constructors are building. Takes a long time until 1 builder gets the job done. (No building if miner/transporter is 0)
-
+// X Buildscreeps can fail if there is not much energy and 3 constructors are building. Takes a long time until 1 builder gets the job done. (No building if miner/transporter is 0)
+// - find dropped energy choose target with random, even fail should be possible when there are links. And a minimun of dropped energy (>50
+// - Miner should automatically fill Link)
 require("_init");
 var GameController = require('GameController');
 
