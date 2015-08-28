@@ -18,6 +18,7 @@ function findStorage(obj, rc) {
   var store = rc.room.storage;
   if ( !!store ) {
     var thestorage =  obj.pos.findInRange([store],3);
+    console.log("thestorage: " + thestorage + "store.energy " + thestorage.store.energy);
     if (thestorage.energy > 0) return thestorage;
   }
   return null;
