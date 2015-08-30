@@ -34,6 +34,7 @@ b.work = function(creep, rc) {
     } else {
       creep.harvest(source);
       var energy = findNearLink(creep, rc);
+      console.log("find_near_link: " + energy);
       if (energy.length) {
         console.log("Da ist ein Link in meiner Nähe :-)");
       creep.transferEnergy(energy[0]);
