@@ -26,8 +26,8 @@ b.work = function(creep, rc) {
       creep.moveToEx(source);
     } else {
       creep.harvest(source);
+    }
   }
-
 };
 
 module.exports = b;
