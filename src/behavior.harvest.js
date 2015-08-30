@@ -2,6 +2,13 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("harvest");
 
+function findNearLink(obj, rc) {
+  var links = rc.links.senders;
+  var thelink = obj.pos.findInRange(links, 1);
+  if (thelink && (thelink.energy !== thelink.energyCapacity))
+  return thelink;
+}
+
 b.when = function(creep, rc) {
   return (creep.energy === 0);
 };
@@ -26,6 +33,9 @@ b.work = function(creep, rc) {
       creep.moveToEx(source);
     } else {
       creep.harvest(source);
+      var energy = findNearLink(creep, rc);
+      if (energy.length && energy[0].energy !==  ) {
+      creep.transferEnergy(energy[0]);
     }
   }
 

@@ -41,9 +41,9 @@ b.completed = function(creep, rc) {
   var target = creep.getTarget();
 
   if (creep.energy > 0 || !target) return true;
-  console.log('Structure: ' + target);
+  // console.log('Structure: ' + target);
   if (target && target.structureType) {
-    console.log("Structure Energy: " + target.energy);
+  //  console.log("Structure Energy: " + target.energy);
     return target.energy === 0;
   }
 
