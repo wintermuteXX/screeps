@@ -33,6 +33,7 @@ b.work = function(creep, rc) {
       creep.moveToEx(source);
     } else {
       creep.harvest(source);
+      console.log("Häää?");
       var energy = findNearLink(creep, rc);
       console.log("find_near_link: " + energy);
       if (energy.length) {
