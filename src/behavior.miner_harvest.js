@@ -3,9 +3,10 @@ var Behavior = require("_behavior");
 function findNearLink(obj, rc) {
   var links = rc.links.senders;
   var thelink = obj.pos.findInRange(links, 1);
-  console.log("TheLink: " + thelink);
   if (thelink && (thelink.energy !== thelink.energyCapacity))
-  return thelink;
+  { console.log("TheLink: " + thelink);
+    return thelink;
+  }
 }
 
 var b = new Behavior("miner_harvest");
