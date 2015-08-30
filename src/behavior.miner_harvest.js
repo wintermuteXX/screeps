@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 function findNearLink(obj, rc) {
   var links = rc.links.senders;
   var thelink = obj.pos.findInRange(links, 1);
-  if (thelink && (thelink.energy !== thelink.energyCapacity))
+  if (thelink)  //&& (thelink.energy !== thelink.energyCapacity)
   { console.log("TheLink: " + thelink);
     return thelink;
   }
