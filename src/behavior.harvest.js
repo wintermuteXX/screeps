@@ -34,7 +34,7 @@ b.work = function(creep, rc) {
     } else {
       creep.harvest(source);
       var energy = findNearLink(creep, rc);
-      if (energy.length && energy[0].energy !==  ) {
+      if (energy.length) {
       creep.transferEnergy(energy[0]);
     }
   }
