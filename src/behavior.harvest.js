@@ -1,12 +1,5 @@
 var Behavior = require("_behavior");
 
-function findNearLink(obj, rc) {
-  var links = rc.links.senders;
-  var thelink = obj.pos.findInRange(links, 2);
-  if (thelink && (thelink.energy !== thelink.energyCapacity))
-  return thelink;
-}
-
 var b = new Behavior("harvest");
 
 b.when = function(creep, rc) {
@@ -33,13 +26,6 @@ b.work = function(creep, rc) {
       creep.moveToEx(source);
     } else {
       creep.harvest(source);
-      console.log("Häää?");
-      var energy = findNearLink(creep, rc);
-      console.log("find_near_link: " + energy);
-      if (energy.length) {
-        console.log("Da ist ein Link in meiner Nähe :-)");
-      creep.transferEnergy(energy[0]);
-    }
   }
 
 };
