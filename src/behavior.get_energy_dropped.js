@@ -31,7 +31,8 @@ b.work = function(creep, rc) {
   if ( target === null ) {
     var droppedEnergy = findDroppedEnergy(rc);
     if ( droppedEnergy.length ) {
-      target = droppedEnergy[0];
+      target = droppedEnergy[Math.floor(Math.random() * droppedEnergy.length)];
+      // target = droppedEnergy[0];
       creep.target = target.id;
     }
   }
