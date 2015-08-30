@@ -1,13 +1,13 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("harvest");
-
 function findNearLink(obj, rc) {
   var links = rc.links.senders;
-  var thelink = obj.pos.findInRange(links, 1);
+  var thelink = obj.pos.findInRange(links, 2);
   if (thelink && (thelink.energy !== thelink.energyCapacity))
   return thelink;
 }
+
+var b = new Behavior("harvest");
 
 b.when = function(creep, rc) {
   return (creep.energy === 0);
