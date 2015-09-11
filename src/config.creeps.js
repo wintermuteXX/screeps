@@ -7,13 +7,13 @@ module.exports = {
       if ( rc.getLevel() > 2 ) {
         return (rc.getCreeps().length === 0);
       } else {
-        return rc.getCreeps("builder").length < 4;
+        return rc.getCreeps("builder").length < 5;
       }
     },
 
     body: [
       [MOVE, WORK, CARRY],
-      [MOVE, MOVE, WORK, WORK, CARRY]
+      [MOVE, MOVE, MOVE, WORK, WORK, CARRY, CARRY]
     ],
 
     behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
