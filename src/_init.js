@@ -4,6 +4,8 @@ require("_initGlobal")(global);
  * Extend Creep
  */
 
+if ( Creep && Creep.prototype && !Creep.prototype.behavior ) {
+    
 Object.defineProperty(Creep.prototype, "behavior", {
   get: function() {
     return this.memory.behavior || null;
@@ -133,3 +135,4 @@ Structure.prototype.getFreeFields = function() {
 Spawn.prototype.needsRepair = function() {
   return this.hits < (this.hitsMax - 250);
 };
+}
