@@ -1,36 +1,5 @@
 var Behavior = require("_behavior");
 
-function applyMiner(creep, rc) {
-	//   var minerId = creep.memory.miner;
-
-	//   if ( minerId && minerId !== "" ) {
-	//     // check, if miner exists
-	//     if ( Game.getObjectById(minerId) !== null ) {
-	//       return;
-	//     }
-	//   }
-
-	var transporters = rc.getCreeps("transporter");
-	var miners = rc.getCreeps("miner");
-
-	var perMiner = transporters.length / miners.length;
-
-	var fFilter = function (t) {
-		return (t.memory.miner == miner.id);
-	};
-
-	for (var m in miners) {
-		var miner = miners[m];
-
-		var tm = _.filter(transporters, fFilter);
-		if (tm.length < perMiner) {
-			creep.memory.miner = miner.id;
-			return;
-		}
-	}
-}
-
-
 var b = new Behavior("find_energy_transporter");
 
 b.when = function (creep, rc) {
@@ -43,7 +12,6 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-	// applyMiner(creep, rc);
 
 	var target = creep.getTarget();
 
@@ -57,10 +25,6 @@ b.work = function (creep, rc) {
 			}
 
 			var energy = miner.pos.findInRange(rc.find(FIND_DROPPED_ENERGY), 2);
-
-			// var energy = _.filter(rc.find(FIND_DROPPED_ENERGY), function (e) {
-			// 	return e.pos.inRangeTo(miner, 2);
-			// });
 
 			if (energy.length) {
 				target = energy[0];
