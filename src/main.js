@@ -9,7 +9,8 @@
 // - Links automatisch bauen
 // - Storage automatisch bauen
 // - Extensions automatisch bauen
-// - Statistik "Raumqualitaet" (Anzahl Sources, Entferung, Swamp)
+// - Statistik "Raumqualitaet" (Anzahl Sources, Entferung, Swamps)
+
 require("_init");
 var GameController = require('GameController');
 
