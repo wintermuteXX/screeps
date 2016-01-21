@@ -13,7 +13,6 @@
 
 require("_init");
 var profiler = require('screeps-profiler');
-
 var GameController = require('GameController');
 
 profiler.enable();
