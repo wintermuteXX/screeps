@@ -12,10 +12,19 @@
 // - Statistik "Raumqualitaet" (Anzahl Sources, Entferung, Swamps)
 
 require("_init");
+var profiler = require('screeps-profiler');
+
 var GameController = require('GameController');
 
+profiler.enable();
 module.exports.loop = function() {
+  profiler.wrap(function() {
+    // Main.js logic should go here.
+    module.exports.loop = function() {
     var gc = new GameController();
     gc.garbageCollection();
     gc.processRooms();
+}
+    
+  });
 }
