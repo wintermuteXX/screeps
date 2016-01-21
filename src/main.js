@@ -17,12 +17,11 @@ var GameController = require('GameController');
 
 profiler.enable();
 
-  profiler.wrap(function() {
+  module.exports.loop = function() {
+    profiler.wrap(function() {
     // Main.js logic should go here.
-    module.exports.loop = function() {
     var gc = new GameController();
     gc.garbageCollection();
     gc.processRooms();
-  };
-}
-  )
+    })
+  }
