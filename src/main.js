@@ -13,18 +13,15 @@
 
 require("_init");
 var profiler = require('screeps-profiler');
-var GameController = require('GameController');
-<<<<<<< Updated upstream
+
+
 
 profiler.enable();
 
   module.exports.loop = function() {
     profiler.wrap(function() {
     // Main.js logic should go here.
-=======
-// test
-module.exports.loop = function() {
->>>>>>> Stashed changes
+    var GameController = require('GameController');
     var gc = new GameController();
     gc.garbageCollection();
     gc.processRooms();
