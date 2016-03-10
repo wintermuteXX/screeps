@@ -73,6 +73,10 @@ SpawnController.prototype.getCosts = function(body) {
         case TOUGH:
           costs += 10;
           break;
+          
+        case CLAIM:
+          costs += 600;
+          break;
       }
     }
   }
