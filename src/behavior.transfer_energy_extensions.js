@@ -47,7 +47,7 @@ b.work = function(creep, rc) {
 
   if ( ext === null ) {
     //ext = findExtension(rc);
-    ext = global.Cache.rooms[rc.room];
+    ext = global.Cache.rooms[rc.room.name].emptyExtensions;
     if ( ext.length ) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
