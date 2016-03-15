@@ -21,10 +21,15 @@ b.when = function(creep, rc) {
   if ( creep.energy === 0 ) return false;
  console.log("RC: " + rc + " RCRoom: " + rc.room);
  //
- var ext = global.Cache.rooms[rc.room].emptyExtensions;
- console.log(ext);
- if (ext) return ext.length > 0;
- return false; 
+ 
+ var roomCache = global.Cache.rooms[rc.room];
+ if ( roomCache ) {
+     var ext = roomCache.emptyExtensions;
+     if ( ext ) {
+         return ext.length > 0;
+     }
+ }
+ return false;
 };
 
 b.completed = function(creep, rc) {
