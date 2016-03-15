@@ -15,7 +15,10 @@ function RoomController(room, gameController) {
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
    }});
-   console.log("Test empty extensions: " + Cache.rooms[room]);   
+   for (var i in global.Cache.rooms[room])
+   {
+   console.log("Test empty extensions: " + Cache.rooms[room][i]);   
+   }
    // Test ende
 	this._find = {};
 	this._spawns = [];
