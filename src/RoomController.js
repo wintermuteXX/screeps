@@ -7,7 +7,7 @@ var Debugger = require("_debugger");
 
 function RoomController(room, gameController) {
 	this.room = room;
-
+    console.log("RC = " + room);
 	this._find = {};
 	this._spawns = [];
 
@@ -250,55 +250,10 @@ RoomController.prototype.analyse = function() {
 		}
 		memory._structures = structures;
 
-
-		// var test = this._getStructures({
-		// 	'structureType' : STRUCTURE_EXTENSION
-		// });
-		//
-		// console.log(this.room, test, test.length);
-
 	} catch ( e ) {
 		console.log(e);
 	}
 
 };
-
-
-/**
- * RoomController.planConstructions()
- */
-
-/**
-RoomController.prototype.planConstructions = function () {
-	if (Game.time % this.config.interval.checkConstructions !== 0) return;
-
-	if (this.getLevel() >= 3) {
-		// NOTE: http://support.screeps.com/hc/en-us/articles/203079011-Room#findPath
-
-		// check roads
-		for (var spawn of this.find(FIND_MY_SPAWNS)) {
-			for (var source of this.getSources()) {
-				var path = _findConstructionPath(this.room, spawn, source);
-				if (path.length) {
-					for (var i in path) {
-						// check, if pos is road
-						var pos = path[i];
-
-
-
-					}
-				}
-			}
-		}
-	}
-
-};
-
-function _findConstructionPath(room, from, to) {
-	return room.findPath(from, to, {
-		ignoreCreeps: true
-	});
-}
-*/
 
 module.exports = RoomController;
