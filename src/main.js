@@ -9,6 +9,7 @@
 // - Storage automatisch bauen
 // - Extensions automatisch bauen
 // - Statistik "Raumqualitaet" (Anzahl Sources, Entferung, Swamps)
+// Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE, CARRY, MOVE], null, {role: 'builder'});
 
 require("_init");
 var profiler = require('screeps-profiler');
