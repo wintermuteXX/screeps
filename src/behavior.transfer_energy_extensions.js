@@ -20,7 +20,7 @@ var _cache = {};
 b.when = function(creep, rc) {
   if ( creep.energy === 0 ) return false;
  console.log("RC: " + rc + " RCRoom: " + rc.room + " RCRoomName: " + rc.room.name);
- console.log(global.Cache[rc.room]);
+ console.log("Ext: " + global.Cache.rooms[rc.room].emptyExtensions);
  //
  
  var roomCache = global.Cache.rooms[rc.room.name];
