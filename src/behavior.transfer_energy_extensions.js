@@ -19,11 +19,11 @@ var _cache = {};
 
 b.when = function(creep, rc) {
   if ( creep.energy === 0 ) return false;
- console.log("RC: " + rc + " RCRoom: " + rc.room + " RCRoomName: " + rc.room.name);
- console.log("Ext: " + global.Cache.rooms[rc.room].emptyExtensions);
+ console.log("RC: " + rc + " RCRoom: " + creep.room + " RCRoomName: " + creep.room.name);
+ console.log("Ext: " + global.Cache.rooms[creep.room].emptyExtensions);
  //
  
- var roomCache = global.Cache.rooms[rc.room.name];
+ var roomCache = global.Cache.rooms[creep.room.name];
  if ( roomCache ) {
      var ext = roomCache.emptyExtensions;
      if ( ext ) {
@@ -48,7 +48,7 @@ b.work = function(creep, rc) {
 
   if ( ext === null ) {
     //ext = findExtension(rc);
-    ext = global.Cache.rooms[rc.room.name].emptyExtensions;
+    ext = global.Cache.rooms[creep.room.name].emptyExtensions;
     if ( ext.length ) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
