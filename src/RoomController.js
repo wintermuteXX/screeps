@@ -9,9 +9,9 @@ function RoomController(room, gameController) {
 	this.room = room;
    // test
    global.Cache = {};
-   Cache.rooms = {};
-   Cache.rooms[room] = {};
-   Cache.rooms[room].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+   global.Cache.rooms = {};
+   global.Cache.rooms[room] = {};
+   global.Cache.rooms[room].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
       }
