@@ -4,7 +4,7 @@ var b = new Behavior("transfer_energy_extensions");
 
 var _cache = {};
 
-function findExtension(rc) {
+/* function findExtension(rc) {
   if ( !_cache[rc.room.name] ) {
     _cache[rc.room.name] = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) {
@@ -15,11 +15,14 @@ function findExtension(rc) {
   }
   return _cache[rc.room.name];
 }
+*/
 
 b.when = function(creep, rc) {
   if ( creep.energy === 0 ) return false;
 
-  var ext = findExtension(rc);
+
+ //
+ var ext = global.Cache.rooms[rc.room];
 
   return ext.length > 0;
 };
@@ -38,7 +41,8 @@ b.work = function(creep, rc) {
   var ext = creep.getTarget();
 
   if ( ext === null ) {
-    ext = findExtension(rc);
+    //ext = findExtension(rc);
+    ext = global.Cache.rooms[rc.room];
     if ( ext.length ) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
@@ -50,6 +54,7 @@ b.work = function(creep, rc) {
       creep.moveToEx(ext);
     } else {
       creep.transferEnergy(ext);
+      creep.target = null;
     }
   }
 
