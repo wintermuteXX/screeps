@@ -22,7 +22,7 @@ b.when = function(creep, rc) {
  console.log("RC: " + rc + " RCRoom: " + rc.room);
  //
  
- var roomCache = global.Cache.rooms[rc.room];
+ var roomCache = global.Cache.rooms[rc.room.name];
  if ( roomCache ) {
      var ext = roomCache.emptyExtensions;
      if ( ext ) {
