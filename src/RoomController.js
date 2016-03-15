@@ -14,7 +14,7 @@ function RoomController(room, gameController) {
    global.Cache.rooms[room].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
-      }
+   }});
    console.log("Test empty extensions: " + Cache.rooms[room]);   
    // Test ende
 	this._find = {};
