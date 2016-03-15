@@ -23,8 +23,8 @@ b.when = function(creep, rc) {
 
  //
  var ext = global.Cache.rooms[rc.room];
-
-  return ext.length > 0;
+ if (ext) return ext.length > 0;
+ return false; 
 };
 
 b.completed = function(creep, rc) {
