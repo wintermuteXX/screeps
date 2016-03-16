@@ -79,9 +79,9 @@ Creep.prototype.moveToEx = function(target) {
 
 
 
-Creep.prototype.getTarget = function() {
-  return Game.getObjectById(this.target);
-};
+// Creep.prototype.getTarget = function() {
+//  return Game.getObjectById(this.target);
+// };
 
 /**
  * Extend source
