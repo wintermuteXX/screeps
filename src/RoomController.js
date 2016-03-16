@@ -11,11 +11,20 @@ function RoomController(room, gameController) {
    global.Cache = {};
    global.Cache.rooms = {};
    global.Cache.rooms[room.name] = {};
+   
    global.Cache.rooms[room.name].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
    }});
     //console.log("RC: " + global.Cache.rooms[room].emptyExtensions);
+   
+   global.Cache.rooms[room.name].droppedResources = _.filter(room.find(FIND_DROPPED_RESOURCES), function(s){
+      if (s.amount > 50) {
+            return true
+   }});
+   
+   if (global.Cache.rooms[room.name].droppedResources)
+   { console.log(global.Cache.rooms[room.name].droppedResources); }
    
    // Test ende
 	this._find = {};
