@@ -7,7 +7,7 @@ var Debugger = require("_debugger");
 
 function RoomController(room, gameController) {
 	this.room = room;
-   // test
+
    global.Cache = {};
    global.Cache.rooms = {};
    global.Cache.rooms[room.name] = {};
@@ -16,14 +16,12 @@ function RoomController(room, gameController) {
       if (s.structureType === STRUCTURE_EXTENSION) {
             return s.energy < s.energyCapacity;
    }});
-    //console.log("RC: " + global.Cache.rooms[room].emptyExtensions);
    
    global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
    
    if (global.Cache.rooms[room.name].droppedResources)
    { console.log(global.Cache.rooms[room.name].droppedResources); }
    
-   // Test ende
 	this._find = {};
 	this._spawns = [];
 
