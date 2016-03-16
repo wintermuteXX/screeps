@@ -20,7 +20,7 @@ function RoomController(room, gameController) {
    global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
    
    if (global.Cache.rooms[room.name].droppedResources)
-   { console.log(global.Cache.rooms[room.name].droppedResources); }
+   { console.log("Dropped Res: " + global.Cache.rooms[room.name].droppedResources); }
    
 	this._find = {};
 	this._spawns = [];
