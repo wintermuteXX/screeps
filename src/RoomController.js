@@ -19,9 +19,10 @@ function RoomController(room, gameController) {
     //console.log("RC: " + global.Cache.rooms[room].emptyExtensions);
    
    global.Cache.rooms[room.name].droppedResources = _.filter(room.find(FIND_DROPPED_RESOURCES), function(s){
-      if (s.amount > 50) {
+      // if (s.amount > 50) {
             return true
-   }});
+      // }
+});
    
    if (global.Cache.rooms[room.name].droppedResources)
    { console.log(global.Cache.rooms[room.name].droppedResources); }
