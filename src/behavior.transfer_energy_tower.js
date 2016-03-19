@@ -3,12 +3,22 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_tower");
 
 function findTower(rc) {
-  var s = rc.room.tower;
-  if ( s && s.energy < s.energyCapacity ) {
-    return s;
-  }
-  return null;
-}
+    var roomCache = global.Cache.rooms[creep.room.name];
+ if ( roomCache ) {
+     var tower = roomCache.towers;
+     if ( tower ) {
+         return tower[0];
+     }
+ }
+ return false;
+};
+  //var s = rc.room.tower;
+  //console.log("Tower: " + s);
+  //if ( s && s.energy < s.energyCapacity ) {
+  //  return s;
+  //}
+  //return null;
+//}
 
 b.when = function(creep, rc) {
   if (creep.energy === 0) return false;
