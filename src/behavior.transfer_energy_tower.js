@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("transfer_energy_tower");
 
-function findTower(rc) {
+function findTower(rc,creep) {
     var roomCache = global.Cache.rooms[creep.room.name];
  if ( roomCache ) {
      var tower = roomCache.towers;
@@ -22,7 +22,7 @@ function findTower(rc) {
 
 b.when = function(creep, rc) {
   if (creep.energy === 0) return false;
-  var tower = findTower(rc);
+  var tower = findTower(rc,creep);
   return (!!tower);
 };
 
