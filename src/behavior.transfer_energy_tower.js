@@ -29,7 +29,6 @@ b.when = function(creep, rc) {
 
 b.completed = function(creep, rc) {
   var tower = creep.getTarget();
-console.log("Tower E: " + tower.energy);
   if (creep.energy === 0) return true;
   if ( tower && tower.energy === tower.energyCapacity ) return true;
 
@@ -52,6 +51,7 @@ b.work = function(creep, rc) {
       creep.moveToEx(tower);
     } else {
       creep.transferEnergy(tower);
+      creep.target = null;
     }
   }
 
