@@ -22,7 +22,8 @@ function findTower(rc,creep) {
 
 b.when = function(creep, rc) {
   if (creep.energy === 0) return false;
-  var tower = findTower(rc,creep);
+  // var tower = findTower(rc,creep);
+  var tower = global.Cache.rooms[creep.room.name].towers;
   return (!!tower);
 };
 
@@ -39,7 +40,8 @@ b.work = function(creep, rc) {
   var tower = creep.getTarget();
 
   if (tower === null) {
-    tower = findTower(rc);
+    // tower = findTower(rc);
+    var tower = global.Cache.rooms[creep.room.name].towers;
     if ( tower ) {
       creep.target = tower.id;
     }
