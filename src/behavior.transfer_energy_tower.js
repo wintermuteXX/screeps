@@ -24,7 +24,6 @@ b.when = function(creep, rc) {
   if (creep.energy === 0) return false;
   // var tower = findTower(rc,creep);
   var tower = global.Cache.rooms[creep.room.name].towers[0];
-  if ( !tower ) return true;
   return (!!tower);
 };
 
@@ -33,6 +32,7 @@ b.completed = function(creep, rc) {
   if (creep.energy === 0) return true;
   if ( tower && tower.energy === tower.energyCapacity ) return true;
     // console.log("t energy: " + tower.energy + " | t capac: " + tower.energyCapacity);
+    if ( !tower ) return true;
   return false;
 };
 
