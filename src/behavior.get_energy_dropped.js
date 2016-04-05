@@ -30,6 +30,8 @@ b.work = function(creep, rc) {
 
   if ( target === null ) {
     var droppedEnergy = findDroppedEnergy(rc);
+    console.log("Dropped Energy: " + droppedEnergy);
+    console.log("Dropped E Cache: " + global.Cache.rooms[creep.room.name].droppedResources);
     if ( droppedEnergy.length ) {
       target = droppedEnergy[Math.floor(Math.random() * droppedEnergy.length)];
       // target = droppedEnergy[0];
