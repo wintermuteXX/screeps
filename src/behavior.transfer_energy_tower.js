@@ -31,7 +31,7 @@ b.completed = function(creep, rc) {
   var tower = creep.getTarget();
   if (creep.energy === 0) return true;
   if ( tower && tower.energy === tower.energyCapacity ) return true;
-
+    console.log("t energy: " + tower.energy + " | t capac: " tower.energyCapacity);
   return false;
 };
 
