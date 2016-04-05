@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("transfer_energy_tower");
 
-function findTower(rc,creep) {
+/* function findTower(rc,creep) {
     var roomCache = global.Cache.rooms[creep.room.name];
  if ( roomCache ) {
      var tower = roomCache.towers;
@@ -11,7 +11,7 @@ function findTower(rc,creep) {
      }
  }
  return false;
-};
+};*/
   //var s = rc.room.tower;
   //console.log("Tower: " + s);
   //if ( s && s.energy < s.energyCapacity ) {
@@ -24,6 +24,7 @@ b.when = function(creep, rc) {
   if (creep.energy === 0) return false;
   // var tower = findTower(rc,creep);
   var tower = global.Cache.rooms[creep.room.name].towers[0];
+  if ( !tower ) return true;
   return (!!tower);
 };
 
@@ -31,7 +32,7 @@ b.completed = function(creep, rc) {
   var tower = creep.getTarget();
   if (creep.energy === 0) return true;
   if ( tower && tower.energy === tower.energyCapacity ) return true;
-    console.log("t energy: " + tower.energy + " | t capac: " + tower.energyCapacity);
+    // console.log("t energy: " + tower.energy + " | t capac: " + tower.energyCapacity);
   return false;
 };
 

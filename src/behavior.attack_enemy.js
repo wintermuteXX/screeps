@@ -41,7 +41,7 @@ b.work = function(creep, rc) {
 
     } else {
       creep.moveTo(target, {
-        ignoreDestructibleStructures: true
+        ignoreDestructibleStructures: false
       }
       );
     }
