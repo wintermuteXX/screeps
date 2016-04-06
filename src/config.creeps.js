@@ -65,7 +65,7 @@ module.exports = {
   },
 
   "upgrader" : {
-    priority : 3,
+    priority : 4,
     levelMin : 3,
 
     canBuild : function(rc) {
@@ -94,11 +94,11 @@ module.exports = {
   },
 
   "constructor" : {
-    priority : 4,
+    priority : 5,
     levelMin : 3,
 
     canBuild : function(rc) {
-      return rc.getCreeps("constructor").length < 3;
+      return rc.getCreeps("constructor").length < 2;
     },
 
     body : [
@@ -110,12 +110,12 @@ module.exports = {
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
     ],
 
-    behaviors : ["get_energy_dropped", "get_energy_spawn", "get_energy_link", "get_energy_storage", "build_structures", "repair", "goto_blue_flag" ]
+    behaviors : ["get_energy_dropped", "get_energy_link", "get_energy_storage", "get_energy_spawn", "build_structures", "repair", "goto_blue_flag" ]
   },
 
   'attacker': {
     produceGlobal : false,
-    priority : 5,
+    priority : 3,
     minLevel : 4,
 
     canBuild : function(rc) {
