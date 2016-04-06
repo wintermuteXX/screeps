@@ -13,15 +13,12 @@ function RoomController(room, gameController) {
    global.Cache.rooms[room.name] = {};
    
    global.Cache.rooms[room.name].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
-      if (s.structureType === STRUCTURE_EXTENSION) {
-            return s.energy < s.energyCapacity;
-   }});
+      if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
    
    global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
    global.Cache.rooms[room.name].towers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
-      if (s.structureType === STRUCTURE_TOWER) {
-            return s.energy < s.energyCapacity;
-   }});
+      if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
+   
    // if (global.Cache.rooms[room.name].droppedResources)
    // { console.log("Dropped Res: " + global.Cache.rooms[room.name].droppedResources); }
    
