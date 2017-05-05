@@ -50,7 +50,7 @@ b.work = function(creep, rc) {
     if (!creep.pos.isNearTo(link)) {
       creep.moveToEx(link);
     } else {
-      creep.transferEnergy(link);
+      creep.transfer(link);
     }
   }
 

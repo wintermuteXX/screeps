@@ -40,7 +40,7 @@ b.work = function(creep, rc) {
     if ( !creep.pos.isNearTo(ext) ) {
       creep.moveToEx(ext);
     } else {
-      creep.transferEnergy(ext);
+      creep.transfer(ext);
       creep.target = null;
     }
   }
