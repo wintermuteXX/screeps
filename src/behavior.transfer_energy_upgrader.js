@@ -29,7 +29,7 @@ b.work = function(creep, rc) {
     if (!creep.pos.inRangeTo(controller, 2)) {
       creep.moveToEx(controller);
     } else {
-      creep.dropEnergy();
+      creep.drop(RESOURCE_ENERGY);
     }
   }
 };
