@@ -5,11 +5,11 @@ module.exports = (function () {
 		this.name = name;
 		this.minUsed = minUsed || DEFAULT_MIN_USED;
 
-		this.start = game.cpu.getUsed();
+		this.start = Game.cup.getUsed();
 	}
 
 	Debugger.prototype.end = function () {
-		var used = game.cpu.getUsed() - this.start;
+		var used = Game.cup.getUsed() - this.start;
 		if (used > this.minUsed) {
 			console.log("Debugger", this.name, "Used CPU: " + used);
 		}

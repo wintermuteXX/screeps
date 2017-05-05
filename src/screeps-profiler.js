@@ -39,8 +39,8 @@ function resetMemory() {
 
 function overloadCPUCalc() {
   if (Game.rooms.sim) {
-    game.cpu.getUsed = function() {
-      return Game.rooms.sim ? performance.now() - usedOnStart : game.cpu.getUsed();
+    Game.cup.getUsed = function() {
+      return Game.rooms.sim ? performance.now() - usedOnStart : Game.cup.getUsed();
     };
   }
 }
@@ -53,13 +53,13 @@ function wrapFunction(name, originalFunction) {
   return function() {
     if (Profiler.isProfiling()) {
       var nameMatchesFilter = name === getFilter();
-      var start = game.cpu.getUsed();
+      var start = Game.cup.getUsed();
       if (nameMatchesFilter) {
         depth++;
       }
       var result = originalFunction.apply(this, arguments);
       if (depth > 0 || !getFilter()) {
-        var end = game.cpu.getUsed();
+        var end = Game.cup.getUsed();
         Profiler.record(name, end - start);
       }
       if (nameMatchesFilter) {
@@ -144,7 +144,7 @@ var Profiler = {
 
   endTick() {
     if (Game.time >= Memory.profiler.enabledTick) {
-      var cpuUsed = game.cpu.getUsed();
+      var cpuUsed = Game.cup.getUsed();
       Memory.profiler.totalTime += cpuUsed;
       Profiler.updateBucket(cpuUsed);
       Profiler.report();
@@ -192,16 +192,16 @@ module.exports = {
     }
 
     if (Profiler.isProfiling()) {
-      usedOnStart = game.cpu.getUsed();
+      usedOnStart = Game.cup.getUsed();
 
       // Commented lines are part of an on going experiment to keep the profiler
       // performant, and measure certain types of overhead.
 
-      //var callbackStart = game.cpu.getUsed();
+      //var callbackStart = Game.cup.getUsed();
       var returnVal = callback();
-      // var callbackEnd = game.cpu.getUsed();
+      // var callbackEnd = Game.cup.getUsed();
       Profiler.endTick();
-      // var end = game.cpu.getUsed();
+      // var end = Game.cup.getUsed();
 
       // var profilerTime = (end - start) - (callbackEnd - callbackStart);
       // var callbackTime = callbackEnd - callbackStart;
