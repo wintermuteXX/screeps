@@ -39,7 +39,7 @@ b.work = function(creep, rc) {
       var link = findNearLink(creep,rc);
         if (creep.pos.isNearTo(rc.room.storage)) {creep.transfer(rc.room.storage);}
           else if (link) { creep.transfer(link[0]); } 
-          else {creep.dropEnergy();}
+          else {creep.drop(RESOURCE_ENERGY);}
     }
   }
 };
