@@ -12,10 +12,10 @@ function getUpgraders(rc) {
 
 
 b.when = function(creep, rc) {
+  creep.say('Energy > Controller');
   return (creep.energy > 0 && getUpgraders(rc).length);
 };
 b.completed = function(creep, rc) {
-  creep.say('Energy transfered to Controller');
   return (creep.energy === 0);
 };
 b.work = function(creep, rc) {
