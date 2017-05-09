@@ -11,6 +11,7 @@ function findStorage(rc) {
 }
 
 b.when = function(creep, rc) {
+  creep.say('En. > Sto.');
   if (creep.energy === 0) return false;
   var storage = findStorage(rc);
   return (!!storage);

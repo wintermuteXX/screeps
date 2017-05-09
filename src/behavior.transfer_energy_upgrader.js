@@ -12,7 +12,7 @@ function getUpgraders(rc) {
 
 
 b.when = function(creep, rc) {
-  creep.say('Energy > Controller');
+  creep.say('En. > Con.');
   return (creep.energy > 0 && getUpgraders(rc).length);
 };
 b.completed = function(creep, rc) {

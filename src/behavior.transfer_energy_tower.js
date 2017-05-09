@@ -21,6 +21,7 @@ var b = new Behavior("transfer_energy_tower");
 //}
 
 b.when = function(creep, rc) {
+  creep.say('En. > Tow.');
   if (creep.energy === 0) return false;
   // var tower = findTower(rc,creep);
   var tower = global.Cache.rooms[creep.room.name].towers[0];

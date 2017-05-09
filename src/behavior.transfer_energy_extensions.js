@@ -2,6 +2,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_extensions");
 
 b.when = function(creep, rc) {
+  creep.say('En. > Ext.');
   if ( creep.energy === 0 ) return false;
 
  
