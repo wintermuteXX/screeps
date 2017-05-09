@@ -77,15 +77,10 @@ Creep.prototype.moveToEx = function(target) {
   }
 };
 
-
-
-// Creep.prototype.getTarget = function() {
-//  return Game.getObjectById(this.target);
-// };
-
 /**
  * Extend source
  */
+
 Object.defineProperty(Source.prototype, "defended", {
   get: function() {
     var RANGE = 5;
