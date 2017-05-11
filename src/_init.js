@@ -71,7 +71,14 @@ Creep.prototype.moveToEx = function(target) {
   if (this.fatigue === 0) {
     this.moveTo(target, {
       'reusePath' : 10,
-      'maxOps': 1000
+      'maxOps': 1000,
+      visualizePathStyle : {
+        fill: 'transparent',
+        stroke: '#fff',
+        lineStyle: 'dashed',
+        strokeWidth: .15,
+        opacity: .1
+      }
       // 'heuristicWeight': 5
     });
   }
