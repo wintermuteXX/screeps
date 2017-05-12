@@ -200,7 +200,7 @@ RoomController.prototype.getMaxEnergy = function () {
 	var extensionCount = this.getExtensions().length;
 	return 300 + (extensionCount * 50);
 };
-
+// TODO: Level 7 can be 100 Energy. 8 = 200
 
 /**
  * RoomController.getExtensions()
@@ -242,6 +242,7 @@ RoomController.prototype._getStructures = function(filter) {
 };
 
 RoomController.prototype.analyse = function() {
+	// TODO: Hard coded CPU Limit? No way
 	if ( Game.cpuLimit <= 100 ) return;
 	var memory = this.room.memory;
 
