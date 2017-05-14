@@ -1,5 +1,6 @@
-# Screeps_DEV
-Development Version
+# Screeps
+Script for Player utiuti
+Codebase by lethallic (inactive)
 
 ## Features
 - modular Creep configuration and behaviors
@@ -8,7 +9,7 @@ Development Version
 - alternating bodies per level and max available energy
 
 ## Todo List
-...
+- Update Readme :-)
 
 ## Configuration
 
