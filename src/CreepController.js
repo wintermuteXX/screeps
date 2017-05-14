@@ -1,19 +1,19 @@
 var Debugger = require("_debugger");
 
-function CreepController(roomController) {
-  this.roomController = roomController;
+function ControllerCreep(ControllerRoom) {
+  this.ControllerRoom = ControllerRoom;
 }
 
 /**
- * CreepController.run(creep)
+ * ControllerCreep.run(creep)
  */
-CreepController.prototype.run = function(creep) {
+ControllerCreep.prototype.run = function(creep) {
 
   var config = global.getCreepConfig(creep.role);
   if (config !== null) {
     var behavior = global.getBehavior(creep.behavior);
 
-    if (behavior === null || behavior.completed(creep, this.roomController)) {
+    if (behavior === null || behavior.completed(creep, this.ControllerRoom)) {
       behavior = this.findBehavior(config, creep);
       creep.target = null;
     }
@@ -22,8 +22,8 @@ CreepController.prototype.run = function(creep) {
       if (creep.behavior !== behavior.name) {
         creep.behavior = behavior.name;
       }
-      var debug = new Debugger("CreepController.run: " + creep + ", behavior: " + behavior.name);
-      behavior.work(creep, this.roomController);
+      var debug = new Debugger("ControllerCreep.run: " + creep + ", behavior: " + behavior.name);
+      behavior.work(creep, this.ControllerRoom);
       debug.end();
     } else {
       creep.behavior = null;
@@ -33,15 +33,15 @@ CreepController.prototype.run = function(creep) {
 
 
 /**
- * CreepController.findBehavior;
+ * ControllerCreep.findBehavior;
  */
-CreepController.prototype.findBehavior = function(config, creep) {
+ControllerCreep.prototype.findBehavior = function(config, creep) {
   var behaviors = config.behaviors;
 
   for (var i = 0; i < behaviors.length; i++) {
     var b = global.getBehavior(behaviors[i]);
 
-    if (b !== null && b.when(creep, this.roomController)) {
+    if (b !== null && b.when(creep, this.ControllerRoom)) {
       return b;
     }
   }
@@ -50,4 +50,4 @@ CreepController.prototype.findBehavior = function(config, creep) {
 };
 
 
-module.exports = CreepController;
+module.exports = ControllerCreep;

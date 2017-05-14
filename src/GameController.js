@@ -1,4 +1,4 @@
-var RoomController = require("RoomController");
+var ControllerRoom = require("ControllerRoom");
 var Debugger = require("_debugger");
 
 var GameController = function() {
@@ -7,7 +7,7 @@ var GameController = function() {
 	this._rooms = {};
 	for (var r in Game.rooms) {
 		var room = Game.rooms[r];
-		this._rooms[room.name] = new RoomController(room, this);
+		this._rooms[room.name] = new ControllerRoom(room, this);
 	}
 };
 

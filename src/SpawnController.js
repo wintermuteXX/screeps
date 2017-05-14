@@ -1,14 +1,14 @@
-function SpawnController(spawn, roomController) {
+function ControllerSpawn(spawn, ControllerRoom) {
   this.spawn = spawn;
-  this.roomController = roomController;
+  this.ControllerRoom = ControllerRoom;
 }
 
-SpawnController.prototype.idle = function() {
+ControllerSpawn.prototype.idle = function() {
   return (this.spawn.spawning === null || this.spawn.spawning === undefined);
 };
 
-SpawnController.prototype.createCreep = function(role, creepConfig, memory) {
-  var bodyConfig = this.evalCreepBody(this.roomController.getLevel(), creepConfig.body);
+ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
+  var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body);
   var result = null;
 
   if (bodyConfig !== null && bodyConfig.length) {
@@ -30,8 +30,8 @@ SpawnController.prototype.createCreep = function(role, creepConfig, memory) {
   return false;
 };
 
-SpawnController.prototype.evalCreepBody = function(level, body) {
-  var maxEnergy = this.roomController.getMaxEnergy();
+ControllerSpawn.prototype.evalCreepBody = function(level, body) {
+  var maxEnergy = this.ControllerRoom.getMaxEnergy();
   var start = (body.length < level ? body.length : level) - 1;
 
   for (var i = start; i >= 0; i--) {
@@ -43,7 +43,7 @@ SpawnController.prototype.evalCreepBody = function(level, body) {
   return null;
 };
 
-SpawnController.prototype.getCosts = function(body) {
+ControllerSpawn.prototype.getCosts = function(body) {
   var costs = 0;
 
   if (body && body.length) {
@@ -84,4 +84,4 @@ SpawnController.prototype.getCosts = function(body) {
   return costs;
 };
 
-module.exports = SpawnController;
+module.exports = ControllerSpawn;

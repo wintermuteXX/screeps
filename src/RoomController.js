@@ -1,11 +1,11 @@
 /*jshint esnext: true */
 
-var SpawnController = require("SpawnController");
-var CreepController = require("CreepController");
-var LinkController = require("LinkController");
+var ControllerSpawn = require("ControllerSpawn");
+var ControllerCreep = require("ControllerCreep");
+var ControllerLink = require("ControllerLink");
 var Debugger = require("_debugger");
 
-function RoomController(room, gameController) {
+function ControllerRoom(room, gameController) {
 	this.room = room;
 
    global.Cache = {};
@@ -28,19 +28,19 @@ function RoomController(room, gameController) {
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
-		this._spawns.push(new SpawnController(spawn, this));
+		this._spawns.push(new ControllerSpawn(spawn, this));
 	}
 
-	this.links = new LinkController(this);
+	this.links = new ControllerLink(this);
 
 	// global.initRoom(this);
 }
 
 
 /**
- * RoomController.run()
+ * ControllerRoom.run()
  */
-RoomController.prototype.run = function () {
+ControllerRoom.prototype.run = function () {
 	this.analyse();
 
 	// var debug = new Debugger(this.room + ": populate");
@@ -58,9 +58,9 @@ RoomController.prototype.run = function () {
 
 
 /**
- * RoomController.populate()
+ * ControllerRoom.populate()
  */
-RoomController.prototype.populate = function () {
+ControllerRoom.prototype.populate = function () {
 		if (Game.time % global.getInterval('checkPopulation') !== 0) return;
 
 		var spawn = null;
@@ -86,12 +86,12 @@ RoomController.prototype.populate = function () {
 };
 
 /**
- * RoomController._shouldCreateCreep(role, cfg) : boolean
+ * ControllerRoom._shouldCreateCreep(role, cfg) : boolean
  *
  * Check, if creep should be created
  */
 
-RoomController.prototype._shouldCreateCreep = function (role, cfg) {
+ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
 	var lReq = cfg.levelMin || 1;
 	var lMax = cfg.levelMax || 10;
@@ -107,10 +107,10 @@ RoomController.prototype._shouldCreateCreep = function (role, cfg) {
 };
 
 /**
- * RoomController.commandCreeps()
+ * ControllerRoom.commandCreeps()
  */
-RoomController.prototype.commandCreeps = function () {
-	var cc = new CreepController(this);
+ControllerRoom.prototype.commandCreeps = function () {
+	var cc = new ControllerCreep(this);
 	var creeps = this.find(FIND_MY_CREEPS);
 
 	for (var c in creeps) {
@@ -120,9 +120,9 @@ RoomController.prototype.commandCreeps = function () {
 
 
 /**
- * RoomController.find(type)
+ * ControllerRoom.find(type)
  */
-RoomController.prototype.find = function (type) {
+ControllerRoom.prototype.find = function (type) {
 	if (!this._find[type]) {
 		this._find[type] = this.room.find(type);
 	}
@@ -131,9 +131,9 @@ RoomController.prototype.find = function (type) {
 
 
 /**
- * RoomController.getCreeps(role, target)
+ * ControllerRoom.getCreeps(role, target)
  */
-RoomController.prototype.getCreeps = function (role, target) {
+ControllerRoom.prototype.getCreeps = function (role, target) {
 	var creeps = this.find(FIND_MY_CREEPS);
 
 	if (role || target) {
@@ -157,9 +157,9 @@ RoomController.prototype.getCreeps = function (role, target) {
 
 
 /**
- * RoomController.getController()
+ * ControllerRoom.getController()
  */
-RoomController.prototype.getController = function() {
+ControllerRoom.prototype.getController = function() {
 	if (this.room.controller) {
 		return this.room.controller;
 	}
@@ -168,9 +168,9 @@ RoomController.prototype.getController = function() {
 
 
 /**
- * RoomController.getLevel()
+ * ControllerRoom.getLevel()
  */
-RoomController.prototype.getLevel = function () {
+ControllerRoom.prototype.getLevel = function () {
 	var controller = this.getController();
 	if ( controller !== null && controller.my ) {
 		return controller.level;
@@ -180,9 +180,9 @@ RoomController.prototype.getLevel = function () {
 
 
 /**
- * RoomController.getIdleSpawn()
+ * ControllerRoom.getIdleSpawn()
  */
-RoomController.prototype.getIdleSpawn = function () {
+ControllerRoom.prototype.getIdleSpawn = function () {
 	for (var i in this._spawns) {
 		var sc = this._spawns[i];
 		if (sc.idle()) {
@@ -194,18 +194,18 @@ RoomController.prototype.getIdleSpawn = function () {
 
 
 /**
- * RoomController.getMaxEnergy()
+ * ControllerRoom.getMaxEnergy()
  */
-RoomController.prototype.getMaxEnergy = function () {
+ControllerRoom.prototype.getMaxEnergy = function () {
 	var extensionCount = this.getExtensions().length;
 	return 300 + (extensionCount * 50);
 };
 // TODO: Level 7 can be 100 Energy. 8 = 200
 
 /**
- * RoomController.getExtensions()
+ * ControllerRoom.getExtensions()
  */
-RoomController.prototype.getExtensions = function() {
+ControllerRoom.prototype.getExtensions = function() {
 	return _.filter(this.find(FIND_MY_STRUCTURES), {
 		structureType: STRUCTURE_EXTENSION
 	});
@@ -213,16 +213,16 @@ RoomController.prototype.getExtensions = function() {
 
 
 /**
- * RoomController.getSources()
+ * ControllerRoom.getSources()
  */
-RoomController.prototype.getSources = function (defended) {
+ControllerRoom.prototype.getSources = function (defended) {
 	var sources = _.filter(this.find(FIND_SOURCES), function(s) {
 		return (defended || false) == s.defended;
 	});
 	return sources;
 };
 
-RoomController.prototype._getStructures = function(filter) {
+ControllerRoom.prototype._getStructures = function(filter) {
 	var result = {};
 
 	var structures = this.room.memory._structures;
@@ -241,7 +241,7 @@ RoomController.prototype._getStructures = function(filter) {
 	return result;
 };
 
-RoomController.prototype.analyse = function() {
+ControllerRoom.prototype.analyse = function() {
 	// TODO: Hard coded CPU Limit? No way
 	if ( Game.cpuLimit <= 100 ) return;
 	var memory = this.room.memory;
@@ -271,4 +271,4 @@ RoomController.prototype.analyse = function() {
 
 };
 
-module.exports = RoomController;
+module.exports = ControllerRoom;

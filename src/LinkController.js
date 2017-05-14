@@ -1,13 +1,13 @@
 var RANGE_TO_SOURCE = 4;
 
-function LinkController(rc) {
+function ControllerLink(rc) {
   this.room = rc;
   this.links = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
     return (s.structureType === STRUCTURE_LINK);
   });
 }
 
-Object.defineProperty(LinkController.prototype, "senders", {
+Object.defineProperty(ControllerLink.prototype, "senders", {
   get: function() {
     var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
@@ -16,7 +16,7 @@ Object.defineProperty(LinkController.prototype, "senders", {
   }
 });
 
-Object.defineProperty(LinkController.prototype, "receivers", {
+Object.defineProperty(ControllerLink.prototype, "receivers", {
   get: function() {
     var sources = this.room.getSources();
     return _.filter(this.links, function(link) {
@@ -25,7 +25,7 @@ Object.defineProperty(LinkController.prototype, "receivers", {
   }
 });
 
-LinkController.prototype.transferEnergy = function() {
+ControllerLink.prototype.transferEnergy = function() {
   if ( Game.time % global.getInterval("checkLinks") !== 0 ) return;
 
   var senders = this.senders;
@@ -45,4 +45,4 @@ LinkController.prototype.transferEnergy = function() {
   }
 };
 
-module.exports = LinkController;
+module.exports = ControllerLink;
