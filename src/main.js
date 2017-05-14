@@ -4,7 +4,8 @@
 // Aufklärung Observer
 // Mineralien
 
-// Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE, CARRY, MOVE], null, {role: 'builder'});
+// Game.spawns.Eden.createCreep([WORK, CARRY, MOVE, CARRY, MOVE], null, {role: 'builder'});
+// Game.spawns.Eden.createCreep([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY], null, {role: 'transporter'});
 
 
 var profiler = require('screeps-profiler');
