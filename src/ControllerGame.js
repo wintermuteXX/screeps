@@ -3,6 +3,7 @@ var Debugger = require("_debugger");
 
 var ControllerGame = function() {
 	this.garbageCollection();
+// TODO: Warum wird das auch noch einmal in main.js aufgerufen
 
 	this._rooms = {};
 	for (var r in Game.rooms) {
@@ -23,6 +24,7 @@ ControllerGame.prototype.processGlobal = function () {
 
 	// scout
 	if ( Game.cpuLimit > 400 ) {
+		// TODO: Hardcode cpuLimit > Fail
     gc.scout();
 	}
 };

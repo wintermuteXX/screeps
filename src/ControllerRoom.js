@@ -19,9 +19,6 @@ function ControllerRoom(room, ControllerGame) {
    global.Cache.rooms[room.name].towers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
    
-   // if (global.Cache.rooms[room.name].droppedResources)
-   // { console.log("Dropped Res: " + global.Cache.rooms[room.name].droppedResources); }
-   
 	this._find = {};
 	this._spawns = [];
 
@@ -33,6 +30,8 @@ function ControllerRoom(room, ControllerGame) {
 
 	this.links = new ControllerLink(this);
 
+	// TODO: Warum unterscheidet sich spawns und links im Aufruf?
+	
 	// global.initRoom(this);
 }
 
