@@ -5,7 +5,7 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var Debugger = require("_debugger");
 
-function ControllerRoom(room, gameController) {
+function ControllerRoom(room, ControllerGame) {
 	this.room = room;
 
    global.Cache = {};

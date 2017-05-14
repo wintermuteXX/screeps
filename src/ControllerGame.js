@@ -1,7 +1,7 @@
 var ControllerRoom = require("ControllerRoom");
 var Debugger = require("_debugger");
 
-var GameController = function() {
+var ControllerGame = function() {
 	this.garbageCollection();
 
 	this._rooms = {};
@@ -11,7 +11,7 @@ var GameController = function() {
 	}
 };
 
-GameController.prototype.processRooms = function () {
+ControllerGame.prototype.processRooms = function () {
 	for (var i in this._rooms) {
 		var debug = new Debugger("processing room " + i);
 		this._rooms[i].run();
@@ -19,7 +19,7 @@ GameController.prototype.processRooms = function () {
 	}
 };
 
-GameController.prototype.processGlobal = function () {
+ControllerGame.prototype.processGlobal = function () {
 
 	// scout
 	if ( Game.cpuLimit > 400 ) {
@@ -27,7 +27,7 @@ GameController.prototype.processGlobal = function () {
 	}
 };
 
-GameController.prototype.scout = function() {
+ControllerGame.prototype.scout = function() {
 	var flag = _.find(Game.flags, { 'color' : COLOR_WHITE });
   if ( !flag ) return;
 
@@ -52,7 +52,7 @@ GameController.prototype.scout = function() {
 
 
 
-GameController.prototype.garbageCollection = function () {
+ControllerGame.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
 		if (!Game.creeps[c]) {
 			delete Memory.creeps[c];
@@ -60,4 +60,4 @@ GameController.prototype.garbageCollection = function () {
 	}
 };
 
-module.exports = GameController;
+module.exports = ControllerGame;

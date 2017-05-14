@@ -15,8 +15,8 @@ var profiler = require('screeps-profiler');
    profiler.wrap(function() {
     // Main.js logic should go here.
     require("_init");
-    var GameController = require('GameController');
-    var gc = new GameController();
+    var ControllerGame = require('ControllerGame');
+    var gc = new ControllerGame();
     gc.garbageCollection();
     gc.processRooms();
     })
