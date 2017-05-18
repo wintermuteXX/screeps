@@ -23,7 +23,8 @@ function ControllerRoom(room, ControllerGame) {
 
 	this._find = {};
 	this._spawns = [];
-
+	this._towers = [];
+	
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
