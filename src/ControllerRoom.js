@@ -63,7 +63,7 @@ ControllerRoom.prototype.run = function () {
 	this.commandCreeps();
 	// debug.end();
 
-	this.tower.fire();
+	this.fire();
 	
 };
 
