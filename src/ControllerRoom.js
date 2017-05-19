@@ -62,6 +62,10 @@ ControllerRoom.prototype.run = function () {
 	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
 	// debug.end();
+	_.each(this._towers, function(tower){
+		tower.fire();
+	})
+
 
 	//this.fire();
 	
