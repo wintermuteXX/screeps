@@ -4,7 +4,10 @@ function ControllerTower(tower, ControllerRoom) {
 }
 
 ControllerTower.prototype.fire = function() {
-console.log("Fire")
+var closestHostile = this.tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    if(closestHostile) {
+        this.tower.attack(closestHostile);
+    }
 };
 
 module.exports = ControllerTower;
