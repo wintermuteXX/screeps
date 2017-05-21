@@ -85,11 +85,14 @@ if (!energy) {
   if (energy) {
     if (!creep.pos.isNearTo(energy)) {
       creep.moveToEx(energy);
+      console.log("Energie: " + energy);
     } else {
       if (energy.structureType) {
+        console.log("Withdraw: " + energy);
         creep.withdraw(energy);
       } else {
         creep.pickup(energy);
+        console.log("Pickup: " + energy);
       }
     }
   }
