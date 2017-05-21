@@ -89,7 +89,7 @@ if (!energy) {
     } else {
       if (energy.structureType) {
         console.log("Withdraw: " + energy);
-        creep.withdraw(energy);
+        creep.withdraw(energy,RESOURCE_ENERGY);
       } else {
         creep.pickup(energy);
         console.log("Pickup: " + energy);
