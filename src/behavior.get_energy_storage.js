@@ -26,7 +26,7 @@ b.work = function(creep, rc) {
     } else {
       // target.transferEnergy(creep);
       creep.withdraw(target, RESOURCE_ENERGY);
-    creep.moveTo(storage);
+    // creep.moveTo(storage);
       creep.target = null;
     }
   }
