@@ -87,7 +87,7 @@ if (!energy) {
       creep.moveToEx(energy);
     } else {
       if (energy.structureType) {
-        energy.transferEnergy(creep);
+        creep.withdraw(energy);
       } else {
         creep.pickup(energy);
       }
