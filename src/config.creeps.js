@@ -151,7 +151,7 @@ module.exports = {
       [CARRY, CARRY, WORK, MOVE, MOVE],
       [CARRY, CARRY, WORK, WORK, MOVE, MOVE],
       [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE],
-      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
+      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM]
     ],
 
     behaviors : [ 'goto_white_flag', "claim_controller", "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]

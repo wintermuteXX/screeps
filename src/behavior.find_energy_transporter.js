@@ -24,7 +24,7 @@ b.work = function (creep, rc) {
 				return;
 			}
 
-			var energy = miner.pos.findInRange(rc.find(FIND_DROPPED_ENERGY), 2);
+			var energy = miner.pos.findInRange(rc.find(FIND_DROPPED_RESOURCES), 2);
 
 			if (energy.length) {
 				target = energy[0];

@@ -6,7 +6,7 @@ var _cache = {};
 
  /* function findDroppedEnergy(rc) {
   if ( !_cache[rc.room.name] ) {
-    var dropped = rc.find(FIND_DROPPED_ENERGY);
+    var dropped = rc.find(FIND_DROPPED_RESOURCES);
     _cache[rc.room.name] = _.filter(dropped, function(d) {
       return !d.pos.inRangeTo(rc.getController(), 2);
     });
