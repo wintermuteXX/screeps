@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_dropped");
 
 b.when = function(creep, rc) {
-  console.log(global.Cache.rooms[creep.room.name].droppedResources.length);
+  //console.log(global.Cache.rooms[creep.room.name].droppedResources.length);
   return (creep.energy === 0 && global.Cache.rooms[creep.room.name].droppedResources.length);
 };
 
