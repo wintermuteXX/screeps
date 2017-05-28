@@ -2,20 +2,8 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("get_energy_dropped");
 
-var _cache = {};
-
- /* function findDroppedEnergy(rc) {
-  if ( !_cache[rc.room.name] ) {
-    var dropped = rc.find(FIND_DROPPED_RESOURCES);
-    _cache[rc.room.name] = _.filter(dropped, function(d) {
-      return !d.pos.inRangeTo(rc.getController(), 2);
-    });
-  }
-
-  return _cache[rc.room.name];
- } */
-
 b.when = function(creep, rc) {
+  console.log(global.Cache.rooms[creep.room.name].droppedResources.length);
   return (creep.energy === 0 && global.Cache.rooms[creep.room.name].droppedResources.length);
 };
 
