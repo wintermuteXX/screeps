@@ -70,7 +70,8 @@ Creep.prototype.isNearTo = function(t) {
 Creep.prototype.moveToEx = function(target) {
   if (this.fatigue === 0) {
     this.moveTo(target, {
-      'reusePath' : 10,
+      'reusePath' : 20,
+      // 'noPathFinding' : true,
       'maxOps': 1000,
       visualizePathStyle : {
         fill: 'transparent',
@@ -79,7 +80,6 @@ Creep.prototype.moveToEx = function(target) {
         strokeWidth: .15,
         opacity: .1
       }
-      // 'heuristicWeight': 5
     });
   }
 };
@@ -134,6 +134,7 @@ Structure.prototype.getFreeFields = function() {
   return this.room.memory.maxUpgraders || 0;
 };
 
+// TODO: is this stell needed?
 Spawn.prototype.needsRepair = function() {
   return this.hits < (this.hitsMax - 250);
 };
