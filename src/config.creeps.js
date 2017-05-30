@@ -48,7 +48,9 @@ module.exports = {
     canBuild: function(rc) {
       var miners = rc.getCreeps('miner');
       var transpoters = rc.getCreeps('transporter');
-      var links = rc._getStructures(STRUCTURE_LINK);
+      var links = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
+    return (s.structureType === STRUCTURE_LINK);
+      });
       console.log(links);
       console.log("Need: " + transpoters.length < miners.length * 2 - links + " transporters");
       return (transpoters.length < miners.length * 2);
