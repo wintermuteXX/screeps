@@ -51,9 +51,8 @@ module.exports = {
       var links = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
     return (s.structureType === STRUCTURE_LINK);
       });
-      console.log(links.length);
-      console.log("Need: " + (transpoters.length < miners.length * 2 - links.length) + " transporters");
-      return (transpoters.length < miners.length * 2);
+      // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
+      return ((transpoters.length + links.length - 1) < miners.length * 2);
 
     },
 
