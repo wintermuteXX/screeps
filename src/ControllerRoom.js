@@ -64,11 +64,7 @@ ControllerRoom.prototype.run = function () {
 	// debug.end();
 	_.each(this._towers, function(tower){
 		tower.fire();
-	})
-
-
-	//this.fire();
-	
+	})	
 };
 
 
