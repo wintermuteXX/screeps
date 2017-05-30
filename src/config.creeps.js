@@ -51,8 +51,8 @@ module.exports = {
       var links = _.filter(rc.find(FIND_MY_STRUCTURES), function(s){
     return (s.structureType === STRUCTURE_LINK);
       });
-      console.log(links);
-      console.log("Need: " + transpoters.length < miners.length * 2 - links + " transporters");
+      console.log(links.length);
+      console.log("Need: " + (transpoters.length < miners.length * 2 - links.length) + " transporters");
       return (transpoters.length < miners.length * 2);
 
     },
