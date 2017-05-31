@@ -70,8 +70,8 @@ Creep.prototype.isNearTo = function(t) {
 Creep.prototype.moveToEx = function(target) {
   if (this.fatigue === 0) {
     this.moveTo(target, {
-      'reusePath' : 20,
-      // 'noPathFinding' : true,
+      'reusePath' : 15,
+      'noPathFinding' : true,
       'maxOps': 1000,
       visualizePathStyle : {
         fill: 'transparent',
