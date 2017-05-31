@@ -71,7 +71,7 @@ Creep.prototype.moveToEx = function(target) {
   if (this.fatigue === 0) {
     this.moveTo(target, {
       'reusePath' : 15,
-      'noPathFinding' : true,
+      //'noPathFinding' : true,
       'maxOps': 1000,
       visualizePathStyle : {
         fill: 'transparent',
