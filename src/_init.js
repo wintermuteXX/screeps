@@ -182,9 +182,9 @@ Structure.prototype.getFreeFields = function() {
         enumerable: false,
         configurable: true
     });
-    
+
 // TODO: is this stell needed?
-Spawn.prototype.needsRepair = function() {
-  return this.hits < (this.hitsMax - 250);
-};
+// Spawn.prototype.needsRepair = function() {
+//  return this.hits < (this.hitsMax - 250);
+// };
 }
