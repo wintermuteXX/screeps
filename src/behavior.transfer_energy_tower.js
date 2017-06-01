@@ -6,8 +6,10 @@ b.when = function(creep, rc) {
   creep.say('En. > Tow.');
   if (creep.energy === 0) return false;
   
+  if (global.Cache.rooms[creep.room.name].emptytowers) {
   var tower = global.Cache.rooms[creep.room.name].emptytowers[0];
-  return (!!tower);
+  return (!!tower);}
+  else { return false;}
 };
 
 b.completed = function(creep, rc) {
