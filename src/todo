@@ -40,7 +40,7 @@ if (claimer.pos.isNearTo(this.controller)) {
         else {
             claimer.travelTo(this.controller);
         }
-----------------------
+---------------------
 room.energyAvailablenumber
 Total amount of energy available in all spawns and extensions in the room.
 
