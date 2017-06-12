@@ -59,13 +59,14 @@ ControllerRoom.prototype.run = function () {
 	this.links.transferEnergy();
 	// debug.end();
 
-	this.findDroppedResources();
 	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
 	// debug.end();
 	_.each(this._towers, function(tower){
 		tower.fire();
-	})	
+	})
+
+	this.findDroppedResources();	
 };
 
 
