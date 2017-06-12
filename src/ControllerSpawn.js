@@ -31,8 +31,10 @@ ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
 };
 
 ControllerSpawn.prototype.evalCreepBody = function(level, body) {
-  var maxEnergy = this.Room.energyCapacityAvailablenumber;
-  console.log(maxEnergy);
+  var maxEnergy = this.ControllerRoom.getMaxEnergy();
+  // var maxEnergy = this.Room.energyCapacityAvailablenumber;
+  // TODO
+  
   var start = (body.length < level ? body.length : level) - 1;
 
   for (var i = start; i >= 0; i--) {
