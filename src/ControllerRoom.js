@@ -59,6 +59,7 @@ ControllerRoom.prototype.run = function () {
 	this.links.transferEnergy();
 	// debug.end();
 
+	this.droppedResources();
 	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
 	// debug.end();
@@ -94,6 +95,25 @@ ControllerRoom.prototype.populate = function () {
 				}
 			}
 		}
+};
+
+/**
+ * 
+ * Check for new dropped Energy on floor. Writes in Memory.
+ *
+ */
+
+ControllerRoom.prototype.findDroppedResources = function () {
+if (Game.time % global.getInterval('checkDroppedEnergy') !== 0) return;
+
+var droppedResources = {};
+		for ( var s of this.find(FIND_DROPPED_RESOURCES) ) {
+			droppedResources[s.id] = {
+				'structureType' : s.resourceType,
+				'hits' : s.amount,
+				};
+		}
+		memory._droppedResources = droppedResources;
 };
 
 /**
@@ -207,11 +227,10 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 /**
  * ControllerRoom.getMaxEnergy()
  */
-ControllerRoom.prototype.getMaxEnergy = function () {
-	var extensionCount = this.getExtensions().length;
-	return 300 + (extensionCount * 50);
-};
-// TODO: Level 7 can be 100 Energy. 8 = 200
+// ControllerRoom.prototype.getMaxEnergy = function () {
+// 	var extensionCount = this.getExtensions().length;
+// 	return 300 + (extensionCount * 50);
+// };
 
 /**
  * ControllerRoom.getExtensions()
