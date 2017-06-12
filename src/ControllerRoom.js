@@ -59,7 +59,7 @@ ControllerRoom.prototype.run = function () {
 	this.links.transferEnergy();
 	// debug.end();
 
-	this.droppedResources();
+	this.findDroppedResources();
 	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
 	// debug.end();
