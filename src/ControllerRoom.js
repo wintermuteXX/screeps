@@ -228,10 +228,10 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 /**
  * ControllerRoom.getMaxEnergy()
  */
-// ControllerRoom.prototype.getMaxEnergy = function () {
-// 	var extensionCount = this.getExtensions().length;
-// 	return 300 + (extensionCount * 50);
-// };
+    ControllerRoom.prototype.getMaxEnergy = function () {
+  	var extensionCount = this.getExtensions().length;
+ 	return 300 + (extensionCount * 50);
+	 };
 
 /**
  * ControllerRoom.getExtensions()
