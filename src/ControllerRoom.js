@@ -105,7 +105,7 @@ ControllerRoom.prototype.populate = function () {
 
 ControllerRoom.prototype.findDroppedResources = function () {
 if (Game.time % global.getInterval('checkDroppedEnergy') !== 0) return;
-
+var memory = this.room.memory;
 var droppedResources = {};
 		for ( var s of this.find(FIND_DROPPED_RESOURCES) ) {
 			droppedResources[s.id] = {
