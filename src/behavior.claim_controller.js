@@ -11,8 +11,13 @@ b.completed = function(creep, rc) {
 };
 
 b.work = function(creep, rc) {
-  creep.moveTo(creep.room.controller);
-  creep.claimController(creep.room.controller);
+  
+if (creep.pos.isNearTo(creep.room.controller)) {
+            creep.claimController(creep.room.controller);
+        }
+        else {
+            creep.moveToEx(creep.room.controller);
+        }
 };
 
 module.exports = b;

@@ -1,12 +1,5 @@
-// To - DO:
-// Automatisches bauen auf Grundlage eines vorher berechneten Layouts
-// Expansion automatisieren
-// Aufklärung Observer
-// Mineralien
-
 // Game.spawns.Eden.createCreep([WORK, CARRY, MOVE, CARRY, MOVE], null, {role: 'builder'});
 // Game.spawns.Eden.createCreep([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY], null, {role: 'transporter'});
-
 
 var profiler = require('screeps-profiler');
 

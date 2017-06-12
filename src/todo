@@ -30,20 +30,3 @@ Object.defineProperty(Source.prototype, “memory”, {
     this.room.memory.sources[this.id] = value;
   },
 });
-
-
----------------------
-
-if (claimer.pos.isNearTo(this.controller)) {
-            claimer.claimController(this.controller);
-        }
-        else {
-            claimer.travelTo(this.controller);
-        }
----------------------
-room.energyAvailablenumber
-Total amount of energy available in all spawns and extensions in the room.
-
-room.energyCapacityAvailablenumber
-Total amount of energyCapacity of all spawns and extensions in the room.
-
