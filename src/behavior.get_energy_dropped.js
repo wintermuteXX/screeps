@@ -4,7 +4,6 @@ var b = new Behavior("get_energy_dropped");
 
 b.when = function(creep, rc) {
   var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
-  console.log(droppedEnergy);
   return (creep.energy === 0 && droppedEnergy && droppedEnergy.length);
 };
 
