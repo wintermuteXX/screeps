@@ -14,10 +14,10 @@ function ControllerRoom(room, ControllerGame) {
    global.Cache.rooms = {};
    global.Cache.rooms[room.name] = {};
    
-   global.Cache.rooms[room.name].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+   // global.Cache.rooms[room.name].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
    
-   global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
+   // global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
    global.Cache.rooms[room.name].emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
    global.Cache.rooms[room.name].towers = room.find(FIND_MY_STRUCTURES, {

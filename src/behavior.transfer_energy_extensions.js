@@ -2,17 +2,19 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_extensions");
 
 b.when = function(creep, rc) {
-  creep.say('En. > Ext.');
+  creep.say('E > Exten.');
   if ( creep.energy === 0 ) return false;
 
- 
- var roomCache = global.Cache.rooms[creep.room.name];
- if ( roomCache ) {
+ var emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+      if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
+
+ //var roomCache = global.Cache.rooms[creep.room.name];
+ //if ( roomCache ) {
      var ext = roomCache.emptyExtensions;
-     if ( ext ) {
-         return ext.length > 0;
+     if ( emptyExtensions ) {
+         return emptyExtensions.length > 0;
      }
- }
+ //}
  return false;
 };
 
@@ -30,7 +32,10 @@ b.work = function(creep, rc) {
   var ext = creep.getTarget();
 
   if ( ext === null ) {
-    ext = global.Cache.rooms[creep.room.name].emptyExtensions;
+    //ext = global.Cache.rooms[creep.room.name].emptyExtensions;
+    ext = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+      if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
+
     if ( ext.length ) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
