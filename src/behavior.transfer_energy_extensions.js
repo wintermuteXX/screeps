@@ -5,12 +5,12 @@ b.when = function(creep, rc) {
   creep.say('E > Exten.');
   if ( creep.energy === 0 ) return false;
 
- var emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+ var emptyExtensions = _.filter(creep.room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
 
  //var roomCache = global.Cache.rooms[creep.room.name];
  //if ( roomCache ) {
-     var ext = roomCache.emptyExtensions;
+     var ext = emptyExtensions;
      if ( emptyExtensions ) {
          return emptyExtensions.length > 0;
      }
