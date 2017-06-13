@@ -4,7 +4,7 @@ var b = new Behavior("get_energy_dropped");
 
 b.when = function(creep, rc) {
   //return (creep.energy === 0 && global.Cache.rooms[creep.room.name].droppedResources && global.Cache.rooms[creep.room.name].droppedResources.length);
-  var droppedEnergy = room.find(FIND_DROPPED_RESOURCES)
+  var droppedEnergy = rc.find(FIND_DROPPED_RESOURCES)
   return (creep.energy === 0 && droppedEnergy);
 };
 
@@ -18,7 +18,7 @@ b.work = function(creep, rc) {
 
 
   if ( target === null ) {
-    var droppedEnergy = room.find(FIND_DROPPED_RESOURCES);
+    var droppedEnergy = rc.find(FIND_DROPPED_RESOURCES);
     // var droppedEnergy = global.Cache.rooms[creep.room.name].droppedResources;
     // console.log("Dropped Energy: " + droppedEnergy);
     // console.log("Dropped E Cache: " + global.Cache.rooms[creep.room.name].droppedResources);
