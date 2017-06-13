@@ -10,7 +10,6 @@ ControllerSpawn.prototype.idle = function() {
 ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
   var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body);
   var result = null;
-console.log("Body Config: " + bodyConfig);
   if (bodyConfig !== null && bodyConfig.length) {
     var name = role + "_" + Math.round(Math.random() * 999);
     if (this.spawn.canCreateCreep(bodyConfig, name) == OK) {
@@ -19,7 +18,6 @@ console.log("Body Config: " + bodyConfig);
       memory.role = role;
 
       result = this.spawn.createCreep(bodyConfig, name, memory);
-      console.log(this.spawn.room.name + " Spawn creep", role, "" + result);
     }
   }
 
