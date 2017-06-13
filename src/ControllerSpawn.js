@@ -10,7 +10,7 @@ ControllerSpawn.prototype.idle = function() {
 ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
   var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body);
   var result = null;
-
+console.log("Body Config: " + bodyConfig);
   if (bodyConfig !== null && bodyConfig.length) {
     var name = role + "_" + Math.round(Math.random() * 999);
     if (this.spawn.canCreateCreep(bodyConfig, name) == OK) {
@@ -24,15 +24,15 @@ ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
   }
 
   if (result !== null) {
+    console.log("Result: " + result);
     return (result === OK);
   }
-
+  console.log("Result: " + result);
   return false;
 };
 
 ControllerSpawn.prototype.evalCreepBody = function(level, body) {
   var maxEnergy = this.ControllerRoom.getMaxEnergy();
-  console.log("Max Energy: " + maxEnergy);
   // var maxEnergy = this.Room.energyCapacityAvailablenumber;
   // TODO
   
