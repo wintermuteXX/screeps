@@ -33,7 +33,7 @@ b.work = function(creep, rc) {
 
   if ( ext === null ) {
     //ext = global.Cache.rooms[creep.room.name].emptyExtensions;
-    ext = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+    ext = _.filter(creep.room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
 
     if ( ext.length ) {
