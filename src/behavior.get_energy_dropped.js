@@ -3,9 +3,9 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_dropped");
 
 b.when = function(creep, rc) {
-  return (creep.energy === 0 && global.Cache.rooms[creep.room.name].droppedResources && global.Cache.rooms[creep.room.name].droppedResources.length);
-  //var droppedEnergy = rc.find(FIND_DROPPED_RESOURCES);
-  //console.log(droppedEnergy);
+  var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
+  console.log(droppedEnergy);
+    return (creep.energy === 0 && global.Cache.rooms[creep.room.name].droppedResources && global.Cache.rooms[creep.room.name].droppedResources.length);
   //return (creep.energy === 0 && droppedEnergy);
 };
 
