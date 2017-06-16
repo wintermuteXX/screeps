@@ -18,11 +18,9 @@ function ControllerRoom(room, ControllerGame) {
    //   if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
    
    // global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
-   global.Cache.rooms[room.name].emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
-      if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
-   global.Cache.rooms[room.name].towers = room.find(FIND_MY_STRUCTURES, {
-    	filter: { structureType: STRUCTURE_TOWER } });
-
+   // global.Cache.rooms[room.name].emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+   //   if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
+   
 	this._find = {};
 	this._spawns = [];
 	this._towers = [];
@@ -35,8 +33,11 @@ function ControllerRoom(room, ControllerGame) {
 
 	this.links = new ControllerLink(this);
 
-	for (var t in global.Cache.rooms[room.name].towers) {
-		var tower = global.Cache.rooms[room.name].towers[t];
+	var towers = room.find(FIND_MY_STRUCTURES, {
+    	filter: { structureType: STRUCTURE_TOWER } });
+
+	for (var t in towers) {
+		var tower = towers[t];
 		this._towers.push(new ControllerTower(tower, this));
 	}
 
