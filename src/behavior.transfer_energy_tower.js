@@ -6,7 +6,7 @@ b.when = function(creep, rc) {
   creep.say('En. > Tow.');
   if (creep.energy === 0) return false;
   
-  var emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+  var emptytowers = _.filter(creep.room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
 
   if (emptytowers) {
@@ -28,7 +28,7 @@ b.work = function(creep, rc) {
   var tower = creep.getTarget();
 
   if (tower === null) {
-    var emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
+    var emptytowers = _.filter(creep.room.find(FIND_MY_STRUCTURES), function(s){
       if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
 
     var tower = emptytowers[0];
