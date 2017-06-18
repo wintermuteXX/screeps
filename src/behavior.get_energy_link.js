@@ -37,7 +37,7 @@ b.work = function(creep, rc) {
     } else {
       console.log("I withdraw from Target: " + target);
       
-      creep.withdraw(target);
+      creep.withdraw(target, RESOURCE_ENERGY);
       creep.target = null;
     }
   }
