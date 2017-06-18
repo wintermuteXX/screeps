@@ -24,19 +24,14 @@ b.work = function(creep, rc) {
   var target = creep.getTarget();
   if ( target === null ) {
      var links = findLinks(rc);
-     // find Closest?
      var link = creep.pos.findClosestByRange(links);
      creep.target = link.id;
-     //creep.target = links[0].id;
   }
 
   if ( target !== null ) {
     if ( !creep.pos.isNearTo(target) ) {
-      console.log("I move to Target: " + target);
       creep.moveToEx(target);
     } else {
-      console.log("I withdraw from Target: " + target);
-      
       creep.withdraw(target, RESOURCE_ENERGY);
       creep.target = null;
     }
