@@ -32,7 +32,7 @@ ControllerLink.prototype.transferEnergy = function() {
   var receivers = this.receivers;
 
   var receiver = _.find(receivers, function(r) {
-    return (r.energy < r.energyCapacity - 100);
+    return (r.energy < r.energyCapacity - 200);
   });
 
   if (receiver !== null) {
