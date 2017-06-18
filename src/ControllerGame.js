@@ -20,6 +20,7 @@ ControllerGame.prototype.processRooms = function () {
 	}
 };
 
+/*
 ControllerGame.prototype.processGlobal = function () {
 
 	// scout
@@ -28,7 +29,9 @@ ControllerGame.prototype.processGlobal = function () {
     gc.scout();
 	}
 };
+*/
 
+/*
 ControllerGame.prototype.scout = function() {
 	var flag = _.find(Game.flags, { 'color' : COLOR_WHITE });
   if ( !flag ) return;
@@ -51,6 +54,7 @@ ControllerGame.prototype.scout = function() {
 		console.log(spawn);
 	}
 };
+*/
 
 
 
