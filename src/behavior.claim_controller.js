@@ -17,7 +17,7 @@ if (creep.pos.isNearTo(creep.room.controller)) {
             creep.claimController(creep.room.controller);
         }
         else {
-           console.log("I move to controller. Name: " + creep.name);
+           console.log("I move to controller. Name: " + creep.name + " Controller: " + creep.room.controller);
  
             creep.moveToEx(creep.room.controller);
         }
