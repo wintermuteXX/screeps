@@ -32,8 +32,11 @@ b.work = function(creep, rc) {
 
   if ( target !== null ) {
     if ( !creep.pos.isNearTo(target) ) {
+      console.log("I move to Target: " + target);
       creep.moveToEx(target);
     } else {
+      console.log("I withdraw from Target: " + target);
+      
       creep.withdraw(target);
       creep.target = null;
     }
