@@ -19,7 +19,7 @@ b.work = function(creep, rc) {
   if ( target === null ) {
     var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
     console.log("Dropped Energy: " + droppedEnergy);
-    var droppedEnergy = _.filter(droppedEnergy, function(f) {return f.amount > 99;)};
+    var droppedEnergy = _.filter(droppedEnergy, function(f) {return f.amount > 99;});
     console.log("Dropped Energy 100: " + droppedEnergy);
     
 
