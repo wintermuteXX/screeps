@@ -75,8 +75,8 @@ module.exports = {
       var controller = rc.getController();
       // var store = rc.storage.store[RESOURCE_ENERGY] < 20000;
       // console.log("Updgrade produce: " + store);
-      return ( controller && controller.my && rc.getCreeps('upgrader').length < 1);
-
+      // return ( controller && controller.my && rc.getCreeps('upgrader').length < 1);
+      return false;
       // var max = controller.getFreeFields();
       // if ( max > 3 ) {
       //   max = 3;
