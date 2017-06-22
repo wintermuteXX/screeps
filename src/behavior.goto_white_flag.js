@@ -1,5 +1,4 @@
 var Behavior = require("_behavior");
-
 var b = new Behavior("goto_white_flag");
 
 function findFlag(rc) {
