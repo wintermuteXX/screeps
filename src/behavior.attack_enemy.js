@@ -6,7 +6,7 @@ var b = new Behavior("attack_enemy");
 function getTarget(room) {
   var TARGETS = [FIND_HOSTILE_CREEPS, FIND_HOSTILE_SPAWNS, FIND_HOSTILE_STRUCTURES];
 
-  var filter = function(t) {
+  var filter = function (t) {
     if (t.structureType && t.structureType === STRUCTURE_CONTROLLER) return false;
     return (t.owner.username !== 'Source Keeper');
   };
@@ -21,17 +21,17 @@ function getTarget(room) {
   return null;
 }
 
-b.when = function(creep, rc) {
+b.when = function (creep, rc) {
   var target = getTarget(creep.room);
   return !!target;
 };
 
-b.completed = function(creep, rc) {
+b.completed = function (creep, rc) {
   var target = creep.getTarget();
   return !target;
 };
 
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var target = creep.getTarget() || getTarget(creep.room);
 
   if (target !== null) {

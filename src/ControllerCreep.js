@@ -7,7 +7,7 @@ function ControllerCreep(ControllerRoom) {
 /**
  * ControllerCreep.run(creep)
  */
-ControllerCreep.prototype.run = function(creep) {
+ControllerCreep.prototype.run = function (creep) {
 
   var config = global.getCreepConfig(creep.role);
   if (config !== null) {
@@ -35,7 +35,7 @@ ControllerCreep.prototype.run = function(creep) {
 /**
  * ControllerCreep.findBehavior;
  */
-ControllerCreep.prototype.findBehavior = function(config, creep) {
+ControllerCreep.prototype.findBehavior = function (config, creep) {
   var behaviors = config.behaviors;
 
   for (var i = 0; i < behaviors.length; i++) {

@@ -2,15 +2,15 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("upgrade_controller");
 
-b.when = function(creep, rc) {
+b.when = function (creep, rc) {
   return (rc.getController() !== null && creep.energy > 0);
 };
 
-b.completed = function(creep, rc) {
+b.completed = function (creep, rc) {
   return (rc.getController() === null || creep.energy === 0);
 };
 
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var controller = rc.getController();
 
   if (controller !== null) {

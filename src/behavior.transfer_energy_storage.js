@@ -4,34 +4,34 @@ var b = new Behavior("transfer_energy_storage");
 
 function findStorage(rc) {
   var s = rc.room.storage;
-  if ( s && s.store.energy < s.storeCapacity ) {
+  if (s && s.store.energy < s.storeCapacity) {
     return s;
   }
   return null;
 }
 
-b.when = function(creep, rc) {
+b.when = function (creep, rc) {
   creep.say('En. > Sto.');
   if (creep.energy === 0) return false;
   var storage = findStorage(rc);
   return (!!storage);
 };
 
-b.completed = function(creep, rc) {
+b.completed = function (creep, rc) {
   var storage = creep.getTarget();
 
   if (creep.energy === 0) return true;
-  if ( storage && storage.store.energy === storage.storeCapacity ) return true;
+  if (storage && storage.store.energy === storage.storeCapacity) return true;
 
   return false;
 };
 
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var storage = creep.getTarget();
 
   if (storage === null) {
     storage = findStorage(rc);
-    if ( storage ) {
+    if (storage) {
       creep.target = storage.id;
     }
   }
@@ -40,7 +40,7 @@ b.work = function(creep, rc) {
     if (!creep.pos.isNearTo(storage)) {
       creep.moveToEx(storage);
     } else {
-      creep.transfer(storage,RESOURCE_ENERGY);
+      creep.transfer(storage, RESOURCE_ENERGY);
     }
   }
 

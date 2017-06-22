@@ -1,9 +1,9 @@
 var ControllerRoom = require("ControllerRoom");
 var Debugger = require("_debugger");
 
-var ControllerGame = function() {
+var ControllerGame = function () {
 	this.garbageCollection();
-// TODO: Warum wird das auch noch einmal in main.js aufgerufen
+	// TODO: Warum wird das auch noch einmal in main.js aufgerufen
 
 	this._rooms = {};
 	for (var r in Game.rooms) {

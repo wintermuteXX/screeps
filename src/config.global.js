@@ -18,7 +18,7 @@ function applyMiner(rc) {
 					'miner': miner.id
 				}
 			});
-			
+
 			if (tm.length < perMiner) {
 				creep.memory.miner = miner.id;
 				break;

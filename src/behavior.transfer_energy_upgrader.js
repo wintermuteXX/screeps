@@ -4,21 +4,21 @@ var b = new Behavior("transfer_energy_upgrader");
 var _cache = {};
 
 function getUpgraders(rc) {
-  if ( !_cache[rc.room.name] ) {
+  if (!_cache[rc.room.name]) {
     _cache[rc.room.name] = rc.getCreeps('upgrader')
   }
   return _cache[rc.room.name];
 }
 
 
-b.when = function(creep, rc) {
+b.when = function (creep, rc) {
   creep.say('En. > Con.');
   return (creep.energy > 0 && getUpgraders(rc).length);
 };
-b.completed = function(creep, rc) {
+b.completed = function (creep, rc) {
   return (creep.energy === 0);
 };
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var controller = creep.getTarget();
 
   if (!controller) {

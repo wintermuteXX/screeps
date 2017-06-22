@@ -9,22 +9,10 @@ var Debugger = require("_debugger");
 
 function ControllerRoom(room, ControllerGame) {
 	this.room = room;
-
-   global.Cache = {};
-   global.Cache.rooms = {};
-   global.Cache.rooms[room.name] = {};
-   
-   // global.Cache.rooms[room.name].emptyExtensions = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
-   //   if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }});
-   
-   // global.Cache.rooms[room.name].droppedResources = room.find(FIND_DROPPED_RESOURCES);
-   // global.Cache.rooms[room.name].emptytowers = _.filter(room.find(FIND_MY_STRUCTURES), function(s){
-   //   if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }});
-   
 	this._find = {};
 	this._spawns = [];
 	this._towers = [];
-	
+
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
@@ -34,7 +22,8 @@ function ControllerRoom(room, ControllerGame) {
 	this.links = new ControllerLink(this);
 
 	var towers = room.find(FIND_MY_STRUCTURES, {
-    	filter: { structureType: STRUCTURE_TOWER } });
+		filter: { structureType: STRUCTURE_TOWER }
+	});
 
 	for (var t in towers) {
 		var tower = towers[t];
@@ -63,11 +52,11 @@ ControllerRoom.prototype.run = function () {
 	// debug = new Debugger(this.room + ": commandCreeps");
 	this.commandCreeps();
 	// debug.end();
-	_.each(this._towers, function(tower){
+	_.each(this._towers, function (tower) {
 		tower.fire();
 	})
 
-	this.findDroppedResources();	
+	this.findDroppedResources();
 };
 
 
@@ -75,28 +64,28 @@ ControllerRoom.prototype.run = function () {
  * ControllerRoom.populate()
  */
 ControllerRoom.prototype.populate = function () {
-		if (Game.time % global.getInterval('checkPopulation') !== 0) return;
+	if (Game.time % global.getInterval('checkPopulation') !== 0) return;
 
-		var spawn = null;
+	var spawn = null;
 
-    var roles = global.getCreepRoles();
-		var cfgCreeps = global.getCreepsConfig();
+	var roles = global.getCreepRoles();
+	var cfgCreeps = global.getCreepsConfig();
 
-		for ( var i in roles ) {
-			var role = roles[i];
-			if (spawn === null) spawn = this.getIdleSpawn();
-			if (spawn === null) return;
+	for (var i in roles) {
+		var role = roles[i];
+		if (spawn === null) spawn = this.getIdleSpawn();
+		if (spawn === null) return;
 
-			var cfg = cfgCreeps[role];
-			if ( !cfg.produceGlobal || cfg.produceGlobal === false ) {
-				if (this._shouldCreateCreep(role, cfg)) {
-					if (!spawn.createCreep(role, cfg)) {
-						return;
-					}
-					spawn = null;
+		var cfg = cfgCreeps[role];
+		if (!cfg.produceGlobal || cfg.produceGlobal === false) {
+			if (this._shouldCreateCreep(role, cfg)) {
+				if (!spawn.createCreep(role, cfg)) {
+					return;
 				}
+				spawn = null;
 			}
 		}
+	}
 };
 
 /**
@@ -106,16 +95,16 @@ ControllerRoom.prototype.populate = function () {
  */
 
 ControllerRoom.prototype.findDroppedResources = function () {
-if (Game.time % global.getInterval('checkDroppedEnergy') !== 0) return;
-var memory = this.room.memory;
-var droppedResources = {};
-		for ( var s of this.find(FIND_DROPPED_RESOURCES) ) {
-			droppedResources[s.id] = {
-				'structureType' : s.resourceType,
-				'hits' : s.amount,
-				};
-		}
-		memory._droppedResources = droppedResources;
+	if (Game.time % global.getInterval('checkDroppedEnergy') !== 0) return;
+	var memory = this.room.memory;
+	var droppedResources = {};
+	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+		droppedResources[s.id] = {
+			'structureType': s.resourceType,
+			'hits': s.amount,
+		};
+	}
+	memory._droppedResources = droppedResources;
 };
 
 /**
@@ -192,7 +181,7 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 /**
  * ControllerRoom.getController()
  */
-ControllerRoom.prototype.getController = function() {
+ControllerRoom.prototype.getController = function () {
 	if (this.room.controller) {
 		return this.room.controller;
 	}
@@ -205,7 +194,7 @@ ControllerRoom.prototype.getController = function() {
  */
 ControllerRoom.prototype.getLevel = function () {
 	var controller = this.getController();
-	if ( controller !== null && controller.my ) {
+	if (controller !== null && controller.my) {
 		return controller.level;
 	}
 	return 0;
@@ -229,15 +218,15 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 /**
  * ControllerRoom.getMaxEnergy()
  */
-    ControllerRoom.prototype.getMaxEnergy = function () {
-  	var extensionCount = this.getExtensions().length;
- 	return 300 + (extensionCount * 50);
-	 };
+ControllerRoom.prototype.getMaxEnergy = function () {
+	var extensionCount = this.getExtensions().length;
+	return 300 + (extensionCount * 50);
+};
 
 /**
  * ControllerRoom.getExtensions()
  */
-ControllerRoom.prototype.getExtensions = function() {
+ControllerRoom.prototype.getExtensions = function () {
 	return _.filter(this.find(FIND_MY_STRUCTURES), {
 		structureType: STRUCTURE_EXTENSION
 	});
@@ -248,24 +237,24 @@ ControllerRoom.prototype.getExtensions = function() {
  * ControllerRoom.getSources()
  */
 ControllerRoom.prototype.getSources = function (defended) {
-	var sources = _.filter(this.find(FIND_SOURCES), function(s) {
+	var sources = _.filter(this.find(FIND_SOURCES), function (s) {
 		return (defended || false) == s.defended;
 	});
 	return sources;
 };
 
-ControllerRoom.prototype._getStructures = function(filter) {
+ControllerRoom.prototype._getStructures = function (filter) {
 	var result = {};
 
 	var structures = this.room.memory._structures;
-	if ( structures && filter ) {
+	if (structures && filter) {
 		var values = _.filter(structures, filter);
 
-		_.each(values, function(value, key){
+		_.each(values, function (value, key) {
 			var obj = Game.getObjectById(key);
-			if ( obj !== null ) {
-			    console.log(key, obj);
-					result[key] = obj;
+			if (obj !== null) {
+				console.log(key, obj);
+				result[key] = obj;
 			}
 		});
 	}
@@ -273,31 +262,31 @@ ControllerRoom.prototype._getStructures = function(filter) {
 	return result;
 };
 
-ControllerRoom.prototype.analyse = function() {
+ControllerRoom.prototype.analyse = function () {
 	// TODO: Hard coded CPU Limit? No way
-	if ( Game.cpuLimit <= 100 ) return;
+	if (Game.cpuLimit <= 100) return;
 	var memory = this.room.memory;
 
 	try {
 		var sources = {};
-		for ( var source of this.find(FIND_SOURCES) ) {
+		for (var source of this.find(FIND_SOURCES)) {
 			sources[source.id] = {
-				'defended' : source.defended
+				'defended': source.defended
 			};
 		}
 		memory._sources = sources;
 
 		var structures = {};
-		for ( var s of this.find(FIND_STRUCTURES) ) {
+		for (var s of this.find(FIND_STRUCTURES)) {
 			structures[s.id] = {
-				'structureType' : s.structureType,
-				'hits' : s.hits,
-				'hitsMax' : s.hitsMax
+				'structureType': s.structureType,
+				'hits': s.hits,
+				'hitsMax': s.hitsMax
 			};
 		}
 		memory._structures = structures;
 
-	} catch ( e ) {
+	} catch (e) {
 		console.log(e);
 	}
 

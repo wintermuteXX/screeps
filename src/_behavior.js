@@ -1,13 +1,13 @@
-module.exports = (function(){
-  var Behavior = function(name){
+module.exports = (function () {
+  var Behavior = function (name) {
     this.name = name;
   };
 
-  Behavior.prototype.when = function() { return false; };
+  Behavior.prototype.when = function () { return false; };
 
-  Behavior.prototype.completed = function() { return true; };
+  Behavior.prototype.completed = function () { return true; };
 
-  Behavior.prototype.work = function() {};
+  Behavior.prototype.work = function () { };
 
   return Behavior;
 }());

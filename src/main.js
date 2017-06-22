@@ -4,13 +4,13 @@
 var profiler = require('screeps-profiler');
 
 // profiler.enable();
-  module.exports.loop = function() {
-   profiler.wrap(function() {
+module.exports.loop = function () {
+  profiler.wrap(function () {
     // Main.js logic should go here.
     require("_init");
     var ControllerGame = require('ControllerGame');
     var gc = new ControllerGame();
     gc.garbageCollection();
     gc.processRooms();
-    })
-  }
+  })
+}

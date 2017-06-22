@@ -39,7 +39,7 @@ function resetMemory() {
 
 function overloadCPUCalc() {
   if (Game.rooms.sim) {
-    Game.cpu.getUsed = function() {
+    Game.cpu.getUsed = function () {
       return Game.rooms.sim ? performance.now() - usedOnStart : Game.cpu.getUsed();
     };
   }
@@ -50,7 +50,7 @@ function getFilter() {
 }
 
 function wrapFunction(name, originalFunction) {
-  return function() {
+  return function () {
     if (Profiler.isProfiling()) {
       var nameMatchesFilter = name === getFilter();
       var start = Game.cpu.getUsed();
@@ -100,11 +100,11 @@ var Profiler = {
     var elapsedTicks = Game.time - Memory.profiler.enabledTick + 1;
     var header = 'calls\t\ttime\t\tavg\t\tfunction';
     var footer = `Avg: ${(Memory.profiler.totalTime / elapsedTicks).toFixed(2)} Total: ${Memory.profiler.totalTime.toFixed(2)} Ticks: ${elapsedTicks} Est. Bucket (20 limit): ${Memory.profiler.bucketSize.toFixed(0)}`
-    return  [].concat(header, Profiler.lines().slice(0, 20), footer).join('\n');
+    return [].concat(header, Profiler.lines().slice(0, 20), footer).join('\n');
   },
 
   lines() {
-    var stats = Object.keys(Memory.profiler.map).map(function(functionName) {
+    var stats = Object.keys(Memory.profiler.map).map(function (functionName) {
       var functionCalls = Memory.profiler.map[functionName];
       return {
         name: functionName,
@@ -112,10 +112,10 @@ var Profiler = {
         totalTime: functionCalls.time,
         averageTime: functionCalls.time / functionCalls.calls
       }
-    }).sort(function(val1, val2) {
+    }).sort(function (val1, val2) {
       return val2.totalTime - val1.totalTime;
     });
-    var lines = stats.map(function(data) {
+    var lines = stats.map(function (data) {
       return `${data.calls}\t\t${data.totalTime.toFixed(1)},\t\t${data.averageTime.toFixed(3)}\t\t${data.name}`;
     });
 
@@ -152,7 +152,7 @@ var Profiler = {
   },
 
   report() {
-    if (Profiler.shouldPrint()){
+    if (Profiler.shouldPrint()) {
       Profiler.printProfile();
     } else if (Profiler.shouldEmail()) {
       Profiler.emailProfile();

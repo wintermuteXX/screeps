@@ -3,11 +3,11 @@ function ControllerSpawn(spawn, ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
 
-ControllerSpawn.prototype.idle = function() {
+ControllerSpawn.prototype.idle = function () {
   return (this.spawn.spawning === null || this.spawn.spawning === undefined);
 };
 
-ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
+ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
@@ -28,10 +28,10 @@ ControllerSpawn.prototype.createCreep = function(role, creepConfig, memory) {
   return false;
 };
 
-ControllerSpawn.prototype.evalCreepBody = function(level, body) {
+ControllerSpawn.prototype.evalCreepBody = function (level, body) {
   var maxEnergy = this.ControllerRoom.getMaxEnergy();
   // var maxEnergy = this.ControllerRoom.energyCapacityAvailable;
-  
+
   var start = (body.length < level ? body.length : level) - 1;
 
   for (var i = start; i >= 0; i--) {
@@ -43,7 +43,7 @@ ControllerSpawn.prototype.evalCreepBody = function(level, body) {
   return null;
 };
 
-ControllerSpawn.prototype.getCosts = function(body) {
+ControllerSpawn.prototype.getCosts = function (body) {
   var costs = 0;
 
   if (body && body.length) {
@@ -73,7 +73,7 @@ ControllerSpawn.prototype.getCosts = function(body) {
         case TOUGH:
           costs += 10;
           break;
-          
+
         case CLAIM:
           costs += 600;
           break;

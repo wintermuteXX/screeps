@@ -9,19 +9,19 @@ function findNearLink(obj, rc) {
 
 var b = new Behavior("miner_harvest");
 
-b.when = function() {
+b.when = function () {
   return true;
 };
 
-b.completed = function() {
+b.completed = function () {
   return false;
 };
 
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var source = creep.getTarget();
 
   if (!creep.target) {
-    source = _.find(rc.getSources(), function(s) {
+    source = _.find(rc.getSources(), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }
@@ -36,10 +36,10 @@ b.work = function(creep, rc) {
       creep.moveTo(source);
     } else {
       creep.harvest(source);
-      var link = findNearLink(creep,rc);
-        if (creep.pos.isNearTo(rc.room.storage)) {creep.transfer(rc.room.storage, RESOURCE_ENERGY);}
-          else if (link) { creep.transfer(link[0],RESOURCE_ENERGY); } 
-          else {creep.drop(RESOURCE_ENERGY);}
+      var link = findNearLink(creep, rc);
+      if (creep.pos.isNearTo(rc.room.storage)) { creep.transfer(rc.room.storage, RESOURCE_ENERGY); }
+      else if (link) { creep.transfer(link[0], RESOURCE_ENERGY); }
+      else { creep.drop(RESOURCE_ENERGY); }
     }
   }
 };

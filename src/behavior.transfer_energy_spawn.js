@@ -3,19 +3,19 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_spawn");
 
 function findEmptySpawn(rc) {
-  return _.find(rc.find(FIND_MY_SPAWNS), function(s) {
+  return _.find(rc.find(FIND_MY_SPAWNS), function (s) {
     return (s.energy < s.energyCapacity);
   });
 }
 
-b.when = function(creep, rc) {
+b.when = function (creep, rc) {
   creep.say('En. > Spa.');
   if (creep.energy === 0) return false;
   var spawn = findEmptySpawn(rc);
   return !!spawn;
 };
 
-b.completed = function(creep, rc) {
+b.completed = function (creep, rc) {
   var spawn = Game.getObjectById(creep.target);
 
   if (creep.energy === 0) return true;
@@ -25,7 +25,7 @@ b.completed = function(creep, rc) {
   return false;
 };
 
-b.work = function(creep, rc) {
+b.work = function (creep, rc) {
   var spawn = Game.getObjectById(creep.target);
 
   if (spawn === null) {
@@ -39,7 +39,7 @@ b.work = function(creep, rc) {
     if (!creep.pos.isNearTo(spawn)) {
       creep.moveToEx(spawn);
     } else {
-      creep.transfer(spawn,RESOURCE_ENERGY);
+      creep.transfer(spawn, RESOURCE_ENERGY);
     }
   }
 
