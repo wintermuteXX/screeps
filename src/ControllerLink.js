@@ -28,7 +28,10 @@ Object.defineProperty(ControllerLink.prototype, "receivers", {
 ControllerLink.prototype.transferEnergy = function () {
   if (Game.time % global.getInterval("checkLinks") !== 0) return;
 
-  var senders = this.senders;
+  var senders = _.filter(this.senders, function (s) {
+    return (s.energy > s.energyCapacity - 100);
+  });
+  
   var receivers = _.shuffle(_.filter(this.receivers, function (r) {
     return (r.energy < r.energyCapacity - 200);
   }));
@@ -37,7 +40,7 @@ ControllerLink.prototype.transferEnergy = function () {
 console.log("Receivers: " + receivers);
   for (var r in receivers) {
 
-    if (senders[0] && senders[0].cooldown === 0 && senders[0].energy > senders[0].energyCapacity - 100) {
+    if (senders[0] && senders[0].cooldown === 0) {
 console.log("senders: " + senders);
 
       senders[0].transferEnergy(receivers[r]);
