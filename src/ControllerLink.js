@@ -31,18 +31,33 @@ ControllerLink.prototype.transferEnergy = function () {
   var senders = this.senders;
   var receivers = this.receivers;
 
-  var receiver = _.find(receivers, function (r) {
+
+var receivers = _.filter(receivers, function (r) {
+    return (r.energy < r.energyCapacity - 200);
+  });
+
+var receivers = _.shuffle(receivers);
+
+for (var r in receivers) {
+  if (sender[0] && sender[0].cooldown === 0 && sender[0].energy === sender[0].energyCapacity -100) {
+        sender.transferEnergy(receiver);
+        var sender = sender.shift();
+  }
+
+}
+  
+  /*var receiver = _.find(receivers, function (r) {
     return (r.energy < r.energyCapacity - 200);
   });
 
   if (receiver !== null) {
     for (var s in senders) {
       var sender = senders[s];
-      if (sender.cooldown === 0 && sender.energy === sender.energyCapacity) {
+      if (sender.cooldown === 0 && sender.energy === sender.energyCapacity -100) {
         sender.transferEnergy(receiver);
       }
     }
-  }
+  }*/
 };
 
 module.exports = ControllerLink;
