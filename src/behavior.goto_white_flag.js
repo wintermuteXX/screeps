@@ -15,7 +15,7 @@ b.when = function(creep, rc) {
 
 b.completed = function(creep, rc) {
   var flag = findFlag(rc);
-  return !flag || flag.room === creep.room && creep.pos.x !== 0 && creep.pos.x !== 49 && creep.pos.y !== 0 && creep.pos.y !== 49;
+  return !flag || flag.room === creep.room && creep.pos.x < 1 && creep.pos.x > 48 && creep.pos.y < 1 && creep.pos.y > 48;
 };
 
 b.work = function(creep, rc) {
