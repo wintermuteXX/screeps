@@ -29,39 +29,20 @@ ControllerLink.prototype.transferEnergy = function () {
   if (Game.time % global.getInterval("checkLinks") !== 0) return;
 
   var senders = this.senders;
-  var receivers = this.receivers;
-
-
-var receivers = _.filter(receivers, function (r) {
+  var receivers = _.shuffle(_.filter(this.receivers, function (r) {
     return (r.energy < r.energyCapacity - 200);
-  });
+  }));
 
-var receivers = _.shuffle(receivers);
-console.log(receivers);
+  if (receivers.length == 0) return;
 
-for (var r in receivers) {
-console.log(senders);
+  for (var r in receivers) {
 
-  if (senders[0] && senders[0].cooldown === 0 && senders[0].energy === senders[0].energyCapacity -100) {
-    console.log(senders[0]);
-        senders[0].transferEnergy(receivers[r]);
-        var senders = senders.shift();
-  }
-
-}
-  
-  /*var receiver = _.find(receivers, function (r) {
-    return (r.energy < r.energyCapacity - 200);
-  });
-
-  if (receiver !== null) {
-    for (var s in senders) {
-      var sender = senders[s];
-      if (sender.cooldown === 0 && sender.energy === sender.energyCapacity -100) {
-        sender.transferEnergy(receiver);
-      }
+    console.log("before", "senders:", senders);
+    if (senders[0] && senders[0].cooldown === 0 && senders[0].energy > senders[0].energyCapacity - 100) {
+      senders[0].transferEnergy(receivers[r]);
+      senders = senders.shift();
     }
-  }*/
+  }
 };
 
 module.exports = ControllerLink;
