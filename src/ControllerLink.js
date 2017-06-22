@@ -37,8 +37,11 @@ var receivers = _.filter(receivers, function (r) {
   });
 
 var receivers = _.shuffle(receivers);
+console.log(receivers);
 
 for (var r in receivers) {
+console.log(senders);
+
   if (senders[0] && senders[0].cooldown === 0 && senders[0].energy === senders[0].energyCapacity -100) {
         senders[0].transferEnergy(receivers[r]);
         var senders = senders.shift();
