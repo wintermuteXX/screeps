@@ -1,5 +1,7 @@
 var Behavior = require("_behavior");
 
+// Used by Upgrader
+
 var RANGE_TO_ENERGY = 2;
 
 function findEnergy(obj, rc) {
@@ -13,7 +15,7 @@ function findNearLink(obj, rc) {
   if (thelink && (thelink.energy != 0))
     return thelink;
 }
-
+/*
 function findStorage(obj, rc) {
   var store = rc.room.storage;
   if (!!store) {
@@ -24,6 +26,7 @@ function findStorage(obj, rc) {
   }
   return null;
 }
+*/
 
 var b = new Behavior("find_near_energy");
 
@@ -32,8 +35,9 @@ b.when = function (creep, rc) {
     var controller = rc.getController();
     var energy = findEnergy(controller, rc);
     var link = findNearLink(controller, rc);
-    var storage = findStorage(controller, rc);
-    return (energy.length > 0 || link || storage);
+    // var storage = findStorage(controller, rc);
+    // return (energy.length > 0 || link || storage);
+    return (energy.length > 0 || link);
   }
   return false;
 };
@@ -71,7 +75,7 @@ b.work = function (creep, rc) {
       energy = null;
     }
   }
-
+/*
   if (!energy) {
     energy = findStorage(controller, rc);
     if (energy && energy.length) {
@@ -81,7 +85,7 @@ b.work = function (creep, rc) {
       energy = null;
     }
   }
-
+*/
   if (energy) {
     if (!creep.pos.isNearTo(energy)) {
       creep.moveToEx(energy);
