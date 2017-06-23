@@ -1,12 +1,13 @@
 1. TODO
     - Pickup Minerals
-    - Check Scout Code
+    - (done) Check Scout Code
     - Tower Repair + Heal
     - Repair Container
     - Get_energy_container
-    - Upgrader Link -> Storage
+    - (solved) Upgrader Link -> Storage
     - Boost creeps
     - renew boosted creeps
+		- new behavior -> walk to receiver ?
     -- Sell + Buy at Market
     -- Harvest Power
     -- Harvest Minerals
