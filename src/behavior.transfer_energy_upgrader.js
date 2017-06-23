@@ -12,12 +12,14 @@ function getUpgraders(rc) {
 
 
 b.when = function (creep, rc) {
-  creep.say('En. > Con.');
+  creep.say('E > Contr.');
   return (creep.energy > 0 && getUpgraders(rc).length);
 };
+
 b.completed = function (creep, rc) {
   return (creep.energy === 0);
 };
+
 b.work = function (creep, rc) {
   var controller = creep.getTarget();
 
