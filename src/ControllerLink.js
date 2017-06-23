@@ -37,11 +37,9 @@ ControllerLink.prototype.transferEnergy = function () {
   }));
 
   if (receivers.length == 0) return;
-console.log("Receivers: " + receivers);
   for (var r in receivers) {
 
     if (senders[0] && senders[0].cooldown === 0) {
-console.log("senders: " + senders);
 
       senders[0].transferEnergy(receivers[r]);
       senders = senders.shift();
