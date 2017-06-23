@@ -1,17 +1,20 @@
 1. TODO
     - Pickup Minerals
-    - (done) Check Scout Code
     - Tower Repair + Heal
     - Repair Container
     - Get_energy_container
-    - (solved) Upgrader Link -> Storage
     - Boost creeps
+		- Fallback if no creeps in active room (Build -> Builder)
     - renew boosted creeps
-		- new behavior -> walk to receiver ?
+		- new behavior -> link -> Storage static creep
+		- When storage > 10000 energy -> Prefer other link :-)
     -- Sell + Buy at Market
     -- Harvest Power
     -- Harvest Minerals
-
+		
+		- (done) Check Scout Code
+    - (solved) Upgrader Link -> Storage
+    
 
 2. Code Snippets
 
