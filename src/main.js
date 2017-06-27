@@ -2,7 +2,7 @@
 // Game.spawns.Eden.createCreep([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY], null, {role: 'transporter'});
 
 var profiler = require('screeps-profiler');
-var Traveler = require('Traveler.js');
+// var Traveler = require('Traveler.js');
 
 // profiler.enable();
 module.exports.loop = function () {
