@@ -1,17 +1,21 @@
 1. TODO
-    - Pickup Minerals
-    - Tower Repair + Heal
-    - Repair Container
-    - Get_energy_container
+    - Behavior Pickup Minerals
+		- Behavoir Transport Minerals to Terminal
+    - Behavior Harvest Minerals
+		- Tower Repair + Heal
+    - Behavior Repair Container
+    - Behavior Get_energy_container
     - Boost creeps
 		- Fallback if no creeps in active room (Build -> Builder)
     - renew boosted creeps
-		- new behavior -> link -> Storage static creep
-		- When storage > 10000 energy -> Prefer other link :-)
-    -- Sell + Buy at Market
+		- new behavior -> link -> Storage static creep (Really?)
+		- When storage > 100000 energy -> Prefer other link :-)
+    - Remote Mining (check for goals, new behavior)
+		-- Sell + Buy at Market
     -- Harvest Power
-    -- Harvest Minerals
-		
+		-- test attack behavior
+		-- spawn defenders if attacked
+    
 		- (done) Check Scout Code
     - (solved) Upgrader Link -> Storage
     

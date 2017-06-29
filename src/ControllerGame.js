@@ -31,33 +31,6 @@ ControllerGame.prototype.processGlobal = function () {
 };
 */
 
-/*
-ControllerGame.prototype.scout = function() {
-	var flag = _.find(Game.flags, { 'color' : COLOR_WHITE });
-  if ( !flag ) return;
-
-	var fRoom = flag.pos.roomName;
-
-	var spawn = null;
-	var steps = 999;
-	for ( var s in Game.spawns ) {
-		var sp = Game.spawns[s];
-
-		var path = sp.pos.findPathTo(flag);
-		if ( path.length && path.length < steps ) {
-			steps = path.length;
-			spawn = sp;
-		}
-	}
-
-	if ( spawn !== null ) {
-		console.log(spawn);
-	}
-};
-*/
-
-
-
 ControllerGame.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
 		if (!Game.creeps[c]) {
