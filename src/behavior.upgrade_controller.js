@@ -11,8 +11,9 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  var controller = rc.getController();
 
+ /* var controller = rc.getController();
+TODO: Delete
   if (controller !== null) {
     if (!creep.pos.isNearTo(controller)) {
       creep.moveToEx(controller);
@@ -20,6 +21,13 @@ b.work = function (creep, rc) {
       creep.upgradeController(controller);
     }
   }
+*/
+
+if(creep.room.controller) {
+    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
+    }
+}
 
 };
 

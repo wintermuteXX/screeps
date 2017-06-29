@@ -36,6 +36,7 @@ b.work = function (creep, rc) {
       creep.target = null;
     }
   }
+
 };
 
 module.exports = b;
