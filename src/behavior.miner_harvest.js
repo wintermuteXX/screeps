@@ -30,7 +30,7 @@ b.work = function (creep, rc) {
     source = Game.getObjectById(creep.target);
   }
 
-  if (!source) {
+  if (source !== null) {
     creep.target = source.id;
     if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
