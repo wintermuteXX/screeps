@@ -9,7 +9,6 @@ function findLinks(rc) {
 }
 
 b.when = function (creep, rc) {
-  creep.say('En. > Lin.');
   if (creep.energy === 0) return false;
   var links = findLinks(rc);
   var inRange = creep.pos.findInRange(links, 2);

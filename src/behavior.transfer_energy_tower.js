@@ -3,7 +3,6 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_tower");
 
 b.when = function (creep, rc) {
-  creep.say('En. > Tow.');
   if (creep.energy === 0) return false;
 
   var emptytowers = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {

@@ -2,7 +2,6 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_energy_extensions");
 
 b.when = function (creep, rc) {
-  creep.say('E > Exten.');
   if (creep.energy === 0) return false;
 
   var emptyExtensions = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {

@@ -9,7 +9,6 @@ function findEmptySpawn(rc) {
 }
 
 b.when = function (creep, rc) {
-  creep.say('En. > Spa.');
   if (creep.energy === 0) return false;
   var spawn = findEmptySpawn(rc);
   return !!spawn;
