@@ -30,7 +30,7 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
     if (!creep.pos.isNearTo(target)) {
-      creep.moveToEx(target);
+      creep.travelTo(target);
     } else {
       creep.withdraw(target, RESOURCE_ENERGY);
       creep.target = null;

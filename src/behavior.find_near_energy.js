@@ -62,7 +62,7 @@ b.work = function (creep, rc) {
 
   if (energy) {
     if (!creep.pos.isNearTo(energy)) {
-      creep.moveToEx(energy);
+      creep.travelTo(energy);
     } else {
       if (energy.structureType) {
         creep.withdraw(energy, RESOURCE_ENERGY);

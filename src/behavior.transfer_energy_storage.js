@@ -38,7 +38,7 @@ b.work = function (creep, rc) {
 
   if (storage) {
     if (!creep.pos.isNearTo(storage)) {
-      creep.moveToEx(storage);
+      creep.travelTo(storage);
     } else {
       creep.transfer(storage, RESOURCE_ENERGY);
     }

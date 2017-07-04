@@ -17,7 +17,7 @@ b.work = function (creep, rc) {
   }
   else {
 
-    creep.moveToEx(creep.room.controller);
+    creep.travelTo(creep.room.controller);
   }
 };
 

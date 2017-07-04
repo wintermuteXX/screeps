@@ -22,7 +22,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   var flag = findFlag(rc);
   if (flag) {
-    creep.moveToEx(flag);
+    creep.travelTo(flag);
   }
 };
 module.exports = b;

@@ -21,7 +21,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   var flag = findFlag(rc);
   if (flag) {
-    creep.moveToEx(flag, { ignoreDestructibleStructures: true });
+    creep.travelTo(flag, { ignoreDestructibleStructures: true });
   }
 };
 

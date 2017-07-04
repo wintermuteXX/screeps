@@ -23,7 +23,7 @@ b.work = function (creep, rc) {
   if (source !== null) {
     creep.target = source.id;
     if (!creep.pos.isNearTo(source)) {
-      creep.moveToEx(source);
+      creep.travelTo(source);
     } else {
       creep.harvest(source);
     }

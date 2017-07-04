@@ -42,7 +42,7 @@ b.work = function (creep, rc) {
 
   if (tower) {
     if (!creep.pos.isNearTo(tower)) {
-      creep.moveToEx(tower);
+      creep.travelTo(tower);
     } else {
       creep.transfer(tower, RESOURCE_ENERGY);
       creep.target = null;

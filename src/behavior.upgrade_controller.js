@@ -16,7 +16,7 @@ b.work = function (creep, rc) {
 TODO: Delete
   if (controller !== null) {
     if (!creep.pos.isNearTo(controller)) {
-      creep.moveToEx(controller);
+      creep.travelTo(controller);
     } else {
       creep.upgradeController(controller);
     }

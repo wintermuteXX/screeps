@@ -36,7 +36,7 @@ b.work = function (creep, rc) {
 
   if (target) {
     if (!creep.pos.isNearTo(target)) {
-      creep.moveToEx(target);
+      creep.travelTo(target);
     } else {
       creep.repair(target);
     }

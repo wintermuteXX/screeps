@@ -10,6 +10,6 @@ b.completed = function (creep, rc) {
   return creep.pos.inRangeTo(c, 2);
 };
 b.work = function (creep, rc) {
-  creep.moveToEx(rc.getController());
+  creep.travelTo(rc.getController());
 };
 module.exports = b;

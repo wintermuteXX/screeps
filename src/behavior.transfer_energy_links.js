@@ -49,7 +49,7 @@ b.work = function (creep, rc) {
 
   if (link) {
     if (!creep.pos.isNearTo(link)) {
-      creep.moveToEx(link);
+      creep.travelTo(link);
     } else {
       creep.transfer(link, RESOURCE_ENERGY);
     }
