@@ -5,7 +5,7 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
 
-var Debugger = require("_debugger");
+// var Debugger = require("_debugger");
 
 function ControllerRoom(room, ControllerGame) {
 	this.room = room;

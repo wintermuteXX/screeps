@@ -1,5 +1,5 @@
 var ControllerRoom = require("ControllerRoom");
-var Debugger = require("_debugger");
+// var Debugger = require("_debugger");
 
 var ControllerGame = function () {
 	this.garbageCollection();
@@ -14,9 +14,9 @@ var ControllerGame = function () {
 
 ControllerGame.prototype.processRooms = function () {
 	for (var i in this._rooms) {
-		var debug = new Debugger("processing room " + i);
+		// var debug = new Debugger("processing room " + i);
 		this._rooms[i].run();
-		debug.end();
+	//	debug.end();
 	}
 };
 

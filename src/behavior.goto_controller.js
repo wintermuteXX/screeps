@@ -5,7 +5,6 @@ b.when = function (creep, rc) {
   return !creep.pos.inRangeTo(c, 3);
 };
 b.completed = function (creep, rc) {
-  debugger;
   var c = rc.getController();
   return creep.pos.inRangeTo(c, 2);
 };
