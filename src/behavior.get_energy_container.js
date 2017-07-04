@@ -16,8 +16,9 @@ b.work = function (creep, rc) {
 
   if (target === null) {
     var target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && f.energy > 300; });
+    target = target[0];
     if (target) {}
-    creep.target = target[0].id;
+    creep.target = target.id;
   }
 
   if (target !== null) {
