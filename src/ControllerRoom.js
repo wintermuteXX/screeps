@@ -53,7 +53,7 @@ ControllerRoom.prototype.run = function () {
 	this.commandCreeps();
 	// debug.end();
 	_.each(this._towers, function (tower) {
-		tower.repair();
+		//tower.repair();
 		tower.fire();
 			})
 
