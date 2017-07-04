@@ -4,11 +4,9 @@ var b = new Behavior("get_energy_link");
 
 function findLinks(rc) {
   return _.filter(rc.links.receivers, function (s) {
-    return s.energy > 0;
+    return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);
   });
 }
-
-// Evtl noch nach dem nächsten Link suchen findClosestByRange
 
 b.when = function (creep, rc) {
   var links = findLinks(rc);
