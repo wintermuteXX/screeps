@@ -13,7 +13,7 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   var target = creep.getTarget();
-
+ console.log("gec: Work target -> " + target);
   if (target === null) {
     var target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && f.energy > 300; });
     target = target[0];
