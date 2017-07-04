@@ -23,12 +23,6 @@ b.work = function (creep, rc) {
       return s.energy > 0;
     });
 
-    // if ( spawn ) {
-    //   target = spawn;
-    // } 
-    // if ( target ) {
-    //   creep.target = target.id;
-    // }
     if (spawn) {
       creep.target = spawn.id;
       target = spawn;
