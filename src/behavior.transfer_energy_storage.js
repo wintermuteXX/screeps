@@ -4,7 +4,8 @@ var b = new Behavior("transfer_energy_storage");
 
 function findStorage(rc) {
   var s = rc.room.storage;
-  if (s && s.store.energy < s.storeCapacity) {
+  // TODO: 100000 in Konstante auslagern
+  if (s && s.store.energy < 100000) {
     return s;
   }
   return null;
