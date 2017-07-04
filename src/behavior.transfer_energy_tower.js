@@ -31,7 +31,7 @@ b.work = function (creep, rc) {
 
   if (tower === null) {
     var emptytowers = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-      if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }
+      if (s.structureType === STRUCTURE_TOWER) { return s.energy < (s.energyCapacity - 100); }
     });
 
     var tower = emptytowers[0];
