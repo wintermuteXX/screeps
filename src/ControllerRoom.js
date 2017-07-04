@@ -53,9 +53,9 @@ ControllerRoom.prototype.run = function () {
 	this.commandCreeps();
 	// debug.end();
 	_.each(this._towers, function (tower) {
-		tower.fire();
 		tower.repair();
-	})
+		tower.fire();
+			})
 
 	this.findDroppedResources();
 };
