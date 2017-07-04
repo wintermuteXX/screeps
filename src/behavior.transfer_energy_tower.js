@@ -6,7 +6,7 @@ b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
 
   var emptytowers = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-    if (s.structureType === STRUCTURE_TOWER) { return s.energy < s.energyCapacity; }
+    if (s.structureType === STRUCTURE_TOWER) { return s.energy < (s.energyCapacity - 100); }
   });
 
   if (emptytowers) {

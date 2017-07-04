@@ -2,7 +2,7 @@
     - Behavior Pickup Minerals
 		- Behavoir Transport Minerals to Terminal
     - Behavior Harvest Minerals
-		- Tower Repair + Heal
+		- Tower Repair + Heal (repair ready, but not activated in ControllerRoom - bug)
     - Behavior Repair Container
     - Behavior Get_energy_container
     - Boost creeps
