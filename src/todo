@@ -1,19 +1,22 @@
 1. TODO
     - Behavior Pickup Minerals
-		- Behavior Transport Minerals to Terminal
+	- Behavior Transport Minerals to Terminal
     - Behavior Harvest Minerals
-		- Boost creeps
-		- Fallback if no creeps in active room (Build -> Builder)
-    - renew boosted creeps
-		- When storage > 100000 energy -> Prefer other link :-)
-		- When storage > 100000 energy - no more input
-		- Remote Mining (check for goals, new behavior)
-		-- Sell + Buy at Market
+	- Fallback if no creeps in active room (Build -> Builder)
+  	- When storage > 100000 energy -> Prefer other link :-)
+	- When storage > 100000 energy - no more input
+	- Remote Mining (check for goals, new behavior)
+	- Upgrader - TravelTo - Range = 2 
+    - Separate role for upgrader in RCL 1+2+ (3?)
+    - when controller downgrades during construction, workers can't finish behavior construction
+    -- Sell + Buy at Market
     -- Harvest Power
-		-- test attack behavior
-		-- spawn defenders if attacked
-    
-		- (done) Check Scout Code
+    -- renew boosted creeps
+	-- test attack behavior
+	-- spawn defenders if attacked
+    -- Boost creeps
+	
+	- (done) Check Scout Code
     - (done) Upgrader Link -> Storage
     - (test) Tower Repair + Heal (repair ready, but not activated in ControllerRoom - bug)
     - (test) Behavior Repair Container (should happen automagically. -> Test)
