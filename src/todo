@@ -136,3 +136,70 @@ static exitPlanner(roomName, opts={}) {
 			}
 		}
 	}
+----------------------------------------------------
+class Pos {
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+}
+Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPos = false) {
+	let x = 0, y = 0, maxCost = 5, val, line, cost, redHex, greenHex, color;
+	let start = new Pos(Math.max(aroundPos && aroundPos.x - 3, 0) || 0,
+					  Math.max(aroundPos && aroundPos.y - 3, 0) || 0);
+	let end = new Pos(Math.min(aroundPos && aroundPos.x + 3, 49) || 49,
+					  Math.min(aroundPos && aroundPos.y + 3, 49) || 49);
+	console.log("costs:");
+	
+	if (proportional) {
+	    let xP, yP
+	    for (xP = start.x; xP <= end.x; xP++) {
+	        for (yP = start.y; yP <= end.y; yP++) {
+	            cost = matrix.get(xP, yP);
+	            if (cost < 250 && cost > maxCost) {
+	                maxCost = cost;
+	            }
+	        }
+	    }
+	    console.log(maxCost);
+	}
+	
+	for (y = start.y; y <= end.y; y++) {
+		line = '';
+		for (x = start.x; x <= end.x; x++) {
+		    val = Math.min(matrix.get(x, y) + 1, maxCost) * Math.floor(256 / maxCost);
+		    redHex = (val).toString(16);
+		    greenHex = (256 - val).toString(16);
+		    color = ( redHex[1] ? redHex : '0' + (redHex[0] || '0') )+
+		            (greenHex[1] ? greenHex : '0' + (greenHex[0] || '0') ) +
+		            '00';
+			line += '<a style="color: #' + color + '">███</a>';
+		}
+		console.log(line);
+	}
+}
+----------------------------------------------
+// These toString() functions provide an option to provide an HTML link to click in the console. The link will bring you to the room the object is in, highlight the object and load a temporary memory watch in the Memory tab for that object.
+
+RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
+    if(htmlLink){
+        var onClick = '';
+        if(id)       onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');`;
+        if(memWatch) onClick += `angular.element($('section.memory')).scope().Memory.addWatch('${memWatch}'); angular.element($('section.memory')).scope().Memory.selectedObjectWatch='${memWatch}';`;
+        return `<a href="#!/room/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
+    }
+    return `[${ this.roomName } ${ this.x },${ this.y }]`;
+};
+
+
+Creep.prototype.toString = function (htmlLink = true){
+    return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id, 'creeps.'+this.name)}]`;
+}
+
+Structure.prototype.toString = function (htmlLink = true){
+    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id, 'structures.' + this.id)}]`;
+}
+
+StructureSpawn.prototype.toString = function (htmlLink = true){
+    return `[spawn ${this.name} ${this.pos.toString(htmlLink, this.id, 'spawns.' + this.name)}]`;
+}
