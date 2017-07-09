@@ -4,7 +4,6 @@ var b = new Behavior("transfer_energy_terminal");
 
 function findTerminal(rc) {
   var s = rc.room.terminal;
-  console.log("Terminal: " + s);
     return s;
 }
 
