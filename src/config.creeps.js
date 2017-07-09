@@ -159,6 +159,27 @@ module.exports = {
 
     behaviors: ['goto_white_flag', "claim_controller", "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
 
+  },
+
+  'filler': {
+    produceGlobal : false,
+    priority : 7,
+    minLevel : 3,
+
+    canBuild : function(rc) {
+        var filler = _.filter(Game.creeps, { 'memory' : { 'role' : 'filler'}});
+        // return filler.length < 1;
+        return false;
+    },
+
+    body : [
+      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
+      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
+      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
+      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,]
+    ],
+
+    behaviors : [ 'get_energy_storage', "transfer_energy_terminal" ]
   }
 
 };
