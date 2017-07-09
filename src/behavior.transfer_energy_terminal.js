@@ -18,7 +18,7 @@ b.completed = function(creep, rc) {
   var terminal = creep.getTarget();
 
   if (creep.energy === 0) return true;
-  if ( termainl && terminal.store.energy === terminal.storeCapacity ) return true;
+  if ( terminal && terminal.store.energy === terminal.storeCapacity ) return true;
 
   return false;
 };
