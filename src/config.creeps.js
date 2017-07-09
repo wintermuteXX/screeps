@@ -179,7 +179,7 @@ module.exports = {
       [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,]
     ],
 
-    behaviors : [ 'get_energy_storage', "transfer_energy_terminal" ]
+    behaviors : [ "get_energy_storage", "transfer_energy_terminal" ]
   }
 
 };
