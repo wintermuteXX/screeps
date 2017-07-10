@@ -4,7 +4,7 @@ var b = new Behavior("get_energy_dropped");
 
 b.when = function (creep, rc) {
   var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
-  droppedEnergy = _.filter(droppedEnergy, function (f) { return f.amount > 99 && f.resourceType == 'RESOURCE_ENERGY' && !f.pos.inRangeTo(creep.room.controller.pos, 3); });
+  droppedEnergy = _.filter(droppedEnergy, function (f) { return f.amount > 99 && f.resourceType === 'energy' && !f.pos.inRangeTo(creep.room.controller.pos, 3); });
     
   return (creep.energy === 0 && droppedEnergy && droppedEnergy.length);
 };
@@ -21,7 +21,7 @@ b.work = function (creep, rc) {
   if (target === null) {
     var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
     //console.log("Dropped Energy: " + droppedEnergy);
-    droppedEnergy = _.filter(droppedEnergy, function (f) { return f.amount > 99 && f.resourceType == 'RESOURCE_ENERGY' && !f.pos.inRangeTo(creep.room.controller.pos, 3); });
+    droppedEnergy = _.filter(droppedEnergy, function (f) { return f.amount > 99 && f.resourceType === 'energy' && !f.pos.inRangeTo(creep.room.controller.pos, 3); });
     //console.log("Dropped Energy 100: " + droppedEnergy);
 
 
