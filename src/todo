@@ -1,5 +1,5 @@
 1. TODO
-    - Behavior Pickup Minerals
+    - Behavior Pickup Minerals (untestet - only dropped minerals)
 	- Behavior Transport Minerals to Terminal
     - Behavior Harvest Minerals
 	- Fallback if no creeps in active room (Build -> Builder)

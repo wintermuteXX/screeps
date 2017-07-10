@@ -23,7 +23,7 @@ module.exports = {
 
   "miner": {
     priority: 2,
-    levelMin: 3,
+    levelMin: 2,
 
     canBuild: function (rc) {
       var miners = rc.getCreeps("miner");
@@ -33,17 +33,17 @@ module.exports = {
     },
 
     body: [
-      null,
-      null,
+      [MOVE, WORK, WORK],
       [MOVE, WORK, WORK, WORK, WORK, WORK],
-      [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, CARRY]
+      [MOVE, WORK, WORK, WORK, WORK, WORK, WORK],
+      [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY]
     ],
     behaviors: ["miner_harvest"]
   },
 
   "transporter": {
     priority: 1,
-    levelMin: 3,
+    levelMin: 2,
 
     canBuild: function (rc) {
       var miners = rc.getCreeps('miner');
@@ -58,7 +58,7 @@ module.exports = {
 
     body: [
       null,
-      null,
+      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
@@ -69,22 +69,16 @@ module.exports = {
 
   "upgrader": {
     priority: 4,
-    levelMin: 3,
+    levelMin: 2,
 
     canBuild: function (rc) {
       var controller = rc.getController();
       return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
-      //return false;
-      // var max = controller.getFreeFields();
-      // if ( max > 3 ) {
-      //   max = 3;
-      // }
-      // return ( rc.getCreeps('upgrader').length < max) ;
     },
 
     body: [
-      null,
-      null,
+      [MOVE, WORK, WORK, CARRY],
+      [MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
