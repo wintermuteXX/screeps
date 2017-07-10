@@ -1,26 +1,28 @@
-1. TODO
-    - Behavior Pickup Minerals (untestet - only dropped minerals)
-	- Behavior Transport Minerals to Terminal
-    - Behavior Harvest Minerals
-	- Fallback if no creeps in active room (Build -> Builder)
-  	- When storage > 100000 energy -> Prefer other link :-)
-	- When storage > 100000 energy - no more input
-	- Remote Mining (check for goals, new behavior)
-	- Upgrader - TravelTo - Range = 2 
-    - Separate role for upgrader in RCL 1+2+ (3?)
-    - when controller downgrades during construction, workers can't finish behavior construction
-    -- Sell + Buy at Market
-    -- Harvest Power
-    -- renew boosted creeps
-	-- test attack behavior
-	-- spawn defenders if attacked
-    -- Boost creeps
-	
-	- (done) Check Scout Code
-    - (done) Upgrader Link -> Storage
-    - (test) Tower Repair + Heal (repair ready, but not activated in ControllerRoom - bug)
-    - (test) Behavior Repair Container (should happen automagically. -> Test)
-    - (test) Behavior Get_energy_container (done)
+1. 	TODO
+    	- Behavior Transport Minerals to Terminal
+    	- Behavior Harvest Minerals
+		- When storage > 100000 energy -> Prefer other link :-)
+		- When storage > 100000 energy - no more input
+		- Remote Mining (check for goals, new behavior)
+		- Upgrader - TravelTo - Range = 2 
+    	- when controller downgrades during construction, workers can't finish behavior construction
+    	-- Sell + Buy at Market
+    	-- Harvest Power
+    	-- renew boosted creeps
+		-- test attack behavior
+		-- spawn defenders if attacked
+    	-- Boost creeps
+   	BUGS
+		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
+		- (bug) Fallback if no creeps in active room (Implemented but fails?)	
+   	TESTING
+    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+    	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
+  	DONE
+		- (done) Check Scout Code
+    	- (done) Upgrader Link -> Storage
+    	- (done) Behavior Repair Container
+    	- (done) Behavior Get_energy_container (done)
     
 
 2. Code Snippets
