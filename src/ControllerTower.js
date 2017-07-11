@@ -4,10 +4,22 @@ function ControllerTower(tower, ControllerRoom) {
 }
 
 ControllerTower.prototype.fire = function () {
-    var closestHostile = this.tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+ 
+    var allowedNameList = ["lur", "starwar", "bar"]
+    var targetList = this.tower.room.find(FIND_HOSTILE_CREEPS, {
+        filter: function(foundCreep) { 
+            for (let i=allowedNameList.length;--i>=0;){
+                if (foundCreep.owner.username === allowedNameList[i]) return(false);
+            }
+            return(true);
+        }
+    });
+    if (targetList.length !== 0) console.log("Die Scum!");
+
+    var closestHostile = this.tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
-        this.tower.attack(closestHostile);
-    }
+       this.tower.attack(closestHostile);
+     }
 };
 
 ControllerTower.prototype.repair = function () {
