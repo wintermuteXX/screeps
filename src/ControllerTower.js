@@ -5,7 +5,7 @@ function ControllerTower(tower, ControllerRoom) {
 
 ControllerTower.prototype.fire = function () {
  
-    var allowedNameList = ["lur", "starwar", "bar"]
+    var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
     var targetList = this.tower.room.find(FIND_HOSTILE_CREEPS, {
         filter: function(foundCreep) { 
             for (let i=allowedNameList.length;--i>=0;){

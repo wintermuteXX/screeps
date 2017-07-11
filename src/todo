@@ -205,3 +205,14 @@ Structure.prototype.toString = function (htmlLink = true){
 StructureSpawn.prototype.toString = function (htmlLink = true){
     return `[spawn ${this.name} ${this.pos.toString(htmlLink, this.id, 'spawns.' + this.name)}]`;
 }
+---------------------------------------------------------
+ var allowedNameList = ["foo", "Source Keeper", "bar", "Invader"]
+    var targetList = Game.rooms['sim'].find(FIND_HOSTILE_CREEPS, {
+        filter: function(foundCreep) { 
+            for (let i=allowedNameList.length;--i>=0;){
+                if (foundCreep.owner.username === allowedNameList[i]) return(false);
+            }
+            return(true);
+        }
+    });
+    if (targetList.length !== 0) console.log("Run in circles! Scream and shout!");
