@@ -5,14 +5,17 @@
 		- When storage > 100000 energy - no more input
 		- Remote Mining (check for goals, new behavior)
 		- Upgrader - TravelTo - Range = 2 
-    	- when controller downgrades during construction, workers can't finish behavior construction
-    	-- Sell + Buy at Market
+    	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
+		- 2 Upgrader if Dropped energy around Controller > 5000 ?
+		-- Sell + Buy at Market
+    	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
     	-- renew boosted creeps
 		-- test attack behavior
 		-- spawn defenders if attacked
     	-- Boost creeps
    	BUGS
+		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (bug) Fallback if no creeps in active room (Implemented but fails?)	
    	TESTING
