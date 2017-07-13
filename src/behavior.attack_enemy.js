@@ -36,14 +36,10 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
     creep.target = target.id;
-    if (creep.pos.inRangeTo(target, 3)) {
-      creep.rangedAttack(target);
-
+    if (!creep.pos.isNearTo(target)) {
+      creep.travelTo(target);
     } else {
-      creep.moveTo(target, {
-        ignoreDestructibleStructures: false
-      }
-      );
+      creep.attack(target);
     }
   }
 };
