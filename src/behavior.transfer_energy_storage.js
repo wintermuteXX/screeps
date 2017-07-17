@@ -4,13 +4,14 @@ var b = new Behavior("transfer_energy_storage");
 
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
-  var storage = rc.room.storage;
-   
-  if ( creep.room.controller.level === 4 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel4')) {return !!storage;}
-  if ( creep.room.controller.level === 5 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel5')) {return !!storage;}
-  if ( creep.room.controller.level === 6 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel6')) {return !!storage;}
-  if ( creep.room.controller.level === 7 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel7')) {return !!storage;}
-  if ( creep.room.controller.level === 8 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel8')) {return !!storage;}
+  var storage = creep.room.storage;
+  console.log(storage);
+   if (!storage) return false;
+  if ( creep.room.controller.level === 4 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel4')) return !!storage;
+  if ( creep.room.controller.level === 5 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel5')) return !!storage;
+  if ( creep.room.controller.level === 6 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel6')) return !!storage;
+  if ( creep.room.controller.level === 7 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel7')) return !!storage;
+  if ( creep.room.controller.level === 8 && storage.store[RESOURCE_ENERGY] < global.getInterval('StoreLevel8')) return !!storage;
   
   return (!!storage);
 };
