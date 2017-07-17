@@ -15,6 +15,7 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
    	BUGS
+	    - (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist.
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (bug) Fallback if no creeps in active room (Implemented but fails?)
