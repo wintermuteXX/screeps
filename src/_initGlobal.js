@@ -57,14 +57,6 @@ function initGlobal(g) {
   };
 
   /**
-   * Global Config
-   */
-  // g._globalConfig = require("config.global");
-  // g.initRoom = function(rc){
-  //  g._globalConfig.rooms.init(rc);
-  // };
-
-  /**
    * Creeps
    */
   g._creeps = require("config.creeps");
