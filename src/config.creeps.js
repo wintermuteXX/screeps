@@ -5,7 +5,7 @@ module.exports = {
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
-        return (rc.getCreeps().length === 0);
+        return rc.getCreeps().length === 0;
       } else {
         return rc.getCreeps("builder").length < 5;
       }
@@ -70,7 +70,7 @@ module.exports = {
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"]
+    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
   },
 
   "upgrader": {

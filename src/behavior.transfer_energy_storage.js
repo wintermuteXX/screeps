@@ -14,6 +14,18 @@ function findStorage(rc) {
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
   var storage = findStorage(rc);
+  var StoreLevel4 = 2000;
+  var StoreLevel5 = 5000;
+  var StoreLevel6 = 15000;
+  var StoreLevel7 = 50000;
+  var StoreLevel8 = 100000;
+  
+  if ( creep.room.controller.level === 4 && storage.store[RESOURCE_ENERGY] < StoreLevel4) {return !!storage;}
+  if ( creep.room.controller.level === 5 && storage.store[RESOURCE_ENERGY] < StoreLevel5) {return !!storage;}
+  if ( creep.room.controller.level === 6 && storage.store[RESOURCE_ENERGY] < StoreLevel6) {return !!storage;}
+  if ( creep.room.controller.level === 7 && storage.store[RESOURCE_ENERGY] < StoreLevel7) {return !!storage;}
+  if ( creep.room.controller.level === 8 && storage.store[RESOURCE_ENERGY] < StoreLevel8) {return !!storage;}
+  
   return (!!storage);
 };
 
