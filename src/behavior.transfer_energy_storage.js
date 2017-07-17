@@ -28,7 +28,7 @@ b.work = function (creep, rc) {
   var storage = creep.getTarget();
 
   if (storage === null) {
-    storage = findStorage(rc);
+    storage = rc.room.storage;
     if (storage) {
       creep.target = storage.id;
     }
