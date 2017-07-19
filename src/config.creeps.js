@@ -101,7 +101,16 @@ module.exports = {
     levelMin: 3,
 
     canBuild: function (rc) {
-      return rc.getCreeps("constructor").length < 2;
+      var towers = room.find(FIND_MY_STRUCTURES, {
+		  filter: { structureType: STRUCTURE_TOWER }
+      });
+
+      var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
+      return s.needsRepair();
+      });
+      // return rc.getCreeps("constructor").length < 2;
+    
+      return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
     },
 
     body: [
