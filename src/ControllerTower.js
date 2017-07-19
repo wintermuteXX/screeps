@@ -26,16 +26,21 @@ ControllerTower.prototype.fire = function () {
 
 ControllerTower.prototype.repair = function () {
   
-   var structures = _.filter(this.tower.room.find(FIND_STRUCTURES), function (s) {
-    return s.needsRepair();
-  }); 
-  structures = _.sortBy(structures, function (s) {
-    return s.hits;
+    var targetList = this.ControllerRoom.getEnemys();
+    if (targetList.length === 0) {
+
+        var structures = _.filter(this.tower.room.find(FIND_STRUCTURES), function (s) {
+        return s.needsRepair();
+        }); 
+  
+        structures = _.sortBy(structures, function (s) {
+        return s.hits;
   });
 
-   if (structures.length && this.tower.energy > 500) {
-       this.tower.repair(structures[0]);
-};
+        if (structures.length && this.tower.energy > 500) {
+        this.tower.repair(structures[0]);
+        };
+    };
 }
 
 module.exports = ControllerTower;
