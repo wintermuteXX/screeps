@@ -20,23 +20,20 @@ ControllerGame.prototype.processRooms = function () {
 	}
 };
 
-/*
-ControllerGame.prototype.processGlobal = function () {
-
-	// scout
-	if ( Game.cpuLimit > 400 ) {
-		// TODO: Hardcode cpuLimit > Fail
-    gc.scout();
-	}
-};
-*/
-
 ControllerGame.prototype.garbageCollection = function () {
 	for (var c in Memory.creeps) {
 		if (!Game.creeps[c]) {
 			delete Memory.creeps[c];
 		}
 	}
+
+	for (var r in Memory.rooms) {
+		if (Game.rooms[r].lastCheck < Game.time - 10000) {
+			delete Memory.rooms[r];
+		}
+	}
+
+
 };
 
 module.exports = ControllerGame;

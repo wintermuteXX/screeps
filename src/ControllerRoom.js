@@ -190,6 +190,21 @@ ControllerRoom.prototype.getController = function () {
 };
 
 
+ControllerRoom.prototype.getEnemys = function () {
+var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
+    var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
+        filter: function(foundCreep) { 
+            for (let i=allowedNameList.length;--i>=0;){
+                if (foundCreep.owner.username === allowedNameList[i]) return(false);
+            }
+            return(true);
+        }
+	});
+return targetList;
+};
+
+
+
 /**
  * ControllerRoom.getLevel()
  */
