@@ -2,7 +2,6 @@
     	- Behavior Transport Minerals to Terminal
     	- Behavior Harvest Minerals
 		- When storage > 100000 energy -> Prefer other link :-)
-		- When storage > 100000 energy - no more input
 		- Remote Mining (check for goals, new behavior)
 		- Upgrader - TravelTo - Range = 2 
     	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
@@ -15,18 +14,20 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
    	BUGS
+	    - (bug) Limit Tower repair - based on what? 5 ticks?
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
-		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (bug) Fallback if no creeps in active room (Implemented but fails?)
    	TESTING
     	- (test) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
 		- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
     	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
   	DONE
+		- (done) When storage > 100000 energy - no more input. Fix -> maxE based on constants + rcl
 		- (done) Check Scout Code
     	- (done) Upgrader Link -> Storage
     	- (done) Behavior Repair Container
     	- (done) Behavior Get_energy_container (done)
+		- (done) (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (done) (bug) Filling Storage does not work with new checks. Why?	
     
 

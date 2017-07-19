@@ -20,7 +20,9 @@ function ControllerRoom(room, ControllerGame) {
 	this.links = new ControllerLink(this);
 
 	var towers = room.find(FIND_MY_STRUCTURES, {
-		filter: { structureType: STRUCTURE_TOWER }
+		filter: {
+			structureType: STRUCTURE_TOWER
+		}
 	});
 
 	for (var t in towers) {
@@ -39,13 +41,13 @@ ControllerRoom.prototype.run = function () {
 	this.populate();
 
 	this.links.transferEnergy();
-	
+
 	this.commandCreeps();
-	
+
 	_.each(this._towers, function (tower) {
 		tower.fire();
 		tower.repair();
-			})
+	})
 
 	this.findDroppedResources();
 };
@@ -181,16 +183,16 @@ ControllerRoom.prototype.getController = function () {
 
 
 ControllerRoom.prototype.getEnemys = function () {
-var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
-    var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
-        filter: function(foundCreep) { 
-            for (let i=allowedNameList.length;--i>=0;){
-                if (foundCreep.owner.username === allowedNameList[i]) return(false);
-            }
-            return(true);
-        }
+	var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
+	var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
+		filter: function (foundCreep) {
+			for (let i = allowedNameList.length; --i >= 0;) {
+				if (foundCreep.owner.username === allowedNameList[i]) return (false);
+			}
+			return (true);
+		}
 	});
-return targetList;
+	return targetList;
 };
 
 
