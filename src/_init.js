@@ -131,9 +131,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
-      return (this.hits < 5000000) && (this.hitsMax > 1);
+      return (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
-    return this.hits < (this.hitsMax / 2);
+    return this.hits < (this.hitsMax / 1.5);
   };
 
   Structure.prototype.getFreeFields = function () {

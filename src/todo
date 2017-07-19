@@ -19,7 +19,6 @@
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (bug) Fallback if no creeps in active room (Implemented but fails?)
-		- (bug) Filling Storage does not work with new checks. Why?	
    	TESTING
     	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
     	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
@@ -28,6 +27,7 @@
     	- (done) Upgrader Link -> Storage
     	- (done) Behavior Repair Container
     	- (done) Behavior Get_energy_container (done)
+		- (done) (bug) Filling Storage does not work with new checks. Why?	
     
 
 2. Code Snippets
