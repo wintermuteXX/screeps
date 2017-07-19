@@ -15,12 +15,12 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
    	BUGS
-	    - (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist.
-		- (bug) when controller downgrades during construction, workers can't finish behavior construction
+	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) Tower Repair + Heal (repair ready, but not activated in ControllerRoom)
 		- (bug) Fallback if no creeps in active room (Implemented but fails?)
    	TESTING
-    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+    	- (test) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
+		- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
     	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
   	DONE
 		- (done) Check Scout Code
