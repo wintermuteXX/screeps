@@ -215,15 +215,6 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 	return null;
 };
 
-
-/**
- * ControllerRoom.getMaxEnergy()
- */
-ControllerRoom.prototype.getMaxEnergy = function () {
-	var extensionCount = this.getExtensions().length;
-	return 300 + (extensionCount * 50);
-};
-
 /**
  * ControllerRoom.getExtensions()
  */
@@ -286,7 +277,7 @@ ControllerRoom.prototype.analyse = function () {
 			};
 		}
 		memory._structures = structures;
-
+		memory.lastCheck = Game.time;
 	} catch (e) {
 		console.log(e);
 	}
