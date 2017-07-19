@@ -35,10 +35,13 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
-    if (!creep.pos.isNearTo(target)) {
+    /* if (!creep.pos.isNearTo(target)) {
       creep.travelTo(target);
     } else {
       creep.repair(target);
+    } */
+    if(creep.repair(target) == ERR_NOT_IN_RANGE) {
+        creep.travelTo(target);
     }
   }
 };
