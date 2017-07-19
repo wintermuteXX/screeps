@@ -15,7 +15,7 @@ ControllerTower.prototype.fire = function () {
         }
     });
      */
-    var targetList = this.ControllerRoom.getEnemy();
+    var targetList = this.ControllerRoom.getEnemys();
     if (targetList.length !== 0) console.log("Die Scum!");
 
     var closestHostile = this.tower.pos.findClosestByRange(targetList);
