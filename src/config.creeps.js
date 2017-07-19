@@ -101,7 +101,7 @@ module.exports = {
     levelMin: 3,
 
     canBuild: function (rc) {
-      var towers = room.find(FIND_MY_STRUCTURES, {
+      var towers = rc.find(FIND_MY_STRUCTURES, {
 		  filter: { structureType: STRUCTURE_TOWER }
       });
 

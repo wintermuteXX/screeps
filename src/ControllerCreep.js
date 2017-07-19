@@ -1,5 +1,3 @@
-// var Debugger = require("_debugger");
-
 function ControllerCreep(ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
@@ -22,9 +20,9 @@ ControllerCreep.prototype.run = function (creep) {
       if (creep.behavior !== behavior.name) {
         creep.behavior = behavior.name;
       }
-      // var debug = new Debugger("ControllerCreep.run: " + creep + ", behavior: " + behavior.name);
+     
       behavior.work(creep, this.ControllerRoom);
-      // debug.end();
+
     } else {
       creep.behavior = null;
     }

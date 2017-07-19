@@ -5,8 +5,6 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
 
-// var Debugger = require("_debugger");
-
 function ControllerRoom(room, ControllerGame) {
 	this.room = room;
 	this._find = {};
@@ -29,9 +27,6 @@ function ControllerRoom(room, ControllerGame) {
 		var tower = towers[t];
 		this._towers.push(new ControllerTower(tower, this));
 	}
-
-
-	// global.initRoom(this);
 }
 
 
@@ -41,17 +36,12 @@ function ControllerRoom(room, ControllerGame) {
 ControllerRoom.prototype.run = function () {
 	this.analyse();
 
-	// var debug = new Debugger(this.room + ": populate");
 	this.populate();
-	// debug.end();
 
-	// debug = new Debugger(this.room + ": transferEnergy");
 	this.links.transferEnergy();
-	// debug.end();
-
-	// debug = new Debugger(this.room + ": commandCreeps");
+	
 	this.commandCreeps();
-	// debug.end();
+	
 	_.each(this._towers, function (tower) {
 		tower.fire();
 		tower.repair();
