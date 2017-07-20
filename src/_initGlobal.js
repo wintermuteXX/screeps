@@ -21,6 +21,7 @@ function initGlobal(g) {
     'StoreLevel6': 15000,
     'StoreLevel7': 50000,
     'StoreLevel8': 100000,
+    'repairTower': 8
   };
 
   g.getInterval = function (key) {

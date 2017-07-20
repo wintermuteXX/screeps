@@ -44,9 +44,10 @@ ControllerRoom.prototype.run = function () {
 
 	this.commandCreeps();
 
+
 	_.each(this._towers, function (tower) {
 		tower.fire();
-		tower.repair();
+		if (Game.time % global.getInterval('repairTower') !== 0) {tower.repair();}
 	})
 
 	this.findDroppedResources();
