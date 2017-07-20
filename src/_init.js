@@ -59,6 +59,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
+  Creep.prototype.toString = function (htmlLink = true){
+    return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id, 'creeps.'+this.name)}]`;
+  };
+
   Creep.prototype.getTarget = function () {
     return Game.getObjectById(this.target);
   };

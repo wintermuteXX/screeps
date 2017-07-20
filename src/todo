@@ -14,15 +14,15 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
    	BUGS
-	    - (bug) Limit Tower repair - based on what? 5 ticks?
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
-		- (bug) Fallback if no creeps in active room (Implemented but fails?)
    	TESTING
-    	- (test) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
-		- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
     	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
   	DONE
-		- (done) When storage > 100000 energy - no more input. Fix -> maxE based on constants + rcl
+	    - (done) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
+		- (done) (bug) Fallback if no creeps in active room (Implemented but fails?) - Fix: Limit parts to 300 Energy
+		- (done) (bug) Limit Tower repair - FIX: New Interval repairTower
+	    - (done) When storage > 100000 energy - no more input. Fix -> maxE based on constants + rcl
 		- (done) Check Scout Code
     	- (done) Upgrader Link -> Storage
     	- (done) Behavior Repair Container
@@ -211,14 +211,3 @@ Structure.prototype.toString = function (htmlLink = true){
 StructureSpawn.prototype.toString = function (htmlLink = true){
     return `[spawn ${this.name} ${this.pos.toString(htmlLink, this.id, 'spawns.' + this.name)}]`;
 }
----------------------------------------------------------
- var allowedNameList = ["foo", "Source Keeper", "bar", "Invader"]
-    var targetList = Game.rooms['sim'].find(FIND_HOSTILE_CREEPS, {
-        filter: function(foundCreep) { 
-            for (let i=allowedNameList.length;--i>=0;){
-                if (foundCreep.owner.username === allowedNameList[i]) return(false);
-            }
-            return(true);
-        }
-    });
-    if (targetList.length !== 0) console.log("Run in circles! Scream and shout!");
