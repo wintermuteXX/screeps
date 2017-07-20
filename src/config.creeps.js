@@ -58,7 +58,7 @@ module.exports = {
         return (s.structureType === STRUCTURE_LINK);
       });
       // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
-      return ((transpoters.length + links.length - 1) < miners.length * 2);
+      return ((transpoters.length + links.length - 2) < miners.length * 2);
 
     },
 
