@@ -21,11 +21,11 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    if (!creep.pos.isNearTo(target)) {
+
+    if (creep.build(target) == ERR_NOT_IN_RANGE) {
       creep.travelTo(target);
-    } else {
-      creep.build(target);
     }
+
     creep.target = target.id;
   } else {
     creep.target = null;
