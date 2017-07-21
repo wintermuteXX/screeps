@@ -16,6 +16,7 @@ b.work = function (creep, rc) {
   if (source === null) {
     var sources = rc.getSources();
     if (sources.length) {
+      // Source per Zufall auswählen
       source = sources[Math.floor(Math.random() * sources.length)];
     }
   }

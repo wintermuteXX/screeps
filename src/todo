@@ -218,3 +218,45 @@ Object.defineProperty(Room.prototype, "roomType", {
             return this.memory.roomType;
         }
     });
+
+	----------------------------------------
+	const structureTimeToSaveFor = 13;
+	Room.prototype.getStructures =
+    function (structureType, filter) {
+    if (!global[this.name]) global[this.name] = {};
+        if (!global[this.name].structures || Game.time-global[this.name].structures.lc > structureTimeToSaveFor) {
+            global[this.name].structures = {lc: Game.time};
+
+            var grouped = _.groupBy(this.find(FIND_STRUCTURES), (s) => s.structureType);
+            var mappedGroup = {};
+
+            for (let group in grouped) mappedGroup[group] = _.map(grouped[group], (s) => {return s ? s.id : null});
+
+            global[this.name].structures.structures = mappedGroup;
+        }
+
+        var needed = global[this.name].structures.structures[structureType].map(Game.getObjectById).filter(obj => obj !== null);
+        return filter ? _.filter(needed, filter) : needed;
+    };
+	----------------------------------------------
+	doStats: {
+        run: function () {
+            Memory.stats = {
+                tick: Game.time,
+                cpu: _.cloneDeep(Game.cpu),
+                gcl: Game.gcl,
+                constructionSites: _.size(Game.constructionSites),
+                tokens: Game.resources.token,
+
+                memory: {
+                    used: RawMemory.get().length
+                },
+
+                market: {
+                    credits: Game.market.credits,
+                    num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0,
+                }
+
+            }
+        }
+    }
