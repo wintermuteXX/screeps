@@ -287,29 +287,29 @@ ControllerRoom.prototype.analyse = function () {
 		memory._structures = structures;
 		memory.lastCheck = Game.time;
 
-		 if (!this.memory.roomType) {
+		 if (!this.room.memory.roomType) {
 
                 // source keeper
-                let lairs = this.findStructures(STRUCTURE_KEEPER_LAIR);
+                let lairs = this.room.find(STRUCTURE_KEEPER_LAIR);
                 if (lairs.length > 0) {
-                    this.memory.roomType = ROOMTYPE_SOURCEKEEPER;
+                    this.room.memory.roomType = "ROOMTYPE_SOURCEKEEPER";
                 }
 
                 // core
-                if (!this.memory.roomType) {
-                    let sources = this.find(FIND_SOURCES);
+                if (!this.room.memory.roomType) {
+                    let sources = this.room.find(FIND_SOURCES);
                     if (sources.length === 3) {
-                        this.memory.roomType = ROOMTYPE_CORE;
+                        this.room.memory.roomType = "ROOMTYPE_CORE";
                     }
                 }
 
                 // controller rooms
-                if (!this.memory.roomType) {
-                    if (this.controller) {
-                        this.memory.roomType = ROOMTYPE_CONTROLLER;
+                if (!this.room.memory.roomType) {
+                    if (this.room.controller) {
+                        this.room.memory.roomType = "ROOMTYPE_CONTROLLER";
                     }
                     else {
-                        this.memory.roomType = ROOMTYPE_ALLEY;
+                        this.room.memory.roomType = "ROOMTYPE_ALLEY";
                     }
                 }
 			}
