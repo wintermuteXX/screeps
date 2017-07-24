@@ -158,17 +158,40 @@ module.exports = {
       var scouts = _.filter(Game.creeps, { 'memory': { 'role': 'scout' } });
       return scouts.length < 3;
     },
-
+    
     body: [
       [CARRY, CARRY, WORK, MOVE, MOVE],
       [CARRY, CARRY, WORK, WORK, MOVE, MOVE],
       [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE],
-      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM]
+      [CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
     ],
-
-    behaviors: ['goto_white_flag', "claim_controller", "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
-
+    behaviors: ['goto_white_flag', "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
   },
+
+'claimer': {
+    produceGlobal: false,
+    priority: 6,
+    minLevel: 3,
+
+    canBuild: function (rc) {
+      var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
+      if (flags.length === 0 || flags[0].room.controller.my) return false;
+      var claimer = _.filter(Game.creeps, { 'memory': { 'role': 'claimer' } });
+      return claimer.length < 1;
+    },
+body: [
+      null,
+      null,
+      [MOVE, CLAIM],
+      [MOVE, CLAIM, MOVE, CLAIM],
+      [MOVE, CLAIM, MOVE, CLAIM],
+      [MOVE, CLAIM, MOVE, CLAIM],
+      [MOVE, CLAIM, MOVE, CLAIM],
+      [MOVE, CLAIM, MOVE, CLAIM]
+      ],
+behaviors: ['goto_white_flag', "claim_controller"]
+  },
+
 
   'filler': {
     produceGlobal : false,

@@ -3,9 +3,10 @@
     	- Behavior Harvest Minerals
 		- When storage > 100000 energy -> Prefer other link :-)
 		- Remote Mining (check for goals, new behavior)
-		- Upgrader - TravelTo - Range = 2 
+		- centralize all find operations in ControllerRoom
     	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
+		- If Extension is already target of another creep, take next extension.
 		-- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
