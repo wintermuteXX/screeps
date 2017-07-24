@@ -133,7 +133,7 @@ module.exports = {
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_RED });
       if (flags.length === 0) return false;
-      return rc.getCreeps("attacker").length < 1;
+      return _.filter(Game.creeps, (c) => c.memory.role == 'attacker') < 1;
     },
 
     body: [
@@ -154,7 +154,7 @@ module.exports = {
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
       if (flags.length === 0) return false;
-      return rc.getCreeps("scout").length < 3;
+      return _.filter(Game.creeps, (c) => c.memory.role == 'scout') < 3;
     },
     
     body: [
@@ -174,7 +174,7 @@ module.exports = {
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
       if (flags.length === 0 || (flags[0].room && flags[0].room.controller.my)) return false;
-      return rc.getCreeps("claimer").length < 1;
+      return _.filter(Game.creeps, (c) => c.memory.role == 'claimer') < 1;
     },
 body: [
       null,

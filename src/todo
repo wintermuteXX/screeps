@@ -7,6 +7,7 @@
     	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- If Extension is already target of another creep, take next extension.
+		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
 		-- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
