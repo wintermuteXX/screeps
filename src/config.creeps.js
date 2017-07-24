@@ -133,8 +133,7 @@ module.exports = {
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_RED });
       if (flags.length === 0) return false;
-      var attackers = _.filter(Game.creeps, { 'memory': { 'role': 'attacker' } });
-      return attackers.length < 1;
+      return rc.getCreeps("attacker").length < 1;
     },
 
     body: [
@@ -155,8 +154,7 @@ module.exports = {
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
       if (flags.length === 0) return false;
-      var scouts = _.filter(Game.creeps, { 'memory': { 'role': 'scout' } });
-      return scouts.length < 3;
+      return rc.getCreeps("scout").length < 3;
     },
     
     body: [
@@ -175,9 +173,8 @@ module.exports = {
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
-      if (flags.length === 0 || flags[0].room.controller.my) return false;
-      var claimer = _.filter(Game.creeps, { 'memory': { 'role': 'claimer' } });
-      return claimer.length < 1;
+      if (flags.length === 0 || (flags[0].room && flags[0].room.controller.my)) return false;
+      return rc.getCreeps("claimer").length < 1;
     },
 body: [
       null,
@@ -199,8 +196,7 @@ behaviors: ['goto_white_flag', "claim_controller"]
     minLevel : 3,
 
     canBuild : function(rc) {
-        var filler = _.filter(Game.creeps, { 'memory' : { 'role' : 'filler'}});
-        // return filler.length < 1;
+        // return rc.getCreeps("filler").length  < 1;
         return false;
     },
 
