@@ -24,7 +24,6 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   if (result !== null) {
     return (result === OK);
   }
-  // console.log("Result: " + result);
   return false;
 };
 

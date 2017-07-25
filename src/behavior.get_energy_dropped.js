@@ -22,13 +22,10 @@ b.work = function (creep, rc) {
 
   if (target === null) {
     var droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES);
-    //console.log("Dropped Energy: " + droppedEnergy);
-    droppedEnergy = _.filter(droppedEnergy, function (f) {
+   droppedEnergy = _.filter(droppedEnergy, function (f) {
       return f.amount > 99 && f.resourceType === 'energy' && !f.pos.inRangeTo(creep.room.controller.pos, 3);
     });
-    //console.log("Dropped Energy 100: " + droppedEnergy);
-
-
+  
     if (droppedEnergy.length) {
       target = droppedEnergy[Math.floor(Math.random() * droppedEnergy.length)];
       creep.target = target.id;
