@@ -209,6 +209,8 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
         return filter ? _.filter(needed, filter) : needed;
     };
 	----------------------------------------------
+	creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {filter{resourceType:RESOURCE_POWER});
+	----------------------------------------------
 	doStats: {
         run: function () {
             Memory.stats = {
@@ -230,3 +232,19 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
             }
         }
     }
+	-----------------------------------------------
+	function mayReserveController(theController) {
+    if (theController.owner) {
+        return false;
+    }
+    if (!theController.reservation) {
+        return true;
+    }
+    if (theController.reservation.username != 'Dissi') {
+        return false;
+    }
+    if (theController.reservation.ticksToEnd < 2500) {
+        return true;
+    }
+    return false;
+}

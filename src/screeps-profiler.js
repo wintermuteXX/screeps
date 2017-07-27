@@ -1,34 +1,61 @@
-var usedOnStart = 0;
-var enabled = false;
-var depth = 0;
+'use strict';
+
+let usedOnStart = 0;
+let enabled = false;
+let depth = 0;
+
+function AlreadyWrappedError() {
+  this.name = 'AlreadyWrappedError';
+  this.message = 'Error attempted to double wrap a function.';
+  this.stack = ((new Error())).stack;
+}
 
 function setupProfiler() {
+  depth = 0; // reset depth, this needs to be done each tick.
   Game.profiler = {
-    stream: function (duration, filter) {
+    stream(duration, filter) {
       setupMemory('stream', duration || 10, filter);
     },
-    email: function (duration, filter) {
+    email(duration, filter) {
       setupMemory('email', duration || 100, filter);
     },
-    profile: function (duration, filter) {
+    profile(duration, filter) {
       setupMemory('profile', duration || 100, filter);
     },
-    reset: resetMemory
+    background(filter) {
+      setupMemory('background', false, filter);
+    },
+    restart() {
+      if (Profiler.isProfiling()) {
+        const filter = Memory.profiler.filter;
+        let duration = false;
+        if (!!Memory.profiler.disableTick) {
+          // Calculate the original duration, profile is enabled on the tick after the first call,
+          // so add 1.
+          duration = Memory.profiler.disableTick - Memory.profiler.enabledTick + 1;
+        }
+        const type = Memory.profiler.type;
+        setupMemory(type, duration, filter);
+      }
+    },
+    reset: resetMemory,
+    output: Profiler.output,
   };
+
+  overloadCPUCalc();
 }
 
 function setupMemory(profileType, duration, filter) {
-  overloadCPUCalc();
   resetMemory();
+  const disableTick = Number.isInteger(duration) ? Game.time + duration : false;
   if (!Memory.profiler) {
     Memory.profiler = {
       map: {},
       totalTime: 0,
-      bucketSize: 0,
       enabledTick: Game.time + 1,
-      disableTick: Game.time + duration,
+      disableTick,
       type: profileType,
-      filter: filter
+      filter,
     };
   }
 }
@@ -39,8 +66,9 @@ function resetMemory() {
 
 function overloadCPUCalc() {
   if (Game.rooms.sim) {
-    Game.cpu.getUsed = function () {
-      return Game.rooms.sim ? performance.now() - usedOnStart : Game.cpu.getUsed();
+    usedOnStart = 0; // This needs to be reset, but only in the sim.
+    Game.cpu.getUsed = function getUsed() {
+      return performance.now() - usedOnStart;
     };
   }
 }
@@ -49,74 +77,171 @@ function getFilter() {
   return Memory.profiler.filter;
 }
 
+const functionBlackList = [
+  'getUsed', // Let's avoid wrapping this... may lead to recursion issues and should be inexpensive.
+  'constructor', // es6 class constructors need to be called with `new`
+];
+
 function wrapFunction(name, originalFunction) {
-  return function () {
+  if (originalFunction.profilerWrapped) { throw new AlreadyWrappedError(); }
+  function wrappedFunction() {
     if (Profiler.isProfiling()) {
-      var nameMatchesFilter = name === getFilter();
-      var start = Game.cpu.getUsed();
+      const nameMatchesFilter = name === getFilter();
+      const start = Game.cpu.getUsed();
       if (nameMatchesFilter) {
         depth++;
       }
-      var result = originalFunction.apply(this, arguments);
+      const result = originalFunction.apply(this, arguments);
       if (depth > 0 || !getFilter()) {
-        var end = Game.cpu.getUsed();
+        const end = Game.cpu.getUsed();
         Profiler.record(name, end - start);
       }
       if (nameMatchesFilter) {
         depth--;
       }
       return result;
-    } else {
-      return originalFunction.apply(this, arguments);
     }
-  };
+
+    return originalFunction.apply(this, arguments);
+  }
+
+  wrappedFunction.profilerWrapped = true;
+  wrappedFunction.toString = () =>
+    `// screeps-profiler wrapped function:\n${originalFunction.toString()}`;
+
+  return wrappedFunction;
 }
 
 function hookUpPrototypes() {
-  Profiler.prototypes.forEach(function eachPrototype(proto) {
-    var foundProto = proto.val.prototype ? proto.val.prototype : proto.val;
-    Object.keys(foundProto).forEach(function eachKeyOnPrototype(prototypeFunctionName) {
-      var key = `${proto.name}.${prototypeFunctionName}`;
-      try {
-        if (typeof foundProto[prototypeFunctionName] === 'function' && prototypeFunctionName !== 'getUsedCpu') {
-          var originalFunction = foundProto[prototypeFunctionName];
-          foundProto[prototypeFunctionName] = wrapFunction(key, foundProto[prototypeFunctionName]);
-        }
-      } catch (ex) { }
-    });
+  Profiler.prototypes.forEach(proto => {
+    profileObjectFunctions(proto.val, proto.name);
   });
 }
 
-var Profiler = {
+function profileObjectFunctions(object, label) {
+  const objectToWrap = object.prototype ? object.prototype : object;
+
+  Object.getOwnPropertyNames(objectToWrap).forEach(functionName => {
+    const extendedLabel = `${label}.${functionName}`;
+
+    const isBlackListed = functionBlackList.indexOf(functionName) !== -1;
+    if (isBlackListed) {
+      return;
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(objectToWrap, functionName);
+    if (!descriptor) {
+      return;
+    }
+
+    const hasAccessor = descriptor.get || descriptor.set;
+    if (hasAccessor) {
+      const configurable = descriptor.configurable;
+      if (!configurable) {
+        return;
+      }
+
+      const profileDescriptor = {};
+
+      if (descriptor.get) {
+        const extendedLabelGet = `${extendedLabel}:get`;
+        profileDescriptor.get = profileFunction(descriptor.get, extendedLabelGet);
+      }
+
+      if (descriptor.set) {
+        const extendedLabelSet = `${extendedLabel}:set`;
+        profileDescriptor.set = profileFunction(descriptor.set, extendedLabelSet);
+      }
+
+      Object.defineProperty(objectToWrap, functionName, profileDescriptor);
+      return;
+    }
+
+    const isFunction = typeof descriptor.value === 'function';
+    if (!isFunction) {
+      return;
+    }
+    const originalFunction = objectToWrap[functionName];
+    objectToWrap[functionName] = profileFunction(originalFunction, extendedLabel);
+  });
+
+  return objectToWrap;
+}
+
+function profileFunction(fn, functionName) {
+  const fnName = functionName || fn.name;
+  if (!fnName) {
+    console.log('Couldn\'t find a function name for - ', fn);
+    console.log('Will not profile this function.');
+    return fn;
+  }
+
+  return wrapFunction(fnName, fn);
+}
+
+const Profiler = {
   printProfile() {
     console.log(Profiler.output());
   },
 
   emailProfile() {
-    Game.notify(Profiler.output());
+    Game.notify(Profiler.output(1000));
   },
 
-  output(limit) {
-    var elapsedTicks = Game.time - Memory.profiler.enabledTick + 1;
-    var header = 'calls\t\ttime\t\tavg\t\tfunction';
-    var footer = `Avg: ${(Memory.profiler.totalTime / elapsedTicks).toFixed(2)} Total: ${Memory.profiler.totalTime.toFixed(2)} Ticks: ${elapsedTicks} Est. Bucket (20 limit): ${Memory.profiler.bucketSize.toFixed(0)}`
-    return [].concat(header, Profiler.lines().slice(0, 20), footer).join('\n');
+  output(passedOutputLengthLimit) {
+    const outputLengthLimit = passedOutputLengthLimit || 1000;
+    if (!Memory.profiler || !Memory.profiler.enabledTick) {
+      return 'Profiler not active.';
+    }
+
+    const endTick = Math.min(Memory.profiler.disableTick || Game.time, Game.time);
+    const startTick = Memory.profiler.enabledTick + 1;
+    const elapsedTicks = endTick - startTick;
+    const header = 'calls\t\ttime\t\tavg\t\tfunction';
+    const footer = [
+      `Avg: ${(Memory.profiler.totalTime / elapsedTicks).toFixed(2)}`,
+      `Total: ${Memory.profiler.totalTime.toFixed(2)}`,
+      `Ticks: ${elapsedTicks}`,
+    ].join('\t');
+
+    const lines = [header];
+    let currentLength = header.length + 1 + footer.length;
+    const allLines = Profiler.lines();
+    let done = false;
+    while (!done) {
+      const line = allLines.shift();
+      // each line added adds the line length plus a new line character.
+      if (currentLength + line.length + 1 < outputLengthLimit) {
+        lines.push(line);
+        currentLength += line.length + 1;
+      } else {
+        done = true;
+      }
+    }
+    lines.push(footer);
+    return lines.join('\n');
   },
 
   lines() {
-    var stats = Object.keys(Memory.profiler.map).map(function (functionName) {
-      var functionCalls = Memory.profiler.map[functionName];
+    const stats = Object.keys(Memory.profiler.map).map(functionName => {
+      const functionCalls = Memory.profiler.map[functionName];
       return {
         name: functionName,
         calls: functionCalls.calls,
         totalTime: functionCalls.time,
-        averageTime: functionCalls.time / functionCalls.calls
-      }
-    }).sort(function (val1, val2) {
+        averageTime: functionCalls.time / functionCalls.calls,
+      };
+    }).sort((val1, val2) => {
       return val2.totalTime - val1.totalTime;
     });
-    var lines = stats.map(function (data) {
-      return `${data.calls}\t\t${data.totalTime.toFixed(1)},\t\t${data.averageTime.toFixed(3)}\t\t${data.name}`;
+
+    const lines = stats.map(data => {
+      return [
+        data.calls,
+        data.totalTime.toFixed(1),
+        data.averageTime.toFixed(3),
+        data.name,
+      ].join('\t\t');
     });
 
     return lines;
@@ -128,14 +253,16 @@ var Profiler = {
     { name: 'Structure', val: Structure },
     { name: 'Spawn', val: Spawn },
     { name: 'Creep', val: Creep },
-    { name: 'RoomPosition', val: RoomPosition }
+    { name: 'RoomPosition', val: RoomPosition },
+    { name: 'Source', val: Source },
+    { name: 'Flag', val: Flag },
   ],
 
   record(functionName, time) {
     if (!Memory.profiler.map[functionName]) {
       Memory.profiler.map[functionName] = {
         time: 0,
-        calls: 0
+        calls: 0,
       };
     }
     Memory.profiler.map[functionName].calls++;
@@ -144,9 +271,8 @@ var Profiler = {
 
   endTick() {
     if (Game.time >= Memory.profiler.enabledTick) {
-      var cpuUsed = Game.cpu.getUsed();
+      const cpuUsed = Game.cpu.getUsed();
       Memory.profiler.totalTime += cpuUsed;
-      Profiler.updateBucket(cpuUsed);
       Profiler.report();
     }
   },
@@ -159,17 +285,11 @@ var Profiler = {
     }
   },
 
-  updateBucket(cpuUsed) {
-    var newBucketSize = Memory.profiler.bucketSize + 20 - cpuUsed;
-
-    if (newBucketSize < 500) {
-      newBucketSize = Math.min(Math.max(Game.cpuLimit - cpuUsed, newBucketSize), 10000);
-    }
-    Memory.profiler.bucketSize = newBucketSize;
-  },
-
   isProfiling() {
-    return enabled && !!Memory.profiler && Game.time <= Memory.profiler.disableTick;
+    if (!enabled || !Memory.profiler) {
+      return false;
+    }
+    return !Memory.profiler.disableTick || Game.time <= Memory.profiler.disableTick;
   },
 
   type() {
@@ -177,17 +297,20 @@ var Profiler = {
   },
 
   shouldPrint() {
-    return Profiler.type() === 'stream' || (Profiler.type() === 'profile' && Memory.profiler.disableTick === Game.time);
+    const streaming = Profiler.type() === 'stream';
+    const profiling = Profiler.type() === 'profile';
+    const onEndingTick = Memory.profiler.disableTick === Game.time;
+    return streaming || (profiling && onEndingTick);
   },
 
   shouldEmail() {
     return Profiler.type() === 'email' && Memory.profiler.disableTick === Game.time;
-  }
+  },
 };
+
 module.exports = {
   wrap(callback) {
     if (enabled) {
-      depth = 0; // reset depth, this needs to be done each tick.
       setupProfiler();
     }
 
@@ -197,8 +320,8 @@ module.exports = {
       // Commented lines are part of an on going experiment to keep the profiler
       // performant, and measure certain types of overhead.
 
-      //var callbackStart = Game.cpu.getUsed();
-      var returnVal = callback();
+      // var callbackStart = Game.cpu.getUsed();
+      const returnVal = callback();
       // var callbackEnd = Game.cpu.getUsed();
       Profiler.endTick();
       // var end = Game.cpu.getUsed();
@@ -206,11 +329,12 @@ module.exports = {
       // var profilerTime = (end - start) - (callbackEnd - callbackStart);
       // var callbackTime = callbackEnd - callbackStart;
       // var unaccounted = end - profilerTime - callbackTime;
-      //console.log('total-', end, 'profiler-', profilerTime, 'callbacktime-', callbackTime, 'start-', start, 'unaccounted', unaccounted);
+      // console.log('total-', end, 'profiler-', profilerTime, 'callbacktime-',
+      // callbackTime, 'start-', start, 'unaccounted', unaccounted);
       return returnVal;
-    } else {
-      return callback();
     }
+
+    return callback();
   },
 
   enable() {
@@ -218,15 +342,9 @@ module.exports = {
     hookUpPrototypes();
   },
 
-  registerFN(fn, functionName) {
-    if (!functionName) {
-      functionName = fn.name;
-    }
-    if (!functionName) {
-      console.log('Couldn\'t find a function name for - ', fn);
-      console.log('Will not profile this function.');
-    } else {
-      return wrapFunction(functionName, fn);
-    }
-  }
+  output: Profiler.output,
+
+  registerObject: profileObjectFunctions,
+  registerFN: profileFunction,
+  registerClass: profileObjectFunctions,
 };
