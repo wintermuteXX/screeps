@@ -185,6 +185,34 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
+Object.defineProperty(Room.prototype, 'mineralContainer', {
+    get: function () {
+      if (this == Room.prototype || this == undefined)
+        return undefined;
+      if (!this._mineral) {
+        if (this.memory.mineralContainer === undefined) {
+          let [mineral] = this.find(FIND_MINERALS);
+          let [container] = this.find(STRUCTURE_CONTAINER);
+
+          let container = _.filter(this.find(STRUCTURE_CONTAINER), function (f) {
+          return f.pos.inRangeTo(mineral.pos, 1);
+          });
+
+          if (!container) {
+            return this.memory.mineralContainer = null;
+          }
+          this._mineral = container;
+          this.memory.mineralContainer = container.id;
+        } else {
+          this._mineral = Game.getObjectById(this.memory.mineralContainer);
+        }
+      }
+      return this._mineral;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
 // Test ToString
 
 RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {

@@ -248,3 +248,5 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
     }
     return false;
 }
+-------------------------------------
+Memory.config = Memory.config || {}`;
