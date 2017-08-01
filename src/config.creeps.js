@@ -47,6 +47,27 @@ module.exports = {
     behaviors: ["miner_harvest"]
   },
 
+  "miner_mineral": {
+    priority: 2,
+    levelMin: 5,
+
+    canBuild: function (rc) {
+      var miners = rc.getCreeps("miner_mineral");
+      
+      // return (miners.length < 1);
+      return false;
+    },
+
+    body: [
+      [MOVE, WORK, WORK],
+      [MOVE, WORK, WORK, WORK, WORK, WORK],
+      [MOVE, WORK, WORK, WORK, WORK, WORK, WORK],
+      [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY]
+    ],
+    behaviors: ["miner_harvest_mineral"]
+  },
+
+
   "transporter": {
     priority: 1,
     levelMin: 2,
