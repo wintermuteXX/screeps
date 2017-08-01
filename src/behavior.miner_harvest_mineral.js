@@ -27,7 +27,10 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    if (!creep.pos.isNearTo(target)) {
+      let container = creep.room.mineralContainer;
+      
+      if (container) { var test =creep.moveTo(container[0]);console.log(test); }
+      else if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target);
     } else {
    if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
