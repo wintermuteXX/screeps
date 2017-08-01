@@ -192,12 +192,7 @@ Object.defineProperty(Room.prototype, 'mineralContainer', {
       if (!this._mineral) {
         if (this.memory.mineralContainer === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
-          let [container] = this.find(STRUCTURE_CONTAINER);
-
-          let container = _.filter(this.find(STRUCTURE_CONTAINER), function (f) {
-          return f.pos.inRangeTo(mineral.pos, 1);
-          });
-
+          let container = _.filter(this.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(mineral.pos, 1)});
           if (!container) {
             return this.memory.mineralContainer = null;
           }
