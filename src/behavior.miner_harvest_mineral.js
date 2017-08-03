@@ -27,21 +27,15 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-      let container = creep.room.mineralContainer;
-      
-      if (container) { var test =creep.moveTo(container[0]);console.log(test); }
-      else if (!creep.pos.isNearTo(target)) { creep.moveTo(target); } 
-      if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
+    let container = creep.room.mineralContainer;
+    if (container) {
+      test = creep.moveTo(container[0]);
+    } else if (!creep.pos.isNearTo(target)) {
+      creep.moveTo(target);
+    }
+    if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
       let test = creep.harvest(target);
-   }
-   
-      // TODO: Storage + Link in creep memory speichern und benutzen.
-      // var link = findNearLink(creep, rc);
-      // if (creep.pos.isNearTo(rc.room.storage)) {creep.transfer(rc.room.storage, source.mineralType); }
-      // else if (link) { console.log("link"); creep.transfer(link[0], source.mineralType); }
-      // else { console.log("drop");
-      // for(const resourceType in creep.carry) { creep.drop(resourceType); } 
-    // }
+    }
   }
 };
 

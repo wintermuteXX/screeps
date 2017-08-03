@@ -1,12 +1,5 @@
 var Behavior = require("_behavior");
 
-function findNearLink(obj, rc) {
-  var links = rc.links.senders;
-  var thelink = obj.pos.findInRange(links, 1);
-  if (thelink) return thelink;
-
-}
-
 var b = new Behavior("miner_harvest");
 
 b.when = function () {
@@ -38,8 +31,7 @@ b.work = function (creep, rc) {
       creep.harvest(source);
       // TODO: Storage + Link in creep memory speichern und benutzen.
       var link = rc.findNearLink(creep);
-      if (creep.pos.isNearTo(rc.room.storage)) { creep.transfer(rc.room.storage, RESOURCE_ENERGY); }
-      else if (link) { creep.transfer(link[0], RESOURCE_ENERGY); }
+      if (link) { creep.transfer(link[0], RESOURCE_ENERGY); }
       else { creep.drop(RESOURCE_ENERGY); }
     }
   }
