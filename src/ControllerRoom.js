@@ -182,6 +182,14 @@ ControllerRoom.prototype.getController = function () {
 	return null;
 };
 
+ControllerRoom.prototype.findNearLink = function (obj) {
+	var links = this.links.senders;
+  	var thelink = obj.pos.findInRange(links, 1);
+  	if (thelink) { return thelink;
+	}
+	return null;
+};
+
 
 ControllerRoom.prototype.getEnemys = function () {
 	var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]

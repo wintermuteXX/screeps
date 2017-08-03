@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_minerals");
 
 b.when = function (creep, rc) {
-  var droppedMinerals = creep.room.find(FIND_MINERALS);
+  var droppedMinerals = creep.room.find(FIND_DROPPED_RESOURCES);
   droppedMinerals = _.filter(droppedMinerals, function (f) { return f.amount > 99 && !f.resourceType == 'energy' && !f.resourceType == 'power' });
    
   return (_.sum(creep.carry) === 0 && droppedMinerals && droppedMinerals.length);
@@ -19,7 +19,7 @@ b.work = function (creep, rc) {
 
 
   if (target === null) {
-    var droppedMinerals = creep.room.find(FIND_MINERALS);
+    var droppedMinerals = creep.room.find(FIND_DROPPED_RESOURCES);
     droppedMinerals = _.filter(droppedMinerals, function (f) { return f.amount > 99 && !f.resourceType == 'energy' && !f.resourceType == 'power' });
   
     if (droppedMinerals.length) {
