@@ -4,11 +4,8 @@ var b = new Behavior("get_energy_container");
 
 b.when = function (creep, rc) {
   var containers = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
-  console.log("Containers: " + containers);
-  containers = _.filter(containers, function (f) { return !f.store.resourceType == 'energy' && !f.store.resourceType == 'power' && _.sum(f.store) > 100; });
-  console.log("Containers full: " + containers);
- return (creep.energy === 0 && containers);
-};
+  containers = _.filter(containers, function (f) { return !f.store['energy']; });
+  return (creep.energy === 0 && containers);
 
 b.completed = function (creep, rc) {
   var target = Game.getObjectById(creep.target);
@@ -18,8 +15,8 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   var target = creep.getTarget();
   if (target === null) {
-    var target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && !f.store.resourceType == 'energy' && !f.store.resourceType == 'power' && _.sum(f.store) > 100; });
-    target = creep.pos.findClosestByRange(target);
+    var target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
+    target = _.filter(containers, function (f) { return !f.store['energy']; });
     if (target) {
     creep.target = target.id;
     }
