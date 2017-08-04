@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("get_minerals");
+var b = new Behavior("get_minerals_dropped");
 
 b.when = function (creep, rc) {
   var droppedMinerals = creep.room.find(FIND_DROPPED_RESOURCES);

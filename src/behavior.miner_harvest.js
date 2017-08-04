@@ -31,6 +31,7 @@ b.work = function (creep, rc) {
       creep.harvest(source);
       // TODO: Storage + Link in creep memory speichern und benutzen.
       var link = rc.findNearLink(creep);
+      // TODO: transfer only when full
       if (link) { creep.transfer(link[0], RESOURCE_ENERGY); }
       else { creep.drop(RESOURCE_ENERGY); }
     }
