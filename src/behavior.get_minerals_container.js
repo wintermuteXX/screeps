@@ -3,7 +3,11 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_container");
 
 b.when = function (creep, rc) {
- return (creep.energy === 0 && _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && !f.store.resourceType == 'energy' && !f.store.resourceType == 'power' && _.sum(f.store) > 100; }));
+  var containers = rc.find(FIND_STRUCTURES);
+  console.log("Containers: " + containers);
+  containers = _.filter(containers, function (f) { return !f.store.resourceType == 'energy' && !f.store.resourceType == 'power' && _.sum(f.store) > 100; });
+  console.log("Containers full: " + containers);
+ return (creep.energy === 0 && containers);
 };
 
 b.completed = function (creep, rc) {
