@@ -27,7 +27,6 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
     if (!creep.pos.isNearTo(target)) {
-      creep.travelTo(target);
     } else {
       var mineral = target.store[0];
       creep.withdraw(target, mineral);
