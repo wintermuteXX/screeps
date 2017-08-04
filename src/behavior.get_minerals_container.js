@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_container");
 
 b.when = function (creep, rc) {
-  var containers = rc.find(FIND_STRUCTURES);
+  var containers = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
   console.log("Containers: " + containers);
   containers = _.filter(containers, function (f) { return !f.store.resourceType == 'energy' && !f.store.resourceType == 'power' && _.sum(f.store) > 100; });
   console.log("Containers full: " + containers);
