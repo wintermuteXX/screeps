@@ -250,3 +250,24 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 }
 -------------------------------------
 Memory.config = Memory.config || {}`;
+-------------------------------------
+for (let resource in this.room.storage.store) {
+    if (resource === RESOURCE_ENERGY || resource === RESOURCE_POWER) {
+      continue;
+    }
+    this.withdraw(this.room.storage, resource);
+  }
+-------------------------------------
+  Creep.prototype.transferAllResources = function(structure) {
+  let transferred = false;
+  for (let resource in this.carry) {
+    if (!resource) {
+      continue;
+    }
+    let returnCode = this.transfer(structure, resource);
+    if (returnCode === OK) {
+      transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+    }
+  }
+  return transferred;
+};
