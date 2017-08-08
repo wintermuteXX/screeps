@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("get_energy_container");
+var b = new Behavior("get_minerals_container");
 
 b.when = function (creep, rc) {
   // var containers = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
