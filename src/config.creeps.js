@@ -189,7 +189,7 @@ module.exports = {
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["get_minerals_container"]
+    behaviors: ["get_minerals_container", "transfer_mineral_storage"]
   },
 
   'scout': {

@@ -22,7 +22,7 @@ b.work = function (creep, rc) {
     // target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
     // target = _.filter(target, function (f) { return !f.store['energy']; });
     if (target) {
-    creep.target = target[0].id;
+    creep.target = target.id;
     }
   }
 
