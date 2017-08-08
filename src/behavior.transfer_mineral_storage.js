@@ -3,7 +3,8 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_mineral_storage");
 
 b.when = function (creep, rc) {
-  if (creep.energy === 0) return false;
+  console.log("mineral -> Storage");
+  if (_.sum(creep.carry) === 0) return false;
   var storage = creep.room.storage;
   if (!storage) return false;
   return (true);
@@ -12,7 +13,7 @@ b.when = function (creep, rc) {
 b.completed = function (creep, rc) {
   var storage = creep.getTarget();
 
-  if (creep.energy === 0) return true;
+  if (_.sum(creep.carry) === 0) return true;
   if (storage && storage.store.energy === storage.storeCapacity) return true;
 
   return false;
@@ -32,7 +33,7 @@ b.work = function (creep, rc) {
     if (!creep.pos.isNearTo(storage)) {
       creep.travelTo(storage);
     } else {
-      creep.transferAllMineral(storage);
+      creep.transferAllResources(storage);
     }
   }
 
