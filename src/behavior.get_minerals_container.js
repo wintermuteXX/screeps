@@ -15,10 +15,10 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  console.log("Getting minerals");
+  console.log("Hole Mineralien " + creep.name);
   var target = creep.getTarget();
   if (target === null) {
-    var target = rc.getMineralContainer();
+    target = rc.getMineralContainer();
     // target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
     // target = _.filter(target, function (f) { return !f.store['energy']; });
     console.log("Das ist mein Ziel: " + target);
@@ -28,9 +28,11 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
+    console.log("Bin ich neben dem Container?");
     if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target);
     } else {
+      console.log("Ich nehme Ressourcen");
       creep.withdrawAllResources(target);
       creep.target = null;
     }

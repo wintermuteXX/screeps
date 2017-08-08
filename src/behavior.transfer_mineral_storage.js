@@ -1,6 +1,6 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("transfer_energy_storage");
+var b = new Behavior("transfer_mineral_storage");
 
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
@@ -32,7 +32,7 @@ b.work = function (creep, rc) {
     if (!creep.pos.isNearTo(storage)) {
       creep.travelTo(storage);
     } else {
-      creep.transfer(storage, creep.carry[0]);
+      creep.transferAllMineral(storage);
     }
   }
 

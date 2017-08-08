@@ -173,7 +173,7 @@ module.exports = {
     levelMin: 3,
 
     canBuild: function (rc) {
-     var transpoters = rc.getCreeps('transporter_mineral');
+     var transporters = rc.getCreeps('transporter_mineral');
      var containers = rc.getMineralContainer(); 
       // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
       return (containers && transporters.length < 1);
