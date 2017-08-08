@@ -167,6 +167,31 @@ module.exports = {
 
   },
 
+
+  "transporter_mineral": {
+    priority: 5,
+    levelMin: 3,
+
+    canBuild: function (rc) {
+     var transpoters = rc.getCreeps('transporter_mineral');
+     var containers = rc.getMineralContainer(); 
+      // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
+      return (containers && transporters.length < 1);
+
+    },
+
+    body: [
+      null,
+      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
+    ],
+
+    behaviors: ["get_minerals_container"]
+  },
+
   'scout': {
     produceGlobal: false,
     priority: 6,
