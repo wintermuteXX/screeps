@@ -60,6 +60,34 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   });
 
   
+  Creep.prototype.transferAllResources = function (structure) {
+    let transferred = false;
+    for (let resource in this.carry) {
+      if (!resource) {
+        continue;
+      }
+      let returnCode = this.transfer(structure, resource);
+      if (returnCode === OK) {
+        transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+      }
+    }
+    return transferred;
+  };
+
+  Creep.prototype.withdrawAllResources = function (structure) {
+    let transferred = false;
+    for (let resource in structure.store) {
+      if (!resource) {
+        continue;
+      }
+      let returnCode = this.withdraw(structure, resource);
+      if (returnCode === OK) {
+        transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+      }
+    }
+    return transferred;
+  };
+
   Creep.prototype.getTarget = function () {
     return Game.getObjectById(this.target);
   };
@@ -160,9 +188,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   };
 
   /**
-       * Defines a .mineral property for rooms that caches and gives you the mineral object for a room
-     * Author: Helam
-       */
+   * Defines a .mineral property for rooms that caches and gives you the mineral object for a room
+   * Author: Helam
+   */
   Object.defineProperty(Room.prototype, 'mineral', {
     get: function () {
       if (this == Room.prototype || this == undefined)
@@ -185,14 +213,16 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-Object.defineProperty(Room.prototype, 'mineralContainer', {
+  Object.defineProperty(Room.prototype, 'mineralContainer', {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
       if (!this._mineral) {
         if (this.memory.mineralContainer === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
-          let container = _.filter(this.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(mineral.pos, 1)});
+          let container = _.filter(this.find(FIND_STRUCTURES), function (f) {
+            return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(mineral.pos, 1)
+          });
           if (!container) {
             return this.memory.mineralContainer = null;
           }
@@ -208,29 +238,29 @@ Object.defineProperty(Room.prototype, 'mineralContainer', {
     configurable: true
   });
 
-// Test ToString
+  // Test ToString
 
-RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
-    if(htmlLink){
-        var onClick = '';
-        if(id)       onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');`;
-        if(memWatch) onClick += `angular.element($('section.memory')).scope().Memory.addWatch('${memWatch}'); angular.element($('section.memory')).scope().Memory.selectedObjectWatch='${memWatch}';`;
-        return `<a href="#!/room/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
+  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
+    if (htmlLink) {
+      var onClick = '';
+      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');`;
+      if (memWatch) onClick += `angular.element($('section.memory')).scope().Memory.addWatch('${memWatch}'); angular.element($('section.memory')).scope().Memory.selectedObjectWatch='${memWatch}';`;
+      return `<a href="#!/room/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
     }
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
-};
+  };
 
 
-Creep.prototype.toString = function (htmlLink = true){
+  Creep.prototype.toString = function (htmlLink = true) {
     return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id, 'creeps.'+this.name)}]`;
-}
+  }
 
-Structure.prototype.toString = function (htmlLink = true){
+  Structure.prototype.toString = function (htmlLink = true) {
     return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id, 'structures.' + this.id)}]`;
-}
+  }
 
-StructureSpawn.prototype.toString = function (htmlLink = true){
+  StructureSpawn.prototype.toString = function (htmlLink = true) {
     return `[spawn ${this.name} ${this.pos.toString(htmlLink, this.id, 'spawns.' + this.name)}]`;
-}
+  }
 
 }

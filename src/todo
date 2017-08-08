@@ -1,7 +1,6 @@
 1. 	TODO
     	- Behavior Transport Minerals to Terminal
-    	- Behavior Harvest Minerals
-		- When storage > 100000 energy -> Prefer other link :-)
+    	- When storage > 100000 energy -> Prefer other link :-)
 		- Remote Mining (check for goals, new behavior)
 		- centralize all find operations in ControllerRoom
     	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
@@ -18,8 +17,9 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
-    	- (test) Behavior Pickup Minerals (only dropped minerals - nope, walks directly to mineral source)
+    	- (test) Behavior Harvest Minerals (needs spawn logic)
+		- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+    	- (test) Behavior Pickup Minerals (buggy - doesn't work)
   	DONE
 	    - (done) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
 		- (done) (bug) Fallback if no creeps in active room (Implemented but fails?) - Fix: Limit parts to 300 Energy
@@ -271,3 +271,23 @@ for (let resource in this.room.storage.store) {
   }
   return transferred;
 };
+----------------------------------------
+Object.defineProperty(Creep, 'friendly', { get: () => _.contains(alliance, this.owner.username); });
+...
+filter: (c)=> !c.friendly
+----------------------------------------
+global.spiralOut = function(n){
+    let m=n+1;
+    let result = [];
+    for (let i=0; i<=49; i++ ){
+        if (i % 2 === 0 || m > 49){
+            result[i]=n;
+            n--;
+            continue;
+        }
+        result[i]=m;
+        m++;
+    }
+    return result;
+},
+----------------------------------------
