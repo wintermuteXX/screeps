@@ -21,18 +21,15 @@ b.work = function (creep, rc) {
     target = rc.getMineralContainer();
     // target = _.filter(rc.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
     // target = _.filter(target, function (f) { return !f.store['energy']; });
-    console.log("Das ist mein Ziel: " + target);
     if (target) {
-    creep.target = target.id;
+    creep.target = target[0].id;
     }
   }
 
   if (target !== null) {
-    console.log("Bin ich neben dem Container?");
-    if (!creep.pos.isNearTo(target)) {
-      creep.moveTo(target);
+    if (!creep.pos.isNearTo(target[0])) {
+      creep.moveTo(target[0]);
     } else {
-      console.log("Ich nehme Ressourcen");
       creep.withdrawAllResources(target);
       creep.target = null;
     }
