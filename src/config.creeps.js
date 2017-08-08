@@ -54,7 +54,8 @@ module.exports = {
     canBuild: function (rc) {
       var miners = rc.getCreeps("miner_mineral");
       
-      // return (miners.length < 1);
+      
+      // return (rc.mineral.amount > 0 && miners < 1);
       return false;
     },
 
@@ -175,9 +176,8 @@ module.exports = {
     canBuild: function (rc) {
      var transporters = rc.getCreeps('transporter_mineral');
      var containers = rc.getMineralContainer(); 
-      // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
-      return (containers && transporters.length < 1);
-
+      // return (containers && transporters.length < 1);
+      return false;
     },
 
     body: [
