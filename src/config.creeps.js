@@ -53,7 +53,9 @@ module.exports = {
 
     canBuild: function (rc) {
       var miners = rc.getCreeps("miner_mineral");
-      
+      var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
+        return (s.structureType === STRUCTURE_EXTRACTOR);
+      });
       
       // return (rc.mineral.amount > 0 && miners < 1);
       return false;

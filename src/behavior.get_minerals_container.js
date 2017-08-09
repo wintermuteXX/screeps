@@ -18,12 +18,13 @@ b.work = function (creep, rc) {
     target = rc.getMineralContainer();
     if (target) {
     creep.target = target.id;
+    console.log("Target ID: " + target.id + " Creep.target: " + creep.target);
     }
   }
 
   if (target !== null) {
-    if (!creep.pos.isNearTo(target[0])) {
-      creep.moveTo(target[0]);
+    if (!creep.pos.isNearTo(target)) {
+      creep.moveTo(target);
     } else {
       creep.withdrawAllResources(target);
       creep.target = null;

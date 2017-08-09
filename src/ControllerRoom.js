@@ -242,7 +242,9 @@ ControllerRoom.prototype.getExtensions = function () {
 
 ControllerRoom.prototype.getMineralContainer = function () {
  var containers = _.filter(this.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
-  return _.filter(containers, function (f) { return !f.store['energy']; });
+  containers = _.filter(containers, function (f) { return !f.store['energy'] && !f.store['power']; });
+  if (containers) { return containers[0]; }
+  else return false
 };
 
 

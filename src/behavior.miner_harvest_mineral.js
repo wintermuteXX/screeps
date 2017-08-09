@@ -29,7 +29,7 @@ b.work = function (creep, rc) {
   if (target !== null) {
     let container = creep.room.mineralContainer;
     if (container) {
-      test = creep.moveTo(container[0]);
+      test = creep.moveTo(container);
     } else if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target);
     }
