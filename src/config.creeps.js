@@ -57,7 +57,7 @@ module.exports = {
         return (s.structureType === STRUCTURE_EXTRACTOR);
       });
       
-      return (extractor && rc.getMineralAmount > 0 && miners < 1);
+      return (extractor && rc.getMineralAmount() > 0 && miners < 1);
     },
 
     body: [
