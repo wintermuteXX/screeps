@@ -248,7 +248,8 @@ ControllerRoom.prototype.getMineralContainer = function () {
 };
 
 ControllerRoom.prototype.getMineralAmount = function () {
- return this.mineral.amount;
+	var minerals = this.find(FIND_MINERALS);
+ return minerals[0].mineralAmount;
 };
 
 /**

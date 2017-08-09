@@ -3,7 +3,6 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_mineral_storage");
 
 b.when = function (creep, rc) {
-  console.log("mineral -> Storage");
   if (_.sum(creep.carry) === 0) return false;
   var storage = creep.room.storage;
   if (!storage) return false;

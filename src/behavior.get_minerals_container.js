@@ -18,7 +18,6 @@ b.work = function (creep, rc) {
     target = rc.getMineralContainer();
     if (target) {
     creep.target = target.id;
-    console.log("Target ID: " + target.id + " Creep.target: " + creep.target);
     }
   }
 
