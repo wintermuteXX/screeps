@@ -57,8 +57,7 @@ module.exports = {
         return (s.structureType === STRUCTURE_EXTRACTOR);
       });
       
-      // return (rc.mineral.amount > 0 && miners < 1);
-      return false;
+      return (extractor && rc.getMineralAmount > 0 && miners < 1);
     },
 
     body: [
@@ -177,9 +176,8 @@ module.exports = {
 
     canBuild: function (rc) {
      var transporters = rc.getCreeps('transporter_mineral');
-     var containers = rc.getMineralContainer(); 
-      // return (containers && transporters.length < 1);
-      return false;
+     var container = rc.getMineralContainer(); 
+     return (_.sum(container.store) > 500 && transporters.length < 1);    
     },
 
     body: [

@@ -247,6 +247,9 @@ ControllerRoom.prototype.getMineralContainer = function () {
   else return false
 };
 
+ControllerRoom.prototype.getMineralAmount = function () {
+ return this.mineral.amount;
+};
 
 /**
  * ControllerRoom.getSources()
