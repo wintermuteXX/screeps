@@ -243,10 +243,11 @@ ControllerRoom.prototype.getExtensions = function () {
 ControllerRoom.prototype.getMineralContainer = function () {
  var containers = _.filter(this.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
  var mineral = this.find(FIND_MINERALS);
-  containers = _.filter(containers, function (f) { return f.pos.inRangeTo(mineral, 2)});
+  containers = _.filter(containers, function (f) { return f.pos.inRangeTo(mineral[0], 2)});
   if (containers) { return containers[0]; }
   else return false
 };
+
 
 ControllerRoom.prototype.getMineralAmount = function () {
 	var minerals = this.find(FIND_MINERALS);
