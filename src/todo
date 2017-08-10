@@ -1,5 +1,4 @@
 1. 	TODO
-    	- Behavior Transport Minerals to Terminal
     	- When storage > 100000 energy -> Prefer other link :-)
 		- Remote Mining (check for goals, new behavior)
 		- centralize all find operations in ControllerRoom
@@ -17,11 +16,12 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	- (test) Behavior Harvest Minerals (needs spawn logic)
-		- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
-    	- (test) Behavior Pickup Minerals (buggy - doesn't work)
+    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
   	DONE
-	    - (done) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
+	    - (done) Behavior Pickup Minerals (buggy - doesn't work)
+        - (done) Behavior Harvest Minerals (needs spawn logic)
+		- (done) Behavior Transport Minerals to Terminal
+        - (done) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
 		- (done) (bug) Fallback if no creeps in active room (Implemented but fails?) - Fix: Limit parts to 300 Energy
 		- (done) (bug) Limit Tower repair - FIX: New Interval repairTower
 	    - (done) When storage > 100000 energy - no more input. Fix -> maxE based on constants + rcl
