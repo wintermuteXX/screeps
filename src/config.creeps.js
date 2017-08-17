@@ -94,7 +94,7 @@ module.exports = {
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower",  "transfer_energy_storage", "transfer_energy_upgrader"]
+    behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower",  "transfer_energy_storage", "transfer_energy_upgrader"]
   },
 
   "upgrader": {
