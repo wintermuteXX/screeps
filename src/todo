@@ -1,12 +1,19 @@
 1. 	TODO
-    	- When storage > 100000 energy -> Prefer other link :-)
-		- Remote Mining (check for goals, new behavior)
-		- centralize all find operations in ControllerRoom
-    	- Rework Scout. 1 scout with claim parts, rest without (Claim Part Creeps die quicker and are expensive)
+    	- Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- If Extension is already target of another creep, take next extension.
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
-		-- Sell + Buy at Market
+        - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)
+        - source - define Container RoomPosition
+        - miner - walk to container, not source
+        - miner - if idle - repair container
+        - miner - if link empty + container filled -> transfer to link.
+        - recalculate needed transporters
+        - build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+        - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+        - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
+        - Update build creeps to always build max body.
+		-- Sell + Buy at Market (check code at bottom of this file)
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
     	-- renew boosted creeps
@@ -16,9 +23,10 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	- (test) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+    	
   	DONE
-	    - (done) Behavior Pickup Minerals (buggy - doesn't work)
+	    - (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+        - (done) Behavior Pickup Minerals (buggy - doesn't work)
         - (done) Behavior Harvest Minerals (needs spawn logic)
 		- (done) Behavior Transport Minerals to Terminal
         - (done) (bug) Upgrade Rampart hört nicht auf wenn max erreicht ist. fix: Hardcoded value durch maxHits ersetzt.
