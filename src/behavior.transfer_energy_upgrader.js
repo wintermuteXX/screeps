@@ -18,7 +18,7 @@ b.work = function (creep, rc) {
   }
 
   if (controller) {
-    if (!creep.pos.inRangeTo(controller, 2)) {
+    if (!creep.pos.inRangeTo(controller, 3)) {
       creep.travelTo(controller);
     } else {
       creep.drop(RESOURCE_ENERGY);
