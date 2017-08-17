@@ -465,3 +465,5 @@ function _getOrders(resourceType) {
     if (orders.length === 0) return notif.debug('Found no deal in buy orders.', this.room.name);
     let bestOrder = _.min(orders, 'profit');
     return this.deal(bestOrder);
+    ---------------------------------------
+    _.invoke(Game.constructionSites, 'remove')
