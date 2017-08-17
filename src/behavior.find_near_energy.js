@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 
 // Used by Upgrader
 
-var RANGE_TO_ENERGY = 2;
+var RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {
   var dropped = rc.find(FIND_DROPPED_RESOURCES);
