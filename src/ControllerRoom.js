@@ -102,7 +102,7 @@ ControllerRoom.prototype.findResources = function () {
 	}
 
 	for (var l of _.filter(this.links.receivers, function (l) {
-			return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);
+			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
 		droppedResources[l.id] = {
 			'structureType': l.resourceType,
