@@ -101,7 +101,7 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	}
 
-	for (var l of _.filter(rc.links.receivers, function (l) {
+	for (var l of _.filter(this.links.receivers, function (l) {
 			return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);
 		})) {
 		droppedResources[l.id] = {
@@ -109,7 +109,7 @@ ControllerRoom.prototype.findResources = function () {
 			'amount': l.amount,
 		};
 	}
-	for (var c of _.filter(rc.find(FIND_STRUCTURES), function (c) {
+	for (var c of _.filter(this.find(FIND_STRUCTURES), function (c) {
 			return c.structureType === STRUCTURE_CONTAINER && c.store.amount > 300;
 		})); {
 		droppedResources[c.id] = {
