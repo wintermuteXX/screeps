@@ -50,7 +50,7 @@ ControllerRoom.prototype.run = function () {
 		if (Game.time % global.getInterval('repairTower') === 0) {tower.repair();}
 	})
 
-	this.findDroppedResources();
+	this.findResources();
 };
 
 
@@ -88,16 +88,31 @@ ControllerRoom.prototype.populate = function () {
  *
  */
 
-ControllerRoom.prototype.findDroppedResources = function () {
+ControllerRoom.prototype.findResources = function () {
 	if (Game.time % global.getInterval('checkDroppedEnergy') !== 0) return;
 	var memory = this.room.memory;
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 		droppedResources[s.id] = {
 			'structureType': s.resourceType,
-			'hits': s.amount,
+			'amount': s.amount,
 		};
 	}
+
+	for (var l of  _.filter(rc.links.receivers, function (l) { return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);}))
+		{
+			droppedResources[l.id] = {
+				'structureType': l.resourceType,
+				'amount': l.amount,
+			};
+
+	for (var c of  _.filter(rc.find(FIND_STRUCTURES), function (c) { return c.structureType === STRUCTURE_CONTAINER && c.store.amount > 300; }));
+				{
+					droppedResources[c.id] = {
+						'structureType': c.resourceType,
+						'amount': c.amount,
+					};
+
 	memory._droppedResources = droppedResources;
 };
 
