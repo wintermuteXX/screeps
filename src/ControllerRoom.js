@@ -47,7 +47,9 @@ ControllerRoom.prototype.run = function () {
 
 	_.each(this._towers, function (tower) {
 		tower.fire();
-		if (Game.time % global.getInterval('repairTower') === 0) {tower.repair();}
+		if (Game.time % global.getInterval('repairTower') === 0) {
+			tower.repair();
+		}
 	})
 
 	this.findResources();
@@ -99,20 +101,22 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	}
 
-	for (var l of  _.filter(rc.links.receivers, function (l) { return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);}))
-		{
-			droppedResources[l.id] = {
-				'structureType': l.resourceType,
-				'amount': l.amount,
-			};
-
-	for (var c of  _.filter(rc.find(FIND_STRUCTURES), function (c) { return c.structureType === STRUCTURE_CONTAINER && c.store.amount > 300; }));
-				{
-					droppedResources[c.id] = {
-						'structureType': c.resourceType,
-						'amount': c.amount,
-					};
-
+	for (var l of _.filter(rc.links.receivers, function (l) {
+			return s.energy > 0 && !s.pos.inRangeTo(s.room.controller.pos, 3);
+		})) {
+		droppedResources[l.id] = {
+			'structureType': l.resourceType,
+			'amount': l.amount,
+		};
+	}
+	for (var c of _.filter(rc.find(FIND_STRUCTURES), function (c) {
+			return c.structureType === STRUCTURE_CONTAINER && c.store.amount > 300;
+		})); {
+		droppedResources[c.id] = {
+			'structureType': c.resourceType,
+			'amount': c.amount,
+		};
+	}
 	memory._droppedResources = droppedResources;
 };
 
@@ -199,8 +203,9 @@ ControllerRoom.prototype.getController = function () {
 
 ControllerRoom.prototype.findNearLink = function (obj) {
 	var links = this.links.senders;
-  	var thelink = obj.pos.findInRange(links, 1);
-  	if (thelink) { return thelink;
+	var thelink = obj.pos.findInRange(links, 1);
+	if (thelink) {
+		return thelink;
 	}
 	return null;
 };
@@ -256,17 +261,22 @@ ControllerRoom.prototype.getExtensions = function () {
 };
 
 ControllerRoom.prototype.getMineralContainer = function () {
- var containers = _.filter(this.find(FIND_STRUCTURES), function (f) { return f.structureType === STRUCTURE_CONTAINER});
- var mineral = this.find(FIND_MINERALS);
-  containers = _.filter(containers, function (f) { return f.pos.inRangeTo(mineral[0], 2)});
-  if (containers) { return containers[0]; }
-  else return false
+	var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
+		return f.structureType === STRUCTURE_CONTAINER
+	});
+	var mineral = this.find(FIND_MINERALS);
+	containers = _.filter(containers, function (f) {
+		return f.pos.inRangeTo(mineral[0], 2)
+	});
+	if (containers) {
+		return containers[0];
+	} else return false
 };
 
 
 ControllerRoom.prototype.getMineralAmount = function () {
 	var minerals = this.find(FIND_MINERALS);
- return minerals[0].mineralAmount;
+	return minerals[0].mineralAmount;
 };
 
 /**
@@ -323,33 +333,32 @@ ControllerRoom.prototype.analyse = function () {
 		memory._structures = structures;
 		memory.lastCheck = Game.time;
 
-		 if (!this.room.memory.roomType) {
+		if (!this.room.memory.roomType) {
 
-                // source keeper
-                let lairs = this.room.find(STRUCTURE_KEEPER_LAIR);
-                if (lairs.length > 0) {
-                    this.room.memory.roomType = "ROOMTYPE_SOURCEKEEPER";
-                }
-
-                // core
-                if (!this.room.memory.roomType) {
-                    let sources = this.room.find(FIND_SOURCES);
-                    if (sources.length === 3) {
-                        this.room.memory.roomType = "ROOMTYPE_CORE";
-                    }
-                }
-
-                // controller rooms
-                if (!this.room.memory.roomType) {
-                    if (this.room.controller) {
-                        this.room.memory.roomType = "ROOMTYPE_CONTROLLER";
-                    }
-                    else {
-                        this.room.memory.roomType = "ROOMTYPE_ALLEY";
-                    }
-                }
+			// source keeper
+			let lairs = this.room.find(STRUCTURE_KEEPER_LAIR);
+			if (lairs.length > 0) {
+				this.room.memory.roomType = "ROOMTYPE_SOURCEKEEPER";
 			}
-			
+
+			// core
+			if (!this.room.memory.roomType) {
+				let sources = this.room.find(FIND_SOURCES);
+				if (sources.length === 3) {
+					this.room.memory.roomType = "ROOMTYPE_CORE";
+				}
+			}
+
+			// controller rooms
+			if (!this.room.memory.roomType) {
+				if (this.room.controller) {
+					this.room.memory.roomType = "ROOMTYPE_CONTROLLER";
+				} else {
+					this.room.memory.roomType = "ROOMTYPE_ALLEY";
+				}
+			}
+		}
+
 	} catch (e) {
 		console.log(e);
 	}
