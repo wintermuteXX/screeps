@@ -48,8 +48,8 @@ module.exports = {
   },
 
   "miner_mineral": {
-    priority: 2,
-    levelMin: 5,
+    priority: 5,
+    levelMin: 6,
 
     canBuild: function (rc) {
       var miners = rc.getCreeps("miner_mineral");

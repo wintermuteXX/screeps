@@ -474,3 +474,17 @@ function _getOrders(resourceType) {
     return this.deal(bestOrder);
     ---------------------------------------
     _.invoke(Game.constructionSites, 'remove')
+    ------------------------------------------
+    Object.defineProperty(Source.prototype, "usableFields", {
+  get: function (): number {
+    let ret = 0;
+    if (!this.memory.usableFields) {
+      ret = 9 - _.countBy(this.lookForNear(LOOK_TERRAIN, true), 'terrain')['wall'];
+      this.memory.usableFields = ret;
+    } else {
+      ret = this.memory.usableFields;
+    }
+    return ret;
+  },
+  configurable: true,
+});
