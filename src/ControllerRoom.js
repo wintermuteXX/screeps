@@ -95,8 +95,9 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+	    console.log("Resource: " + s + " " + s.room.name);
 		droppedResources[s.id] = {
-			'structureType': s.resourceType,
+			'resourceType': s.resourceType,
 			'amount': s.amount,
 		};
 	}
@@ -105,17 +106,22 @@ ControllerRoom.prototype.findResources = function () {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
 		droppedResources[l.id] = {
-			'structureType': l.resourceType,
-			'amount': l.amount,
+		    'resourceType': "energy",
+			'amount': l.energy,
 		};
 	}
 	for (var c of _.filter(this.find(FIND_STRUCTURES), function (c) {
-			return c.structureType === STRUCTURE_CONTAINER && c.store.amount > 300;
+			return c.structureType === STRUCTURE_CONTAINER;
 		})); {
-		droppedResources[c.id] = {
-			'structureType': c.resourceType,
-			'amount': c.amount,
-		};
+			_.each(c.store, function(amount, resourceType) {
+				console.log(c, resourceType, amount);
+			});
+
+		    //console.log("Container: " + c + " " + c.room.name);
+		//droppedResources[c.id] = {
+		//	'resourceType': c.resourceType,
+		//	'amount': c.store,
+		//};
 	}
 	memory._droppedResources = droppedResources;
 };
