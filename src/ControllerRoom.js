@@ -114,7 +114,13 @@ ControllerRoom.prototype.findResources = function () {
 			return c.structureType === STRUCTURE_CONTAINER;
 		})); {
 			_.each(c.store, function(amount, resourceType) {
-				console.log(c, resourceType, amount);
+				if ( amount > 0 ) {
+					console.log(c, resourceType, amount);
+					droppedResources[c.id] = {
+						'resourceType': resourceType,
+						'amount': amount,
+					};
+				}
 			});
 
 		    //console.log("Container: " + c + " " + c.room.name);
