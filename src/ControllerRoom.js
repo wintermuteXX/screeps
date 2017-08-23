@@ -86,7 +86,7 @@ ControllerRoom.prototype.populate = function () {
 
 /**
  * 
- * Check for new dropped Energy on floor. Writes in Memory.
+ * Check for Resources available in the room. Writes in Memory.
  *
  */
 
@@ -95,8 +95,7 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-	    console.log("Resource: " + s + " " + s.room.name);
-		droppedResources[s.id] = {
+	    droppedResources[s.id] = {
 			'resourceType': s.resourceType,
 			'amount': s.amount,
 		};
@@ -111,23 +110,16 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	}
 	for (var c of _.filter(this.find(FIND_STRUCTURES), function (c) {
-			return c.structureType === STRUCTURE_CONTAINER;
+			return c.structureType === STRUCTURE_CONTAINER && !c.pos.inRangeTo(c.room.controller.pos, 3);
 		})); {
 			_.each(c.store, function(amount, resourceType) {
 				if ( amount > 0 ) {
-					console.log(c, resourceType, amount);
 					droppedResources[c.id] = {
 						'resourceType': resourceType,
 						'amount': amount,
 					};
 				}
 			});
-
-		    //console.log("Container: " + c + " " + c.room.name);
-		//droppedResources[c.id] = {
-		//	'resourceType': c.resourceType,
-		//	'amount': c.store,
-		//};
 	}
 	memory._droppedResources = droppedResources;
 };
