@@ -323,6 +323,7 @@ ControllerRoom.prototype.analyse = function () {
 			sources[source.id] = {
 				'defended': source.defended
 			};
+			source.sourceContainer();
 		}
 		memory._sources = sources;
 

@@ -158,6 +158,53 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
+  Object.defineProperty(Source.prototype, 'sourceContainer', {
+    get: function () {
+      if (this == Source.prototype || this == undefined)
+        return undefined;
+      if (!this._source) {
+        if (this.memory.sourceContainer === undefined) {
+          let container = _.filter(this.find(FIND_STRUCTURES), function (f) {
+            return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(this.pos, 1)
+          });
+          if (!container) {
+            return this.memory.sourceContainer = null;
+          }
+          this._source = container;
+          this.memory.sourceContainer = container.id;
+        } else {
+          this._source = Game.getObjectById(this.memory.sourceContainer);
+        }
+      }
+      return this._source;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  Object.defineProperty(Source.prototype, 'memory', {
+    configurable: true,
+    get: function() {
+        if(_.isUndefined(Memory.mySourcesMemory)) {
+            Memory.mySourcesMemory = {};
+        }
+        if(!_.isObject(Memory.mySourcesMemory)) {
+            return undefined;
+        }
+        return Memory.mySourcesMemory[this.id] = 
+                Memory.mySourcesMemory[this.id] || {};
+    },
+    set: function(value) {
+        if(_.isUndefined(Memory.mySourcesMemory)) {
+            Memory.mySourcesMemory = {};
+        }
+        if(!_.isObject(Memory.mySourcesMemory)) {
+            throw new Error('Could not set source memory');
+        }
+        Memory.mySourcesMemory[this.id] = value;
+    }
+});
+
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {

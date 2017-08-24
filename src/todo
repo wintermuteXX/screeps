@@ -9,7 +9,6 @@
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
         - recalculate needed transporters
-        - build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
         - Update build creeps to always build max body.
@@ -22,7 +21,7 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	
+    	- (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
   	DONE
 	    - (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
         - (done) Behavior Pickup Minerals (buggy - doesn't work)
