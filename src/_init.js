@@ -158,7 +158,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  Object.defineProperty(Source.prototype, 'sourceContainer', {
+  /*Object.defineProperty(Source.prototype, 'sourceContainer', {
     get: function () {
       if (this == Source.prototype || this == undefined)
         return undefined;
@@ -181,7 +181,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
-
+*/
   Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
     get: function() {
