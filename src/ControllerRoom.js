@@ -313,14 +313,14 @@ ControllerRoom.prototype._getStructures = function (filter) {
 };
 
 
-ControllerRoom.prototype.centerPoint = function () {
+Room.prototype.centerPoint = function () {
 
 	const freeRange = 2;
 	var bestPos;
 
 	for (let x = 3; x < 46; x++) {
 		for (let y = 3; y < 46; y++) {
-			let pos = new RoomPosition(x, y, room.name);
+			let pos = new RoomPosition(x, y, this.name);
 
 			let exits = pos.findInRange(FIND_EXIT, freeRange);
 			if (exits.length > 0) continue;
@@ -336,13 +336,13 @@ ControllerRoom.prototype.centerPoint = function () {
 			let terrain = _.filter(this.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == 'terrain' && p.terrain == 'wall');
 			if (terrain.length > 0) continue;
 
-			let goodPos = new RoomPosition(x, y, room.name);
+			let goodPos = new RoomPosition(x, y, this.name);
 
 			let toSource = [];
 			let toController;
 
 			_.forEach(this.find(FIND_SOURCES), (s) => {
-				toSource.push(room.findPath(goodPos, s.pos, {
+				toSource.push(this.findPath(goodPos, s.pos, {
 					ignoreCreeps: true,
 					ignoreRoads: true,
 					maxRooms: 1
