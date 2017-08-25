@@ -5,7 +5,6 @@
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)
         - source - define Container RoomPosition
-        - miner - walk to container, not source
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
         - recalculate needed transporters
@@ -21,7 +20,8 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	- (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+    	- (testing) miner - walk to container, not source
+        - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
   	DONE
 	    - (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
         - (done) Behavior Pickup Minerals (buggy - doesn't work)
