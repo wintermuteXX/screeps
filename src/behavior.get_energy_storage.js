@@ -22,7 +22,8 @@ b.work = function (creep, rc) {
       creep.travelTo(target);
     } else {
       // target.transferEnergy(creep);
-      creep.withdraw(target, RESOURCE_ENERGY);
+      var test = creep.withdraw(target, RESOURCE_ENERGY);
+      console.log("Took energy from storage: " + test);
       // creep.moveTo(storage);
       creep.target = null;
     }
