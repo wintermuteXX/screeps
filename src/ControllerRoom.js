@@ -95,7 +95,7 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-	    droppedResources[s.id] = {
+		droppedResources[s.id] = {
 			'resourceType': s.resourceType,
 			'amount': s.amount,
 		};
@@ -105,21 +105,21 @@ ControllerRoom.prototype.findResources = function () {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
 		droppedResources[l.id] = {
-		    'resourceType': "energy",
+			'resourceType': "energy",
 			'amount': l.energy,
 		};
 	}
 	for (var c of _.filter(this.find(FIND_STRUCTURES), function (c) {
 			return c.structureType === STRUCTURE_CONTAINER && !c.pos.inRangeTo(c.room.controller.pos, 3);
 		})); {
-			_.each(c.store, function(amount, resourceType) {
-				if ( amount > 0 ) {
-					droppedResources[c.id] = {
-						'resourceType': resourceType,
-						'amount': amount,
-					};
-				}
-			});
+		_.each(c.store, function (amount, resourceType) {
+			if (amount > 0) {
+				droppedResources[c.id] = {
+					'resourceType': resourceType,
+					'amount': amount,
+				};
+			}
+		});
 	}
 	memory._droppedResources = droppedResources;
 };
@@ -311,6 +311,80 @@ ControllerRoom.prototype._getStructures = function (filter) {
 
 	return result;
 };
+
+
+ControllerRoom.prototype.centerPoint = function () {
+
+	const freeRange = 2;
+	var bestPos;
+
+	for (let x = 3; x < 46; x++) {
+		for (let y = 3; y < 46; y++) {
+			let pos = new RoomPosition(x, y, room.name);
+
+			let exits = pos.findInRange(FIND_EXIT, freeRange);
+			if (exits.length > 0) continue;
+
+			let structs = pos.findInRange(FIND_STRUCTURES, freeRange, {
+				filter: (s) => s.structureType != STRUCTURE_ROAD
+			});
+			if (structs.length > 0) continue;
+
+			let flags = pos.findInRange(FIND_FLAGS, 4);
+			if (flags.length > 0) continue;
+
+			let terrain = _.filter(this.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == 'terrain' && p.terrain == 'wall');
+			if (terrain.length > 0) continue;
+
+			let goodPos = new RoomPosition(x, y, room.name);
+
+			let toSource = [];
+			let toController;
+
+			_.forEach(this.find(FIND_SOURCES), (s) => {
+				toSource.push(room.findPath(goodPos, s.pos, {
+					ignoreCreeps: true,
+					ignoreRoads: true,
+					maxRooms: 1
+				}).length);
+			});
+
+			toController = this.findPath(goodPos, this.controller.pos, {
+				ignoreCreeps: true,
+				ignoreRoads: true,
+				maxRooms: 1
+			}).length;
+
+			let cnt = 0;
+
+			if (!bestPos) {
+				bestPos = {
+					x: goodPos.x,
+					y: goodPos.y,
+					c: toController,
+					s: toSource
+				}
+			}
+
+			for (let foo in toSource) {
+				if (bestPos.s[foo] > toSource[foo]) cnt++;
+			}
+
+			if (cnt >= 2 || (cnt >= 1 && toController <= bestPos.c) || toController * 2 <= bestPos.c) {
+				bestPos = {
+
+					x: goodPos.x,
+					y: goodPos.y,
+					c: toController,
+					s: toSource
+				}
+			}
+		}
+	}
+
+	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
+};
+
 
 ControllerRoom.prototype.analyse = function () {
 	// TODO: Hard coded CPU Limit? No way

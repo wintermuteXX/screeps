@@ -80,6 +80,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (!resource) {
         continue;
       }
+      /*if (resource === RESOURCE_ENERGY || resource === RESOURCE_POWER) {
+        continue;
+      }*/
+
       let returnCode = this.withdraw(structure, resource);
       if (returnCode === OK) {
         transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
