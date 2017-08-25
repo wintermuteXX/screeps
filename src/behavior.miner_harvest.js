@@ -28,11 +28,20 @@ b.work = function (creep, rc) {
     if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
     } else {
+
+      var containers = creep.pos.findInRange(FIND_STRUCTURES, 1,
+        {filter: {structureType: STRUCTURE_CONTAINER}});
+        if(creep.pos.isNearTo(containers[0])) {
+          creep.memory.container = containers[0].id;
+          creep.moveTo(containers[0]);
+      }
+
       creep.harvest(source);
       // TODO: Storage + Link in creep memory speichern und benutzen.
       var link = rc.findNearLink(creep);
       // TODO: transfer only when full
-      if (link) { creep.transfer(link[0], RESOURCE_ENERGY); }
+      if (link) { creep.memory.link = link[0].id;
+        creep.transfer(link[0], RESOURCE_ENERGY); }
       else { creep.drop(RESOURCE_ENERGY); }
     }
   }
