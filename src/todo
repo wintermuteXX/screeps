@@ -41,25 +41,6 @@
 
 2. Code Snippets
 
-Object.defineProperty(Source.prototype, “memory”, {
-  configurable: true,
-  get() {
-    if (_.isUndefined(this.room.memory.sources)) {
-      this.room.memory.sources = {};
-    }
-    return this.room.memory.sources[this.id] = this.room.memory.sources[this.id] || {};
-  },
-  set(value) {
-    if (_.isUndefined(this.room.memory.sources)) {
-      this.room.memory.sources = {};
-    }
-    if (!_.isObject(Memory.structure)) {
-      throw new Error(“Could not set structure memory”);
-    }
-    this.room.memory.sources[this.id] = value;
-  },
-});
-
 ----------------------------------------
 Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
@@ -195,7 +176,7 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 	}
 }
 
-	----------------------------------------
+----------------------------------------
 	const structureTimeToSaveFor = 13;
 	Room.prototype.getStructures =
     function (structureType, filter) {
@@ -214,9 +195,9 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
         var needed = global[this.name].structures.structures[structureType].map(Game.getObjectById).filter(obj => obj !== null);
         return filter ? _.filter(needed, filter) : needed;
     };
-	----------------------------------------------
+----------------------------------------------
 	creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {filter{resourceType:RESOURCE_POWER});
-	----------------------------------------------
+----------------------------------------------
 	doStats: {
         run: function () {
             Memory.stats = {
@@ -238,7 +219,7 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
             }
         }
     }
-	-----------------------------------------------
+-----------------------------------------------
 	function mayReserveController(theController) {
     if (theController.owner) {
         return false;
@@ -256,17 +237,6 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 }
 -------------------------------------
 Memory.config = Memory.config || {}`;
--------------------------------------
-for (let resource in this.room.storage.store) {
-    if (resource === RESOURCE_ENERGY || resource === RESOURCE_POWER) {
-      continue;
-    }
-    this.withdraw(this.room.storage, resource);
-  }
-----------------------------------------
-Object.defineProperty(Creep, 'friendly', { get: () => _.contains(alliance, this.owner.username); });
-...
-filter: (c)=> !c.friendly
 ----------------------------------------
 global.spiralOut = function(n){
     let m=n+1;
@@ -282,66 +252,7 @@ global.spiralOut = function(n){
     }
     return result;
 },
--------------------------------------------
-const freeRange = 2;
-var bestPos;
- 
-for (let x = 3; x < 46; x++) {
-for (let y = 3; y < 46; y++) {
-let pos = new RoomPosition(x, y, room.name);
- 
-let exits = pos.findInRange(FIND_EXIT, freeRange);
-if (exits.length > 0) continue;
- 
-let structs = pos.findInRange(FIND_STRUCTURES, freeRange, {filter: (s) => s.structureType != STRUCTURE_ROAD});
-if (structs.length > 0) continue;
- 
-let flags = pos.findInRange(FIND_FLAGS, 4);
-if (flags.length > 0) continue;
- 
-let terrain = _.filter(room.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == 'terrain' && p.terrain == 'wall');
-if (terrain.length > 0) continue;
- 
-let goodPos = new RoomPosition(x, y, room.name);
- 
-let toSource = [];
-let toController;
- 
-_.forEach(room.find(FIND_SOURCES), (s) => {
-toSource.push(room.findPath(goodPos, s.pos, {ignoreCreeps: true, ignoreRoads: true, maxRooms: 1}).length);
-});
- 
-toController = room.findPath(goodPos, room.controller.pos, {ignoreCreeps: true, ignoreRoads: true, maxRooms: 1}).length;
- 
-let cnt = 0;
- 
-if (!bestPos) {
-bestPos = {
-x: goodPos.x,
-y: goodPos.y,
-c: toController,
-s: toSource
-}
-}
- 
-for (let foo in toSource) {
-if (bestPos.s[foo] > toSource[foo]) cnt++;
-}
- 
-if (cnt >= 2 || (cnt >= 1 && toController <= bestPos.c) || toController*2 <= bestPos.c) {
-bestPos = {
- 
-x: goodPos.x,
-y: goodPos.y,
-c: toController,
-s: toSource
-}
-}
-}
-}
- 
-room.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + room.name, COLOR_PURPLE, COLOR_BLUE);
----------------------------------
+------------------------------------------
     // Get orders and filter them
     let orders = Game.market.getAllOrders().filter(order =>
         order.type === ORDER_BUY                    // Only check sell orders
