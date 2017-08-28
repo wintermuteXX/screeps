@@ -289,8 +289,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-  // Test ToString
-
   RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
     if (htmlLink) {
       var onClick = '';
@@ -300,7 +298,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
   };
-
 
   Creep.prototype.toString = function (htmlLink = true) {
     return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id, 'creeps.'+this.name)}]`;

@@ -26,7 +26,6 @@ module.exports = {
 
   },
 
-
   "miner": {
     priority: 2,
     levelMin: 2,
@@ -56,7 +55,7 @@ module.exports = {
       var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
         return (s.structureType === STRUCTURE_EXTRACTOR);
       });
-      
+
       return (extractor && rc.getMineralAmount() > 0 && miners < 1);
     },
 
@@ -68,7 +67,6 @@ module.exports = {
     ],
     behaviors: ["miner_harvest_mineral"]
   },
-
 
   "transporter": {
     priority: 1,
@@ -86,15 +84,39 @@ module.exports = {
     },
 
     body: [
-      null,
-      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      null, [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
       [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
     ],
 
-    behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower",  "transfer_energy_storage", "transfer_energy_upgrader"]
+    behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
+  },
+
+  "transporter_mineral": {
+    priority: 5,
+    levelMin: 3,
+
+    canBuild: function (rc) {
+      var transporters = rc.getCreeps('transporter_mineral');
+      var container = rc.getMineralContainer();
+      if (container) {
+        return (_.sum(container.store) > 500 && transporters.length < 1);
+      } else {
+        return false;
+      }
+    },
+
+    body: [
+      null, [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
+      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
+    ],
+
+    behaviors: ["get_minerals_container", "transfer_mineral_storage"]
   },
 
   "upgrader": {
@@ -126,21 +148,22 @@ module.exports = {
 
     canBuild: function (rc) {
       var towers = rc.find(FIND_MY_STRUCTURES, {
-		  filter: { structureType: STRUCTURE_TOWER }
+        filter: {
+          structureType: STRUCTURE_TOWER
+        }
       });
 
       var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
-      return s.needsRepair();
+        return s.needsRepair();
       });
       // return rc.getCreeps("constructor").length < 2;
-    
+
       return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
     },
 
     body: [
       null,
-      null,
-      [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
+      null, [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
       [MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY, MOVE, MOVE, WORK, CARRY],
@@ -155,7 +178,9 @@ module.exports = {
     minLevel: 4,
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, { 'color': COLOR_RED });
+      var flags = _.filter(Game.flags, {
+        'color': COLOR_RED
+      });
       if (flags.length === 0) return false;
       return _.filter(Game.creeps, (c) => c.memory.role == 'attacker').length < 1;
     },
@@ -170,41 +195,19 @@ module.exports = {
 
   },
 
-
-  "transporter_mineral": {
-    priority: 5,
-    levelMin: 3,
-
-    canBuild: function (rc) {
-     var transporters = rc.getCreeps('transporter_mineral');
-     var container = rc.getMineralContainer(); 
-     if (container) {return (_.sum(container.store) > 500 && transporters.length < 1);  }
-     else {return false;}  
-    },
-
-    body: [
-      null,
-      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
-      [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
-      [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
-      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-      [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
-    ],
-
-    behaviors: ["get_minerals_container", "transfer_mineral_storage"]
-  },
-
   'scout': {
     produceGlobal: false,
     priority: 6,
     minLevel: 3,
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
+      var flags = _.filter(Game.flags, {
+        'color': COLOR_WHITE
+      });
       if (flags.length === 0) return false;
       return _.filter(Game.creeps, (c) => c.memory.role == 'scout').length < 3;
     },
-    
+
     body: [
       [CARRY, CARRY, WORK, MOVE, MOVE],
       [CARRY, CARRY, WORK, WORK, MOVE, MOVE],
@@ -214,48 +217,48 @@ module.exports = {
     behaviors: ['goto_white_flag', "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"]
   },
 
-'claimer': {
+  'claimer': {
     produceGlobal: false,
     priority: 6,
     minLevel: 3,
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, { 'color': COLOR_WHITE });
+      var flags = _.filter(Game.flags, {
+        'color': COLOR_WHITE
+      });
       if (flags.length === 0 || (flags[0].room && flags[0].room.controller.my)) return false;
       return _.filter(Game.creeps, (c) => c.memory.role == 'claimer').length < 1;
     },
-body: [
+    body: [
       null,
-      null,
-      [MOVE, CLAIM],
+      null, [MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM]
-      ],
-behaviors: ['goto_white_flag', "claim_controller"]
+    ],
+    behaviors: ['goto_white_flag', "claim_controller"]
   },
 
-
   'filler': {
-    produceGlobal : false,
-    priority : 7,
-    minLevel : 3,
+    produceGlobal: false,
+    priority: 7,
+    minLevel: 3,
 
-    canBuild : function(rc) {
-        // return rc.getCreeps("filler").length  < 1;
-        return false;
+    canBuild: function (rc) {
+      // return rc.getCreeps("filler").length  < 1;
+      return false;
     },
 
-    body : [
-      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
-      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
-      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE],
-      [CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,CARRY, MOVE,]
+    body: [
+      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
+      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
+      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
+      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, ]
     ],
 
-    behaviors : [ "get_energy_storage", "transfer_energy_terminal" ]
+    behaviors: ["get_energy_storage", "transfer_energy_terminal"]
   }
 
 };

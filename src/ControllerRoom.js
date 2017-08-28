@@ -1,5 +1,3 @@
-/*jshint esnext: true */
-
 var ControllerSpawn = require("ControllerSpawn");
 var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
@@ -31,7 +29,6 @@ function ControllerRoom(room, ControllerGame) {
 	}
 }
 
-
 /**
  * ControllerRoom.run()
  */
@@ -54,7 +51,6 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 };
-
 
 /**
  * ControllerRoom.populate()
@@ -157,7 +153,6 @@ ControllerRoom.prototype.commandCreeps = function () {
 	}
 };
 
-
 /**
  * ControllerRoom.find(type)
  */
@@ -167,7 +162,6 @@ ControllerRoom.prototype.find = function (type) {
 	}
 	return this._find[type];
 };
-
 
 /**
  * ControllerRoom.getCreeps(role, target)
@@ -194,7 +188,6 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 	return creeps;
 };
 
-
 /**
  * ControllerRoom.getController()
  */
@@ -214,7 +207,6 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 	return null;
 };
 
-
 ControllerRoom.prototype.getEnemys = function () {
 	var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
 	var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
@@ -228,8 +220,6 @@ ControllerRoom.prototype.getEnemys = function () {
 	return targetList;
 };
 
-
-
 /**
  * ControllerRoom.getLevel()
  */
@@ -240,7 +230,6 @@ ControllerRoom.prototype.getLevel = function () {
 	}
 	return 0;
 };
-
 
 /**
  * ControllerRoom.getIdleSpawn()
@@ -277,7 +266,6 @@ ControllerRoom.prototype.getMineralContainer = function () {
 	} else return false
 };
 
-
 ControllerRoom.prototype.getMineralAmount = function () {
 	var minerals = this.find(FIND_MINERALS);
 	return minerals[0].mineralAmount;
@@ -311,7 +299,6 @@ ControllerRoom.prototype._getStructures = function (filter) {
 
 	return result;
 };
-
 
 Room.prototype.centerPoint = function () {
 
@@ -384,7 +371,6 @@ Room.prototype.centerPoint = function () {
 
 	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
-
 
 ControllerRoom.prototype.analyse = function () {
 	// TODO: Hard coded CPU Limit? No way

@@ -29,7 +29,6 @@ ControllerCreep.prototype.run = function (creep) {
   }
 };
 
-
 /**
  * ControllerCreep.findBehavior;
  */
@@ -46,6 +45,5 @@ ControllerCreep.prototype.findBehavior = function (config, creep) {
 
   return null;
 };
-
 
 module.exports = ControllerCreep;
