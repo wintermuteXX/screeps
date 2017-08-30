@@ -6,35 +6,6 @@ function initGlobal(g) {
     }
   };
 
-
-  g.getBestOrder = function () {
-    let minAmount = 1000;
-    let orders = Game.market.getAllOrders().filter(order =>
-      order.type === ORDER_BUY // Only check sell orders
-      &&
-      order.resourceType !== RESOURCE_ENERGY // Don't sell energy
-      &&
-      order.remainingAmount > minAmount // Only look at orders with 1000+ units
-      &&
-      this.store[order.resourceType] >= 1000); // terminal must have at least 1k of this resource
-    // Compute, map and filter on profit
-    orders = orders.map((order) => {
-      let amount = Math.min(order.remainingAmount, this.store[order.resourceType]);
-      let fee = Game.market.calcTransactionCost(amount, this.room.name, order.roomName);
-      let profit = order.price + (fee * energyPrice / amount);
-      return _.merge(order, {
-        fee,
-        profit,
-        amount
-      });
-    });
-    orders = orders.filter(order => order.profit > cfg.get(`market.minProfit.${order.resourceType}`));
-    // Get best order and deal
-    if (orders.length === 0) return notif.debug('Found no deal in buy orders.', this.room.name);
-    let bestOrder = _.min(orders, 'profit');
-    return this.deal(bestOrder);
-  };
-
   /**
    * Intervals
    */
