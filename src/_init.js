@@ -74,6 +74,17 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return transferred;
   };
 
+  Creep.prototype.hasActiveBodypart = function (type) {
+    var i;
+    for (i = this.body.length - 1; i >= 0; i--) {
+      if (this.body[i].hits <= 0)
+        break;
+      if (this.body[i].type === type)
+        return true;
+    }
+    return false;
+  };
+
   Creep.prototype.withdrawAllResources = function (structure) {
     let transferred = false;
     for (let resource in structure.store) {
@@ -127,17 +138,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       } else break;
     }
     return count;
-  };
-
-  Creep.prototype.hasActiveBodyparts = function (type) {
-    for (var i = this.body.length; i-- > 0;) {
-      if (this.body[i].hits > 0) {
-        if (this.body[i].type === type) {
-          return true;
-        }
-      } else break;
-    }
-    return false;
   };
 
   /**
@@ -207,6 +207,27 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         }
         Memory.mySourcesMemory[this.id] = value;
     }
+});
+
+Object.defineProperty(Source.prototype, 'freeSpaceCount', {
+  get: function () {
+      if (this._freeSpaceCount == undefined) {
+          if (this.memory.freeSpaceCount == undefined) {
+              let freeSpaceCount = 0;
+              [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+                  [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+                      if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                              freeSpaceCount++;
+                          }, this);
+                  }, this);
+              this.memory.freeSpaceCount = freeSpaceCount;
+          }
+          this._freeSpaceCount = this.memory.freeSpaceCount;
+      }
+      return this._freeSpaceCount;
+  },
+  enumerable: false,
+  configurable: true
 });
 
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
@@ -288,6 +309,46 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
+
+Object.defineProperty(Source.prototype, 'freeSpaceCount', {
+    get: function () {
+        if (this._freeSpaceCount == undefined) {
+            if (this.memory.freeSpaceCount == undefined) {
+                let freeSpaceCount = 0;
+                [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+                    [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+                        if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                                freeSpaceCount++;
+                            }, this);
+                    }, this);
+                this.memory.freeSpaceCount = freeSpaceCount;
+            }
+            this._freeSpaceCount = this.memory.freeSpaceCount;
+        }
+        return this._freeSpaceCount;
+    },
+    enumerable: false,
+    configurable: true
+});
+
+  RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
+    var { x, y } = this.pos;
+    return this.room.lookForAtArea(lookFor,
+      Math.max(0, y - range),
+      Math.max(0, x - range),
+      Math.min(49, y + range),
+      Math.min(49, x + range),
+      asArray);
+  };
+
+  RoomObject.prototype.lookNear = function (asArray, range = 1) {
+    var { x, y } = this.pos;
+    return this.room.lookAtArea(Math.max(0, y - range),
+      Math.max(0, x - range),
+      Math.min(49, y + range),
+      Math.min(49, x + range),
+      asArray);
+  };
 
   RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
     if (htmlLink) {
