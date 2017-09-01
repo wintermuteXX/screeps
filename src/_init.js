@@ -235,7 +235,7 @@ Object.defineProperty(Source.prototype, 'freeSpaceCount', {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
       return (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
-    return this.hits < (this.hitsMax / 1.5);
+    return this.hits < (this.hitsMax * 0.9);
   };
 
   Structure.prototype.getFreeFields = function () {

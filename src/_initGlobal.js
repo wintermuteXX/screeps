@@ -87,7 +87,7 @@ function initGlobal(g) {
 // NOTE: that this code works in chrome and firefox (albiet quietly
 //  in firefox) but not the steam client.
 
-global.defaultVoice = "US English Female"; // can be changed
+global.defaultVoice = "Deutsch Female"; // can be changed
 // see https://responsivevoice.org/text-to-speech-languages/
 // for options
 global.voiceConsole = function voiceConsole(text){
