@@ -30,7 +30,6 @@ function initGlobal(g) {
     return 0;
   };
 
-
   /**
    * Behaviors
    */
