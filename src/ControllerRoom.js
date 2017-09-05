@@ -374,6 +374,7 @@ Room.prototype.centerPoint = function () {
 	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
+// total buggy. don't use
 Room.prototype.getBestOrder = function () {
 	let minAmount = 1000;
 	let orders = Game.market.getAllOrders().filter(order =>
@@ -397,7 +398,7 @@ Room.prototype.getBestOrder = function () {
 	});
 	orders = orders.filter(order => order.profit > cfg.get(`market.minProfit.${order.resourceType}`));
 	// Get best order and deal
-	if (orders.length === 0) return notif.debug('Found no deal in buy orders.', this.room.name);
+	if (orders.length === 0) return notify.debug('Found no deal in buy orders.', this.room.name);
 	let bestOrder = _.min(orders, 'profit');
 	return this.deal(bestOrder);
 };
