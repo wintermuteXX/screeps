@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("claim_controller");
 
 b.when = function (creep, rc) {
-  return (creep.room.controller.length && !creep.room.controller.my);
+  return (creep.room.controller && !creep.room.controller.my);
 };
 
 b.completed = function (creep, rc) {
