@@ -6,6 +6,8 @@ declare var require: any
 declare var module: any
 declare var global: any
 
+declare const EXTRACTOR_COOLDOWN: 5
+;
 declare const OK: 0;
 declare const ERR_NOT_OWNER: -1;
 declare const ERR_NO_PATH: -2;
