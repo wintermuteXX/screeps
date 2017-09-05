@@ -304,7 +304,7 @@ ControllerRoom.prototype._getStructures = function (filter) {
 
 Room.prototype.centerPoint = function () {
 
-	const freeRange = 2;
+	const freeRange = 3;
 	var bestPos;
 
 	for (let x = 3; x < 46; x++) {
@@ -405,7 +405,7 @@ Room.prototype.getBestOrder = function () {
 
 ControllerRoom.prototype.analyse = function () {
 	// TODO: Hard coded CPU Limit? No way
-	if (Game.cpuLimit <= 100) return;
+	if (Game.cpu.tickLimit <= 100) return;
 	var memory = this.room.memory;
 
 	try {
