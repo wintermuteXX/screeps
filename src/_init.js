@@ -59,7 +59,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  
+
   Creep.prototype.transferAllResources = function (structure) {
     let transferred = false;
     for (let resource in this.carry) {
@@ -188,47 +188,47 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 */
   Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
-    get: function() {
-        if(_.isUndefined(Memory.mySourcesMemory)) {
-            Memory.mySourcesMemory = {};
-        }
-        if(!_.isObject(Memory.mySourcesMemory)) {
-            return undefined;
-        }
-        return Memory.mySourcesMemory[this.id] = 
-                Memory.mySourcesMemory[this.id] || {};
+    get: function () {
+      if (_.isUndefined(Memory.mySourcesMemory)) {
+        Memory.mySourcesMemory = {};
+      }
+      if (!_.isObject(Memory.mySourcesMemory)) {
+        return undefined;
+      }
+      return Memory.mySourcesMemory[this.id] =
+        Memory.mySourcesMemory[this.id] || {};
     },
-    set: function(value) {
-        if(_.isUndefined(Memory.mySourcesMemory)) {
-            Memory.mySourcesMemory = {};
-        }
-        if(!_.isObject(Memory.mySourcesMemory)) {
-            throw new Error('Could not set source memory');
-        }
-        Memory.mySourcesMemory[this.id] = value;
+    set: function (value) {
+      if (_.isUndefined(Memory.mySourcesMemory)) {
+        Memory.mySourcesMemory = {};
+      }
+      if (!_.isObject(Memory.mySourcesMemory)) {
+        throw new Error('Could not set source memory');
+      }
+      Memory.mySourcesMemory[this.id] = value;
     }
-});
+  });
 
-Object.defineProperty(Source.prototype, 'freeSpaceCount', {
-  get: function () {
+  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
+    get: function () {
       if (this._freeSpaceCount == undefined) {
-          if (this.memory.freeSpaceCount == undefined) {
-              let freeSpaceCount = 0;
-              [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-                  [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-                      if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-                              freeSpaceCount++;
-                          }, this);
-                  }, this);
-              this.memory.freeSpaceCount = freeSpaceCount;
-          }
-          this._freeSpaceCount = this.memory.freeSpaceCount;
+        if (this.memory.freeSpaceCount == undefined) {
+          let freeSpaceCount = 0;
+          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                freeSpaceCount++;
+            }, this);
+          }, this);
+          this.memory.freeSpaceCount = freeSpaceCount;
+        }
+        this._freeSpaceCount = this.memory.freeSpaceCount;
       }
       return this._freeSpaceCount;
-  },
-  enumerable: false,
-  configurable: true
-});
+    },
+    enumerable: false,
+    configurable: true
+  });
 
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
@@ -310,29 +310,32 @@ Object.defineProperty(Source.prototype, 'freeSpaceCount', {
     configurable: true
   });
 
-Object.defineProperty(Source.prototype, 'freeSpaceCount', {
+  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
     get: function () {
-        if (this._freeSpaceCount == undefined) {
-            if (this.memory.freeSpaceCount == undefined) {
-                let freeSpaceCount = 0;
-                [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-                    [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-                        if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-                                freeSpaceCount++;
-                            }, this);
-                    }, this);
-                this.memory.freeSpaceCount = freeSpaceCount;
-            }
-            this._freeSpaceCount = this.memory.freeSpaceCount;
+      if (this._freeSpaceCount == undefined) {
+        if (this.memory.freeSpaceCount == undefined) {
+          let freeSpaceCount = 0;
+          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                freeSpaceCount++;
+            }, this);
+          }, this);
+          this.memory.freeSpaceCount = freeSpaceCount;
         }
-        return this._freeSpaceCount;
+        this._freeSpaceCount = this.memory.freeSpaceCount;
+      }
+      return this._freeSpaceCount;
     },
     enumerable: false,
     configurable: true
-});
+  });
 
   RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
-    var { x, y } = this.pos;
+    var {
+      x,
+      y
+    } = this.pos;
     return this.room.lookForAtArea(lookFor,
       Math.max(0, y - range),
       Math.max(0, x - range),
@@ -342,7 +345,10 @@ Object.defineProperty(Source.prototype, 'freeSpaceCount', {
   };
 
   RoomObject.prototype.lookNear = function (asArray, range = 1) {
-    var { x, y } = this.pos;
+    var {
+      x,
+      y
+    } = this.pos;
     return this.room.lookAtArea(Math.max(0, y - range),
       Math.max(0, x - range),
       Math.min(49, y + range),
@@ -350,26 +356,26 @@ Object.defineProperty(Source.prototype, 'freeSpaceCount', {
       asArray);
   };
 
-  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined, memWatch = undefined) {
+  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
     if (htmlLink) {
       var onClick = '';
-      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');`;
-      if (memWatch) onClick += `angular.element($('section.memory')).scope().Memory.addWatch('${memWatch}'); angular.element($('section.memory')).scope().Memory.selectedObjectWatch='${memWatch}';`;
+      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +
+        `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${id}')[0]);`
       return `<a href="#!/room/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
     }
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
   };
 
   Creep.prototype.toString = function (htmlLink = true) {
-    return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id, 'creeps.'+this.name)}]`;
+    return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
   }
 
   Structure.prototype.toString = function (htmlLink = true) {
-    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id, 'structures.' + this.id)}]`;
+    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
   }
 
   StructureSpawn.prototype.toString = function (htmlLink = true) {
-    return `[spawn ${this.name} ${this.pos.toString(htmlLink, this.id, 'spawns.' + this.name)}]`;
+    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
   }
 
 }
