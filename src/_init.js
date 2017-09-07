@@ -68,8 +68,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       }
       let returnCode = this.transfer(structure, resource);
       if (returnCode === OK) {
-        transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
-      }
+      // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+        transferred = true;
+    }
     }
     return transferred;
   };
@@ -97,7 +98,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
       let returnCode = this.withdraw(structure, resource);
       if (returnCode === OK) {
-        transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+        // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+        transferred = true;
       }
     }
     return transferred;
@@ -108,7 +110,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   };
 
   Creep.prototype.isNearTo = function (t) {
-    return creep.pos.isNearTo(t);
+    return this.pos.isNearTo(t);
   };
 
   Creep.prototype.moveToEx = function (target) {
