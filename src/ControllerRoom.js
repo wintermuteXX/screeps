@@ -302,6 +302,26 @@ ControllerRoom.prototype._getStructures = function (filter) {
 	return result;
 };
 
+Room.prototype.createCreep2 = function (role) {
+let spawns = ._filter(this.find(FIND_MY_SPAWNS), function(s) {
+	return s.spawning === null
+});
+console.log("Spawns: " + spawns);
+if (role === 'upgrader') {let body = [MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,]}
+console.log("Body: " + body);
+
+for (var i = 0; i < body.length - 2; i++) {
+	var result = spawns[0].createCreep(body, undefined, role);
+	if (_.isString(result)) {
+		console.log("Build creep: " + this.name + " " + role + " " + body);
+		return true;
+	} else {
+		body.shift();
+	}
+}
+return false;
+};
+
 Room.prototype.centerPoint = function () {
 
 	const freeRange = 3;
