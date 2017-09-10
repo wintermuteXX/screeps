@@ -22,6 +22,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   }
 
   if (result !== null) {
+    console.log(this.name + " Build creep: " + role);
     return (result === OK);
   }
   return false;
@@ -44,7 +45,6 @@ ControllerSpawn.prototype.evalCreepBody = function (level, body) {
 	for (var i = 0; i < j - 2; i++) {
 		var result = this.spawn.canCreateCreep(body);
 		if (result === 0) {
-			console.log(this.name + " Build creep: " + role);
 			return body;
 		} else {
 			body.pop();
