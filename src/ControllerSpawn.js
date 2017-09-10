@@ -8,7 +8,7 @@ ControllerSpawn.prototype.idle = function () {
 };
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
-  var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body);
+  var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body2);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
     var name = role + "_" + Math.round(Math.random() * 999);
@@ -28,7 +28,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
 };
 
 ControllerSpawn.prototype.evalCreepBody = function (level, body) {
-  var maxEnergy = this.ControllerRoom.room.energyCapacityAvailable;
+  /*var maxEnergy = this.ControllerRoom.room.energyCapacityAvailable;
 
   var start = (body.length < level ? body.length : level) - 1;
 
@@ -38,7 +38,20 @@ ControllerSpawn.prototype.evalCreepBody = function (level, body) {
       return parts;
     }
   }
-  return null;
+  return null;*/
+  console.log("Body: " + body);
+  var j = body.length;
+	for (var i = 0; i < j - 2; i++) {
+		var result = this.spawn.canCreateCreep(body);
+		if (result === 0) {
+			console.log(this.name + " Build creep: " + role);
+			return body;
+		} else {
+			body.pop();
+		}
+	}
+	return false;
+  
 };
 
 ControllerSpawn.prototype.getCosts = function (body) {
