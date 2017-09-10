@@ -306,11 +306,9 @@ Room.prototype.createCreep2 = function (role) {
 	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function(s) {
 		return s.spawning === null
 	});
-	console.log("Spawns: " + spawns);
 	if (role === 'upgrader') {console.log("upgrader");
 	var body = [MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK];
 	}
-	console.log("Bodylength: " + body.length);
 	var j = body.length;
 	for (var i = 0; i < j - 2; i++) {
 		var result = spawns[0].canCreateCreep(body);

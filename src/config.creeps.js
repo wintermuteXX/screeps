@@ -125,7 +125,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var controller = rc.getController();
-      return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+      return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
     },
 
     body: [
