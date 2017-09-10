@@ -40,7 +40,6 @@ ControllerSpawn.prototype.evalCreepBody = function (level, body) {
     }
   }
   return null;*/
-  console.log("Body: " + body);
   var j = body.length;
 	for (var i = 0; i < j - 2; i++) {
 		var result = this.spawn.canCreateCreep(body);
