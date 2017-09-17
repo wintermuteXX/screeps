@@ -111,7 +111,8 @@ module.exports = {
 
     canBuild: function (rc) {
       var transpoters = rc.getCreeps('transporter2');
-      return (transpoters.length < 1);
+      return false;
+      // return (transpoters.length < 1);
 
     },
 
