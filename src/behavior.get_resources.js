@@ -8,7 +8,8 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  return (creep.energy > 0);
+  // works with minerals?
+  return (creep.energy > 0 || creep.target === null);
 };
 
 b.work = function (creep, rc) {
@@ -16,9 +17,9 @@ b.work = function (creep, rc) {
 
   if (!target) {
       var resources = creep.room.memory._droppedResources;
-      console.log("Creep " + creep.name + " has no target");
+      // console.log("Creep " + creep.name + " has no target");
       for (var resource in resources) {
-          console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
+          // console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
           creep.target = resource;
           console.log("Creep " + creep.name + " has target " + resource);
           creep.memory.resourceType = resources[resource].resourceType;
