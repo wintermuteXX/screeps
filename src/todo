@@ -1,5 +1,6 @@
 1. 	TODO
-    	- Remote Mining (check for goals, new behavior)
+    	- Resource Queue - Spawn fehlt, Mineral in Container funktioniert nicht. 
+        - Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- If Extension is already target of another creep, take next extension.
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
