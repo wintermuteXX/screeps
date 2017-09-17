@@ -104,6 +104,22 @@ module.exports = {
     behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
   },
 
+
+  "transporter2": {
+    priority: 1,
+    levelMin: 2,
+
+    canBuild: function (rc) {
+      var transpoters = rc.getCreeps('transporter2');
+      return (transpoters.length < 1);
+
+    },
+
+    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
+
+    behaviors: ["get_resources", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
+  },
+
   "transporter_mineral": {
     priority: 5,
     levelMin: 3,

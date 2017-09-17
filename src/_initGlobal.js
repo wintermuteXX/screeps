@@ -14,7 +14,7 @@ function initGlobal(g) {
     'checkPopulation': 10,
     'checkConstructions': 100,
     'checkLinks': 5,
-    'checkDroppedEnergy': 10,
+    'checkResourcesQueue': 10,
     'StoreLevel4': 2000,
     'StoreLevel5': 5000,
     'StoreLevel6': 15000,
