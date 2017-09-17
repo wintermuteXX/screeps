@@ -23,7 +23,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(Creep.prototype, "energy", {
     get: function () {
-      return this.carry.energy;
+      return _.sum(this.carry);
     }
   });
 
