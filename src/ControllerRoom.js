@@ -93,6 +93,7 @@ ControllerRoom.prototype.findResources = function () {
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 		droppedResources[s.id] = {
 			'resourceType': s.resourceType,
+			'structure': false,
 			'amount': s.amount,
 		};
 	}
@@ -102,6 +103,7 @@ ControllerRoom.prototype.findResources = function () {
 		})) {
 		droppedResources[l.id] = {
 			'resourceType': "energy",
+			'structure': true,
 			'amount': l.energy,
 		};
 	}
@@ -113,6 +115,7 @@ ControllerRoom.prototype.findResources = function () {
 				if (amount > 0) {
 					droppedResources[c.id] = {
 						'resourceType': resourceType,
+						'structure': true,
 						'amount': amount,
 					};
 				}
