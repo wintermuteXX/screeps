@@ -2,8 +2,8 @@
     	- Resource Queue - Spawn fehlt, Mineral in Container funktioniert nicht. 
         - Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
-		- If Extension is already target of another creep, take next extension.
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
+        - write general behavior for picking up resources. User Resource queue
         - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)
         - source - define Container RoomPosition
         - miner - if idle - repair container
@@ -11,8 +11,7 @@
         - recalculate needed transporters
         - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
-        - Update build creeps to always build max body.
-		-- Sell + Buy at Market (check code at bottom of this file)
+        -- Sell + Buy at Market (check code at bottom of this file)
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
 		-- test attack behavior
@@ -24,7 +23,8 @@
     	- (testing) miner - walk to container, not source
         - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
   	DONE
-	    - (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
+	    - (done) Update build creeps to always build max body.
+		- (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
         - (done) Behavior Pickup Minerals (buggy - doesn't work)
         - (done) Behavior Harvest Minerals (needs spawn logic)
 		- (done) Behavior Transport Minerals to Terminal
@@ -42,6 +42,19 @@
 
 2. Code Snippets
 
+----------------------------------------
+let result = creep.upgradeController(creep.room.controller);
+switch (result) {
+    case OK:
+        break;
+    case ERR_NOT_IN_RANGE:
+        creep.travelTo(creep.room.controller);
+        break;
+    default:
+        console.log(`unknown result from (creep ${creep}).upgradeController(${creep.room.controller}): ${result}`);
+}
+----------------------------------------
+{"name":"textExport","shard":"shard0","rcl":"8","buildings":{"powerSpawn":{"pos":[{"x":22,"y":9}]},"observer":{"pos":[{"x":23,"y":9}]},"tower":{"pos":[{"x":21,"y":10},{"x":23,"y":10},{"x":24,"y":11}]},"terminal":{"pos":[{"x":24,"y":10}]},"nuker":{"pos":[{"x":21,"y":11}]},"link":{"pos":[{"x":22,"y":11}]},"storage":{"pos":[{"x":22,"y":12}]},"spawn":{"pos":[{"x":23,"y":12}]}}}
 ----------------------------------------
 global.UNIT_COST = (body) => _.sum(body, p => BODYPART_COST[p]);
 ----------------------------------------
@@ -271,3 +284,73 @@ global.spiralOut = function(n){
   },
   configurable: true,
 });
+------------------------------------------
+
+// Wrapper class for PathFinder.CostMatrix to define our own compression
+const CompressedMatrix = {};
+module.exports = CompressedMatrix;
+CompressedMatrix.serialize = function(costMatrix) {
+    let ret = `${costMatrix._bits[0]}x`;
+    let count = 1;
+    for (let i = 1; i < costMatrix._bits.length; i++) {
+        let curr = costMatrix._bits[i];
+        if (curr !== costMatrix._bits[i - 1]) {
+            ret += `${count},${curr}x`;
+            count = 1;
+        } else {
+            count++;
+        }
+    }
+    ret += `${count}`;
+    return ret;
+};
+CompressedMatrix.deserialize = function(data) {
+    const matrix = new PathFinder.CostMatrix();
+    const entries = data.split(',');
+    let total = 0;
+    let len = entries.length;
+    let entry, cost, count;
+    entries.forEach(e => {
+        entry = e.split('x');
+        cost = entry[0];
+        count = entry[1];
+        if (cost) {
+            _.times(count, (i) => {
+                matrix._bits[total] = cost;
+                total++;
+            });
+        } else {
+            total += count;
+        }
+    });
+    return matrix;
+};
+CompressedMatrix.compareEfficiency = function(count, costMatrix = new PathFinder.CostMatrix(), verbose=true) {
+    const threshold = verbose ? 0 : 5; // don't display for each unless verbose
+    let serialized, stringified, normalStringified, compressedStringified;
+    const p = Util.startProfiling();
+    const total = Util.startProfiling();
+    for (var i = 0; i < count; i++) {
+        serialized = costMatrix.serialize();
+        if (verbose) console.log('normal', serialized);
+        p.checkCPU('normal-serialize', threshold, 'normal-serialize');
+        stringified = JSON.stringify(serialized);
+        normalStringified = stringified;
+        if (verbose) console.log('normal-deserialize', PathFinder.CostMatrix.deserialize(JSON.parse(stringified)).serialize());
+        p.checkCPU('normal-deserialize', threshold, 'normal-deserialize');
+        total.checkCPU('normal-total', threshold, 'normal-total');
+        serialized = CompressedMatrix.serialize(costMatrix);
+        if (verbose) console.log('comp-serialize', serialized);
+        p.checkCPU('comp-serialize', threshold, 'comp-serialize');
+        stringified = JSON.stringify(serialized);
+        compressedStringified = stringified;
+        if (verbose) console.log('comp-deserialize', CompressedMatrix.deserialize(JSON.parse(stringified)).serialize());
+        p.checkCPU('comp-deserialize', threshold, 'comp-deserialize');
+        total.checkCPU('comp-total', threshold, 'comp-total');
+    }
+    nSize = normalStringified.length / 1024;
+    cSize = compressedStringified.length / 1024;
+    console.log('normal size:', _.round(nSize, 2),
+                'compressed size:', _.round(cSize, 2),
+                'reduction(% of original size):', _.round(cSize / nSize, 2));
+};
