@@ -42,6 +42,20 @@
 
 2. Code Snippets
 
+----------------------------------------------
+global.encodeCoordinate = function(thePos) {
+    return String.fromCodePoint(thePos.x | (thePos.y << 6));
+}
+
+global.decodeCoordinate = function(theString, theIndex) {
+    var val = theString.charCodeAt(theIndex);
+    var x = (val & 0x3F);
+    var y = ((val >> 6) & 0x3F);
+    return {
+        x: x,
+        y: y
+    };
+}
 ----------------------------------------
 let result = creep.upgradeController(creep.room.controller);
 switch (result) {
