@@ -91,11 +91,13 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+	    if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
 		droppedResources[s.id] = {
 			'resourceType': s.resourceType,
 			'structure': false,
 			'amount': s.amount,
 		};
+	    };
 	}
 
 	for (var l of _.filter(this.links.receivers, function (l) {
@@ -107,19 +109,24 @@ ControllerRoom.prototype.findResources = function () {
 			'amount': l.energy,
 		};
 	}
-	for (var c of _.filter(this.find(FIND_STRUCTURES), function (c) {
-			return c.structureType === STRUCTURE_CONTAINER && !c.pos.inRangeTo(c.room.controller.pos, 3);
-		})); {
-		if (c) {
-			_.each(c.store, function (amount, resourceType) {
-				if (amount > 0) {
+	var containers = _.filter(this.find(FIND_STRUCTURES), function (d) {
+			return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
+		});
+		console.log(containers);
+	for (var c of containers); {
+		console.log("C: " + c);
+			if (c) {
+		    _.each(c.store, function (amount, resourceType) {
+			    
+			   	if (amount > 0) {
+			   	    console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 					droppedResources[c.id] = {
 						'resourceType': resourceType,
 						'structure': true,
-						'amount': amount,
+						'amount': amount
 					};
-				}
-			})
+				};
+			});
 		};
 	}
 	memory._droppedResources = droppedResources;
