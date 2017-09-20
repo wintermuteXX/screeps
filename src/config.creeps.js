@@ -264,7 +264,8 @@ module.exports = {
     },
     body: [
       null,
-      null, [MOVE, CLAIM],
+      null, 
+      [MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
       [MOVE, CLAIM, MOVE, CLAIM],
@@ -291,11 +292,12 @@ module.exports = {
       [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
       [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
       [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE],
-      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, ]
+      [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE]
     ],
 
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["get_energy_storage", "transfer_energy_terminal"]
+    //behaviors: ["get_energy_storage", "transfer_energy_terminal"]
+    behaviors: []
   }
 
 };

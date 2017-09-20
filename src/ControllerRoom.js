@@ -407,31 +407,48 @@ Room.prototype.centerPoint = function () {
 
 // total buggy. don't use
 Room.prototype.getBestOrder = function () {
-	let minAmount = 1000;
-	let orders = Game.market.getAllOrders().filter(order =>
-		order.type === ORDER_BUY // Only check sell orders
-		&&
-		order.resourceType !== RESOURCE_ENERGY // Don't sell energy
-		&&
-		order.remainingAmount > minAmount // Only look at orders with 1000+ units
-		&&
-		this.store[order.resourceType] >= 1000); // terminal must have at least 1k of this resource
-	// Compute, map and filter on profit
-	orders = orders.map((order) => {
-		let amount = Math.min(order.remainingAmount, this.store[order.resourceType]);
-		let fee = Game.market.calcTransactionCost(amount, this.room.name, order.roomName);
-		let profit = order.price + (fee * energyPrice / amount);
-		return _.merge(order, {
-			fee,
-			profit,
-			amount
-		});
-	});
-	orders = orders.filter(order => order.profit > cfg.get(`market.minProfit.${order.resourceType}`));
-	// Get best order and deal
-	if (orders.length === 0) return notify.debug('Found no deal in buy orders.', this.room.name);
-	let bestOrder = _.min(orders, 'profit');
-	return this.deal(bestOrder);
+    var _this = this;
+    var minAmount = 1000;
+    var orders = Game.market.getAllOrders().filter(function (order) {
+        return order.type === ORDER_BUY // Only check sell orders
+            &&
+                order.resourceType !== RESOURCE_ENERGY // Don't sell energy
+            &&
+                order.remainingAmount > minAmount
+    // Only look at orders with 1000+ units
+    		&&
+				this.terminal.store[order.resourceType] >= 1000;
+	 }); // terminal must have at least 1k of this resource
+    // Compute, map and filter on profit
+    console.log("Step1: " + orders);
+    var energyPrice = 0.1;
+    orders = orders.map(function (order) {
+        // console.log(order.remainingAmount, order.resourceType, _this.terminal.store[order.resourceType]);
+        var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
+        // console.log(_this.name , order.roomName);
+        var profit = 0;
+        if ( _this.name && order.roomName ) {
+            var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
+            profit = order.price + (fee * energyPrice / amount);
+           // console.log("Amount: " + amount + " Fee: " + fee + " Profit: " + profit);
+        }
+        
+        return _.merge(order, {
+            fee: fee,
+            profit: profit,
+            amount: amount
+        });
+    });
+    console.log("Step2: " + orders);
+    // orders = orders.filter(function (order) { return order.profit > cfg.get("market.minProfit." + order.resourceType); });
+    orders = orders.filter(function (order) { return order.profit > 0.1; });
+    // Get best order and deal
+    if (orders.length === 0)
+        console.log('Found no deal in buy orders.', _this.name);
+    var bestOrder = _.min(orders, 'profit');
+    console.log(bestOrder);
+    // console.log(this.deal(bestOrder));
+    // return this.deal(bestOrder);
 };
 
 ControllerRoom.prototype.analyse = function () {

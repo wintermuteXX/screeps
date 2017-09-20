@@ -16,19 +16,16 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-      var resources = creep.room.memory._droppedResources;
-      // console.log("Creep " + creep.name + " has no target");
-      for (var resource in resources) {
-          // console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
-          console.log("1 " + resource);
-          resource = _.trimRight(resource, '|');
-          console.log("2 " + resource);
-          creep.target = resource;
-          console.log("Creep " + creep.name + " has target " + resource);
-          creep.memory.resourceType = resources[resource].resourceType;
-          creep.memory.structure = resources[resource].structure;
-          break;
-      }
+    var resources = creep.room.memory._droppedResources;
+    for (var resource in resources) {
+      // console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
+      target = resources[resource].id;
+      creep.target = target;
+      console.log("Creep " + creep.name + " has target " + resource);
+      creep.memory.resourceType = resources[resource].resourceType;
+      creep.memory.structure = resources[resource].structure;
+      break;
+    }
   }
 
   if (target) {
@@ -37,13 +34,14 @@ b.work = function (creep, rc) {
     } else {
       console.log("Get: " + target + " Type: " + creep.memory.resourceType);
       if (creep.memory.structure === false) {
-      creep.pickup(target, creep.memory.resourceType); }
-      else {
-          creep.withdraw(target, creep.memory.resourceType); }
+        creep.pickup(target, creep.memory.resourceType);
+      } else {
+        creep.withdraw(target, creep.memory.resourceType);
+      }
       creep.target = null;
       creep.memory.resourceType = null;
       creep.memory.structure = null;
-      }
     }
+  }
 };
 module.exports = b;
