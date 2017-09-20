@@ -92,10 +92,11 @@ ControllerRoom.prototype.findResources = function () {
 	var droppedResources = {};
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 	    if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
-		droppedResources[s.id] = {
+		droppedResources[s.id + "| " + s.resourceType] = {
 			'resourceType': s.resourceType,
 			'structure': false,
 			'amount': s.amount,
+			'id' : s.id
 		};
 	    };
 	}
@@ -103,32 +104,31 @@ ControllerRoom.prototype.findResources = function () {
 	for (var l of _.filter(this.links.receivers, function (l) {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
-		droppedResources[l.id] = {
+		droppedResources[l.id + "|energy"] = {
 			'resourceType': "energy",
 			'structure': true,
 			'amount': l.energy,
+			'id': l.id
 		};
 	}
 	var containers = _.filter(this.find(FIND_STRUCTURES), function (d) {
-			return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
-		});
-		console.log(containers);
-	for (var c of containers); {
-		console.log("C: " + c);
-			if (c) {
-		    _.each(c.store, function (amount, resourceType) {
-			    
-			   	if (amount > 0) {
-			   	    console.log(c.room.name + " In Container: " + resourceType + " " + amount);
-					droppedResources[c.id] = {
-						'resourceType': resourceType,
-						'structure': true,
-						'amount': amount
-					};
+		return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
+	});
+	
+	_.each(containers, function(c){
+		_.each(c.store, function (amount, resourceType) {
+		   if (amount > 0) {
+				console.log(c.room.name + " In Container: " + resourceType + " " + amount);
+				droppedResources[c.id + "|" + resourceType] = {
+					'resourceType': resourceType,
+					'structure': true,
+					'amount': amount,
+					'id': c.id
 				};
-			});
-		};
-	}
+			};
+		});
+	});
+	
 	memory._droppedResources = droppedResources;
 };
 
