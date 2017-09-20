@@ -20,6 +20,9 @@ b.work = function (creep, rc) {
       // console.log("Creep " + creep.name + " has no target");
       for (var resource in resources) {
           // console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
+          console.log("1 " + resource);
+          resource = _.trimRight(resource, '|');
+          console.log("2 " + resource);
           creep.target = resource;
           console.log("Creep " + creep.name + " has target " + resource);
           creep.memory.resourceType = resources[resource].resourceType;

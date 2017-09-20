@@ -118,7 +118,7 @@ ControllerRoom.prototype.findResources = function () {
 	_.each(containers, function(c){
 		_.each(c.store, function (amount, resourceType) {
 		   if (amount > 0) {
-				console.log(c.room.name + " In Container: " + resourceType + " " + amount);
+				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 				droppedResources[c.id + "|" + resourceType] = {
 					'resourceType': resourceType,
 					'structure': true,
