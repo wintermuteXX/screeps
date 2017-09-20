@@ -430,7 +430,7 @@ Room.prototype.getBestOrder = function () {
         if ( _this.name && order.roomName ) {
             var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
             profit = order.price + (fee * energyPrice / amount);
-            console.log("Amount: " + amount + " Fee: " + fee + " Profit: " + profit);
+            console.log("Amount: " + amount + " Fee: " + fee + " Price: " + order.price  + " Profit: " + profit);
         }
         
         return _.merge(order, {
