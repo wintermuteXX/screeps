@@ -18,10 +18,9 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory._droppedResources;
     for (var resource in resources) {
-      // console.log("Get Target: " + resource + " Type: " + resources[resource].resourceType);
       target = resources[resource].id;
       creep.target = target;
-      console.log("Creep " + creep.name + " has target " + resource);
+      console.log("Creep " + creep.name + " has target " + resources[resource].resourceType + " " + resources[resource].structure);
       creep.memory.resourceType = resources[resource].resourceType;
       creep.memory.structure = resources[resource].structure;
       break;
@@ -29,18 +28,34 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
-    if (!creep.pos.isNearTo(target)) {
-      creep.travelTo(target);
-    } else {
-      console.log("Get: " + target + " Type: " + creep.memory.resourceType);
-      if (creep.memory.structure === false) {
-        creep.pickup(target, creep.memory.resourceType);
-      } else {
-        creep.withdraw(target, creep.memory.resourceType);
+    if (creep.memory.structure === false) {
+      let result = creep.pickup(target, creep.memory.resourceType);
+      switch (result) {
+        case OK:
+          creep.target = null;
+          creep.memory.resourceType = null;
+          creep.memory.structure = null;
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.travelTo(target);
+          break;
+        default:
+          console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
       }
-      creep.target = null;
-      creep.memory.resourceType = null;
-      creep.memory.structure = null;
+    } else {
+      let result = creep.withdraw(target, creep.memory.resourceType);
+      switch (result) {
+        case OK:
+          creep.target = null;
+          creep.memory.resourceType = null;
+          creep.memory.structure = null;
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.travelTo(target);
+          break;
+        default:
+          console.log(`unknown result from (creep ${creep}).withdraw(${target}): ${result}`);
+      }
     }
   }
 };
