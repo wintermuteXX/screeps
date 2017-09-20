@@ -1,9 +1,7 @@
 1. 	TODO
-    	- Resource Queue - Spawn fehlt, Mineral in Container funktioniert nicht. 
-        - Remote Mining (check for goals, new behavior)
+    	- Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
-        - write general behavior for picking up resources. User Resource queue
         - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)
         - source - define Container RoomPosition
         - miner - if idle - repair container
@@ -20,10 +18,12 @@
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
    	TESTING
-    	- (testing) miner - walk to container, not source
+    	- (testing) Resource Queue - Mineral in Container funktioniert nicht. 
+        - (testing) miner - walk to container, not source
         - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
   	DONE
-	    - (done) Update build creeps to always build max body.
+	    - (done) write general behavior for picking up resources. User Resource queue
+        - (done) Update build creeps to always build max body.
 		- (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)
         - (done) Behavior Pickup Minerals (buggy - doesn't work)
         - (done) Behavior Harvest Minerals (needs spawn logic)
@@ -74,30 +74,7 @@ global.UNIT_COST = (body) => _.sum(body, p => BODYPART_COST[p]);
 ----------------------------------------
 let cs = _.find(creep.pos.lookFor(LOOK_CONSTRUCTION_SITES), s => s.structureType === STRUCTURE_ROAD);
 ----------------------------------------
-_.map( yourLookCall(), 'structure' )
-----------------------------------------
-global.whatsInTerminals = function() {
-        let myUsername = Game.spawns[Object.keys(Game.spawns)[0]].owner.username;
-        let roomData = {};
-        let sums = {};
-        let rooms = _.filter(Game.rooms, (r) => {
-            if(r.controller 
-               && r.controller.my
-               && r.terminal) {
-                return true;
-            }
-        })
-        _.forEach(rooms, (r) => {
-            roomData[r.name] = roomData[r.name] || {};
-            _.forEach(r.terminal.store, (quantity, item) => {
-                sums[item] = sums[item] || 0;
-                sums[item] = sums[item] + quantity;
-                roomData[r.name][item] = quantity;
-            })
-        })
-        console.log('Room Data:', JSON.stringify(roomData, null, 3));
-        console.log('Totals:', JSON.stringify(sums, null, 3));
-    }
+
 ----------------------------------------
 static exitPlanner(roomName, opts={}) {
 		opts = _.defaults(opts, {

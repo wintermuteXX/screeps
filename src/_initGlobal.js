@@ -78,6 +78,29 @@ function initGlobal(g) {
     });
   };
 
+  global.whatsInTerminals = function() {
+    let myUsername = Game.spawns[Object.keys(Game.spawns)[0]].owner.username;
+    let roomData = {};
+    let sums = {};
+    let rooms = _.filter(Game.rooms, (r) => {
+        if(r.controller 
+           && r.controller.my
+           && r.terminal) {
+            return true;
+        }
+    })
+    _.forEach(rooms, (r) => {
+        roomData[r.name] = roomData[r.name] || {};
+        _.forEach(r.terminal.store, (quantity, item) => {
+            sums[item] = sums[item] || 0;
+            sums[item] = sums[item] + quantity;
+            roomData[r.name][item] = quantity;
+        })
+    })
+    console.log('Room Data:', JSON.stringify(roomData, null, 3));
+    console.log('Totals:', JSON.stringify(sums, null, 3));
+}
+
 // The function below was developed late last year by @stybbe, published in
 //  Screeps Slack's #share-thy-code channel. No license was applied; all  
 //  rights remain with the author. Minor fixes were made by @SemperRabbit 
