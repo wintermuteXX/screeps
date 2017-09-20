@@ -39,6 +39,11 @@ b.work = function (creep, rc) {
         case ERR_NOT_IN_RANGE:
           creep.travelTo(target);
           break;
+        case ERR_NOT_ENOUGH_RESOURCES:
+          creep.target = null;
+          creep.memory.resourceType = null;
+          creep.memory.structure = null;
+          break;
         default:
           console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
       }
@@ -52,6 +57,11 @@ b.work = function (creep, rc) {
           break;
         case ERR_NOT_IN_RANGE:
           creep.travelTo(target);
+          break;
+        case ERR_NOT_ENOUGH_RESOURCES:
+          creep.target = null;
+          creep.memory.resourceType = null;
+          creep.memory.structure = null;
           break;
         default:
           console.log(`unknown result from (creep ${creep}).withdraw(${target}): ${result}`);
