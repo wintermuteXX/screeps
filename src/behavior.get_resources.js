@@ -18,13 +18,15 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory._droppedResources;
     for (var resource in resources) {
+      if (resources[resource].amount > 0) {
+        creep.room.memory._droppedResources[resource].amount = creep.room.memory._droppedResources[resource].amount - _.sum(creep.carry);
       target = resources[resource].id;
       creep.target = target;
-      console.log("Creep " + creep.name + " has target " + resources[resource].resourceType + " " + resources[resource].structure);
+      console.log("Creep " + creep.name + " has target " + resources[resource].resourceType);
       creep.memory.resourceType = resources[resource].resourceType;
       creep.memory.structure = resources[resource].structure;
       break;
-    }
+    }}
   }
 
   if (target) {
