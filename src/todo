@@ -7,6 +7,7 @@
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
         - recalculate needed transporters
+		- createCreep. Calculate Move parts dynamically (body2)
         - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
         -- Sell + Buy at Market (check code at bottom of this file)
