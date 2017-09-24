@@ -90,6 +90,8 @@ ControllerRoom.prototype.findResources = function () {
 	if (Game.time % global.getInterval('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
 	var droppedResources = {};
+
+	// Dropped Resources
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 	    if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
 		droppedResources[s.id + "| " + s.resourceType] = {
@@ -101,6 +103,7 @@ ControllerRoom.prototype.findResources = function () {
 	    };
 	}
 
+	// Links
 	for (var l of _.filter(this.links.receivers, function (l) {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
@@ -111,6 +114,8 @@ ControllerRoom.prototype.findResources = function () {
 			'id': l.id
 		};
 	}
+
+	// Containers
 	var containers = _.filter(this.find(FIND_STRUCTURES), function (d) {
 		return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
 	});
