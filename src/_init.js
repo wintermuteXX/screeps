@@ -292,18 +292,18 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (this == Room.prototype || this == undefined)
         return undefined;
       if (!this._mineral) {
-        if (this.memory.mineralContainer === undefined) {
+        if (this.memory._mineral.mineralContainer === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
           let container = _.filter(this.find(FIND_STRUCTURES), function (f) {
             return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(mineral.pos, 1)
           });
           if (!container) {
-            return this.memory.mineralContainer = null;
+            return this.memory._mineral.mineralContainer = null;
           }
           this._mineral = container;
-          this.memory.mineralContainer = container.id;
+          this.memory._mineral.mineralContainer = container.id;
         } else {
-          this._mineral = Game.getObjectById(this.memory.mineralContainer);
+          this._mineral = Game.getObjectById(this.memory._mineral.mineralContainer);
         }
       }
       return this._mineral;
