@@ -471,6 +471,7 @@ ControllerRoom.prototype.analyse = function () {
 		}
 		memory._sources = sources;
 
+		// TODO: I think this isn't used anywhere
 		var structures = {};
 		for (var s of this.find(FIND_STRUCTURES)) {
 			structures[s.id] = {

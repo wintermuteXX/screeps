@@ -1,4 +1,5 @@
 1. 	TODO
+		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
@@ -44,6 +45,8 @@
 2. Code Snippets
 
 ----------------------------------------------
+if (_.sum(creep.carry)) creep.transfer(target, _.last(Object.keys(creep.carry)))
+----------------------------------------------
 global.encodeCoordinate = function(thePos) {
     return String.fromCodePoint(thePos.x | (thePos.y << 6));
 }
@@ -58,22 +61,10 @@ global.decodeCoordinate = function(theString, theIndex) {
     };
 }
 ----------------------------------------
-let result = creep.upgradeController(creep.room.controller);
-switch (result) {
-    case OK:
-        break;
-    case ERR_NOT_IN_RANGE:
-        creep.travelTo(creep.room.controller);
-        break;
-    default:
-        console.log(`unknown result from (creep ${creep}).upgradeController(${creep.room.controller}): ${result}`);
-}
-----------------------------------------
 {"name":"textExport","shard":"shard0","rcl":"8","buildings":{"powerSpawn":{"pos":[{"x":22,"y":9}]},"observer":{"pos":[{"x":23,"y":9}]},"tower":{"pos":[{"x":21,"y":10},{"x":23,"y":10},{"x":24,"y":11}]},"terminal":{"pos":[{"x":24,"y":10}]},"nuker":{"pos":[{"x":21,"y":11}]},"link":{"pos":[{"x":22,"y":11}]},"storage":{"pos":[{"x":22,"y":12}]},"spawn":{"pos":[{"x":23,"y":12}]}}}
 ----------------------------------------
 global.UNIT_COST = (body) => _.sum(body, p => BODYPART_COST[p]);
-----------------------------------------
-let cs = _.find(creep.pos.lookFor(LOOK_CONSTRUCTION_SITES), s => s.structureType === STRUCTURE_ROAD);
+global.UNIT_COST = function (body) { return _.sum(body, function (p) { return BODYPART_COST[p]; }); };
 ----------------------------------------
 static exitPlanner(roomName, opts={}) {
 		opts = _.defaults(opts, {
@@ -162,7 +153,6 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 		console.log(line);
 	}
 }
-
 ----------------------------------------
 	const structureTimeToSaveFor = 13;
 	Room.prototype.getStructures =

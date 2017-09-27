@@ -270,15 +270,15 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (this == Room.prototype || this == undefined)
         return undefined;
       if (!this._mineral) {
-        if (this.memory.mineralId === undefined) {
+        if (this.memory._mineral.mineralId === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
           if (!mineral) {
-            return this.memory.mineralId = null;
+            return this.memory._mineral.mineralId = null;
           }
           this._mineral = mineral;
-          this.memory.mineralId = mineral.id;
+          this.memory._mineral.mineralId = mineral.id;
         } else {
-          this._mineral = Game.getObjectById(this.memory.mineralId);
+          this._mineral = Game.getObjectById(this.memory._mineral.mineralId);
         }
       }
       return this._mineral;
