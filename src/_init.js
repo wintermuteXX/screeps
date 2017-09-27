@@ -269,6 +269,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
+        // Mit if ?
+        this.memory._mineral = {};
       if (!this._mineral) {
         if (this.memory._mineral.mineralId === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
@@ -291,17 +293,20 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
+        
       if (!this._mineral) {
         if (this.memory._mineral.mineralContainer === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
           let container = _.filter(this.find(FIND_STRUCTURES), function (f) {
             return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(mineral.pos, 1)
           });
+          console.log(container);
           if (!container) {
             return this.memory._mineral.mineralContainer = null;
           }
-          this._mineral = container;
-          this.memory._mineral.mineralContainer = container.id;
+          this._mineral = container[0];
+          console.log("Container ID: " + container[0].id);
+          this.memory._mineral.mineralContainer = container[0].id;
         } else {
           this._mineral = Game.getObjectById(this.memory._mineral.mineralContainer);
         }
