@@ -199,7 +199,7 @@ module.exports = {
     },
 
     body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-    behaviors: ["get_full_storage"]
+    behaviors: ["get_full_storage", "transfer_full_terminal"]
     //behaviors: []
   }
 
