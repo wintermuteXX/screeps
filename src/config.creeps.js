@@ -194,13 +194,13 @@ module.exports = {
     minLevel: 3,
 
     canBuild: function (rc) {
-      // return rc.getCreeps("filler").length  < 1;
-      return false;
+      return rc.getCreeps("filler").length  < 1;
+      // return false;
     },
 
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    //behaviors: ["get_energy_storage", "transfer_energy_terminal"]
-    behaviors: []
+    body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
+    behaviors: ["get_full_storage"]
+    //behaviors: []
   }
 
 };
