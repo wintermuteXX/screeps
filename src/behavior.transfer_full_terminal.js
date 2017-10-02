@@ -10,7 +10,7 @@ b.when = function (creep, rc) {
 b.completed = function (creep, rc) {
   var storage = creep.getTarget();
 
-  if (_.sum(creep.carry)) return true;
+  if (_.sum(creep.carry) === 0) return true;
   return false;
 };
 
