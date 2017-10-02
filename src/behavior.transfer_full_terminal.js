@@ -1,16 +1,16 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("transfer_energy_storage");
+var b = new Behavior("transfer_full_terminal");
 
 b.when = function (creep, rc) {
-  if (creep.energy === 0) return false;
+  if (_.sum(creep.carry) === 0) return false;
  return (true);
 };
 
 b.completed = function (creep, rc) {
   var storage = creep.getTarget();
 
-  if (creep.energy === 0) return true;
+  if (_.sum(creep.carry)) return true;
   return false;
 };
 
