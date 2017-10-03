@@ -16,7 +16,7 @@ b.work = function (creep, rc) {
       creep.target = rc.room.storage.id;
     }
     target = creep.getTarget();
-    console.log(target);
+    //console.log(target);
     if (target !== null) {
       if (!creep.pos.isNearTo(target)) {
         creep.travelTo(target);
@@ -24,7 +24,7 @@ b.work = function (creep, rc) {
         _.each(target.store, function (amount, resourceType) {
               if (amount > 20000) {
 
-                console.log("Get full storage: " + amount, resourceType, target.room.name);
+                // console.log("Get full storage: " + amount, resourceType, target.room.name);
                 var test = creep.withdraw(target, resourceType);
                 creep.target = null;
               };
