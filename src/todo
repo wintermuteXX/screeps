@@ -45,6 +45,29 @@
 2. Code Snippets
 
 ----------------------------------------------
+/** first we put the function in global */
+global.defineCachedGetter = function (proto, propertyName, fn) {
+	Object.defineProperty(proto, propertyName, {
+		get: function() { 
+			if(this === proto || this == undefined)
+				return;
+			let result = fn.call(this,this);
+			Object.defineProperty(this, propertyName, {
+				value: result,
+				configurable: true,
+				enumerable: false
+			});
+			return result;
+		},
+		configurable: true,
+		enumerable: false
+	});
+} 
+
+/** Then we define some properties! */
+defineCachedGetter(Creep.prototype, 'carryTotal', c => _.sum(c.carry));
+defineCachedGetter(Creep.prototype, 'carryCapacityAvailable', c => c.carryCapacity - c.carryTotal);
+----------------------------------------------
 if (_.sum(creep.carry)) creep.transfer(target, _.last(Object.keys(creep.carry)))
 ----------------------------------------------
 global.encodeCoordinate = function(thePos) {
