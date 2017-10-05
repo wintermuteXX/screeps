@@ -4,6 +4,7 @@
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
+var stats = require('stats');
 
 // profiler.enable();
 module.exports.loop = function () {

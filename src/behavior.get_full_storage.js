@@ -22,9 +22,9 @@ b.work = function (creep, rc) {
         creep.travelTo(target);
       } else {
         _.each(target.store, function (amount, resourceType) {
-              if (amount > 20000) {
+              //if (amount > 20000) {
               console.log("In Terminal: " + creep.room.terminal.store[resourceType]);
-              // if (amount > 20000 && creep.terminal.store[resourceType] < 100000) {
+              if (amount > 20000 && creep.room.terminal.store[resourceType] < 100000) {
               
                 // console.log("Get full storage: " + amount, resourceType, target.room.name);
                 var test = creep.withdraw(target, resourceType);
