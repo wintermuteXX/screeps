@@ -15,9 +15,9 @@ function initGlobal(g) {
     'checkConstructions': 100,
     'checkLinks': 5,
     'checkResourcesQueue': 10,
-    'StoreLevel4': 2000,
-    'StoreLevel5': 5000,
-    'StoreLevel6': 15000,
+    'StoreLevel4': 5000,
+    'StoreLevel5': 10000,
+    'StoreLevel6': 25000,
     'StoreLevel7': 50000,
     'StoreLevel8': 100000,
     'repairTower': 8
