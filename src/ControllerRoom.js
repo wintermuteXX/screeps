@@ -298,7 +298,7 @@ ControllerRoom.prototype.getSources = function (defended) {
 	return sources;
 };
 
-ControllerRoom.prototype._getStructures = function (filter) {
+/* ControllerRoom.prototype._getStructures = function (filter) {
 	var result = {};
 
 	var structures = this.room.memory._structures;
@@ -315,7 +315,7 @@ ControllerRoom.prototype._getStructures = function (filter) {
 	}
 
 	return result;
-};
+}; */
 
 Room.prototype.createCreep2 = function (role) {
 	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function(s) {
@@ -472,7 +472,7 @@ ControllerRoom.prototype.analyse = function () {
 		memory._sources = sources;
 
 		// TODO: I think this isn't used anywhere
-		var structures = {};
+		/* var structures = {};
 		for (var s of this.find(FIND_STRUCTURES)) {
 			structures[s.id] = {
 				'structureType': s.structureType,
@@ -480,7 +480,7 @@ ControllerRoom.prototype.analyse = function () {
 				'hitsMax': s.hitsMax
 			};
 		}
-		memory._structures = structures;
+		memory._structures = structures; */
 		memory.lastCheck = Game.time;
 
 		if (!this.room.memory.roomType) {
