@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
-  if (!creep.room.memory._droppedResources) return false;
+  if (!creep.room.memory.QueueAvailableResources) return false;
   if (creep.energy > 0) return false;
   return true;
 };
@@ -16,13 +16,13 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    var resources = creep.room.memory._droppedResources;
+    var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
       if (resources[resource].amount > 0) {
-        // console.log(creep.room.memory._droppedResources[resource].amount);
+        // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         // console.log(creep.carryCapacity);
-        creep.room.memory._droppedResources[resource].amount -=  creep.carryCapacity;
-        // console.log(creep.room.memory._droppedResources[resource].amount);
+        creep.room.memory.QueueAvailableResources[resource].amount -=  creep.carryCapacity;
+        // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         target = resources[resource].id;
         creep.target = target;
         target = creep.getTarget();

@@ -134,7 +134,7 @@ ControllerRoom.prototype.findResources = function () {
 		});
 	});
 	
-	memory._droppedResources = droppedResources;
+	memory.QueueAvailableResources = droppedResources;
 };
 
 /**

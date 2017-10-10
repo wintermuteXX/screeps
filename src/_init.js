@@ -186,20 +186,20 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(Structure.prototype, 'memory', {
     get: function() {
-      if(!Memory.structures)
-        Memory.structures = {};
-      if(!Memory.structures[`${this.structureType}s`])
-        Memory.structures[`${this.structureType}s`] = {};
-      if(!Memory.structures[`${this.structureType}s`][this.id])
-        Memory.structures[`${this.structureType}s`][this.id] = {};
-      return 	Memory.structures[`${this.structureType}s`][this.id];
+      if(!Memory.rooms[this.room.name].structures)
+        Memory.rooms[this.room.name].structures = {};
+      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
+      return 	Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
     },
     set: function(v) {
-      if(!Memory.structures)
-        Memory.structures = {};
-      if(!Memory.structures[`${this.structureType}s`])
-        Memory.structures[`${this.structureType}s`] = {};
-      return 	Memory.structures[`${this.structureType}s`][this.id] = v;
+      if(!Memory.rooms[this.room.name].structures)
+        Memory.rooms[this.room.name].structures = {};
+      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+      return 	Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v;
     }
   });
   
