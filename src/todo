@@ -44,25 +44,7 @@
 
 2. Code Snippets
 
----------------------------------------
-Object.defineProperty(Structure.prototype, 'memory', {
-	get: function() {
-		if(!Memory.structures)
-			Memory.structures = {};
-		if(!Memory.structures[`${this.structureType}s`])
-			Memory.structures[`${this.structureType}s`] = {};
-		if(!Memory.structures[`${this.structureType}s`][this.id])
-			Memory.structures[`${this.structureType}s`][this.id] = {};
-		return 	Memory.structures[`${this.structureType}s`][this.id];
-	}
-	set: function(v) {
-		if(!Memory.structures)
-			Memory.structures = {};
-		if(!Memory.structures[`${this.structureType}s`])
-			Memory.structures[`${this.structureType}s`] = {};
-		return 	Memory.structures[`${this.structureType}s`][this.id] = v;
-	}
-}
+
 ---------------------------------------
 // This is called during global reset to set up structure memory,
 // because it doesn't need to be called often.

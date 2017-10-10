@@ -59,7 +59,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-
   Creep.prototype.transferAllResources = function (structure) {
     let transferred = false;
     for (let resource in this.carry) {
@@ -164,6 +163,46 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
+  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
+    get: function () {
+      if (this._freeSpaceCount == undefined) {
+        if (this.memory.freeSpaceCount == undefined) {
+          let freeSpaceCount = 0;
+          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                freeSpaceCount++;
+            }, this);
+          }, this);
+          this.memory.freeSpaceCount = freeSpaceCount;
+        }
+        this._freeSpaceCount = this.memory.freeSpaceCount;
+      }
+      return this._freeSpaceCount;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  Object.defineProperty(Structure.prototype, 'memory', {
+    get: function() {
+      if(!Memory.structures)
+        Memory.structures = {};
+      if(!Memory.structures[`${this.structureType}s`])
+        Memory.structures[`${this.structureType}s`] = {};
+      if(!Memory.structures[`${this.structureType}s`][this.id])
+        Memory.structures[`${this.structureType}s`][this.id] = {};
+      return 	Memory.structures[`${this.structureType}s`][this.id];
+    },
+    set: function(v) {
+      if(!Memory.structures)
+        Memory.structures = {};
+      if(!Memory.structures[`${this.structureType}s`])
+        Memory.structures[`${this.structureType}s`] = {};
+      return 	Memory.structures[`${this.structureType}s`][this.id] = v;
+    }
+  });
+  
   /*Object.defineProperty(Source.prototype, 'sourceContainer', {
     get: function () {
       if (this == Source.prototype || this == undefined)
@@ -188,50 +227,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 */
-  Object.defineProperty(Source.prototype, 'memory', {
-    configurable: true,
-    get: function () {
-      if (_.isUndefined(Memory.mySourcesMemory)) {
-        Memory.mySourcesMemory = {};
-      }
-      if (!_.isObject(Memory.mySourcesMemory)) {
-        return undefined;
-      }
-      return Memory.mySourcesMemory[this.id] =
-        Memory.mySourcesMemory[this.id] || {};
-    },
-    set: function (value) {
-      if (_.isUndefined(Memory.mySourcesMemory)) {
-        Memory.mySourcesMemory = {};
-      }
-      if (!_.isObject(Memory.mySourcesMemory)) {
-        throw new Error('Could not set source memory');
-      }
-      Memory.mySourcesMemory[this.id] = value;
-    }
-  });
-
-  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
-    get: function () {
-      if (this._freeSpaceCount == undefined) {
-        if (this.memory.freeSpaceCount == undefined) {
-          let freeSpaceCount = 0;
-          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-                freeSpaceCount++;
-            }, this);
-          }, this);
-          this.memory.freeSpaceCount = freeSpaceCount;
-        }
-        this._freeSpaceCount = this.memory.freeSpaceCount;
-      }
-      return this._freeSpaceCount;
-    },
-    enumerable: false,
-    configurable: true
-  });
-
+    
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
@@ -312,27 +308,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         }
       }
       return this._mineral;
-    },
-    enumerable: false,
-    configurable: true
-  });
-
-  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
-    get: function () {
-      if (this._freeSpaceCount == undefined) {
-        if (this.memory.freeSpaceCount == undefined) {
-          let freeSpaceCount = 0;
-          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-                freeSpaceCount++;
-            }, this);
-          }, this);
-          this.memory.freeSpaceCount = freeSpaceCount;
-        }
-        this._freeSpaceCount = this.memory.freeSpaceCount;
-      }
-      return this._freeSpaceCount;
     },
     enumerable: false,
     configurable: true
