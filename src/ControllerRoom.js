@@ -426,7 +426,7 @@ Room.prototype.getBestOrder = function () {
 	 }); // terminal must have at least 1k of this resource
     // Compute, map and filter on profit
     // console.log("Step1: " + orders);
-    var energyPrice = 0.1;
+    var energyPrice = 0.01;
     orders = orders.map(function (order) {
         // console.log(order.remainingAmount, order.resourceType, _this.terminal.store[order.resourceType]);
         var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
@@ -464,13 +464,14 @@ ControllerRoom.prototype.analyse = function () {
 	try {
 		var sources = {};
 		for (var source of this.find(FIND_SOURCES)) {
-			//sources[source.id] = {
-			//	'defended': source.defended
-			//};
+			sources[source.id] = {
+				'defended': source.defended
+			};
 			//source.sourceContainer();
-			source.memory.defended = source.defended;
+			//console.log("mem def: " + source.memory.defended + " source def: " + source.defended);
+			//source.memory.defended = source.defended;
 		}
-		//memory._sources = sources;
+		memory._sources = sources;
 
 		// TODO: I think this isn't used anywhere
 		/* var structures = {};
@@ -484,28 +485,28 @@ ControllerRoom.prototype.analyse = function () {
 		memory._structures = structures; */
 		memory.lastCheck = Game.time;
 
-		if (!this.room.memory.roomType) {
+		if (!memory.roomType) {
 
 			// source keeper
 			let lairs = this.room.find(STRUCTURE_KEEPER_LAIR);
 			if (lairs.length > 0) {
-				this.room.memory.roomType = "ROOMTYPE_SOURCEKEEPER";
+				memory.roomType = "ROOMTYPE_SOURCEKEEPER";
 			}
 
 			// core
-			if (!this.room.memory.roomType) {
+			if (!memory.roomType) {
 				let sources = this.room.find(FIND_SOURCES);
 				if (sources.length === 3) {
-					this.room.memory.roomType = "ROOMTYPE_CORE";
+					memory.roomType = "ROOMTYPE_CORE";
 				}
 			}
 
 			// controller rooms
-			if (!this.room.memory.roomType) {
+			if (!memory.roomType) {
 				if (this.room.controller) {
-					this.room.memory.roomType = "ROOMTYPE_CONTROLLER";
+					memory.roomType = "ROOMTYPE_CONTROLLER";
 				} else {
-					this.room.memory.roomType = "ROOMTYPE_ALLEY";
+					memory.roomType = "ROOMTYPE_ALLEY";
 				}
 			}
 		}
