@@ -464,12 +464,13 @@ ControllerRoom.prototype.analyse = function () {
 	try {
 		var sources = {};
 		for (var source of this.find(FIND_SOURCES)) {
-			sources[source.id] = {
-				'defended': source.defended
-			};
+			//sources[source.id] = {
+			//	'defended': source.defended
+			//};
 			//source.sourceContainer();
+			source.memory.defended = source.defended;
 		}
-		memory._sources = sources;
+		//memory._sources = sources;
 
 		// TODO: I think this isn't used anywhere
 		/* var structures = {};
