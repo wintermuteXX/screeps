@@ -194,8 +194,8 @@ module.exports = {
     minLevel: 3,
 
     canBuild: function (rc) {
-      return rc.getCreeps("filler").length  < 1;
-      // return false;
+      //return rc.getCreeps("filler").length  < 1;
+      return false;
     },
 
     body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
