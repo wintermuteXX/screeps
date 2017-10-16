@@ -1,6 +1,9 @@
 1. 	TODO
+		- behavior harvest works on empty source
+		- miner with no free source is crashing code
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
+		- Limit Upgrader Work parts in RCL 8
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)

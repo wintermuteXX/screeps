@@ -21,7 +21,7 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         // console.log(creep.carryCapacity);
-        creep.room.memory.QueueAvailableResources[resource].amount -=  creep.carryCapacity;
+        creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         target = resources[resource].id;
         creep.target = target;
@@ -44,11 +44,11 @@ b.work = function (creep, rc) {
           creep.memory.resourceType = null;
           creep.memory.structure = null;
           break;
-        
-          case ERR_NOT_IN_RANGE:
+
+        case ERR_NOT_IN_RANGE:
           creep.travelTo(target);
           break;
-          
+
         default:
           console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
       }
@@ -57,7 +57,7 @@ b.work = function (creep, rc) {
       switch (result) {
         case OK:
         case ERR_NOT_ENOUGH_RESOURCES:
-        creep.target = null;
+          creep.target = null;
           creep.memory.resourceType = null;
           creep.memory.structure = null;
           break;
