@@ -184,6 +184,29 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
+  Object.defineProperty(Source.prototype, 'memory', {
+    configurable: true,
+    get: function() {
+        if(_.isUndefined(Memory.mySourcesMemory)) {
+            Memory.mySourcesMemory = {};
+        }
+        if(!_.isObject(Memory.mySourcesMemory)) {
+            return undefined;
+        }
+        return Memory.mySourcesMemory[this.id] = 
+                Memory.mySourcesMemory[this.id] || {};
+    },
+    set: function(value) {
+        if(_.isUndefined(Memory.mySourcesMemory)) {
+            Memory.mySourcesMemory = {};
+        }
+        if(!_.isObject(Memory.mySourcesMemory)) {
+            throw new Error('Could not set source memory');
+        }
+        Memory.mySourcesMemory[this.id] = value;
+    }
+});
+
   Object.defineProperty(Structure.prototype, 'memory', {
     get: function() {
       if(!Memory.rooms[this.room.name].structures)
