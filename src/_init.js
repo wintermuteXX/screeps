@@ -184,6 +184,27 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
+  /* Object.defineProperty(Source.prototype, 'containerPos', {
+    get: function () {
+      if (this._containerPos == undefined) {
+        if (this.memory.containerPos == undefined) {
+          let containerPos = 0;
+          let spawn =this.room.find(StructureSpawn);
+          if (spawn[0] == undefined) {return false;}
+              containerPos = this.pos.getDirectionTo(spawn[0]);
+              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+              containerPos++;
+            
+          this.memory.containerPos = containerPos;
+        }
+        this._containerPos = this.memory.containerPos;
+      }
+      return this._containerPos;
+    },
+    enumerable: false,
+    configurable: true
+  }); */
+
   Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
     get: function() {
@@ -257,27 +278,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
     return this.hits < (this.hitsMax * 0.9);
-  };
-
-  Structure.prototype.getFreeFields = function () {
-    if (this.structureType !== STRUCTURE_CONTROLLER) return 0;
-
-    if (!this.room.memory.maxUpgraders) {
-      var pos = this.pos;
-      var count = 0;
-
-      for (var x = -1; x < 2; x++) {
-        for (var y = -1; y < 2; y++) {
-          var terrain = this.room.lookForAt('terrain', pos.x + x, pos.y + y);
-          if (terrain.length && terrain[0] != 'wall') {
-            count++;
-          }
-        }
-      }
-      this.room.memory.maxUpgraders = count;
-    }
-
-    return this.room.memory.maxUpgraders || 0;
   };
 
   /**
