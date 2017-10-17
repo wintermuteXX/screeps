@@ -133,7 +133,7 @@ module.exports = {
     },
 
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"]
+    behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"]
   },
 
   'attacker': {
