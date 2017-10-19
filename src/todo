@@ -22,6 +22,7 @@
     	-- Boost creeps
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
+		- (bug) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
    	TESTING
     	- (testing) Resource Queue - Mineral in Container funktioniert nicht. 
         - (testing) miner - walk to container, not source
@@ -47,56 +48,54 @@
 
 2. Code Snippets
 
-private placeContainer() {
-
-        if (this.room.controller.reservation &&
-            /* reserved and not mine */
-            this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-            // console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
-            return;
-        }
-
-        let startingPosition: {pos: RoomPosition} = this.findMinerStorage();
-        if (!startingPosition) {
-            startingPosition = this.room.find(FIND_MY_SPAWNS)[0] as StructureSpawn;
-        }
-        if (!startingPosition) {
-            startingPosition = this.room.find<ConstructionSite>(FIND_CONSTRUCTION_SITES,
-                {filter: ( (s: ConstructionSite) => s.structureType === STRUCTURE_SPAWN)})[0];
-        }
-        if (!startingPosition) return;
-
-        if (this.source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1).length > 0) return;
-
-        let ret = PathFinder.search(this.source.pos, [{pos: startingPosition.pos, range: 1}], {
-            maxOps: 4000,
-            swampCost: 2,
-            plainCost: 2,
-            roomCallback: (roomName: string): CostMatrix => {
-                let room = Game.rooms[roomName];
-                if (!room) return;
-
-                let matrix = empire.traveler.getStructureMatrix(room);
-
-                return matrix;
-            }
-        });
-        if (ret.incomplete || ret.path.length === 0) {
-            notifier.log(`path used for container placement in ${this.operation.name} incomplete, please investigate`);
-        }
-
-        let position = ret.path[0];
-        let testPositions = _.sortBy(this.source.pos.openAdjacentSpots(true), (p: RoomPosition) => p.getRangeTo(position));
-        for (let testPosition of testPositions) {
-            let sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
-            if (sourcesInRange.length > 1) { continue; }
-            console.log(`MINER: placed container in ${this.operation.name}`);
-            testPosition.createConstructionSite(STRUCTURE_CONTAINER);
-            return;
-        }
-
-        console.log(`MINER: Unable to place container in ${this.operation.name}`);
+placeContainer();
+{
+    if (this.room.controller.reservation &&
+        /* reserved and not mine */
+        this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
+        // console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
+        return;
     }
+    var startingPosition = this.findMinerStorage();
+    if (!startingPosition) {
+        startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
+    }
+    if (!startingPosition) {
+        startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, { filter: (function (s) { return s.structureType === STRUCTURE_SPAWN; }) })[0];
+    }
+    if (!startingPosition)
+        return;
+    if (this.source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1).length > 0)
+        return;
+    var ret = PathFinder.search(this.source.pos, [{ pos: startingPosition.pos, range: 1 }], {
+        maxOps: 4000,
+        swampCost: 2,
+        plainCost: 2,
+        roomCallback: function (roomName) {
+            var room = Game.rooms[roomName];
+            if (!room)
+                return;
+            var matrix = empire.traveler.getStructureMatrix(room);
+            return matrix;
+        }
+    });
+    if (ret.incomplete || ret.path.length === 0) {
+        notifier.log("path used for container placement in " + this.operation.name + " incomplete, please investigate");
+    }
+    var position_1 = ret.path[0];
+    var testPositions = _.sortBy(this.source.pos.openAdjacentSpots(true), function (p) { return p.getRangeTo(position_1); });
+    for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
+        var testPosition = testPositions_1[_i];
+        var sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
+        if (sourcesInRange.length > 1) {
+            continue;
+        }
+        console.log("MINER: placed container in " + this.operation.name);
+        testPosition.createConstructionSite(STRUCTURE_CONTAINER);
+        return;
+    }
+    console.log("MINER: Unable to place container in " + this.operation.name);
+}
 ---------------------------------------
 // This is called during global reset to set up structure memory,
 // because it doesn't need to be called often.
