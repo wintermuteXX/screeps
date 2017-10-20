@@ -93,14 +93,14 @@ ControllerRoom.prototype.findResources = function () {
 
 	// Dropped Resources
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-	    if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
-		droppedResources[s.id + "| " + s.resourceType] = {
-			'resourceType': s.resourceType,
-			'structure': false,
-			'amount': s.amount,
-			'id' : s.id
+		if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
+			droppedResources[s.id + "| " + s.resourceType] = {
+				'resourceType': s.resourceType,
+				'structure': false,
+				'amount': s.amount,
+				'id': s.id
+			};
 		};
-	    };
 	}
 
 	// Links
@@ -119,10 +119,10 @@ ControllerRoom.prototype.findResources = function () {
 	var containers = _.filter(this.find(FIND_STRUCTURES), function (d) {
 		return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
 	});
-	
-	_.each(containers, function(c){
+
+	_.each(containers, function (c) {
 		_.each(c.store, function (amount, resourceType) {
-		   if (amount > 0) {
+			if (amount > 0) {
 				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 				droppedResources[c.id + "|" + resourceType] = {
 					'resourceType': resourceType,
@@ -133,7 +133,7 @@ ControllerRoom.prototype.findResources = function () {
 			};
 		});
 	});
-	
+
 	memory.QueueAvailableResources = droppedResources;
 };
 
@@ -289,24 +289,33 @@ ControllerRoom.prototype.getMineralAmount = function () {
 };
 
 ControllerRoom.prototype.getSources2 = function () {
-if (!this._sources) {
-	console.log("Nicht lokal gespeichert");
-	// If we dont have the value stored in memory
-if (!this.room.memory.sources) {
-	console.log("Nicht im Speicher ");
-		// Find the sources and store their id's in memory, 
-		// NOT the full objects
-		this.room.memory.sources = this.find(FIND_SOURCES)
-							.map(source => source.id);
-		console.log("this.room.memory.sources " + this.room.memory.sources);							
-}
-// Get the source objects from the id's in memory and store them locally
-this._sources = this.room.memory.sources.map(id => Game.getObjectById(id));
+	if (!this._sources) {
+		console.log("Nicht lokal gespeichert");
+		// If we dont have the value stored in memory
+		if (!this.room.memory.sources) {
+			console.log("Nicht im Speicher ");
+			// Find the sources and store their id's in memory, 
+			// NOT the full objects
+			if (!this.room.memory.sources) this.room.memory.sources = {};
 
-}
-console.log("This._source: " + this._sources);
-// return the locally stored value
-return this._sources;
+			let sourcesID = this.find(FIND_SOURCES)
+				.map(source => source.id);
+			if (sourcesID) {
+				for (id in sourceID) {
+					this.room.memory.sources[id] = {}
+				}
+				console.log("this.room.memory.sources " + this.room.memory.sources);
+			} else {
+				return null;
+			}
+		}
+		// Get the source objects from the id's in memory and store them locally
+		this._sources = this.room.memory.sources.map(id => Game.getObjectById(id));
+
+	}
+	console.log("This._source: " + this._sources);
+	// return the locally stored value
+	return this._sources;
 };
 
 /**
@@ -339,11 +348,12 @@ ControllerRoom.prototype.getSources = function (defended) {
 }; */
 
 Room.prototype.createCreep2 = function (role) {
-	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function(s) {
+	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function (s) {
 		return s.spawning === null
 	});
-	if (role === 'upgrader') {console.log("upgrader");
-	var body = [MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,CARRY,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK,MOVE,WORK];
+	if (role === 'upgrader') {
+		console.log("upgrader");
+		var body = [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK];
 	}
 	var j = body.length;
 	for (var i = 0; i < j - 2; i++) {
@@ -357,7 +367,7 @@ Room.prototype.createCreep2 = function (role) {
 		}
 	}
 	return false;
-	};
+};
 
 Room.prototype.centerPoint = function () {
 
@@ -433,48 +443,50 @@ Room.prototype.centerPoint = function () {
 
 // total buggy. don't use
 Room.prototype.getBestOrder = function () {
-    var _this = this;
-    var minAmount = 1000;
-    var orders = Game.market.getAllOrders().filter(function (order) {
-        return order.type === ORDER_BUY // Only check sell orders
-            &&
-                order.resourceType !== RESOURCE_ENERGY // Don't sell energy
-            &&
-                order.remainingAmount > minAmount
-    // Only look at orders with 1000+ units
-    		&&
-				_this.terminal.store[order.resourceType] >= 1000
-	 }); // terminal must have at least 1k of this resource
-    // Compute, map and filter on profit
-    // console.log("Step1: " + orders);
-    var energyPrice = 0.01;
-    orders = orders.map(function (order) {
-        // console.log(order.remainingAmount, order.resourceType, _this.terminal.store[order.resourceType]);
-        var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
-        // console.log(_this.name , order.roomName);
-        var profit = 0;
-        if ( _this.name && order.roomName ) {
-            var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
-            profit = order.price + (fee * energyPrice / amount);
-            // console.log("Amount: " + amount + " Fee: " + fee + " Price: " + order.price  + " Profit: " + profit);
-        }
-        
-        return _.merge(order, {
-            fee: fee,
-            profit: profit,
-            amount: amount
-        });
-    });
-    // console.log("Step2: " + orders);
-    // orders = orders.filter(function (order) { return order.profit > cfg.get("market.minProfit." + order.resourceType); });
-    orders = orders.filter(function (order) { return order.profit > 0.1; });
-    // Get best order and deal
-    if (orders.length === 0)
-        console.log('Found no deal in buy orders.', _this.name);
-    var bestOrder = _.min(orders, 'profit');
-    // console.log(bestOrder);
-    // console.log(this.deal(bestOrder));
-    return Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
+	var _this = this;
+	var minAmount = 1000;
+	var orders = Game.market.getAllOrders().filter(function (order) {
+		return order.type === ORDER_BUY // Only check sell orders
+			&&
+			order.resourceType !== RESOURCE_ENERGY // Don't sell energy
+			&&
+			order.remainingAmount > minAmount
+			// Only look at orders with 1000+ units
+			&&
+			_this.terminal.store[order.resourceType] >= 1000
+	}); // terminal must have at least 1k of this resource
+	// Compute, map and filter on profit
+	// console.log("Step1: " + orders);
+	var energyPrice = 0.01;
+	orders = orders.map(function (order) {
+		// console.log(order.remainingAmount, order.resourceType, _this.terminal.store[order.resourceType]);
+		var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
+		// console.log(_this.name , order.roomName);
+		var profit = 0;
+		if (_this.name && order.roomName) {
+			var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
+			profit = order.price + (fee * energyPrice / amount);
+			// console.log("Amount: " + amount + " Fee: " + fee + " Price: " + order.price  + " Profit: " + profit);
+		}
+
+		return _.merge(order, {
+			fee: fee,
+			profit: profit,
+			amount: amount
+		});
+	});
+	// console.log("Step2: " + orders);
+	// orders = orders.filter(function (order) { return order.profit > cfg.get("market.minProfit." + order.resourceType); });
+	orders = orders.filter(function (order) {
+		return order.profit > 0.1;
+	});
+	// Get best order and deal
+	if (orders.length === 0)
+		console.log('Found no deal in buy orders.', _this.name);
+	var bestOrder = _.min(orders, 'profit');
+	// console.log(bestOrder);
+	// console.log(this.deal(bestOrder));
+	return Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 };
 
 ControllerRoom.prototype.analyse = function () {
