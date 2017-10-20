@@ -288,6 +288,27 @@ ControllerRoom.prototype.getMineralAmount = function () {
 	return minerals[0].mineralAmount;
 };
 
+ControllerRoom.prototype.getSources2 = function () {
+if (!this._sources) {
+	console.log("Nicht lokal gespeichert");
+	// If we dont have the value stored in memory
+if (!this.room.memory.sources) {
+	console.log("Nicht im Speicher ");
+		// Find the sources and store their id's in memory, 
+		// NOT the full objects
+		this.room.memory.sources = this.find(FIND_SOURCES)
+							.map(source => source.id);
+		console.log("this.room.memory.sources " + this.room.memory.sources);							
+}
+// Get the source objects from the id's in memory and store them locally
+this._sources = this.room.memory.sources.map(id => Game.getObjectById(id));
+
+}
+console.log("This._source: " + this._sources);
+// return the locally stored value
+return this._sources;
+};
+
 /**
  * ControllerRoom.getSources()
  */

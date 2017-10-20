@@ -25,7 +25,7 @@ ControllerGame.prototype.garbageCollection = function () {
 	}
 
 	for (var r in Memory.rooms) {
-		if (Memory.rooms[r].lastCheck < Game.time - 10000) {
+		if (Memory.rooms[r].lastCheck < Game.time - 30000) {
 			delete Memory.rooms[r];
 		}
 	}

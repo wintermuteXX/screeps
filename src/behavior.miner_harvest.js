@@ -14,7 +14,7 @@ b.work = function (creep, rc) {
   var source = creep.getTarget();
 
   if (!creep.target) {
-    source = _.find(rc.getSources(), function (s) {
+    source = _.find(rc.getSources2(), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }
