@@ -22,7 +22,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   }
 
   if (result !== null) {
-    console.log(this.spawn.room.name + " Build creep: " + role);
+    console.log(this.spawn.pos + " Build creep: " + role);
     return (result === OK);
   }
   return false;

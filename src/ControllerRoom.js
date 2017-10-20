@@ -301,7 +301,7 @@ ControllerRoom.prototype.getSources2 = function () {
 			let sourcesID = this.find(FIND_SOURCES)
 				.map(source => source.id);
 			if (sourcesID) {
-				for (id in sourceID) {
+				for (id in sourcesID) {
 					this.room.memory.sources[id] = {}
 				}
 				console.log("this.room.memory.sources " + this.room.memory.sources);
@@ -310,7 +310,7 @@ ControllerRoom.prototype.getSources2 = function () {
 			}
 		}
 		// Get the source objects from the id's in memory and store them locally
-		this._sources = this.room.memory.sources.map(id => Game.getObjectById(id));
+		this._sources = this.room.memory.sources;
 
 	}
 	console.log("This._source: " + this._sources);
