@@ -457,27 +457,6 @@ ControllerRoom.prototype.analyse = function () {
 	var memory = this.room.memory;
 
 	try {
-		var sources = {};
-		for (var source of this.find(FIND_SOURCES)) {
-			sources[source.id] = {
-				'defended': source.defended
-			};
-			//source.sourceContainer();
-			//console.log("mem def: " + source.memory.defended + " source def: " + source.defended);
-			//source.memory.defended = source.defended;
-		}
-		memory._sources = sources;
-
-		// TODO: I think this isn't used anywhere
-		/* var structures = {};
-		for (var s of this.find(FIND_STRUCTURES)) {
-			structures[s.id] = {
-				'structureType': s.structureType,
-				'hits': s.hits,
-				'hitsMax': s.hitsMax
-			};
-		}
-		memory._structures = structures; */
 		memory.lastCheck = Game.time;
 
 		if (!memory.roomType) {
