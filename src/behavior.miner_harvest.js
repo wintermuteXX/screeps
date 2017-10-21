@@ -18,8 +18,8 @@ b.work = function (creep, rc) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }
-  console.log("GetSources : " + rc.getSources());
-  console.log("GetSources2: " + rc.getSources2());
+  console.log("GetSources  : " + rc.getSources());
+  console.log("GetSourcesUD: " + rc.getSourcesUndefended());
   if (source === null) {
     source = Game.getObjectById(creep.target);
   }

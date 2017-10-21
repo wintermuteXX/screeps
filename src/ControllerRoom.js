@@ -261,15 +261,6 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 	return null;
 };
 
-/**
- * ControllerRoom.getExtensions()
- */
-ControllerRoom.prototype.getExtensions = function () {
-	return _.filter(this.find(FIND_MY_STRUCTURES), {
-		structureType: STRUCTURE_EXTENSION
-	});
-};
-
 ControllerRoom.prototype.getMineralContainer = function () {
 	var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
 		return f.structureType === STRUCTURE_CONTAINER
@@ -288,41 +279,35 @@ ControllerRoom.prototype.getMineralAmount = function () {
 	return minerals[0].mineralAmount;
 };
 
-ControllerRoom.prototype.getSources2 = function () {
+ControllerRoom.prototype.getExtensions = function () {
+	if (!this._extensions) {
+		this._extensions = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_EXTENSION
+		});
+		return this._extensions;
+	}
+};
+
+ControllerRoom.prototype.getSources = function () {
 	if (!this._sources) {
 		this._sources = this.find(FIND_SOURCES);
 	}
 	return this._sources;
 };
 
-/**
- * ControllerRoom.getSources()
- */
-ControllerRoom.prototype.getSources = function (defended) {
-	var sources = _.filter(this.find(FIND_SOURCES), function (s) {
-		return (defended || false) == s.defended;
-	});
-	return sources;
-};
-
-/* ControllerRoom.prototype._getStructures = function (filter) {
-	var result = {};
-
-	var structures = this.room.memory._structures;
-	if (structures && filter) {
-		var values = _.filter(structures, filter);
-
-		_.each(values, function (value, key) {
-			var obj = Game.getObjectById(key);
-			if (obj !== null) {
-				console.log(key, obj);
-				result[key] = obj;
-			}
-		});
+ControllerRoom.prototype.getSourcesUndefended = function (defended) {
+	if (!this._sourcesUD) {
+		let sources = this.getSources();
+		if (sources) {
+			this._sourcesUD = _.filter(sources, function (s) {
+				return (defended || false) == s.defended;
+			});
+		} else {
+			return null;
+		}
 	}
-
-	return result;
-}; */
+	return this._sourcesUD;
+};
 
 Room.prototype.createCreep2 = function (role) {
 	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function (s) {
