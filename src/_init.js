@@ -67,9 +67,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       }
       let returnCode = this.transfer(structure, resource);
       if (returnCode === OK) {
-      // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+        // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
         transferred = true;
-    }
+      }
     }
     return transferred;
   };
@@ -147,18 +147,16 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(Source.prototype, "defended", {
     get: function () {
-      var RANGE = 5;
-
-      var targets = this.pos.findInRange(FIND_HOSTILE_CREEPS, RANGE);
+      if (this.memory.defended) {
+        return this.memory.defended;
+      }
+      let RANGE = 5;
+      let targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
       if (targets.length) {
+        this.memory.defended = true;
         return true;
       }
-
-      targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
-      if (targets.length) {
-        return true;
-      }
-
+      this.memory.defended = false;
       return false;
     }
   });
@@ -207,46 +205,46 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
-    get: function() {
-        if(_.isUndefined(Memory.rooms[this.room.name].sources)) {
-            Memory.rooms[this.room.name].sources = {};
-        }
-        if(!_.isObject(Memory.rooms[this.room.name].sources)) {
-            return undefined;
-        }
-        return Memory.rooms[this.room.name].sources[this.id] = 
-                Memory.rooms[this.room.name].sources[this.id] || {};
+    get: function () {
+      if (_.isUndefined(Memory.rooms[this.room.name].sources)) {
+        Memory.rooms[this.room.name].sources = {};
+      }
+      if (!_.isObject(Memory.rooms[this.room.name].sources)) {
+        return undefined;
+      }
+      return Memory.rooms[this.room.name].sources[this.id] =
+        Memory.rooms[this.room.name].sources[this.id] || {};
     },
-    set: function(value) {
-        if(_.isUndefined(Memory.rooms[this.room.name].sources)) {
-            Memory.rooms[this.room.name].sources = {};
-        }
-        if(!_.isObject(Memory.rooms[this.room.name].sources)) {
-            throw new Error('Could not set source memory');
-        }
-        Memory.rooms[this.room.name].sources[this.id] = value;
-    }
-});
-
-  Object.defineProperty(Structure.prototype, 'memory', {
-    get: function() {
-      if(!Memory.rooms[this.room.name].structures)
-        Memory.rooms[this.room.name].structures = {};
-      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
-      return 	Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
-    },
-    set: function(v) {
-      if(!Memory.rooms[this.room.name].structures)
-        Memory.rooms[this.room.name].structures = {};
-      if(!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-      return 	Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v;
+    set: function (value) {
+      if (_.isUndefined(Memory.rooms[this.room.name].sources)) {
+        Memory.rooms[this.room.name].sources = {};
+      }
+      if (!_.isObject(Memory.rooms[this.room.name].sources)) {
+        throw new Error('Could not set source memory');
+      }
+      Memory.rooms[this.room.name].sources[this.id] = value;
     }
   });
-  
+
+  Object.defineProperty(Structure.prototype, 'memory', {
+    get: function () {
+      if (!Memory.rooms[this.room.name].structures)
+        Memory.rooms[this.room.name].structures = {};
+      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
+      return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
+    },
+    set: function (v) {
+      if (!Memory.rooms[this.room.name].structures)
+        Memory.rooms[this.room.name].structures = {};
+      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+      return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v;
+    }
+  });
+
   /*Object.defineProperty(Source.prototype, 'sourceContainer', {
     get: function () {
       if (this == Source.prototype || this == undefined)
@@ -271,7 +269,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 */
-    
+
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
@@ -288,8 +286,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
-        // Mit if ?
-        this.memory._mineral = {};
+      // Mit if ?
+      this.memory._mineral = {};
       if (!this._mineral) {
         if (this.memory._mineral.mineralId === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
@@ -312,7 +310,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
-        
+
       if (!this._mineral) {
         if (this.memory._mineral.mineralContainer === undefined) {
           let [mineral] = this.find(FIND_MINERALS);
