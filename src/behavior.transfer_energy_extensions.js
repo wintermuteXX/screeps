@@ -3,29 +3,24 @@ var b = new Behavior("transfer_energy_extensions");
 
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
-  // var emptyExtensions = rc.getExtensionsEmpty();
-  /* if (emptyExtensions) {
-    return emptyExtensions.length > 0;
-  } */
-  return rc.getExtensionsEmpty();
+  return rc.getExtensionsEmpty().length;
 };
 
 b.completed = function (creep, rc) {
   var ext = creep.getTarget();
 
   if (creep.energy === 0) return true;
-  if (ext && ext.energy === ext.energyCapacity) return true;
+  if (ext && ext.energy === ext.energyCapacity && ext.length === 0) return true;
   if (!ext) return true;
 
   return false;
 };
 
 b.work = function (creep, rc) {
-  var ext = creep.getTarget();
 
+  var ext = creep.getTarget();
   if (ext === null) {
     ext = rc.getExtensionsEmpty();
-
     if (ext.length) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;
@@ -40,7 +35,6 @@ b.work = function (creep, rc) {
       creep.target = null;
     }
   }
-
 };
 
 module.exports = b;
