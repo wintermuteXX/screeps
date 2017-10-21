@@ -288,6 +288,26 @@ ControllerRoom.prototype.getExtensions = function () {
 	}
 };
 
+_.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
+	if (s.structureType === STRUCTURE_EXTENSION) {
+		return s.energy < s.energyCapacity;
+	}
+});
+
+ControllerRoom.prototype.getExtensionsEmpty = function () {
+	if (!this._extensionsEmpty) {
+		let extensions = this.getExtensions();
+		if (extensions) {
+			this._extensionsEmpty = _.filter(extensions, function (e) {
+				return e.energy < e.energyCapacity;
+			});
+		} else {
+			return null;
+		}
+	}
+	return this._extensionsEmpty;
+};
+
 ControllerRoom.prototype.getSources = function () {
 	if (!this._sources) {
 		this._sources = this.find(FIND_SOURCES);

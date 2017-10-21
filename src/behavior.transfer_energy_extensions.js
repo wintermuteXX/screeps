@@ -5,16 +5,17 @@ b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
 
   var emptyExtensions = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-    if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }
+    if (s.structureType === STRUCTURE_EXTENSION) {
+      return s.energy < s.energyCapacity;
+    }
   });
+  console.log("emptyExtensions:    " + emptyExtensions);
+  console.log("getExtensionsEmpty: " + rc.getExtensionsEmpty());
 
-  //var roomCache = global.Cache.rooms[creep.room.name];
-  //if ( roomCache ) {
   var ext = emptyExtensions;
   if (emptyExtensions) {
     return emptyExtensions.length > 0;
   }
-  //}
   return false;
 };
 
@@ -32,9 +33,10 @@ b.work = function (creep, rc) {
   var ext = creep.getTarget();
 
   if (ext === null) {
-    //ext = global.Cache.rooms[creep.room.name].emptyExtensions;
     ext = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-      if (s.structureType === STRUCTURE_EXTENSION) { return s.energy < s.energyCapacity; }
+      if (s.structureType === STRUCTURE_EXTENSION) {
+        return s.energy < s.energyCapacity;
+      }
     });
 
     if (ext.length) {
