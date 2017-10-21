@@ -3,20 +3,11 @@ var b = new Behavior("transfer_energy_extensions");
 
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
-
-  var emptyExtensions = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-    if (s.structureType === STRUCTURE_EXTENSION) {
-      return s.energy < s.energyCapacity;
-    }
-  });
-  console.log("emptyExtensions:    " + emptyExtensions);
-  console.log("getExtensionsEmpty: " + rc.getExtensionsEmpty());
-
-  var ext = emptyExtensions;
-  if (emptyExtensions) {
+  // var emptyExtensions = rc.getExtensionsEmpty();
+  /* if (emptyExtensions) {
     return emptyExtensions.length > 0;
-  }
-  return false;
+  } */
+  return rc.getExtensionsEmpty();
 };
 
 b.completed = function (creep, rc) {
@@ -33,11 +24,7 @@ b.work = function (creep, rc) {
   var ext = creep.getTarget();
 
   if (ext === null) {
-    ext = _.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-      if (s.structureType === STRUCTURE_EXTENSION) {
-        return s.energy < s.energyCapacity;
-      }
-    });
+    ext = rc.getExtensionsEmpty();
 
     if (ext.length) {
       ext = creep.pos.findClosestByRange(ext);

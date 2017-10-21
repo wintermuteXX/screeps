@@ -288,12 +288,6 @@ ControllerRoom.prototype.getExtensions = function () {
 	}
 };
 
-_.filter(creep.room.find(FIND_MY_STRUCTURES), function (s) {
-	if (s.structureType === STRUCTURE_EXTENSION) {
-		return s.energy < s.energyCapacity;
-	}
-});
-
 ControllerRoom.prototype.getExtensionsEmpty = function () {
 	if (!this._extensionsEmpty) {
 		let extensions = this.getExtensions();
