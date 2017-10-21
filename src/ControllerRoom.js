@@ -290,7 +290,7 @@ ControllerRoom.prototype.getMineralAmount = function () {
 
 ControllerRoom.prototype.getSources2 = function () {
 	if (!this._sources) {
-		this._sources = this.find(FIND_SOURCES).map(source => source.id);
+		this._sources = this.find(FIND_SOURCES);
 	}
 	return this._sources;
 };
