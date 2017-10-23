@@ -7,9 +7,9 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  var sourceEnergy = creep.getTarget().energy;
+  var sourceEnergy = creep.getTarget()y;
   console.log("SourceEnergy: " + sourceEnergy);
-  return (creep.energy === creep.energyCapacity || sourceEnergy);
+  return (creep.energy === creep.energyCapacity || sourceEnergy.energy);
 };
 
 b.work = function (creep, rc) {
