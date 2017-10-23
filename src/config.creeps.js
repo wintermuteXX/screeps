@@ -54,12 +54,12 @@ module.exports = {
 
     canBuild: function (rc) {
       var miners = rc.getCreeps('miner');
-      var transpoters = rc.getCreeps('transporter');
+      var transporters = rc.getCreeps('transporter');
       var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
         return (s.structureType === STRUCTURE_LINK);
       });
       // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
-      return ((transpoters.length + links.length) - 1 < miners.length * 2);
+      return ((transporters.length + links.length) - 1 < miners.length * 2 || transporters.length < 1);
 
     },
 
@@ -73,9 +73,9 @@ module.exports = {
     levelMin: 2,
 
     canBuild: function (rc) {
-      var transpoters = rc.getCreeps('transporter2');
+      var transporters = rc.getCreeps('transporter2');
       return false;
-      // return (transpoters.length < 1);
+      // return (transporters.length < 1);
     },
 
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
