@@ -5,7 +5,6 @@
 		- Limit Upgrader Work parts in RCL 8
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
-        - prototpye sourceHasLink (then don't get energy from there, miner is doing this..)
         - source - define Container RoomPosition
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
@@ -21,13 +20,13 @@
     	-- Boost creeps
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
-		- (bug) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
    	TESTING
     	- (testing) Resource Queue - Mineral in Container funktioniert nicht. 
         - (testing) miner - walk to container, not source
         - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
 		- (testing) behavior harvest works on empty source
   	DONE
+	  	- (done) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
 	    - (done) write general behavior for picking up resources. User Resource queue
         - (done) Update build creeps to always build max body.
 		- (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)

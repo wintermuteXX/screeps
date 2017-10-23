@@ -3,7 +3,7 @@ var b = new Behavior("transfer_energy_extensions");
 
 b.when = function (creep, rc) {
   if (creep.energy === 0) return false;
-  return rc.getExtensionsEmpty().length;
+  return rc.getExtensionsNotFull().length;
 };
 
 b.completed = function (creep, rc) {
@@ -20,7 +20,7 @@ b.work = function (creep, rc) {
 
   var ext = creep.getTarget();
   if (ext === null) {
-    ext = rc.getExtensionsEmpty();
+    ext = rc.getExtensionsNotFull();
     if (ext.length) {
       ext = creep.pos.findClosestByRange(ext);
       creep.target = ext.id;

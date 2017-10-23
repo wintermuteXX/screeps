@@ -138,27 +138,6 @@ ControllerRoom.prototype.findResources = function () {
 };
 
 /**
- * ControllerRoom._shouldCreateCreep(role, cfg) : boolean
- *
- * Check, if creep should be created
- */
-
-ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
-	var level = this.getLevel();
-	var lReq = cfg.levelMin || 1;
-	var lMax = cfg.levelMax || 10;
-	if (level < lReq) return false;
-	if (lMax < level) return false;
-
-	if (!cfg.canBuild) {
-		console.log(role + " : no canBuild() implemented");
-		return false;
-	}
-
-	return cfg.canBuild(this);
-};
-
-/**
  * ControllerRoom.commandCreeps()
  */
 ControllerRoom.prototype.commandCreeps = function () {
@@ -262,9 +241,9 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 };
 
 ControllerRoom.prototype.getMineralContainer = function () {
-	var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
+	/* var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
 		return f.structureType === STRUCTURE_CONTAINER
-	});
+	}); */
 	var mineral = this.find(FIND_MINERALS);
 	containers = _.filter(containers, function (f) {
 		return f.pos.inRangeTo(mineral[0], 2)
@@ -279,6 +258,15 @@ ControllerRoom.prototype.getMineralAmount = function () {
 	return minerals[0].mineralAmount;
 };
 
+ControllerRoom.prototype.getContainers = function () {
+	if (!this._containers) {
+		this._containers = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_CONTAINERS
+		});
+		return this._containers;
+	}
+};
+
 ControllerRoom.prototype.getExtensions = function () {
 	if (!this._extensions) {
 		this._extensions = _.filter(this.find(FIND_MY_STRUCTURES), {
@@ -288,18 +276,18 @@ ControllerRoom.prototype.getExtensions = function () {
 	}
 };
 
-ControllerRoom.prototype.getExtensionsEmpty = function () {
-	if (!this._extensionsEmpty) {
+ControllerRoom.prototype.getExtensionsNotFull = function () {
+	if (!this._extensionsNF) {
 		let extensions = this.getExtensions();
 		if (extensions) {
-			this._extensionsEmpty = _.filter(extensions, function (e) {
+			this._extensionsNF = _.filter(extensions, function (e) {
 				return e.energy < e.energyCapacity;
 			});
 		} else {
 			return null;
 		}
 	}
-	return this._extensionsEmpty;
+	return this._extensionsNF;
 };
 
 ControllerRoom.prototype.getSources = function () {
@@ -337,27 +325,21 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	return this._sourcesUD;
 };
 
-Room.prototype.createCreep2 = function (role) {
-	let spawns = _.filter(this.find(FIND_MY_SPAWNS), function (s) {
-		return s.spawning === null
-	});
-	if (role === 'upgrader') {
-		console.log("upgrader");
-		var body = [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK];
+ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
+	var level = this.getLevel();
+	var lReq = cfg.levelMin || 1;
+	var lMax = cfg.levelMax || 10;
+	if (level < lReq) return false;
+	if (lMax < level) return false;
+
+	if (!cfg.canBuild) {
+		console.log(role + " : no canBuild() implemented");
+		return false;
 	}
-	var j = body.length;
-	for (var i = 0; i < j - 2; i++) {
-		var result = spawns[0].canCreateCreep(body);
-		if (result === 0) {
-			console.log(this.name + " Build creep: " + role);
-			spawns[0].createCreep(body, undefined, role);
-			return true;
-		} else {
-			body.pop();
-		}
-	}
-	return false;
+
+	return cfg.canBuild(this);
 };
+
 
 Room.prototype.centerPoint = function () {
 
