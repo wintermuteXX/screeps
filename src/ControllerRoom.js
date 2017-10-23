@@ -244,6 +244,7 @@ ControllerRoom.prototype.getMineralContainer = function () {
 	/* var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
 		return f.structureType === STRUCTURE_CONTAINER
 	}); */
+	var containers = this.getContainers();
 	var mineral = this.find(FIND_MINERALS);
 	containers = _.filter(containers, function (f) {
 		return f.pos.inRangeTo(mineral[0], 2)
