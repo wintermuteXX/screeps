@@ -273,7 +273,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
-      return (this.hits < this.hitsMax) && (this.hitsMax > 1);
+      let max = global.getInterval('maxHitsDefense');
+      return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
     return this.hits < (this.hitsMax * 0.9);
   };

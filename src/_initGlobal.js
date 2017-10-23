@@ -20,7 +20,8 @@ function initGlobal(g) {
     'StoreLevel6': 25000,
     'StoreLevel7': 50000,
     'StoreLevel8': 100000,
-    'repairTower': 8
+    'repairTower': 8,
+    'maxHitsDefense' : 6000000
   };
 
   g.getInterval = function (key) {
