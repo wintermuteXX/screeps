@@ -311,7 +311,7 @@ ControllerRoom.prototype.getSources = function () {
 
 ControllerRoom.prototype.getSourcesNotEmpty = function () {
 	if (!this._sourcesNE) {
-		let sources = rc.getSources();
+		let sources = this.getSources();
 		if (sources) {
 			this._sourcesNE = _.filter(sources, function (s) {
 				return s.energy > 0;
