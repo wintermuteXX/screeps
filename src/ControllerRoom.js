@@ -431,7 +431,6 @@ Room.prototype.centerPoint = function () {
 	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
-// total buggy. don't use
 Room.prototype.getBestOrder = function () {
 	var _this = this;
 	var minAmount = 1000;
@@ -468,13 +467,13 @@ Room.prototype.getBestOrder = function () {
 	// console.log("Step2: " + orders);
 	// orders = orders.filter(function (order) { return order.profit > cfg.get("market.minProfit." + order.resourceType); });
 	orders = orders.filter(function (order) {
-		return order.profit > 0.1;
+		return order.profit > 0.07;
 	});
 	// Get best order and deal
 	if (orders.length === 0)
 		console.log('Found no deal in buy orders.', _this.name);
-	var bestOrder = _.min(orders, 'profit');
-	// console.log(bestOrder);
+	var bestOrder = _.max(orders, 'profit');
+	console.log("Amount: " + bestOrder.amount + " Fee: " + bestOrder.fee + " Profit: " + bestOrder.profit);
 	// console.log(this.deal(bestOrder));
 	return Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 };
