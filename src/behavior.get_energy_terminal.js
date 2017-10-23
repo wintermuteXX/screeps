@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_energy_terminal");
 
 b.when = function (creep, rc) {
-return (creep.energy === 0 && rc.room.terminal && rc.room.terminal.store.energy > 0);};
+return (creep.energy === 0 && rc.room.terminal && rc.room.terminal.store.energy > 50000);};
 
 b.completed = function (creep, rc) {
   var target = Game.getObjectById(creep.target);
