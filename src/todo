@@ -1,5 +1,4 @@
 1. 	TODO
-		- behavior harvest works on empty source
 		- miner with no free source is crashing code
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
@@ -27,6 +26,7 @@
     	- (testing) Resource Queue - Mineral in Container funktioniert nicht. 
         - (testing) miner - walk to container, not source
         - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+		- (testing) behavior harvest works on empty source
   	DONE
 	    - (done) write general behavior for picking up resources. User Resource queue
         - (done) Update build creeps to always build max body.

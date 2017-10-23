@@ -309,6 +309,20 @@ ControllerRoom.prototype.getSources = function () {
 	return this._sources;
 };
 
+ControllerRoom.prototype.getSourcesNotEmpty = function () {
+	if (!this._sourcesNE) {
+		let sources = rc.getSources();
+		if (sources) {
+			this._sourcesNE = _.filter(sources, function (s) {
+				return s.energy > 0;
+			});
+		} else {
+			return null;
+		}
+	}
+	return this._sourcesNE;
+};
+
 ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	if (!this._sourcesUD) {
 		let sources = this.getSources();

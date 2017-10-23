@@ -23,7 +23,7 @@ b.work = function (creep, rc) {
       return (rc.getCreeps("miner", s.id).length === 0);
     }); */
 
-    var sources = rc.getSources();
+    var sources = rc.getSourcesNotEmpty();
     if (sources.length) {
       // Source per Zufall auswählen
       source = sources[Math.floor(Math.random() * sources.length)];
