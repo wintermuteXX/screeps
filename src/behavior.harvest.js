@@ -7,7 +7,7 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  var sourceEnergy = creep.getTarget()y;
+  var sourceEnergy = creep.getTarget();
   console.log("SourceEnergy: " + sourceEnergy);
   return (creep.energy === creep.energyCapacity || sourceEnergy.energy);
 };
