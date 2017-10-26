@@ -261,7 +261,7 @@ ControllerRoom.prototype.getMineralAmount = function () {
 
 ControllerRoom.prototype.getContainers = function () {
 	if (!this._containers) {
-		this._containers = _.filter(this.find(FIND_MY_STRUCTURES), {
+		this._containers = _.filter(this.find(FIND_STRUCTURES), {
 			structureType: STRUCTURE_CONTAINER
 		});
 		return this._containers;
