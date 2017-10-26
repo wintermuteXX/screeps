@@ -23,8 +23,7 @@ b.work = function (creep, rc) {
         // console.log(creep.carryCapacity);
         creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
-        target = resources[resource].id;
-        creep.target = target;
+        creep.target = resources[resource].id;
         target = creep.getTarget();
         console.log("Creep " + creep.name + " has target " + resources[resource].resourceType);
         creep.memory.resourceType = resources[resource].resourceType;
@@ -37,36 +36,22 @@ b.work = function (creep, rc) {
   if (target) {
     if (creep.memory.structure === false) {
       let result = creep.pickup(target, creep.memory.resourceType);
-      switch (result) {
-        case OK:
-        case ERR_NOT_ENOUGH_RESOURCES:
-          creep.target = null;
-          creep.memory.resourceType = null;
-          creep.memory.structure = null;
-          break;
-
-        case ERR_NOT_IN_RANGE:
-          creep.travelTo(target);
-          break;
-
-        default:
-          console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
-      }
     } else {
       let result = creep.withdraw(target, creep.memory.resourceType);
-      switch (result) {
-        case OK:
-        case ERR_NOT_ENOUGH_RESOURCES:
-          creep.target = null;
-          creep.memory.resourceType = null;
-          creep.memory.structure = null;
-          break;
-        case ERR_NOT_IN_RANGE:
-          creep.travelTo(target);
-          break;
-        default:
-          console.log(`unknown result from (creep ${creep}).withdraw(${target}): ${result}`);
-      }
+    }
+    switch (result) {
+      case OK:
+      case ERR_NOT_ENOUGH_RESOURCES:
+        creep.target = null;
+        creep.memory.resourceType = null;
+        creep.memory.structure = null;
+        break;
+      case ERR_NOT_IN_RANGE:
+        creep.travelTo(target);
+        break;
+
+      default:
+        console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
     }
   }
 };
