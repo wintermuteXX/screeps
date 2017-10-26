@@ -251,7 +251,7 @@ ControllerRoom.prototype.getMineralContainer = function () {
 	});
 	if (containers) {
 		return containers[0];
-	} else return false
+	} else {return false}
 };
 
 ControllerRoom.prototype.getMineralAmount = function () {
@@ -264,8 +264,8 @@ ControllerRoom.prototype.getContainers = function () {
 		this._containers = _.filter(this.find(FIND_STRUCTURES), {
 			structureType: STRUCTURE_CONTAINER
 		});
-		return this._containers;
 	}
+	return this._containers;
 };
 
 ControllerRoom.prototype.getExtensions = function () {
