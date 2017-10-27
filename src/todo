@@ -2,7 +2,6 @@
 		- miner with no free source is crashing code
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
-		- Limit Upgrader Work parts in RCL 8
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
@@ -26,7 +25,8 @@
         - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
 		- (testing) behavior harvest works on empty source
   	DONE
-	  	- (done) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
+	  	- (done) Limit Upgrader Work parts in RCL 8
+		- (done) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
 	    - (done) write general behavior for picking up resources. User Resource queue
         - (done) Update build creeps to always build max body.
 		- (done) Separate role for upgrader in RCL 1+2+ (3?) (Activated in RCL2)

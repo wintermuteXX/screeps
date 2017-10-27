@@ -120,7 +120,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var controller = rc.getController();
-      return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+      return (controller && controller.my && rc.getCreeps('upgrader8').length < 1);
     },
     // Max 15 Energy in RCL 8 needed
     body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
