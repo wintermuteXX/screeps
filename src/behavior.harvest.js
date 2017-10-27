@@ -3,7 +3,8 @@ var Behavior = require("_behavior");
 var b = new Behavior("harvest");
 
 b.when = function (creep, rc) {
-  return (creep.energy === 0);
+  var sources = rc.getSourcesNotEmpty();
+  return (creep.energy === 0 && sources.length > 0);
 };
 
 b.completed = function (creep, rc) {
