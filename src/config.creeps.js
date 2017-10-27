@@ -103,6 +103,7 @@ module.exports = {
   "upgrader": {
     priority: 4,
     levelMin: 2,
+    levelMax: 7,
 
     canBuild: function (rc) {
       var controller = rc.getController();
@@ -110,6 +111,19 @@ module.exports = {
     },
 
     body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
+    behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"]
+  },
+
+  "upgrader8": {
+    priority: 4,
+    levelMin: 8,
+
+    canBuild: function (rc) {
+      var controller = rc.getController();
+      return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+    },
+
+    body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK],
     behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"]
   },
 
