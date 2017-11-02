@@ -1,5 +1,5 @@
 1. 	TODO
-		- miner with no free source is crashing code
+		- miner with no free source is crashing code BANG BOOM BANG
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?

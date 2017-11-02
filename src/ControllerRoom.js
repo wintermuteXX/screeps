@@ -2,12 +2,14 @@ var ControllerSpawn = require("ControllerSpawn");
 var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
+var ControllerTerminal = require("ControllerTerminal");
 
 function ControllerRoom(room, ControllerGame) {
 	this.room = room;
 	this._find = {};
 	this._spawns = [];
 	this._towers = [];
+	this._terminal = [];
 
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
@@ -17,16 +19,18 @@ function ControllerRoom(room, ControllerGame) {
 
 	this.links = new ControllerLink(this);
 
-	var towers = room.find(FIND_MY_STRUCTURES, {
-		filter: {
-			structureType: STRUCTURE_TOWER
-		}
-	});
+	var towers = this.getTowers();
 
 	for (var t in towers) {
 		var tower = towers[t];
+		console.log("Tower: " + tower);
 		this._towers.push(new ControllerTower(tower, this));
 	}
+
+
+	var terminal = this.getTerminal();
+	console.log("Terminal: " + terminal);
+	this._terminal.push(new ControllerTerminal(terminal, this));
 }
 
 /**
@@ -251,7 +255,8 @@ ControllerRoom.prototype.getMineralContainer = function () {
 	});
 	if (containers) {
 		return containers[0];
-	} else {return false}
+	}
+	return null;
 };
 
 ControllerRoom.prototype.getMineralAmount = function () {
@@ -274,6 +279,24 @@ ControllerRoom.prototype.getExtensions = function () {
 			structureType: STRUCTURE_EXTENSION
 		});
 		return this._extensions;
+	}
+};
+
+ControllerRoom.prototype.getTowers = function () {
+	if (!this._towers) {
+		this._towers = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_TOWER
+		});
+		return this._towers;
+	}
+};
+
+ControllerRoom.prototype.getTerminal = function () {
+	if (!this._terminal) {
+		this._terminal = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_TERMINAL
+		});
+		return this._terminal;
 	}
 };
 

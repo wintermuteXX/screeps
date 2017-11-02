@@ -34,10 +34,11 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
+    let result;
     if (creep.memory.structure === false) {
-      let result = creep.pickup(target, creep.memory.resourceType);
+      result = creep.pickup(target, creep.memory.resourceType);
     } else {
-      let result = creep.withdraw(target, creep.memory.resourceType);
+      result = creep.withdraw(target, creep.memory.resourceType);
     }
     switch (result) {
       case OK:
