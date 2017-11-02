@@ -4,7 +4,7 @@ function ControllerTerminal(rc) {
 }
 
 ControllerTerminal.prototype.internalTrade = function () {
-    if (this.terminal.notBusy) {
+    if (this.notBusy) {
         console.log("I'm not busy");
     }
 };
