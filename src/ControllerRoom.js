@@ -297,6 +297,16 @@ ControllerRoom.prototype.getTerminal = function () {
 	return this._myTerminal;
 };
 
+ControllerRoom.prototype.getLinks = function () {
+	if (!this._myLinks) {
+		this._myLinks = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
+			return (s.structureType === STRUCTURE_LINK);
+		  });
+		
+	}
+	return this._myLinks;
+};
+
 ControllerRoom.prototype.getExtensionsNotFull = function () {
 	if (!this._extensionsNF) {
 		let extensions = this.getExtensions();
