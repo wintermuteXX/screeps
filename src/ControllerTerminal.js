@@ -4,7 +4,18 @@ function ControllerTerminal(rc) {
 }
 
 ControllerTerminal.prototype.internalTrade = function () {
-    console.log("I do internal trade");
+    if (this.terminal.notBusy) {
+        console.log("I'm not busy");
+    }
 };
+
+Object.defineProperty(ControllerTerminal.prototype, "notBusy", {
+    get: function () {
+        return _.filter(this.terminal, function (terminal) {
+            return terminal.cooldown === 0;
+        });
+    }
+});
+
 
 module.exports = ControllerTerminal;
