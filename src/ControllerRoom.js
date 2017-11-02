@@ -23,13 +23,10 @@ function ControllerRoom(room, ControllerGame) {
 
 	for (var t in towers) {
 		var tower = towers[t];
-		console.log("Tower: " + tower);
 		this._towers.push(new ControllerTower(tower, this));
 	}
 
-
 	var terminal = this.getTerminal();
-	console.log("Terminal: " + terminal);
 	this._terminal.push(new ControllerTerminal(terminal, this));
 }
 
@@ -283,21 +280,21 @@ ControllerRoom.prototype.getExtensions = function () {
 };
 
 ControllerRoom.prototype.getTowers = function () {
-	if (!this._towers) {
-		this._towers = _.filter(this.find(FIND_MY_STRUCTURES), {
+	if (!this._myTowers) {
+		this._myTowers = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TOWER
 		});
 	}
-	return this._towers;
+	return this._myTowers;
 };
 
 ControllerRoom.prototype.getTerminal = function () {
-	if (!this._terminal) {
-		this._terminal = _.filter(this.find(FIND_MY_STRUCTURES), {
+	if (!this._myTerminal) {
+		this._myTerminal = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TERMINAL
 		});
 	}
-	return this._terminal;
+	return this._myTerminal;
 };
 
 ControllerRoom.prototype.getExtensionsNotFull = function () {
