@@ -4,14 +4,18 @@ function ControllerTerminal(rc) {
 }
 
 ControllerTerminal.prototype.internalTrade = function () {
+    let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
+    let cancelOrders = false;
 
     if (this.notBusy) {
         // console.log(this.terminal, this.terminal[0].store);
         _.each(terminal.store, function (amount, resourceType) {
-            if (amount < 20000) {
+            if (cancelOrders || amount < MIN_AMOUNT)
                 return;
-            }
+
+            var availableAmount = amount - MIN_AMOUNT;
+
             for (var r in Game.rooms) {
                 var aroom = Game.rooms[r];
                 if (terminal.room.name == aroom.name) {
@@ -19,8 +23,17 @@ ControllerTerminal.prototype.internalTrade = function () {
                 }
                 var e = aroom.getResourceAmount(resourceType);
                 // console.log("For: " + aroom.name + " there is: " + e + " " + resourceType);
-                if (e < 20000) {
+                var needed = MIN_AMOUNT - e;
+                if (needed > 0) {
+
+                    var sendAmount = Math.min(availableAmount, needed);
+
+                    var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
+                    if (result.length) {
+                        cancelOrders = true;
+                    }
                     console.log("Deal:" + terminal.room.name, amount, resourceType + " To: " + aroom.name + e);
+
                 }
             }
         })
