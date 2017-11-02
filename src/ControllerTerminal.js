@@ -20,7 +20,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 var e = aroom.getResourceAmount(resourceType);
                 // console.log("For: " + aroom.name + " there is: " + e + " " + resourceType);
                 if (e < 20000) {
-                    console.log("Deal:" + terminal.room.name, amount, resourceType + " To: " + aroom.name);
+                    console.log("Deal:" + terminal.room.name, amount, resourceType + " To: " + aroom.name + e);
                 }
             }
         })
