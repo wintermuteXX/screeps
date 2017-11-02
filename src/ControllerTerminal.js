@@ -4,25 +4,28 @@ function ControllerTerminal(rc) {
 }
 
 ControllerTerminal.prototype.internalTrade = function () {
-    if (!this.notBusy) {
-        return null
-    }
-    _.each(this.store, function (amount, resourceType) {
+    let [terminal] = this.terminal;
+
+    if (this.notBusy) {
+        // console.log(this.terminal, this.terminal[0].store);
+        _.each(terminal.store, function (amount, resourceType) {
+            console.log(amount, resourceType);
             if (amount < 20000) {
                 return;
             }
             for (var r in Game.rooms) {
                 var aroom = Game.rooms[r];
-                if (this.room = aroom.name) {
+                if (terminal.room.name == aroom.name) {
                     continue;
                 }
                 var e = aroom.getResourceAmount(resourceType);
                 console.log("For: " + aroom.name + " there is: " + e + " " + resourceType);
-                if (e > 20000) {
-                    console.log("Deal:" + this.room.name, amount, resourceType + " To: " + aroom.name);
+                if (e < 20000) {
+                    console.log("Deal:" + terminal.room.name, amount, resourceType + " To: " + aroom.name);
                 }
             }
         })
+    }
 };
 
 Object.defineProperty(ControllerTerminal.prototype, "notBusy", {
