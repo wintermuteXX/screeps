@@ -9,7 +9,6 @@ ControllerTerminal.prototype.internalTrade = function () {
     if (this.notBusy) {
         // console.log(this.terminal, this.terminal[0].store);
         _.each(terminal.store, function (amount, resourceType) {
-            console.log(amount, resourceType);
             if (amount < 20000) {
                 return;
             }
@@ -19,7 +18,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                     continue;
                 }
                 var e = aroom.getResourceAmount(resourceType);
-                console.log("For: " + aroom.name + " there is: " + e + " " + resourceType);
+                // console.log("For: " + aroom.name + " there is: " + e + " " + resourceType);
                 if (e < 20000) {
                     console.log("Deal:" + terminal.room.name, amount, resourceType + " To: " + aroom.name);
                 }
