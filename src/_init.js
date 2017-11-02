@@ -373,11 +373,11 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Room.prototype.getResourceAmount = function (res) {
     var amount = 0;
-    if (this.storage[res]) {
-      amount += this.storage[res].amount;
+    if (this.storage.store[res]) {
+      amount += this.storage.store[res];
     }
-    if (this.terminal[res]) {
-      amount += this.terminal[res].amount;
+    if (this.terminal.store[res]) {
+      amount += this.terminal.store[res];
     }
     return amount;
   };
