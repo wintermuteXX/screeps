@@ -2,12 +2,7 @@ var RANGE_TO_SOURCE = 4;
 
 function ControllerLink(rc) {
   this.room = rc;
-  this.links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
-    return (s.structureType === STRUCTURE_LINK);
-  });
-  console.log("Link old: " + this.links);
-  var test = this.room.getLinks();
-  console.log("Link new: " + test);
+  this.links = this.room.getLinks();
 }
 
 Object.defineProperty(ControllerLink.prototype, "senders", {

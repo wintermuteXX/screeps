@@ -9,8 +9,7 @@ function ControllerRoom(room, ControllerGame) {
 	this._find = {};
 	this._spawns = [];
 	this._towers = [];
-	this._terminal = [];
-
+	
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
@@ -26,8 +25,7 @@ function ControllerRoom(room, ControllerGame) {
 		this._towers.push(new ControllerTower(tower, this));
 	}
 
-	var terminal = this.getTerminal();
-	this._terminal.push(new ControllerTerminal(terminal, this));
+	this.terminal = new ControllerTerminal(this);
 }
 
 /**
@@ -39,6 +37,8 @@ ControllerRoom.prototype.run = function () {
 	this.populate();
 
 	this.links.transferEnergy();
+
+	this.terminal.internalTrade();
 
 	this.commandCreeps();
 
