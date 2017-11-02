@@ -2,6 +2,7 @@
 		- miner with no free source is crashing code BANG BOOM BANG
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
     	- Remote Mining (check for goals, new behavior)
+		- Remote Transport (for mining and abadoned rooms)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
@@ -11,7 +12,7 @@
 		- createCreep. Calculate Move parts dynamically (body2)
         - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
-        -- Sell + Buy at Market (check code at bottom of this file)
+        -- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
 		-- test attack behavior
@@ -449,18 +450,3 @@ global.spiralOut = function(n){
 },
 ---------------------------------------
     _.invoke(Game.constructionSites, 'remove')
-------------------------------------------
-    Object.defineProperty(Source.prototype, "usableFields", {
-  get: function (): number {
-    let ret = 0;
-    if (!this.memory.usableFields) {
-      ret = 9 - _.countBy(this.lookForNear(LOOK_TERRAIN, true), 'terrain')['wall'];
-      this.memory.usableFields = ret;
-    } else {
-      ret = this.memory.usableFields;
-    }
-    return ret;
-  },
-  configurable: true,
-});
-------------------------------------------

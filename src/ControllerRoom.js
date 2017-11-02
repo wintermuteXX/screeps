@@ -9,7 +9,7 @@ function ControllerRoom(room, ControllerGame) {
 	this._find = {};
 	this._spawns = [];
 	this._towers = [];
-	
+
 	var spawns = this.find(FIND_MY_SPAWNS);
 	for (var s in spawns) {
 		var spawn = spawns[s];
@@ -51,6 +51,18 @@ ControllerRoom.prototype.run = function () {
 	})
 
 	this.findResources();
+};
+
+/**
+ * ControllerRoom.commandCreeps()
+ */
+ControllerRoom.prototype.commandCreeps = function () {
+	var cc = new ControllerCreep(this);
+	var creeps = this.find(FIND_MY_CREEPS);
+
+	for (var c in creeps) {
+		cc.run(creeps[c]);
+	}
 };
 
 /**
@@ -139,18 +151,6 @@ ControllerRoom.prototype.findResources = function () {
 };
 
 /**
- * ControllerRoom.commandCreeps()
- */
-ControllerRoom.prototype.commandCreeps = function () {
-	var cc = new ControllerCreep(this);
-	var creeps = this.find(FIND_MY_CREEPS);
-
-	for (var c in creeps) {
-		cc.run(creeps[c]);
-	}
-};
-
-/**
  * ControllerRoom.find(type)
  */
 ControllerRoom.prototype.find = function (type) {
@@ -196,9 +196,13 @@ ControllerRoom.prototype.getController = function () {
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
+	if (obj.memory.link) {
+		return obj.memory.link;
+	}
 	var links = this.links.senders;
 	var thelink = obj.pos.findInRange(links, 1);
 	if (thelink) {
+		obj.memory.link = thelink;
 		return thelink;
 	}
 	return null;
@@ -301,8 +305,8 @@ ControllerRoom.prototype.getLinks = function () {
 	if (!this._myLinks) {
 		this._myLinks = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
 			return (s.structureType === STRUCTURE_LINK);
-		  });
-		
+		});
+
 	}
 	return this._myLinks;
 };
