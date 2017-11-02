@@ -278,8 +278,8 @@ ControllerRoom.prototype.getExtensions = function () {
 		this._extensions = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_EXTENSION
 		});
-		return this._extensions;
 	}
+	return this._extensions;
 };
 
 ControllerRoom.prototype.getTowers = function () {
@@ -287,8 +287,8 @@ ControllerRoom.prototype.getTowers = function () {
 		this._towers = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TOWER
 		});
-		return this._towers;
 	}
+	return this._towers;
 };
 
 ControllerRoom.prototype.getTerminal = function () {
@@ -296,8 +296,8 @@ ControllerRoom.prototype.getTerminal = function () {
 		this._terminal = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TERMINAL
 		});
-		return this._terminal;
 	}
+	return this._terminal;
 };
 
 ControllerRoom.prototype.getExtensionsNotFull = function () {
