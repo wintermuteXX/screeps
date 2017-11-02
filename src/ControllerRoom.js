@@ -38,7 +38,7 @@ ControllerRoom.prototype.run = function () {
 
 	this.links.transferEnergy();
 
-	this.terminal.internalTrade();
+	// this.terminal.internalTrade();
 
 	this.commandCreeps();
 
