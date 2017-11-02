@@ -5,7 +5,10 @@ function ControllerTerminal(rc) {
 
 ControllerTerminal.prototype.internalTrade = function () {
     if (this.notBusy) {
-        console.log("I'm not busy");
+        for (var r in Game.rooms) {
+            var aroom = Game.rooms[r];
+            var e = aroom.getResourceAmount("energy");
+        console.log("For: " + aroom.name + " there is energy: " + e);
     }
 };
 

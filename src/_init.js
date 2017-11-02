@@ -370,6 +370,20 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
   };
 
+
+  Room.prototype.getResourceAmount = function (res) {
+    var amount = 0;
+    if (this.room.storeage[res]) {
+      amount += this.room.storeage[res].amount;
+    }
+    if (this.room.terminal[res]) {
+      amount += this.room.terminal[res].amount;
+    }
+    return amount;
+  };
+
+
+
   Creep.prototype.toString = function (htmlLink = true) {
     return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
   }
