@@ -49,7 +49,7 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 
-	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) {console.log("Doing internal trade"); this.terminal.internalTrade();}
+	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) { this.terminal.internalTrade(); }
 	
 };
 

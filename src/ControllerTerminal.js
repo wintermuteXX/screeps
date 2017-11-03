@@ -37,7 +37,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                     var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
                     if (result == 0) {
                         cancelOrders = true;
-                        console.log("Deal:" + terminal.room.name, sendAmount, resourceType + " To: " + aroom.name + e);
+                        console.log("Deal:" + terminal.room.name, sendAmount, resourceType + " To: " + aroom.name + " " + e);
                     }
                     
                 }
