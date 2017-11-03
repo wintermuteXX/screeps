@@ -17,10 +17,14 @@ ControllerTerminal.prototype.internalTrade = function () {
             // How much can Terminal give away?
             var availableAmount = amount - MIN_AMOUNT;
 
-            for (var r in Game.rooms) {
-                var aroom = Game.rooms[r];
+            let myRooms = _.filter(Game.rooms, r => {
+                return r.terminal && r.terminal.my;
+            });
+
+            for (var r in myRooms) {
+                var aroom = myRooms[r];
                 // Only check other rooms
-                if (cancelOrders || terminal.room.name == aroom.name) {
+                if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
                 var e = aroom.getResourceAmount(resourceType);
