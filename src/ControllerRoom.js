@@ -37,11 +37,8 @@ ControllerRoom.prototype.run = function () {
 	this.populate();
 
 	this.links.transferEnergy();
-
-	// this.terminal.internalTrade();
-
+	
 	this.commandCreeps();
-
 
 	_.each(this._towers, function (tower) {
 		tower.fire();
@@ -51,6 +48,9 @@ ControllerRoom.prototype.run = function () {
 	})
 
 	this.findResources();
+
+	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) {console.log("Doing internal trade"); this.terminal.internalTrade();}
+	
 };
 
 /**
