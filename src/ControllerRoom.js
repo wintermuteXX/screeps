@@ -107,7 +107,7 @@ ControllerRoom.prototype.findResources = function () {
 	// Dropped Resources
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 		if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
-			droppedResources[s.id + "| " + s.resourceType] = {
+			droppedResources[s.id + "|" + s.resourceType] = {
 				'resourceType': s.resourceType,
 				'structure': false,
 				'amount': s.amount,
