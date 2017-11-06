@@ -37,7 +37,7 @@ ControllerRoom.prototype.run = function () {
 	this.populate();
 
 	this.links.transferEnergy();
-	
+
 	this.commandCreeps();
 
 	_.each(this._towers, function (tower) {
@@ -48,9 +48,12 @@ ControllerRoom.prototype.run = function () {
 	})
 
 	this.findResources();
+	this.needResources();
 
-	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) { this.terminal.internalTrade(); }
-	
+	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
+		this.terminal.internalTrade();
+	}
+
 };
 
 /**
@@ -91,6 +94,50 @@ ControllerRoom.prototype.populate = function () {
 			}
 		}
 	}
+};
+
+ControllerRoom.prototype.needResources = function () {
+	if (Game.time % global.getInterval('checkResourcesQueue') !== 0) return;
+	var memory = this.room.memory;
+	var needResources = {};
+
+	let ext = getExtensionsNotFull();
+	for (var l of ext) {
+		needResources[l.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': l.energy,
+			'id': l.id
+		};
+	}
+
+	let spa = getSpawnsNotFull();
+	for (var s of spa) {
+		needResources[s.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': s.energy,
+			'id': s.id
+		};
+	}
+
+	let lab = getLabsNotFull();
+	for (var l of lab) {
+		needResources[l.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': l.energy,
+			'id': l.id
+		};
+	}
+
+	let nuk = getNukerNotFull();
+	for (var n of nuk) {
+		needResources[n.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': n.energy,
+			'id': n.id
+		};
+	}
+
+	memory.QueueNeededResources = needResources;
 };
 
 /**
@@ -150,9 +197,6 @@ ControllerRoom.prototype.findResources = function () {
 	memory.QueueAvailableResources = droppedResources;
 };
 
-/**
- * ControllerRoom.find(type)
- */
 ControllerRoom.prototype.find = function (type) {
 	if (!this._find[type]) {
 		this._find[type] = this.room.find(type);
@@ -162,6 +206,10 @@ ControllerRoom.prototype.find = function (type) {
 
 /**
  * ControllerRoom.getCreeps(role, target)
+ * No Parameter = all Creeps
+ * role = all Creeps with role
+ * target = all Creeps with this target (memory.target)
+ * role + target = all Creeps with role + target
  */
 ControllerRoom.prototype.getCreeps = function (role, target) {
 	var creeps = this.find(FIND_MY_CREEPS);
@@ -183,16 +231,6 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 	}
 
 	return creeps;
-};
-
-/**
- * ControllerRoom.getController()
- */
-ControllerRoom.prototype.getController = function () {
-	if (this.room.controller) {
-		return this.room.controller;
-	}
-	return null;
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
@@ -221,9 +259,6 @@ ControllerRoom.prototype.getEnemys = function () {
 	return targetList;
 };
 
-/**
- * ControllerRoom.getLevel()
- */
 ControllerRoom.prototype.getLevel = function () {
 	var controller = this.getController();
 	if (controller !== null && controller.my) {
@@ -232,9 +267,13 @@ ControllerRoom.prototype.getLevel = function () {
 	return 0;
 };
 
-/**
- * ControllerRoom.getIdleSpawn()
- */
+ControllerRoom.prototype.getController = function () {
+	if (this.room.controller) {
+		return this.room.controller;
+	}
+	return null;
+};
+
 ControllerRoom.prototype.getIdleSpawn = function () {
 	for (var i in this._spawns) {
 		var sc = this._spawns[i];
@@ -245,10 +284,24 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 	return null;
 };
 
+ControllerRoom.prototype.getSpawns = function () {
+	if (!this._spawns2) {
+		this._spawns2 = this.find(FIND_MY_SPAWNS);
+	}
+	return this._spawns2;
+};
+
+ControllerRoom.prototype.getSpawnsNotFull = function () {
+	if (!this._spawnsNF) {
+		let spawnz = this.getSpawns();
+		this._spawnsNF = _.filter(spawnz, function (e) {
+			return e.energy < e.energyCapacity;
+		});
+	}
+	return this._spawnsNF;
+};
+
 ControllerRoom.prototype.getMineralContainer = function () {
-	/* var containers = _.filter(this.find(FIND_STRUCTURES), function (f) {
-		return f.structureType === STRUCTURE_CONTAINER
-	}); */
 	var containers = this.getContainers();
 	var mineral = this.find(FIND_MINERALS);
 	containers = _.filter(containers, function (f) {
@@ -283,6 +336,58 @@ ControllerRoom.prototype.getExtensions = function () {
 	return this._extensions;
 };
 
+ControllerRoom.prototype.getExtensionsNotFull = function () {
+	if (!this._extensionsNF) {
+		let extensions = this.getExtensions();
+		if (extensions) {
+			this._extensionsNF = _.filter(extensions, function (e) {
+				return e.energy < e.energyCapacity;
+			});
+		} else {
+			return null;
+		}
+	}
+	return this._extensionsNF;
+};
+
+ControllerRoom.prototype.getLabs = function () {
+	if (!this._myLabs) {
+		this._myLabs = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_LAB
+		});
+	}
+	return this._myLabs;
+};
+
+ControllerRoom.prototype.getLabsNotFull = function () {
+	if (!this._myLabsNF) {
+		let labs = getLabs();
+		this._myLabsNF = _.filter(labs, function (e) {
+			return e.energy < e.energyCapacity;
+		});
+	}
+	return this._myLabsNF;
+};
+
+ControllerRoom.prototype.getNuker = function () {
+	if (!this._myNuker) {
+		this._myNuker = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_NUKER
+		});
+	}
+	return this._myNuker;
+};
+
+ControllerRoom.prototype.getNukerNotFull = function () {
+	if (!this._myNukerNF) {
+		let nuker = getNuker();
+		this._myNukerNF = _.filter(nuker, function (e) {
+			return e.energy < e.energyCapacity;
+		});
+	}
+	return this._myNukerNF;
+};
+
 ControllerRoom.prototype.getTowers = function () {
 	if (!this._myTowers) {
 		this._myTowers = _.filter(this.find(FIND_MY_STRUCTURES), {
@@ -290,6 +395,18 @@ ControllerRoom.prototype.getTowers = function () {
 		});
 	}
 	return this._myTowers;
+};
+
+ControllerRoom.prototype.getTowersNotFull = function () {
+	if (!this._myTowersNF) {
+		let towers = this.getTowers();
+		this._myTowersNF = _.filter(towers, function (s) {
+			if (s.structureType === STRUCTURE_TOWER) {
+				return s.energy < (s.energyCapacity - 100);
+			}
+		});
+	}
+	return this._myTowersNF;
 };
 
 ControllerRoom.prototype.getTerminal = function () {
@@ -309,20 +426,6 @@ ControllerRoom.prototype.getLinks = function () {
 
 	}
 	return this._myLinks;
-};
-
-ControllerRoom.prototype.getExtensionsNotFull = function () {
-	if (!this._extensionsNF) {
-		let extensions = this.getExtensions();
-		if (extensions) {
-			this._extensionsNF = _.filter(extensions, function (e) {
-				return e.energy < e.energyCapacity;
-			});
-		} else {
-			return null;
-		}
-	}
-	return this._extensionsNF;
 };
 
 ControllerRoom.prototype.getSources = function () {
@@ -374,7 +477,6 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 
 	return cfg.canBuild(this);
 };
-
 
 Room.prototype.centerPoint = function () {
 
