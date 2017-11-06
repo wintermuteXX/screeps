@@ -101,38 +101,38 @@ ControllerRoom.prototype.needResources = function () {
 	var memory = this.room.memory;
 	var needResources = {};
 
-	let ext = getExtensionsNotFull();
+	let ext = this.getExtensionsNotFull();
 	for (var l of ext) {
 		needResources[l.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': l.energy,
+			'amount': l.energyCapacity - l.energy,
 			'id': l.id
 		};
 	}
 
-	let spa = getSpawnsNotFull();
+	let spa = this.getSpawnsNotFull();
 	for (var s of spa) {
 		needResources[s.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': s.energy,
+			'amount': l.energyCapacity - s.energy,
 			'id': s.id
 		};
 	}
 
-	let lab = getLabsNotFull();
+	let lab = this.getLabsNotFull();
 	for (var l of lab) {
 		needResources[l.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': l.energy,
+			'amount': l.energyCapacity - l.energy,
 			'id': l.id
 		};
 	}
 
-	let nuk = getNukerNotFull();
+	let nuk = this.getNukerNotFull();
 	for (var n of nuk) {
 		needResources[n.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': n.energy,
+			'amount': l.energyCapacity - n.energy,
 			'id': n.id
 		};
 	}
@@ -361,7 +361,7 @@ ControllerRoom.prototype.getLabs = function () {
 
 ControllerRoom.prototype.getLabsNotFull = function () {
 	if (!this._myLabsNF) {
-		let labs = getLabs();
+		let labs = this.getLabs();
 		this._myLabsNF = _.filter(labs, function (e) {
 			return e.energy < e.energyCapacity;
 		});
@@ -380,7 +380,7 @@ ControllerRoom.prototype.getNuker = function () {
 
 ControllerRoom.prototype.getNukerNotFull = function () {
 	if (!this._myNukerNF) {
-		let nuker = getNuker();
+		let nuker = this.getNuker();
 		this._myNukerNF = _.filter(nuker, function (e) {
 			return e.energy < e.energyCapacity;
 		});
