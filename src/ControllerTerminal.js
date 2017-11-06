@@ -10,7 +10,7 @@ ControllerTerminal.prototype.internalTrade = function () {
     let cancelOrders = false;
 
     // if terminal cooldown = 0
-    if (this.notBusy) {
+    if (terminal && terminal.notBusy) {
         _.each(terminal.store, function (amount, resourceType) {
             if (cancelOrders || amount < MIN_AMOUNT)
                 return;
