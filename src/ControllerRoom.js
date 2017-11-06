@@ -114,7 +114,7 @@ ControllerRoom.prototype.needResources = function () {
 	for (var s of spa) {
 		needResources[s.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': l.energyCapacity - s.energy,
+			'amount': s.energyCapacity - s.energy,
 			'id': s.id
 		};
 	}
@@ -132,7 +132,7 @@ ControllerRoom.prototype.needResources = function () {
 	for (var n of nuk) {
 		needResources[n.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': l.energyCapacity - n.energy,
+			'amount': n.energyCapacity - n.energy,
 			'id': n.id
 		};
 	}
