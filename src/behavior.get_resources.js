@@ -44,7 +44,7 @@ b.work = function (creep, rc) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
         creep.target = null;
-        creep.memory.resourceType = null;
+        // creep.memory.resourceType = null;
         creep.memory.structure = null;
         break;
       case ERR_NOT_IN_RANGE:

@@ -38,6 +38,7 @@ b.work = function (creep, rc) {
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
+      case ERR_FULL
         creep.target = null;
         creep.memory.resourceType = null;
         creep.memory.structure = null;
@@ -45,7 +46,7 @@ b.work = function (creep, rc) {
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
         break;
-
+      
       default:
         console.log(`unknown result from (creep ${creep}).transfer(${target}): ${result}`);
     }
