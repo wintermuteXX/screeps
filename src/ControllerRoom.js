@@ -208,9 +208,10 @@ ControllerRoom.prototype.findResources = function () {
 	});
 
 	var ter = this.getTerminal();
+	var rres = this.getMineralType();
 	_.each(ter, function (t) {
 		_.each(t.store, function (amount, resourceType) {
-			if ((resourceType !== energy && amount > 0) || (resourceType == energy && amount > 50000)) {
+			if ((resourceType !== rres) && ((resourceType !== 'energy' && amount > 0) || (resourceType == 'energy' && amount > 50000))) {
 				console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
 				droppedResources[t.id + "|" + resourceType] = {
 					'resourceType': resourceType,
