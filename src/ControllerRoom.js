@@ -137,6 +137,11 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
+	let sto = this.getStorage();
+	for (var r of RESOURCES_ALL) {
+		console.log("Resources: " + n.resourceType);
+	}
+
 	memory.QueueNeededResources = needResources;
 };
 
@@ -272,6 +277,13 @@ ControllerRoom.prototype.getController = function () {
 		return this.room.controller;
 	}
 	return null;
+};
+
+ControllerRoom.prototype.getStorage = function () {
+	if (!this._storage) {
+		this._storage = this.room.storage;
+	}
+	return this._storage;
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
