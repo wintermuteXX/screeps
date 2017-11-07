@@ -17,6 +17,7 @@ b.work = function (creep, rc) {
 
   if (!target) {
     var resources = creep.room.memory.QueueNeededResources;
+    creep.target = null;
     for (var resource in resources) {
       if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
@@ -26,7 +27,7 @@ b.work = function (creep, rc) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
         console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
-        creep.memory.resourceType = resources[resource].resourceType;
+        // creep.memory.resourceType = resources[resource].resourceType;
         break;
       }
     }
