@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_full_storage");
 
 b.when = function (creep, rc) {
-  return (_.sum(creep.carry) === 0);
+  return (_.sum(creep.carry) === 0 && rc.room.storage);
 };
 
 b.completed = function (creep, rc) {
@@ -12,7 +12,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
     var target = creep.getTarget();
     
-    if (target === null) {
+    if (target === null && rc.room.storage) {
       creep.target = rc.room.storage.id;
     }
     target = creep.getTarget();

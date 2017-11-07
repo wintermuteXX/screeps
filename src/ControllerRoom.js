@@ -212,7 +212,7 @@ ControllerRoom.prototype.findResources = function () {
 	_.each(ter, function (t) {
 		_.each(t.store, function (amount, resourceType) {
 			if ((resourceType !== rres) && ((resourceType !== 'energy' && amount > 0) || (resourceType == 'energy' && amount > 50000))) {
-				console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
+				// console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
 				droppedResources[t.id + "|" + resourceType] = {
 					'resourceType': resourceType,
 					'structure': true,
