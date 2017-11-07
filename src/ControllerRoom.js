@@ -138,8 +138,16 @@ ControllerRoom.prototype.needResources = function () {
 	}
 
 	let sto = this.getStorage();
+	// console.log("Storage: " + sto + " " + RESOURCES_ALL);
 	for (var r of RESOURCES_ALL) {
-		console.log("Resources: " + n.resourceType);
+	 if (sto && sto.store[r] && (sto.store[r] < 20000 || sto.store[r] == undefined)) {
+	     console.log("For: " + r + " this is in Store " + sto.store[r]);
+	     needResources[sto.id + "|" + r] = {
+			'resourceType': r,
+			'amount': 20000 - sto.store[r],
+			'id': sto.id
+		};
+	 }
 	}
 
 	memory.QueueNeededResources = needResources;
