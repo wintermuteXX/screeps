@@ -25,7 +25,7 @@ b.work = function (creep, rc) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        console.log("Creep " + creep.name + " will deliver " + resources[resource].resourceType);
+        console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
         creep.memory.resourceType = resources[resource].resourceType;
         break;
       }
@@ -38,7 +38,7 @@ b.work = function (creep, rc) {
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
-      case ERR_FULL
+      case ERR_FULL:
         creep.target = null;
         creep.memory.resourceType = null;
         creep.memory.structure = null;
