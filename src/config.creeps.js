@@ -80,7 +80,7 @@ module.exports = {
 
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
     // behaviors: ["get_resources", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
-    behaviors: ["get_resources", "transfer_resources", "transfer_energy_storage", "transfer_energy_upgrader"]
+    behaviors: ["get_resources", "transfer_resources", "transfer_resources_terminal", "transfer_energy_upgrader"]
   },
 
   "transporter_mineral": {
