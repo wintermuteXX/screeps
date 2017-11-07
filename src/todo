@@ -1,6 +1,7 @@
 1. 	TODO
 		- miner with no free source is crashing code BANG BOOM BANG
 		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
+		- Upgraders should only pickup energy, not minerals
     	- Remote Mining (check for goals, new behavior)
 		- Remote Transport (for mining and abadoned rooms)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
