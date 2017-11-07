@@ -138,7 +138,6 @@ ControllerRoom.prototype.needResources = function () {
 	}
 
 	let sto = this.getStorage();
-	// console.log("Storage: " + sto + " " + RESOURCES_ALL);
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
 			if (sto.store[r] < 20000 || sto.store[r] === undefined) {
@@ -208,6 +207,20 @@ ControllerRoom.prototype.findResources = function () {
 		});
 	});
 
+	var ter = this.getTerminal();
+	_.each(ter, function (t) {
+		_.each(t.store, function (amount, resourceType) {
+			if ((resourceType !== energy && amount > 0) || (resourceType == energy && amount > 50000)) {
+				console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
+				droppedResources[t.id + "|" + resourceType] = {
+					'resourceType': resourceType,
+					'structure': true,
+					'amount': amount,
+					'id': t.id
+				};
+			};
+		});
+	});
 	memory.QueueAvailableResources = droppedResources;
 };
 
