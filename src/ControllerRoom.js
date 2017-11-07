@@ -339,6 +339,11 @@ ControllerRoom.prototype.getMineralAmount = function () {
 	return minerals[0].mineralAmount;
 };
 
+ControllerRoom.prototype.getMineralType = function () {
+	var minerals = this.find(FIND_MINERALS);
+	return minerals[0].mineralType;
+};
+
 ControllerRoom.prototype.getContainers = function () {
 	if (!this._containers) {
 		this._containers = _.filter(this.find(FIND_STRUCTURES), {
@@ -575,9 +580,11 @@ Room.prototype.getBestOrder = function () {
 	var _this = this;
 	var minAmount = 1000;
 	var orders = Game.market.getAllOrders().filter(function (order) {
+		let mtype = this.getMineralType();
 		return order.type === ORDER_BUY // Only check sell orders
 			&&
-			order.resourceType !== RESOURCE_ENERGY // Don't sell energy
+			//order.resourceType !== RESOURCE_ENERGY // Don't sell energy
+			order.resourceType === mtype // Only Room Mineral
 			&&
 			order.remainingAmount > minAmount
 			// Only look at orders with 1000+ units
