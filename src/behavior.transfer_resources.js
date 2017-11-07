@@ -8,7 +8,7 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  // works with minerals?
+  console.log(creep.pos, creep.target);
   return (creep.energy == 0 || creep.target === null);
 };
 
@@ -26,6 +26,7 @@ b.work = function (creep, rc) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
+        if(!target) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
         console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
         // creep.memory.resourceType = resources[resource].resourceType;
         break;
