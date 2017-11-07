@@ -8,7 +8,6 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  console.log(creep.pos, creep.target);
   return (creep.energy == 0 || creep.target === null);
 };
 
