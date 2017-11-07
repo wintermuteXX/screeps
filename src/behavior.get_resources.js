@@ -25,7 +25,7 @@ b.work = function (creep, rc) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        console.log("Creep " + creep.name + " has target " + resources[resource].resourceType);
+        console.log("Creep " + creep.pos + " has target " + resources[resource].resourceType);
         creep.memory.resourceType = resources[resource].resourceType;
         creep.memory.structure = resources[resource].structure;
         break;
