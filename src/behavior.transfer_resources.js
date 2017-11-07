@@ -26,12 +26,12 @@ b.work = function (creep, rc) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        if(!target) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
         console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
         // creep.memory.resourceType = resources[resource].resourceType;
         break;
       }
     }
+    if(!target && creep.room.terminal) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
   }
 
   if (target) {
