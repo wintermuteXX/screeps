@@ -580,7 +580,8 @@ Room.prototype.getBestOrder = function () {
 	var _this = this;
 	var minAmount = 1000;
 	var orders = Game.market.getAllOrders().filter(function (order) {
-		let mtype = this.getMineralType();
+		let mtype = this.find(FIND_MINERALS)[0].mineralType;
+	
 		return order.type === ORDER_BUY // Only check sell orders
 			&&
 			//order.resourceType !== RESOURCE_ENERGY // Don't sell energy
