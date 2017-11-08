@@ -10,9 +10,7 @@ ControllerTerminal.prototype.internalTrade = function () {
     let cancelOrders = false;
 
     if (terminal && terminal.cooldown === 0) {
-        console.log("1");
         _.each(terminal.store, function (amount, resourceType) {
-            console.log("2");
             if (cancelOrders || (amount < MIN_AMOUNT))
                 return;
             // How much can Terminal give away?
@@ -23,7 +21,6 @@ ControllerTerminal.prototype.internalTrade = function () {
             });
 
             for (var r in myRooms) {
-                console.log("3");
                 var aroom = myRooms[r];
                 // Only check other rooms
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
