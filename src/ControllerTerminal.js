@@ -9,10 +9,11 @@ ControllerTerminal.prototype.internalTrade = function () {
     let [terminal] = this.terminal;
     let cancelOrders = false;
 
-    // if terminal cooldown = 0
-    if (terminal && terminal.notBusy) {
+    if (terminal && terminal.cooldown === 0) {
+        console.log("1");
         _.each(terminal.store, function (amount, resourceType) {
-            if (cancelOrders || amount < MIN_AMOUNT)
+            console.log("2");
+            if (cancelOrders || (amount < MIN_AMOUNT))
                 return;
             // How much can Terminal give away?
             var availableAmount = amount - MIN_AMOUNT;
@@ -22,6 +23,7 @@ ControllerTerminal.prototype.internalTrade = function () {
             });
 
             for (var r in myRooms) {
+                console.log("3");
                 var aroom = myRooms[r];
                 // Only check other rooms
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
@@ -45,14 +47,5 @@ ControllerTerminal.prototype.internalTrade = function () {
         })
     }
 };
-
-Object.defineProperty(ControllerTerminal.prototype, "notBusy", {
-    get: function () {
-        return _.filter(this.terminal, function (terminal) {
-            return terminal.cooldown === 0;
-        });
-    }
-});
-
 
 module.exports = ControllerTerminal;
