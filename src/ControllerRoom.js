@@ -228,7 +228,7 @@ ControllerRoom.prototype.findResources = function () {
 		});
 	});
 
-	var ter = this.getTerminal();
+	/* var ter = this.getTerminal();
 	var rres = this.getMineralType();
 	_.each(ter, function (t) {
 		_.each(t.store, function (amount, resourceType) {
@@ -242,7 +242,8 @@ ControllerRoom.prototype.findResources = function () {
 				};
 			};
 		});
-	});
+	}); */
+	
 	memory.QueueAvailableResources = droppedResources;
 };
 
