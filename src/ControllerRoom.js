@@ -137,6 +137,15 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
+	let pow = this.getPowerSpawnNotFull();
+	for (var p of pow) {
+		needResources[n.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': p.energyCapacity - p.energy,
+			'id': p.id
+		};
+	}
+
 	/* let sto = this.getStorage();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
@@ -422,6 +431,25 @@ ControllerRoom.prototype.getLabsNotFull = function () {
 		});
 	}
 	return this._myLabsNF;
+};
+
+ControllerRoom.prototype.getPowerSpawn = function () {
+	if (!this._myPowerSpawn) {
+		this._myPowerSpawn = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_POWER_SPAWN
+		});
+	}
+	return this._myPowerSpawn;
+};
+
+ControllerRoom.prototype.getPowerSpawnNotFull = function () {
+	if (!this._myPowerSpawnNF) {
+		let powerSpawn = this.getPowerSpawn();
+		this._myPowerSpawnNF = _.filter(powerSpawn, function (e) {
+			return e.energy < e.energyCapacity;
+		});
+	}
+	return this._myPowerSpawnNF;
 };
 
 ControllerRoom.prototype.getNuker = function () {
