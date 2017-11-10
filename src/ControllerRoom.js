@@ -137,7 +137,7 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	let sto = this.getStorage();
+	/* let sto = this.getStorage();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
 			if (sto.store[r] < 20000 || sto.store[r] === undefined) {
@@ -147,6 +147,18 @@ ControllerRoom.prototype.needResources = function () {
 					'id': sto.id
 				};
 			}
+		}
+	}
+ */
+	let sto = this.getStorage();
+	if (sto && _.sum(sto.store) < sto.storeCapacity) {
+		for (var r of RESOURCES_ALL) {
+			
+				needResources[sto.id + "|" + r] = {
+					'resourceType': r,
+					'amount': 20000,
+					'id': sto.id
+				};
 		}
 	}
 

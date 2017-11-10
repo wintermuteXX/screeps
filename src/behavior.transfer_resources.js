@@ -26,8 +26,8 @@ b.work = function (creep, rc) {
       }
     }
     // Backup if no target found -> Terminal
-    if(!target && creep.room.terminal) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
-  }
+    //if(!target && creep.room.terminal) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
+    }
 
   if (target) {
       let result = creep.transfer(target, creep.memory.resourceType);
