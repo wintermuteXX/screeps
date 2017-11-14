@@ -377,7 +377,7 @@ ControllerRoom.prototype.getMineralAmount = function () {
 
 ControllerRoom.prototype.getMineralType = function () {
 	var minerals = this.find(FIND_MINERALS);
-	if (minerals) {
+	if (minerals.length) {
 		return minerals[0].mineralType;
 	}
 	return null;
