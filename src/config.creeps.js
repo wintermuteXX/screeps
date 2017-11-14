@@ -90,6 +90,7 @@ module.exports = {
     canBuild: function (rc) {
       var transporters = rc.getCreeps('transporter_mineral');
       var container = rc.getMineralContainer();
+      return false; // override -> trnasporter2 does the job
       if (container) {
         return (_.sum(container.store) > 500 && transporters.length < 1);
       } else {
