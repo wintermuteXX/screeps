@@ -21,7 +21,7 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
+        // console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
         break;
       }
     }
