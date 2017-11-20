@@ -10,7 +10,6 @@ var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 
 // test
-Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
 Memory.stats['cpu.limit'] = Game.cpu.limit
 Memory.stats['cpu.bucket'] = Game.cpu.bucket
 Memory.stats['gcl.progress'] = Game.gcl.progress
@@ -43,3 +42,4 @@ module.exports.loop = function () {
     gc.processRooms();
   })
 }
+Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
