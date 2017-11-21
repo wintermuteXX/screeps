@@ -80,7 +80,7 @@ function initGlobal(g) {
     });
   };
 
-  global.whatsInTerminals = function() {
+  g.whatsInTerminals = function() {
     let myUsername = Game.spawns[Object.keys(Game.spawns)[0]].owner.username;
     let roomData = {};
     let sums = {};
