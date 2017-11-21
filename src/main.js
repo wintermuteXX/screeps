@@ -41,5 +41,5 @@ module.exports.loop = function () {
     gc.garbageCollection();
     gc.processRooms();
   })
+  Memory.stats['cpu.getUsed'] = Game.cpu.getUsed();
 }
-Memory.stats['cpu.getUsed'] = Game.cpu.getUsed()
