@@ -25,7 +25,7 @@ module.exports = {
           _.forEach(room.storage.store, (quantity, item) => {
             // sums[item] = sums[item] || 0;
             // sums[item] = sums[item] + quantity;
-            Memory.stats['rooms.' + roomName + ".storage.resource." + item] = quantity;
+            Memory.stats['rooms.' + roomName + ".storage." + item] = quantity;
           })
         }
 
@@ -33,7 +33,7 @@ module.exports = {
           _.forEach(room.terminal.store, (quantity, item) => {
             // sums[item] = sums[item] || 0;
             // sums[item] = sums[item] + quantity;
-            Memory.stats['rooms.' + roomName + ".terminal.resource." + item] = quantity;
+            Memory.stats['rooms.' + roomName + ".terminal." + item] = quantity;
           })
         }
       }
