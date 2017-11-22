@@ -49,6 +49,11 @@
 
 2. Code Snippets
 
+Game.market.getAllOrders({resourceType: RESOURCE_UTRIUM}); // fast
+Game.market.getAllOrders({resourceType: RESOURCE_UTRIUM, type: ORDER_SELL}); // fast
+Game.market.getAllOrders(); // slow
+Game.market.getAllOrders(i => i.resourceType == RESOURCE_UTRIUM); //slow
+---------------------------
 placeContainer();
 {
     if (this.room.controller.reservation &&
