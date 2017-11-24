@@ -326,7 +326,9 @@ ControllerRoom.prototype.getController = function () {
 
 ControllerRoom.prototype.getStorage = function () {
 	if (!this._storage) {
-		this._storage = this.room.storage;
+		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), {
+			structureType: STRUCTURE_STORAGE
+		});
 	}
 	return this._storage;
 };
