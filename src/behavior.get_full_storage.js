@@ -24,7 +24,7 @@ b.work = function (creep, rc) {
         _.each(target.store, function (amount, resourceType) {
               //if (amount > 20000) {
               // console.log("In Terminal: " + creep.room.terminal.store[resourceType] + " Amount: " + amount + " ResType: " + resourceType);
-              if (amount > 20000 && (creep.room.terminal.store[resourceType] < 100000 || creep.room.terminal.store[resourceType] === undefined)) {
+              if (amount > 20000 && creep.room.terminal && (creep.room.terminal.store[resourceType] < 100000 || creep.room.terminal.store[resourceType] === undefined)) {
               
                 // console.log("Get full storage: " + amount, resourceType, target.room.name);
                 var test = creep.withdraw(target, resourceType);

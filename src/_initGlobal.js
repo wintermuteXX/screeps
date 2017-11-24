@@ -15,11 +15,6 @@ function initGlobal(g) {
     'checkConstructions': 100,
     'checkLinks': 5,
     'checkResourcesQueue': 10,
-    'StoreLevel4': 5000,
-    'StoreLevel5': 10000,
-    'StoreLevel6': 25000,
-    'StoreLevel7': 50000,
-    'StoreLevel8': 100000,
     'repairTower': 8,
     'maxHitsDefense' : 6000000,
     'internalTrade': 300

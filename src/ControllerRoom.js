@@ -159,7 +159,7 @@ ControllerRoom.prototype.needResources = function () {
 		}
 	}
  */
-	let sto = this.getStorage();
+/* 	let sto = this.getStorage();
 	if (sto && _.sum(sto.store) < sto.storeCapacity) {
 		for (var r of RESOURCES_ALL) {
 			
@@ -169,7 +169,7 @@ ControllerRoom.prototype.needResources = function () {
 					'id': sto.id
 				};
 		}
-	}
+	} */
 
 	memory.QueueNeededResources = needResources;
 };

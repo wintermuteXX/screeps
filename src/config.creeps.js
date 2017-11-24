@@ -80,10 +80,10 @@ module.exports = {
 
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
     // behaviors: ["get_resources", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
-    behaviors: ["get_resources", "transfer_resources", "transfer_energy_upgrader"]
+    behaviors: ["get_resources", "transfer_resources", "transfer_energy_storage"]
   },
 
-  "transporter_mineral": {
+  /* "transporter_mineral": {
     priority: 5,
     levelMin: 3,
 
@@ -100,7 +100,7 @@ module.exports = {
 
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
     behaviors: ["get_minerals_container", "transfer_mineral_storage"]
-  },
+  }, */
 
   "upgrader": {
     priority: 4,
@@ -210,8 +210,8 @@ module.exports = {
     minLevel: 3,
 
     canBuild: function (rc) {
-      //return rc.getCreeps("filler").length  < 1;
-      return false;
+      return rc.getCreeps("filler").length  < 1;
+      // return false;
     },
 
     body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
