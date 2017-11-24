@@ -210,7 +210,7 @@ module.exports = {
     minLevel: 3,
 
     canBuild: function (rc) {
-      return rc.getCreeps("filler").length  < 1;
+      return rc.getCreeps("filler").length  < 1 && rc.getStorage().length && rc.getTerminal().length;
       // return false;
     },
 
