@@ -139,7 +139,7 @@ ControllerRoom.prototype.needResources = function () {
 
 	let pow = this.getPowerSpawnNotFull();
 	for (var p of pow) {
-		needResources[n.id + "|energy"] = {
+		needResources[p.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': p.energyCapacity - p.energy,
 			'id': p.id
