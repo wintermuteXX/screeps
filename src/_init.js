@@ -191,7 +191,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
               let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
               if (found !== undefined && found.structureType === 'container') {
                 console.log("In the zone writing " + found.id + " in " + this.memory.container);
-                this.memory.container = found.id;}
+                this.memory.container = found.id;
+              }
             }, this);
           }, this);
         }
@@ -203,7 +204,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-  Object.defineProperty(Source.prototype, 'memory', {
+  /* Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
     get: function () {
       if (_.isUndefined(Memory.rooms[this.room.name].sources)) {
@@ -222,7 +223,23 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (!_.isObject(Memory.rooms[this.room.name].sources)) {
         throw new Error('Could not set source memory');
       }
-      Memory.rooms[this.room.name].sources[this.id] = value;
+      return Memory.rooms[this.room.name].sources[this.id] = value;
+    }
+  }); */
+
+  Object.defineProperty(Source.prototype, 'memory', {
+    configurable: true,
+    get: function () {
+      if (!Memory.rooms[this.room.name].sources)
+        Memory.rooms[this.room.name].sources = {};
+      if (!Memory.rooms[this.room.name].sources[this.id])
+        Memory.rooms[this.room.name].sources[this.id] = {};
+      return Memory.rooms[this.room.name].sources[this.id];
+    },
+    set: function (val) {
+      if (!Memory.rooms[this.room.name].sources)
+        Memory.rooms[this.room.name].sources = {};
+      return Memory.rooms[this.room.name].sources[this.id] = val;
     }
   });
 
