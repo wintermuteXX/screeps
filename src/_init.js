@@ -188,9 +188,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         if (this.memory.container == undefined) {
           [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
             [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              const found = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-              if (found.length && found[0].structureType == 'STRUCTURE_CONTAINER')
-                this.memory.container = found[0].id;
+              let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+              if (found !== undefined && found.structureType === 'container') {
+                console.log("In the zone writing " + found.id + " in " + this.memory.container);
+                this.memory.container = found.id;}
             }, this);
           }, this);
         }
