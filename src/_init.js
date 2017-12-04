@@ -190,10 +190,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
               const found = this.room.lookForAt(LOOK_STRUCTURES, x, y);
               if (found.length && found[0].structureType == 'STRUCTURE_CONTAINER')
-                var cont = found[0].id;
+              this.memory.container = found[0].id;
             }, this);
           }, this);
-          this.memory.container = cont;
         }
         this._container = this.memory.container;
       }
