@@ -182,26 +182,26 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-  /* Object.defineProperty(Source.prototype, 'containerPos', {
+  Object.defineProperty(Source.prototype, 'container', {
     get: function () {
-      if (this._containerPos == undefined) {
-        if (this.memory.containerPos == undefined) {
-          let containerPos = 0;
-          let spawn =this.room.find(StructureSpawn);
-          if (spawn[0] == undefined) {return false;}
-              containerPos = this.pos.getDirectionTo(spawn[0]);
-              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-              containerPos++;
-            
-          this.memory.containerPos = containerPos;
+      if (this._container == undefined) {
+        if (this.memory.container == undefined) {
+                  [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+              const found = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+              if (found.length && found[0].structureType == 'STRUCTURE_CONTAINER')
+                var cont = found[0].id;
+            }, this);
+          }, this);
+          this.memory.container = cont;
         }
-        this._containerPos = this.memory.containerPos;
+        this._container = this.memory.container;
       }
-      return this._containerPos;
+      return this._container;
     },
     enumerable: false,
     configurable: true
-  }); */
+  });
 
   Object.defineProperty(Source.prototype, 'memory', {
     configurable: true,
