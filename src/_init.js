@@ -186,11 +186,11 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.container == undefined) {
-                  [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
             [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
               const found = this.room.lookForAt(LOOK_STRUCTURES, x, y);
               if (found.length && found[0].structureType == 'STRUCTURE_CONTAINER')
-              this.memory.container = found[0].id;
+                this.memory.container = found[0].id;
             }, this);
           }, this);
         }
@@ -244,32 +244,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  /*Object.defineProperty(Source.prototype, 'sourceContainer', {
-    get: function () {
-      if (this == Source.prototype || this == undefined)
-        return undefined;
-      if (!this._source) {
-        if (this.memory.sourceContainer === undefined) {
-          let container = _.filter(this.find(FIND_STRUCTURES), function (f) {
-            return f.structureType === STRUCTURE_CONTAINER && f.pos.inRangeTo(this.pos, 1)
-          });
-          if (!container) {
-            return this.memory.sourceContainer = null;
-          }
-          this._source = container;
-          this.memory.sourceContainer = container.id;
-        } else {
-          this._source = Game.getObjectById(this.memory.sourceContainer);
-        }
-      }
-      return this._source;
-    },
-    enumerable: false,
-    configurable: true
-  });
-*/
-
-  // Unlimited walls+rampart upgrade. Rest only when HP < 66%
   Structure.prototype.needsRepair = function () {
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
       let max = global.getInterval('maxHitsDefense');
