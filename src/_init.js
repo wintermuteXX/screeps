@@ -228,7 +228,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   }); */
 
   Object.defineProperty(Source.prototype, 'memory', {
-    configurable: true,
     get: function () {
       if (!Memory.rooms[this.room.name].sources)
         Memory.rooms[this.room.name].sources = {};
@@ -236,10 +235,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         Memory.rooms[this.room.name].sources[this.id] = {};
       return Memory.rooms[this.room.name].sources[this.id];
     },
-    set: function (val) {
+    set: function (v) {
       if (!Memory.rooms[this.room.name].sources)
         Memory.rooms[this.room.name].sources = {};
-      return Memory.rooms[this.room.name].sources[this.id] = val;
+      return Memory.rooms[this.room.name].sources[this.id] = v;
     }
   });
 
