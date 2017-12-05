@@ -198,7 +198,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  Object.defineProperty(Controller.prototype, 'container', {
+  /* Object.defineProperty(Controller.prototype, 'container', {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.container == undefined) {
@@ -218,7 +218,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     },
     enumerable: false,
     configurable: true
-  });
+  }); */
 
   Object.defineProperty(Structure.prototype, 'memory', {
     get: function () {
