@@ -112,23 +112,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.pos.isNearTo(t);
   };
 
-  Creep.prototype.moveToEx = function (target) {
-    if (this.fatigue === 0) {
-      this.moveTo(target, {
-        'reusePath': 15,
-        // 'noPathFinding' : true,
-        'maxOps': 1000,
-        visualizePathStyle: {
-          fill: 'transparent',
-          stroke: '#fff',
-          lineStyle: 'dashed',
-          strokeWidth: .15,
-          opacity: .1
-        }
-      });
-    }
-  };
-
   Creep.prototype.getActiveBodyparts = function (type) {
     var count = 0;
     for (var i = this.body.length; i-- > 0;) {
@@ -140,10 +123,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     return count;
   };
-
-  /**
-   * Extend source
-   */
 
   Object.defineProperty(Source.prototype, "defended", {
     get: function () {
@@ -204,29 +183,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-  /* Object.defineProperty(Source.prototype, 'memory', {
-    configurable: true,
-    get: function () {
-      if (_.isUndefined(Memory.rooms[this.room.name].sources)) {
-        Memory.rooms[this.room.name].sources = {};
-      }
-      if (!_.isObject(Memory.rooms[this.room.name].sources)) {
-        return undefined;
-      }
-      return Memory.rooms[this.room.name].sources[this.id] =
-        Memory.rooms[this.room.name].sources[this.id] || {};
-    },
-    set: function (value) {
-      if (_.isUndefined(Memory.rooms[this.room.name].sources)) {
-        Memory.rooms[this.room.name].sources = {};
-      }
-      if (!_.isObject(Memory.rooms[this.room.name].sources)) {
-        throw new Error('Could not set source memory');
-      }
-      return Memory.rooms[this.room.name].sources[this.id] = value;
-    }
-  }); */
-
   Object.defineProperty(Source.prototype, 'memory', {
     get: function () {
       if (!Memory.rooms[this.room.name].sources)
@@ -240,6 +196,28 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         Memory.rooms[this.room.name].sources = {};
       return Memory.rooms[this.room.name].sources[this.id] = v;
     }
+  });
+
+  Object.defineProperty(Controller.prototype, 'container', {
+    get: function () {
+      if (this._container == undefined) {
+        if (this.memory.container == undefined) {
+          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+              let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+              if (found !== undefined && found.structureType === 'container') {
+                console.log("In the zone writing " + found.id + " in " + this.memory.container);
+                this.memory.container = found.id;
+              }
+            }, this);
+          }, this);
+        }
+        this._container = this.memory.container;
+      }
+      return this._container;
+    },
+    enumerable: false,
+    configurable: true
   });
 
   Object.defineProperty(Structure.prototype, 'memory', {
@@ -269,10 +247,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.hits < (this.hitsMax * 0.9);
   };
 
-  /**
-   * Defines a .mineral property for rooms that caches and gives you the mineral object for a room
-   * Author: Helam
-   */
   Object.defineProperty(Room.prototype, 'mineral', {
     get: function () {
       if (this == Room.prototype || this == undefined)
@@ -359,7 +333,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
   };
-
 
   Room.prototype.getResourceAmount = function (res) {
     var amount = 0;

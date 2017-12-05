@@ -52,9 +52,6 @@ function initGlobal(g) {
     return g._behaviors[n] || null;
   };
 
-  /**
-   * Creeps
-   */
   g._creeps = require("config.creeps");
 
   g.getCreepConfig = function (role) {
