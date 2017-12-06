@@ -169,7 +169,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
               let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
               if (found !== undefined && found.structureType === 'container') {
-                console.log("In the zone writing " + found.id + " in " + this.memory.container);
                 this.memory.container = found.id;
               }
             }, this);
@@ -197,28 +196,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return Memory.rooms[this.room.name].sources[this.id] = v;
     }
   });
-
-  /* Object.defineProperty(Controller.prototype, 'container', {
-    get: function () {
-      if (this._container == undefined) {
-        if (this.memory.container == undefined) {
-          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-              if (found !== undefined && found.structureType === 'container') {
-                console.log("In the zone writing " + found.id + " in " + this.memory.container);
-                this.memory.container = found.id;
-              }
-            }, this);
-          }, this);
-        }
-        this._container = this.memory.container;
-      }
-      return this._container;
-    },
-    enumerable: false,
-    configurable: true
-  }); */
 
   Object.defineProperty(Structure.prototype, 'memory', {
     get: function () {
