@@ -201,7 +201,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.container == undefined) {
-          let [found] = this.lookForNear('container',0,2);
+          let [found] = this.pos.findInRange(FIND_STRUCTURES, 2,
+            {filter: {structureType: STRUCTURE_CONTAINER}});
           console.log("Found: " + found);
               if (found !== undefined) {
                 this.memory.container = found.id;
