@@ -119,14 +119,14 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	let con = this.getControllerNotFull();
+	/* let con = this.getControllerNotFull();
 	for (var c of con) {
 		needResources[c.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': c.energyCapacity - c.energy,
 			'id': c.id
 		};
-	}
+	} */
 
 	let lab = this.getLabsNotFull();
 	for (var l of lab) {
@@ -168,17 +168,6 @@ ControllerRoom.prototype.needResources = function () {
 		}
 	}
  */
-/* 	let sto = this.getStorage();
-	if (sto && _.sum(sto.store) < sto.storeCapacity) {
-		for (var r of RESOURCES_ALL) {
-			
-				needResources[sto.id + "|" + r] = {
-					'resourceType': r,
-					'amount': 20000,
-					'id': sto.id
-				};
-		}
-	} */
 
 	memory.QueueNeededResources = needResources;
 };
@@ -333,6 +322,16 @@ ControllerRoom.prototype.getController = function () {
 	return null;
 };
 
+ControllerRoom.prototype.getControllerNotFull = function () {
+	if (!this._controllerNF) {
+		let controller = this.getController().memory.container;
+		this._controllerNF = _.filter(controller, function (e) {
+			return (e.energy + 200) < e.energyCapacity;
+		});
+	}
+	return this._controllerNF;
+};
+
 ControllerRoom.prototype.getStorage = function () {
 	if (!this._storage) {
 		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), {
@@ -367,16 +366,6 @@ ControllerRoom.prototype.getSpawnsNotFull = function () {
 		});
 	}
 	return this._spawnsNF;
-};
-
-ControllerRoom.prototype.getControllerNotFull = function () {
-	if (!this._controllerNF) {
-		let controller = this.controller.memory.container;
-		this._controllerNF = _.filter(controller, function (e) {
-			return (e.energy + 200) < e.energyCapacity;
-		});
-	}
-	return this._controllerNF;
 };
 
 ControllerRoom.prototype.getMineralContainer = function () {
