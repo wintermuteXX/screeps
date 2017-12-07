@@ -197,6 +197,25 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
+  Object.defineProperty(Structure.prototype, 'container', {
+    get: function () {
+      if (this._container == undefined) {
+        if (this.memory.container == undefined) {
+          let [found] = this.lookForNear('container',0,2);
+          console.log("Found: " + found);
+              if (found !== undefined) {
+                this.memory.container = found.id;
+              }
+        }
+        this._container = this.memory.container;
+      }
+      console.log("This.container: " + this._container);
+      return this._container;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
   Object.defineProperty(Structure.prototype, 'memory', {
     get: function () {
       if (!Memory.rooms[this.room.name].structures)
