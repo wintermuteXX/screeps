@@ -174,7 +174,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             }, this);
           }, this);
         }
-        this._container = this.memory.container;
+        this._container = Game.getObjectById(this.memory.container);
       }
       return this._container;
     },
@@ -203,14 +203,12 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         if (this.memory.container == undefined) {
           let [found] = this.pos.findInRange(FIND_STRUCTURES, 2,
             {filter: {structureType: STRUCTURE_CONTAINER}});
-          console.log("Found: " + found);
               if (found !== undefined) {
                 this.memory.container = found.id;
               }
         }
-        this._container = this.memory.container;
+        this._container = Game.getObjectById(this.memory.container);
       }
-      console.log("This.container: " + this._container);
       return this._container;
     },
     enumerable: false,
