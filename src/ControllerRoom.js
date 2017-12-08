@@ -120,8 +120,8 @@ ControllerRoom.prototype.needResources = function () {
 	}
 
 	let con = this.getControllerNotFull();
-	if ( con && con != null ) {
-	    needResources[con.id + "|energy"] = {
+	if (con && con != null) {
+		needResources[con.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': con.storeCapacity - _.sum(con.store),
 			'id': con.id
@@ -241,7 +241,7 @@ ControllerRoom.prototype.findResources = function () {
 			};
 		});
 	}); */
-	
+
 	memory.QueueAvailableResources = droppedResources;
 };
 
@@ -324,19 +324,18 @@ ControllerRoom.prototype.getController = function () {
 
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {
-	    this._controllerNF = null;
-	    
+		this._controllerNF = null;
+
 		let containerId = this.getController().memory.container || null;
-		
-		if ( containerId != null ) {
-    		var container = Game.getObjectById(containerId);
-	    	console.log(this.room.name, container);
-		
-    		if ( container != null ) {
-    		    if ( container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity ) {
-    		        this._controllerNF = container
-    		    }
-    		}
+
+		if (containerId != null) {
+			var container = Game.getObjectById(containerId);
+
+			if (container != null) {
+				if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
+					this._controllerNF = container
+				}
+			}
 		}
 	}
 	return this._controllerNF;
