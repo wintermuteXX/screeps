@@ -11,7 +11,6 @@
         - miner - if link empty + container filled -> transfer to link.
         - recalculate needed transporters
 		- createCreep. Calculate Move parts dynamically (body2)
-        - build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
         - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
         -- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
@@ -21,13 +20,16 @@
     	-- Boost creeps
    	BUGS
 	    - (bug) when controller downgrades during construction, workers can't finish behavior construction
+		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
    	TESTING
-    	- (testing) Resource Queue - Mineral in Container funktioniert nicht. 
-        - (testing) miner - walk to container, not source
-        - (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
-		- (testing) behavior harvest works on empty source
+    	
   	DONE
-	  	- (done) Limit Upgrader Work parts in RCL 8
+	  	- (done) (testing) behavior harvest works on empty source
+		- (done) (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+		- (done) (testing) miner - walk to container, not source
+        - (done) (testing) Resource Queue - Mineral in Container funktioniert nicht. 
+        - (done) build queue for needed resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
+        - (done) Limit Upgrader Work parts in RCL 8
 		- (done) behavior.harvest:11 /// return (creep.energy === creep.energyCapacity || source.energy === 0); /// TypeError: Cannot read property 'energy' of null
 	    - (done) write general behavior for picking up resources. User Resource queue
         - (done) Update build creeps to always build max body.
