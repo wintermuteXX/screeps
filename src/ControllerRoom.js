@@ -54,6 +54,10 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.internalTrade();
 	}
 
+	if (Game.time % global.getInterval('sellOverflow') === 0 && Game.cpu.tickLimit > 50) {
+		this.terminal.sellOverflow();
+	}
+
 };
 
 /**
@@ -653,7 +657,7 @@ Room.prototype.centerPoint = function () {
 	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
-Room.prototype.getBestOrder = function () {
+Room.prototype.getBestOrder = function (minInStock = 1000) {
 	var _this = this;
 	var minAmount = 1000;
 	let mtype = _this.find(FIND_MINERALS)[0].mineralType;
@@ -667,7 +671,7 @@ Room.prototype.getBestOrder = function () {
 			order.remainingAmount > minAmount
 			// Only look at orders with 1000+ units
 			&&
-			_this.terminal.store[order.resourceType] >= 1000
+			_this.terminal.store[order.resourceType] >= minInStock
 	}); // terminal must have at least 1k of this resource
 	// Compute, map and filter on profit
 	// console.log("Step1: " + orders);

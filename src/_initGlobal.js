@@ -17,7 +17,8 @@ function initGlobal(g) {
     'checkResourcesQueue': 10,
     'repairTower': 8,
     'maxHitsDefense' : 6000000,
-    'internalTrade': 300
+    'internalTrade': 300,
+    'sellOverflow': 499
   };
 
   g.getInterval = function (key) {

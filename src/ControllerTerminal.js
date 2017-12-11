@@ -4,7 +4,7 @@ function ControllerTerminal(rc) {
 }
 
 // Needs optimization
-ControllerTerminal.prototype.internalTrade = function () {
+ControllerTerminal.prototype.internalTrade = function (){ 
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
     let cancelOrders = false;
@@ -42,6 +42,16 @@ ControllerTerminal.prototype.internalTrade = function () {
                 }
             }
         })
+    }
+};
+
+
+ControllerTerminal.prototype.sellOverflow = function (){ 
+    let minInStock = 95000;
+    let [terminal] = this.terminal;
+    
+    if (terminal && terminal.cooldown === 0) {
+        terminal.room.getBestOrder(minInStock);
     }
 };
 
