@@ -11,13 +11,21 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
+  let target = creep.room.controller;
+  if (target) {
+    let result = creep.upgradeController(target);
 
-if(creep.room.controller) {
-    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-        creep.travelTo(creep.room.controller);
+    switch (result) {
+      case OK:
+        break;
+      case ERR_NOT_IN_RANGE:
+        creep.travelTo(target);
+        break;
+
+      default:
+        console.log(`unknown result from (creep ${creep}).upgradeController(${target}): ${result}`);
     }
-}
-
+  }
 };
 
 module.exports = b;
