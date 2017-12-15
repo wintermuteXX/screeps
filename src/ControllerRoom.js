@@ -570,6 +570,20 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	return this._sourcesUD;
 };
 
+ControllerRoom.prototype.getSourceToMine = function () {
+	if (!this._sourceTM) {
+		let sources = this.getSources();
+		if (sources) {
+			this._sourceTM = _.filter(sources, function (s) {
+				return (defended || false) == s.defended;
+			});
+		} else {
+			return null;
+		}
+	}
+	return this._sourceTM;
+};
+
 ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
 	var lReq = cfg.levelMin || 1;

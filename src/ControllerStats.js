@@ -4,7 +4,6 @@ module.exports = {
     if (!Memory.stats) {
       Memory.stats = {}
     }
-    // let sums = {};
 
     Memory.stats['cpu.limit'] = Game.cpu.limit
     Memory.stats['cpu.bucket'] = Game.cpu.bucket
