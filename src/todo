@@ -22,11 +22,11 @@
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
-		- (bug) ControllerRoom:329
+		
+   	TESTING
+    	- (testing) ControllerRoom:329
 				let containerId = this.getController().memory.container || null;
 		        TypeError: Cannot read property 'memory' of null
-   	TESTING
-    	
   	DONE
 	  	- (done) (testing) behavior harvest works on empty source
 		- (done) (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))

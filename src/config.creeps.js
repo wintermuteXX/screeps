@@ -204,19 +204,17 @@ module.exports = {
     behaviors: ['goto_white_flag', "claim_controller"]
   },
 
-  'filler': {
-    produceGlobal: false,
+  'broker': {
+    //produceGlobal: false,
     priority: 7,
     minLevel: 3,
 
     canBuild: function (rc) {
-      return rc.getCreeps("filler").length  < 1 && rc.getStorage().length && rc.getTerminal().length;
-      // return false;
+      return rc.getCreeps("broker").length < 1 && rc.getStorage().length && rc.getTerminal().length;
     },
 
     body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-    behaviors: ["get_full_storage", "transfer_full_terminal"]
-    //behaviors: []
+    behaviors: ["get_full_storage", "transfer_full_terminal","get_full_terminal", "transfer_full_storage"]
   }
 
 };
