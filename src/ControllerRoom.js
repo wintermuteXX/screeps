@@ -330,7 +330,9 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {
 		this._controllerNF = null;
 
-		let containerId = this.getController().memory.container || null;
+		let controllerz = this.getController();
+		if (controllerz) {
+			let containerId = controllerz.memory.container || null;
 
 		if (containerId != null) {
 			var container = Game.getObjectById(containerId);
@@ -342,7 +344,8 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 			}
 		}
 	}
-	return this._controllerNF;
+}
+return this._controllerNF;
 };
 
 ControllerRoom.prototype.getStorage = function () {
