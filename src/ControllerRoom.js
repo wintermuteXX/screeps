@@ -188,7 +188,7 @@ ControllerRoom.prototype.findResources = function () {
 
 	// Dropped Resources
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-		if (!s.pos.inRangeTo(this.room.controller.pos, 3)) {
+		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
 			droppedResources[s.id + "|" + s.resourceType] = {
 				'resourceType': s.resourceType,
 				'structure': false,
@@ -217,7 +217,7 @@ ControllerRoom.prototype.findResources = function () {
 
 	_.each(containers, function (c) {
 		_.each(c.store, function (amount, resourceType) {
-			if (amount > 0) {
+			if (amount > 200) {
 				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 				droppedResources[c.id + "|" + resourceType] = {
 					'resourceType': resourceType,
