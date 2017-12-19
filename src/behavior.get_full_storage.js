@@ -6,7 +6,7 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  return (_.sum(creep.carry) > 0) creep.target == null;
+  return (_.sum(creep.carry) > 0) || creep.target == null;
 };
 
 b.work = function (creep, rc) {

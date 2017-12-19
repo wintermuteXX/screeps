@@ -159,7 +159,7 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	/* let sto = this.getStorage();
+	let sto = this.getStorage();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
 			if (sto.store[r] < 20000 || sto.store[r] === undefined) {
@@ -171,7 +171,6 @@ ControllerRoom.prototype.needResources = function () {
 			}
 		}
 	}
- */
 
 	memory.QueueNeededResources = needResources;
 };
@@ -230,12 +229,15 @@ ControllerRoom.prototype.findResources = function () {
 		});
 	});
 
-	/* var ter = this.getTerminal();
+	var ter = this.getTerminal();
 	var rres = this.getMineralType();
+	var sto = this.getStorage();
+
 	_.each(ter, function (t) {
 		_.each(t.store, function (amount, resourceType) {
-			if ((resourceType !== rres) && ((resourceType !== 'energy' && amount > 0) || (resourceType == 'energy' && amount > 50000))) {
-				// console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
+			//if ((resourceType !== rres) && ((resourceType !== 'energy' && amount > 0) || (resourceType == 'energy' && amount > 50000))) {
+			if ((resourceType !== rres) && ((sto.store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000))) {
+					// console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
 				droppedResources[t.id + "|" + resourceType] = {
 					'resourceType': resourceType,
 					'structure': true,
@@ -244,7 +246,7 @@ ControllerRoom.prototype.findResources = function () {
 				};
 			};
 		});
-	}); */
+	});
 
 	memory.QueueAvailableResources = droppedResources;
 };
