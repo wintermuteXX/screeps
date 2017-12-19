@@ -233,19 +233,20 @@ ControllerRoom.prototype.findResources = function () {
 	var rres = this.getMineralType();
 	var sto = this.getStorage();
 
-	_.each(ter, function (t) {
-		_.each(t.store, function (amount, resourceType) {
-			if ((resourceType !== rres) && ((sto.store === undefined || sto.store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000))) {
-				droppedResources[t.id + "|" + resourceType] = {
-					'resourceType': resourceType,
-					'structure': true,
-					'amount': amount,
-					'id': t.id
+	if (ter && sto) {
+		_.each(ter, function (t) {
+			_.each(t.store, function (amount, resourceType) {
+				if ((resourceType !== rres) && ((sto[0].store === undefined || sto[0].store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000))) {
+					droppedResources[t.id + "|" + resourceType] = {
+						'resourceType': resourceType,
+						'structure': true,
+						'amount': amount,
+						'id': t.id
+					};
 				};
-			};
+			});
 		});
-	});
-
+	};
 	memory.QueueAvailableResources = droppedResources;
 };
 
