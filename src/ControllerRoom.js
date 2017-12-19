@@ -161,6 +161,18 @@ ControllerRoom.prototype.needResources = function () {
 
 	let sto = this.getStorage();
 	if (sto) {
+		for (var r of RESOURCES_ALL) {
+			if (sto.store[r] < 20000 || sto.store[r] === undefined) {
+				needResources[sto.id + "|" + r] = {
+					'resourceType': r,
+					'amount': 20000 - (sto.store[r] || 0),
+					'id': sto.id
+				};
+			}
+		}
+	}
+	
+	/* if (sto) {
 
 		_.each(sto.store, function (amount, resourceType) {
 			if (resourceType === undefined || amount < 20000) {
@@ -172,7 +184,7 @@ ControllerRoom.prototype.needResources = function () {
 			}
 		});
 	}
-
+ */
 	memory.QueueNeededResources = needResources;
 };
 
@@ -236,9 +248,7 @@ ControllerRoom.prototype.findResources = function () {
 
 	_.each(ter, function (t) {
 		_.each(t.store, function (amount, resourceType) {
-			//if ((resourceType !== rres) && ((resourceType !== 'energy' && amount > 0) || (resourceType == 'energy' && amount > 50000))) {
-			if ((resourceType !== rres) && ((sto.store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000))) {
-				// console.log(t.room.name + " In Terminal: " + resourceType + " " + amount);
+			if ((resourceType !== rres) && ((sto.store === undefined || sto.store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000))) {
 				droppedResources[t.id + "|" + resourceType] = {
 					'resourceType': resourceType,
 					'structure': true,
@@ -263,7 +273,6 @@ ControllerRoom.prototype.find = function (type) {
  * ControllerRoom.getCreeps(role, target)
  * No Parameter = all Creeps
  * role = all Creeps with role
- * target = all Creeps with this target (memory.target)
  * role + target = all Creeps with role + target
  */
 ControllerRoom.prototype.getCreeps = function (role, target) {
