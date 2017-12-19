@@ -162,29 +162,16 @@ ControllerRoom.prototype.needResources = function () {
 	let sto = this.getStorage();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
-			if (sto.store[r] < 20000 || sto.store[r] === undefined) {
-				needResources[sto.id + "|" + r] = {
+			if (sto[0].store[r] === undefined || sto[0].store[r] < 20000) {
+				needResources[sto[0].id + "|" + r] = {
 					'resourceType': r,
-					'amount': 20000 - (sto.store[r] || 0),
-					'id': sto.id
+					'amount': 20000 - (sto[0].store[r] || 0),
+					'id': sto[0].id
 				};
 			}
 		}
 	}
-	
-	/* if (sto) {
 
-		_.each(sto.store, function (amount, resourceType) {
-			if (resourceType === undefined || amount < 20000) {
-				needResources[sto.id + "|" + resourceType] = {
-					'resourceType': resourceType,
-					'amount': 20000 - amount,
-					'id': sto.id
-				};
-			}
-		});
-	}
- */
 	memory.QueueNeededResources = needResources;
 };
 
