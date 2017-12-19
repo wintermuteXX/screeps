@@ -6,7 +6,7 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  return (_.sum(creep.carry) > 0);
+  return (_.sum(creep.carry) > 0) || creep.target == null;
 };
 
 b.work = function (creep, rc) {
@@ -24,10 +24,10 @@ b.work = function (creep, rc) {
         _.each(target.store, function (amount, resourceType) {
               if (creep.room.store && (creep.room.store.store[resourceType] < 20000 || creep.room.store.store[resourceType] === undefined)) {
                 var test = creep.withdraw(target, resourceType, 20000 - creep.room.store.store[resourceType]);
-                creep.target = null;
               };
             });
           };
         };
+        creep.target = null;
       };
       module.exports = b;
