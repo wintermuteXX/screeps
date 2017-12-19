@@ -67,7 +67,6 @@ module.exports = {
     behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"]
   },
 
-
   "transporter2": {
     priority: 1,
     levelMin: 2,
@@ -82,25 +81,6 @@ module.exports = {
     // behaviors: ["get_resources", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_storage", "transfer_energy_upgrader"]
     behaviors: ["get_resources", "transfer_resources", "transfer_energy_storage"]
   },
-
-  /* "transporter_mineral": {
-    priority: 5,
-    levelMin: 3,
-
-    canBuild: function (rc) {
-      var transporters = rc.getCreeps('transporter_mineral');
-      var container = rc.getMineralContainer();
-      return false; // override -> trnasporter2 does the job
-      if (container) {
-        return (_.sum(container.store) > 500 && transporters.length < 1);
-      } else {
-        return false;
-      }
-    },
-
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["get_minerals_container", "transfer_mineral_storage"]
-  }, */
 
   "upgrader": {
     priority: 4,
@@ -203,18 +183,5 @@ module.exports = {
     body2: [MOVE, CLAIM, MOVE, CLAIM],
     behaviors: ['goto_white_flag', "claim_controller"]
   },
-
-  'broker': {
-    //produceGlobal: false,
-    priority: 7,
-    minLevel: 3,
-
-    canBuild: function (rc) {
-      return rc.getCreeps("broker").length < 1 && rc.getStorage().length && rc.getTerminal().length;
-    },
-
-    body2: [MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
-    behaviors: ["get_full_storage", "transfer_full_terminal","get_full_terminal", "transfer_full_storage"]
-  }
 
 };
