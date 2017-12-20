@@ -159,14 +159,14 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	let sto = this.getStorage();
+	let [sto] = this.getStorage();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
-			if (sto[0].store[r] === undefined || sto[0].store[r] < 20000) {
-				needResources[sto[0].id + "|" + r] = {
+			if (sto.store[r] === undefined || sto.store[r] < 20000) {
+				needResources[sto.id + "|" + r] = {
 					'resourceType': r,
-					'amount': 20000 - (sto[0].store[r] || 0),
-					'id': sto[0].id
+					'amount': 20000 - (sto.store[r] || 0),
+					'id': sto.id
 				};
 			}
 		}
