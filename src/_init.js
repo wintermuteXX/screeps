@@ -203,20 +203,29 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         if (this.memory.dropEnergy == undefined) {
           [this.pos.x - 2, this.pos.x - 1, this.pos.x, this.pos.x + 1, this.pos.x + 2].forEach(x => {
             [this.pos.y - 2, this.pos.y - 1, this.pos.y, this.pos.y + 1, this.pos.y + 2].forEach(y => {
-              let pos = new RoomPosition(x, y, this.room);
+              let pos = new RoomPosition(x, y, this.room.name);
               let count = pos.freeFieldsCount;
               console.log("Pos: " + pos + " Count: " + count);
-              if (count = 8) {this.memory.dropEnergy = pos}
+              if (count == 8) {
+                this.memory.dropEnergy = {
+                  x: pos.x,
+                  y: pos.y,
+                  roomName: pos.roomName
+                };
+              }
             }, this);
           }, this);
         }
-        this.dropEnergy = this.memory.dropEnergy;
+        this._dropEnergy = this.memory.dropEnergy;
       }
-      return this.dropEnergy;
+      return this._dropEnergy;
     },
     enumerable: false,
     configurable: true
   });
+
+
+
 
   Object.defineProperty(Structure.prototype, 'container', {
     get: function () {
@@ -264,6 +273,52 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
     return this.hits < (this.hitsMax * 0.9);
+  };
+
+
+  Structure.prototype.calculateContainerPos = function (range = 1) {
+    if (this.room.controller.reservation &&
+      /* reserved and not mine */
+      this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
+      // console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
+      return;
+    }
+    var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
+
+    if (!startingPosition) {
+      startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
+        filter: (function (s) {
+          return s.structureType === STRUCTURE_SPAWN;
+        })
+      })[0];
+    }
+    if (!startingPosition)
+      return;
+    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, 1).length > 0)
+      return;
+    var ret = PathFinder.search(this.pos, startingPosition, {
+      maxOps: 4000,
+      swampCost: 2,
+      plainCost: 2,
+    });
+    if (ret.incomplete || ret.path.length === 0) {
+      console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
+      return;
+    }
+    var position_1 = ret.path[range - 1];
+    console.log("Position1: " + position_1);
+    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
+      return p.getRangeTo(position_1);
+    });
+    for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
+      var testPosition = testPositions_1[_i];
+      var sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
+      if (sourcesInRange.length > 1) {
+        continue;
+      } */
+    position_1.createConstructionSite(STRUCTURE_CONTAINER);
+    console.log("Placed container in " + this.room);
+    return position_1;
   };
 
   Object.defineProperty(Room.prototype, 'mineral', {
@@ -320,27 +375,23 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
     get: function () {
-      if (this == RoomPosition.prototype || this == undefined)
-        return undefined;
+      var self = this;
 
-      if (!this._freeFieldsCount) {
-        let freeSpaceCount = 0;
-        [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-          [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-            let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-            if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-                freeSpaceCount++;
-          }, this);
+      let freeSpaceCount = 0;
+      [this.x - 1, this.x, this.x + 1].forEach(x => {
+        [this.y - 1, this.y, this.y + 1].forEach(y => {
+          if (!(x == self.x && self.y == y)) {
+            let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
+            if (Game.map.getTerrainAt(x, y, this.roomName) != 'wall')
+              freeSpaceCount++;
+          }
         }, this);
-        this._freeFieldsCount = freeSpaceCount;
-      }
-
-      return this._freeFieldsCount;
+      }, this);
+      return freeSpaceCount;
     },
     enumerable: false,
     configurable: true
   });
-
 
   RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
     var {
