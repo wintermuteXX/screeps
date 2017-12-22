@@ -320,11 +320,37 @@ ControllerRoom.prototype.getLevel = function () {
 };
 
 ControllerRoom.prototype.getController = function () {
-	if (this.room.controller) {
-		return this.room.controller;
-	}
-	return null;
+	return this.room.controller || null;
 };
+
+// Get Controller Energy Target
+ControllerRoom.prototype.getControllerEnergyTarget = function() {
+	var controller = this.getController();
+
+	if ( controller != null ) {
+		var area = null; //...;
+
+
+		// container
+		var container = null;
+
+		if (container != null )  {
+			return container;
+		}
+
+
+		// pile of energy
+		var energyPile = null;
+
+		if ( energyPile ) {
+			return energyPile;
+		}
+		
+	}
+
+	return controller;
+}
+
 
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {

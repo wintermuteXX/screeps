@@ -197,15 +197,39 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
+  Object.defineProperty(Structure.prototype, 'dropEnergy', {
+    get: function () {
+      if (this._dropEnergy == undefined) {
+        if (this.memory.dropEnergy == undefined) {
+          [this.pos.x - 2, this.pos.x - 1, this.pos.x, this.pos.x + 1, this.pos.x + 2].forEach(x => {
+            [this.pos.y - 2, this.pos.y - 1, this.pos.y, this.pos.y + 1, this.pos.y + 2].forEach(y => {
+              let pos = new RoomPosition(x, y, this.room);
+              let count = pos.freeFieldsCount;
+              console.log("Pos: " + pos + " Count: " + count);
+              if (count = 8) {this.memory.dropEnergy = pos}
+            }, this);
+          }, this);
+        }
+        this.dropEnergy = this.memory.dropEnergy;
+      }
+      return this.dropEnergy;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
   Object.defineProperty(Structure.prototype, 'container', {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.container == undefined) {
-          let [found] = this.pos.findInRange(FIND_STRUCTURES, 2,
-            {filter: {structureType: STRUCTURE_CONTAINER}});
-              if (found !== undefined) {
-                this.memory.container = found.id;
-              }
+          let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+            filter: {
+              structureType: STRUCTURE_CONTAINER
+            }
+          });
+          if (found !== undefined) {
+            this.memory.container = found.id;
+          }
         }
         this._container = Game.getObjectById(this.memory.container);
       }
@@ -293,6 +317,30 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
+
+  Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
+    get: function () {
+      if (this == RoomPosition.prototype || this == undefined)
+        return undefined;
+
+      if (!this._freeFieldsCount) {
+        let freeSpaceCount = 0;
+        [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
+          [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
+            let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+            if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+                freeSpaceCount++;
+          }, this);
+        }, this);
+        this._freeFieldsCount = freeSpaceCount;
+      }
+
+      return this._freeFieldsCount;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
 
   RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
     var {
