@@ -764,7 +764,8 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	var bestOrder = _.max(orders, 'profit');
 	console.log("Amount: " + bestOrder.amount + " Fee: " + bestOrder.fee + " Profit: " + bestOrder.profit);
 	// console.log(this.deal(bestOrder));
-	return Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
+	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
+	return result;
 };
 
 ControllerRoom.prototype.analyse = function () {
