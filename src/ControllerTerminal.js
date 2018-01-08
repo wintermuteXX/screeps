@@ -47,7 +47,7 @@ ControllerTerminal.prototype.internalTrade = function (){
 
 
 ControllerTerminal.prototype.sellOverflow = function (){ 
-    let minInStock = 95000;
+    let minInStock = 20000;
     let [terminal] = this.terminal;
     
     if (terminal && terminal.cooldown === 0) {
