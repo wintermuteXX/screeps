@@ -232,6 +232,7 @@ ControllerRoom.prototype.findResources = function () {
 	var ter = this.getTerminal();
 	var sto = this.getStorage();
 
+	// Terminal
 	if (ter && sto) {
 		_.each(ter, function (t) {
 			_.each(t.store, function (amount, resourceType) {
@@ -241,6 +242,22 @@ ControllerRoom.prototype.findResources = function () {
 						'structure': true,
 						'amount': amount,
 						'id': t.id
+					};
+				};
+			});
+		});
+	};
+
+	// Storage
+	if (sto) {
+		_.each(sto, function (s) {
+			_.each(s.store, function (amount, resourceType) {
+				if ((amount > 20000) || (resourceType == 'energy' && amount > 0)) {
+					droppedResources[s.id + "|" + resourceType] = {
+						'resourceType': resourceType,
+						'structure': true,
+						'amount': amount,
+						'id': s.id
 					};
 				};
 			});
