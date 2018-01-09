@@ -55,6 +55,58 @@
 
 2. Code Snippets
 
+//ScreepsLiquidator
+let prices = {
+    XUH2O : 0.449,
+    XKH2O : 1,
+    XKHO2 : 0.6,
+    XLH2O : 0.856,
+    XLHO2 : 0.349,
+    XZH2O : 0.3,
+    XZHO2 : 0.48,
+    XGH2O : 2.077,
+    XGHO2 : 0.63,
+};
+//  energy : 0.012,
+//  power : 0.393,
+let orderAmount = 1000;
+let priceReduction = 0.15;
+for (let orderId in Game.market.orders) {
+    if (Game.market.orders[orderId].remainingAmount == 0) {
+        console.log('Cleaned up order ' + orderId);
+        Game.market.cancelOrder(orderId);
+    }
+}
+if (Object.keys(Game.market.orders).length >= 50) {
+    if (Game.time % 20 === 0) { console.log('At max orders!') };
+    return;
+}
+for (let roomName in Game.rooms) {
+    let room = Game.rooms[roomName];
+    if (room.terminal && room.controller && room.controller.my && room.controller.level >= 6) {
+        let terminal = room.terminal;
+        for (let type in terminal.store) {
+            if (prices[type] === null) {
+                console.log('No price for this');
+            } else {
+                let terminalAmount = terminal.store[type];
+                let sellPrice = prices[type] * (1 - priceReduction);
+                let matchingOrder = _.find(Game.market.orders, (order) => order.roomName == roomName && order.resourceType == type)
+                if (matchingOrder) {
+                    console.log('Already matching order ' + type + ' ' + JSON.stringify(matchingOrder));
+                } else {
+                    let res = Game.market.createOrder(ORDER_SELL, type, sellPrice, _.min([terminalAmount, orderAmount]), room.name);
+                    console.log('Making sell order for ' + type + ' in ' + room.name + ' with res ' + res + ' at quantity ' + _.min([terminalAmount, orderAmount]));
+                    if (res === ERR_FULL) {
+                        console.log('At max orders!');
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+------------------------------
 function _getContainerPosition() {
   var self = this;
 

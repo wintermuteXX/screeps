@@ -236,7 +236,7 @@ ControllerRoom.prototype.findResources = function () {
 	if (ter && sto) {
 		_.each(ter, function (t) {
 			_.each(t.store, function (amount, resourceType) {
-				if ((sto[0].store[resourceType] === undefined || sto[0].store[resourceType] < 20000) || (resourceType == 'energy' && amount > 50000)) {
+				if ((sto[0].store[resourceType] === undefined || sto[0].store[resourceType] < 20000) || (resourceType == 'energy' && amount > 100000)) {
 					droppedResources[t.id + "|" + resourceType] = {
 						'resourceType': resourceType,
 						'structure': true,
@@ -341,17 +341,17 @@ ControllerRoom.prototype.getController = function () {
 };
 
 // Get Controller Energy Target
-ControllerRoom.prototype.getControllerEnergyTarget = function() {
+ControllerRoom.prototype.getControllerEnergyTarget = function () {
 	var controller = this.getController();
 
-	if ( controller != null ) {
+	if (controller != null) {
 		var area = null; //...;
 
 
 		// container
 		var container = null;
 
-		if (container != null )  {
+		if (container != null) {
 			return container;
 		}
 
@@ -359,10 +359,10 @@ ControllerRoom.prototype.getControllerEnergyTarget = function() {
 		// pile of energy
 		var energyPile = null;
 
-		if ( energyPile ) {
+		if (energyPile) {
 			return energyPile;
 		}
-		
+
 	}
 
 	return controller;

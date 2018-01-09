@@ -5,13 +5,13 @@ b.when = function (creep, rc) {
   if (!creep.room.memory.QueueNeededResources) return false;
   if (creep.energy == 0) return false;
 
-  var resources = creep.room.memory.QueueNeededResources;
+  /*var resources = creep.room.memory.QueueNeededResources;
   for (var resource in resources) {
     if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
       return true;
     }
-  }
-  return false;
+  }*/
+  return true;
 };
 
 b.completed = function (creep, rc) {
@@ -33,7 +33,11 @@ b.work = function (creep, rc) {
       }
     }
     // Backup if no target found -> Terminal
-    if(!target && creep.room.terminal) {creep.target = creep.room.terminal.id; target = creep.getTarget();}
+    if (!target && creep.room.terminal) {
+      console.log("Creep will deliver to Terminal (Backup): " + creep.name);
+      creep.target = creep.room.terminal.id;
+      target = creep.getTarget();
+    }
   }
 
   if (target) {
