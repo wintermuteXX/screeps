@@ -8,7 +8,7 @@
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
-var stats    = require('ControllerStats');
+// var stats = require('ControllerStats');
 
 // profiler.enable();
 module.exports.loop = function () {
@@ -17,8 +17,8 @@ module.exports.loop = function () {
     require("_init");
     var ControllerGame = require('ControllerGame');
     var gc = new ControllerGame();
-    gc.garbageCollection();
+    //gc.garbageCollection();
     gc.processRooms();
   })
-  stats.doStats();
+  //stats.doStats();
 }
