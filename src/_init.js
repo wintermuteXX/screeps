@@ -147,8 +147,11 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
           let freeSpaceCount = 0;
           [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
             [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+              // if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
+              let terr = Game.map.getRoomTerrain(this.pos.roomName);
+              if (terr.get(x, y) != 'wall') {
                 freeSpaceCount++;
+              }
             }, this);
           }, this);
           this.memory.freeSpaceCount = freeSpaceCount;
