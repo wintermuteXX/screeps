@@ -27,14 +27,11 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
 };
 
 ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
-  console.log("eval gets this body: " + body)
   var parts = _.clone(body);
-  console.log(parts, minParts);
   while (parts.length >= minParts) {
     if (this.spawn.spawnCreep(parts, theName, {
         dryRun: true
       }) == 0) {
-      console.log("returning body:", parts);
       return parts;
     } else {
       parts.pop();
