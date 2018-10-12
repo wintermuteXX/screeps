@@ -9,7 +9,7 @@ ControllerSpawn.prototype.idle = function () {
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   console.log("I should create a creep with: " + role + creepConfig + memory);
-  var bodyConfig = this.evalCreepBody(creepConfig.body2.clone(), creepConfig.minParts);
+  var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts);
   console.log("This should be my body: " + bodyConfig);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
@@ -42,18 +42,18 @@ ControllerSpawn.prototype.evalCreepBody = function (body, minParts) {
     }
   }
   return null;*/
+
   console.log("eval gets this body: " + body)
-  var j = body.length;
-  for (var i = 0; i < j - minParts; i++) {
-    var result = this.spawn.canCreateCreep(body);
-    if (result === 0) {
-      return body;
+  var parts = _.clone(body);
+  while (parts.length >= minParts) {
+    if (this.spawn.canCreateCreep(parts)) {
+      return parts;
     } else {
-      body.pop();
+      parts.pop();
     }
   }
-  return false;
 
+  return null;
 };
 
 ControllerSpawn.prototype.getCosts = function (body) {
