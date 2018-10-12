@@ -8,7 +8,9 @@ ControllerSpawn.prototype.idle = function () {
 };
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
-  var bodyConfig = this.evalCreepBody(this.ControllerRoom.getLevel(), creepConfig.body2);
+  console.log("I should create a creep with: " + role + creepConfig + memory);
+  var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts);
+  console.log("This should be my body: " + bodyConfig);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
     var name = role + "_" + Math.round(Math.random() * 999);
@@ -28,7 +30,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   return false;
 };
 
-ControllerSpawn.prototype.evalCreepBody = function (level, body) {
+ControllerSpawn.prototype.evalCreepBody = function (body, minParts) {
   /*var maxEnergy = this.ControllerRoom.room.energyCapacityAvailable;
 
   var start = (body.length < level ? body.length : level) - 1;
@@ -40,17 +42,18 @@ ControllerSpawn.prototype.evalCreepBody = function (level, body) {
     }
   }
   return null;*/
+  console.log("eval gets this body: " + body)
   var j = body.length;
-	for (var i = 0; i < j - 2; i++) {
-		var result = this.spawn.canCreateCreep(body);
-		if (result === 0) {
-			return body;
-		} else {
-			body.pop();
-		}
-	}
-	return false;
-  
+  for (var i = 0; i < j - minParts; i++) {
+    var result = this.spawn.canCreateCreep(body);
+    if (result === 0) {
+      return body;
+    } else {
+      body.pop();
+    }
+  }
+  return false;
+
 };
 
 ControllerSpawn.prototype.getCosts = function (body) {
