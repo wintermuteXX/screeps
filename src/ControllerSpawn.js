@@ -9,7 +9,7 @@ ControllerSpawn.prototype.idle = function () {
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   console.log("I should create a creep with: " + role + creepConfig + memory);
-  var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts);
+  var bodyConfig = this.evalCreepBody(creepConfig.body2.clone(), creepConfig.minParts);
   console.log("This should be my body: " + bodyConfig);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
