@@ -8,19 +8,15 @@ ControllerSpawn.prototype.idle = function () {
 };
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
-  console.log("I should create a creep with: " + role + creepConfig + memory);
-  var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts);
-  console.log("This should be my body: " + bodyConfig);
+  var theName = role + "_" + Math.round(Math.random() * 999);
+  var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts, theName);
   var result = null;
   if (bodyConfig !== null && bodyConfig.length) {
-    var name = role + "_" + Math.round(Math.random() * 999);
-    if (this.spawn.canCreateCreep(bodyConfig, name) == OK) {
-      // init creep memory
-      memory = memory || {};
-      memory.role = role;
-
-      result = this.spawn.createCreep(bodyConfig, name, memory);
-    }
+    memory = memory || {};
+    memory.role = role;
+    result = this.spawn.spawnCreep(bodyConfig, theName, {
+      memory: memory
+    });
   }
 
   if (result !== null) {
@@ -30,23 +26,15 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   return false;
 };
 
-ControllerSpawn.prototype.evalCreepBody = function (body, minParts) {
-  /*var maxEnergy = this.ControllerRoom.room.energyCapacityAvailable;
-
-  var start = (body.length < level ? body.length : level) - 1;
-
-  for (var i = start; i >= 0; i--) {
-    var parts = body[i];
-    if (parts && parts.length && this.getCosts(parts) <= maxEnergy) {
-      return parts;
-    }
-  }
-  return null;*/
-
+ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
   console.log("eval gets this body: " + body)
   var parts = _.clone(body);
+  console.log(parts, minParts);
   while (parts.length >= minParts) {
-    if (this.spawn.canCreateCreep(parts)) {
+    if (this.spawn.spawnCreep(parts, theName, {
+        dryRun: true
+      }) == 0) {
+      console.log("returning body:", parts);
       return parts;
     } else {
       parts.pop();
