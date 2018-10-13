@@ -1,6 +1,5 @@
 1. 	TODO
 		- miner with no free source is crashing code BANG BOOM BANG
-		- Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
 		- Upgraders should only pickup energy, not minerals
     	- Remote Mining (check for goals, new behavior)
 		- Remote Transport (for mining and abadoned rooms)
@@ -28,6 +27,7 @@
 				let containerId = this.getController().memory.container || null;
 		        TypeError: Cannot read property 'memory' of null
   	DONE
+		- (done) Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
 	  	- (done) (testing) behavior harvest works on empty source
 		- (done) (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))
 		- (done) (testing) miner - walk to container, not source
@@ -107,20 +107,6 @@ for (let roomName in Game.rooms) {
     }
 }
 ------------------------------
-function _getContainerPosition() {
-  var self = this;
-
-  return null;
-}
-
-Source.prototype.getContainerPosition = function() {
-  return _getContainerPosition.apply(this);
-}
-
-Structure.prototype.getContainerPosition = function() {
-  return _getContainerPosition.apply(this);
-}
----------------------------
 creep.withdraw(creep.room.storage, _.findKey(creep.room.storage.store));
 ---------------------------
 Game.market.getAllOrders({resourceType: RESOURCE_UTRIUM}); // fast
@@ -228,22 +214,18 @@ class Log {
 		this.log(Log.LEVEL_DEBUG, msg, tag);
 	}
 
-	/** */
 	static info(msg, tag) {
 		this.log(Log.LEVEL_INFO, msg, tag);
 	}
 
-	/** */
 	static warn(msg, tag) {
 		this.log(Log.LEVEL_WARN, msg, tag);
 	}
 
-	/** */
 	static error(msg, tag) {
 		this.log(Log.LEVEL_ERROR, msg, tag);
 	}
 
-	/** */
 	static success(msg, tag) {
 		this.log(Log.LEVEL_SUCCESS, msg, tag);
 	}
@@ -321,46 +303,7 @@ Object.freeze(Log.color);
 
 module.exports = Log;
 ----------------------------------------------
-/** first we put the function in global */
-global.defineCachedGetter = function (proto, propertyName, fn) {
-	Object.defineProperty(proto, propertyName, {
-		get: function() { 
-			if(this === proto || this == undefined)
-				return;
-			let result = fn.call(this,this);
-			Object.defineProperty(this, propertyName, {
-				value: result,
-				configurable: true,
-				enumerable: false
-			});
-			return result;
-		},
-		configurable: true,
-		enumerable: false
-	});
-} 
-
-/** Then we define some properties! */
-defineCachedGetter(Creep.prototype, 'carryTotal', c => _.sum(c.carry));
-defineCachedGetter(Creep.prototype, 'carryCapacityAvailable', c => c.carryCapacity - c.carryTotal);
-----------------------------------------------
 if (_.sum(creep.carry)) creep.transfer(target, _.last(Object.keys(creep.carry)))
-----------------------------------------------
-global.encodeCoordinate = function(thePos) {
-    return String.fromCodePoint(thePos.x | (thePos.y << 6));
-}
-
-global.decodeCoordinate = function(theString, theIndex) {
-    var val = theString.charCodeAt(theIndex);
-    var x = (val & 0x3F);
-    var y = ((val >> 6) & 0x3F);
-    return {
-        x: x,
-        y: y
-    };
-}
-----------------------------------------
-{"name":"textExport","shard":"shard0","rcl":"8","buildings":{"powerSpawn":{"pos":[{"x":22,"y":9}]},"observer":{"pos":[{"x":23,"y":9}]},"tower":{"pos":[{"x":21,"y":10},{"x":23,"y":10},{"x":24,"y":11}]},"terminal":{"pos":[{"x":24,"y":10}]},"nuker":{"pos":[{"x":21,"y":11}]},"link":{"pos":[{"x":22,"y":11}]},"storage":{"pos":[{"x":22,"y":12}]},"spawn":{"pos":[{"x":23,"y":12}]}}}
 ----------------------------------------
 global.UNIT_COST = (body) => _.sum(body, p => BODYPART_COST[p]);
 global.UNIT_COST = function (body) { return _.sum(body, function (p) { return BODYPART_COST[p]; }); };
@@ -453,25 +396,6 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 	}
 }
 ----------------------------------------
-	const structureTimeToSaveFor = 13;
-	Room.prototype.getStructures =
-    function (structureType, filter) {
-    if (!global[this.name]) global[this.name] = {};
-        if (!global[this.name].structures || Game.time-global[this.name].structures.lc > structureTimeToSaveFor) {
-            global[this.name].structures = {lc: Game.time};
-
-            var grouped = _.groupBy(this.find(FIND_STRUCTURES), (s) => s.structureType);
-            var mappedGroup = {};
-
-            for (let group in grouped) mappedGroup[group] = _.map(grouped[group], (s) => {return s ? s.id : null});
-
-            global[this.name].structures.structures = mappedGroup;
-        }
-
-        var needed = global[this.name].structures.structures[structureType].map(Game.getObjectById).filter(obj => obj !== null);
-        return filter ? _.filter(needed, filter) : needed;
-    };
-----------------------------------------------
 	creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, {filter{resourceType:RESOURCE_POWER});
 ----------------------------------------------
 	doStats: {
@@ -512,8 +436,6 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
     return false;
 }
 -------------------------------------
-Memory.config = Memory.config || {}`;
-----------------------------------------
 global.spiralOut = function(n){
     let m=n+1;
     let result = [];
@@ -528,5 +450,3 @@ global.spiralOut = function(n){
     }
     return result;
 },
----------------------------------------
-    _.invoke(Game.constructionSites, 'remove')
