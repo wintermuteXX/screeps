@@ -47,10 +47,16 @@ b.work = function (creep, rc) {
 
 
   if (!energy) {
-    var dropped = findEnergy(controller, rc);
-    if (dropped.length) {
-      energy = dropped[0];
-      creep.target = energy.id;
+
+    if (creep.room.controller.container && _.sum(creep.room.controller.container.store) > 0) {
+      creep.target = creep.room.controller.container.id
+      energy = creep.getTarget();
+    } else {
+      var dropped = findEnergy(controller, rc);
+      if (dropped.length) {
+        energy = dropped[0];
+        creep.target = energy.id;
+      }
     }
   }
 
