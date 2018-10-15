@@ -1,6 +1,5 @@
 1. 	TODO
 		- miner with no free source is crashing code BANG BOOM BANG
-		- Upgraders should only pickup energy, not minerals
     	- Remote Mining (check for goals, new behavior)
 		- Remote Transport (for mining and abadoned rooms)
 		- 2 Upgrader if Dropped energy around Controller > 5000 ?
@@ -23,6 +22,7 @@
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
 		
    	TESTING
+		- (testing) Upgraders should only pickup energy, not minerals
     	- (testing) ControllerRoom:329
 				let containerId = this.getController().memory.container || null;
 		        TypeError: Cannot read property 'memory' of null

@@ -5,7 +5,11 @@ var Behavior = require("_behavior");
 var RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {
-  var dropped = rc.find(FIND_DROPPED_RESOURCES);
+  var dropped = rc.find(FIND_DROPPED_RESOURCES, {
+    filter: {
+      resourceType: RESOURCE_ENERGY
+    }
+  });
   return obj.pos.findInRange(dropped, RANGE_TO_ENERGY);
 }
 

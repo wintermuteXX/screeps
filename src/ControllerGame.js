@@ -2,7 +2,6 @@ var ControllerRoom = require("ControllerRoom");
 
 var ControllerGame = function () {
 	this.garbageCollection();
-	// TODO: Warum wird das auch noch einmal in main.js aufgerufen
 
 	this._rooms = {};
 	for (var r in Game.rooms) {

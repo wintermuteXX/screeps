@@ -91,10 +91,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (!resource) {
         continue;
       }
-      /*if (resource === RESOURCE_ENERGY || resource === RESOURCE_POWER) {
-        continue;
-      }*/
-
+   
       let returnCode = this.withdraw(structure, resource);
       if (returnCode === OK) {
         // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
@@ -271,10 +268,13 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   });
 
   Structure.prototype.needsRepair = function () {
+    //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
     if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
       let max = global.getInterval('maxHitsDefense');
       return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
+    // Repair remaining stuff if HP is under 90%
+    // TODO: 0.9 -> getInterval (maybe build a second function "getLimit")
     return this.hits < (this.hitsMax * 0.9);
   };
 
