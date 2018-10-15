@@ -25,7 +25,8 @@ b.work = function (creep, rc) {
 
   if (source !== null) {
     creep.target = source.id;
-    if (!creep.pos.isNearTo(source)) {
+
+    /* if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
     } else {
 
@@ -35,14 +36,23 @@ b.work = function (creep, rc) {
           creep.memory.container = containers[0].id;
           creep.moveTo(containers[0]);
       }
+ */
+    var container = Game.getObjectById(source.memory.container);
+    if (container && !creep.pos.isNearTo(container)) {
+      creep.moveTo(container);
+    } else if (!creep.pos.isNearTo(source)) {
+      creep.moveTo(source);
+    }
 
-      creep.harvest(source);
-      // TODO: Storage + Link in creep memory speichern und benutzen.
-      var link = rc.findNearLink(creep);
-      // TODO: transfer only when full
-      if (link.length) { creep.memory.link = link[0].id;
-        creep.transfer(link[0], RESOURCE_ENERGY); }
-      else { creep.drop(RESOURCE_ENERGY); }
+    creep.harvest(source);
+    // TODO: Storage + Link in creep memory speichern und benutzen.
+    var link = rc.findNearLink(creep);
+    // TODO: transfer only when full
+    if (link.length) {
+      creep.memory.link = link[0].id;
+      creep.transfer(link[0], RESOURCE_ENERGY);
+    } else {
+      creep.drop(RESOURCE_ENERGY);
     }
   }
 };
