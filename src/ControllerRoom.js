@@ -44,7 +44,7 @@ ControllerRoom.prototype.run = function () {
 
 	_.each(this._towers, function (tower) {
 		tower.fire();
-		if (Game.time % global.getInterval('repairTower') === 0) {
+		if (Game.time % global.getFixedValue('repairTower') === 0) {
 			tower.repair();
 		}
 	})
@@ -52,11 +52,11 @@ ControllerRoom.prototype.run = function () {
 	this.findResources();
 	this.needResources();
 
-	if (Game.time % global.getInterval('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
+	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
 		this.terminal.internalTrade();
 	}
 
-	if (Game.time % global.getInterval('sellOverflow') === 0 && Game.cpu.tickLimit > 50) {
+	if (Game.time % global.getFixedValue('sellOverflow') === 0 && Game.cpu.tickLimit > 50) {
 		this.terminal.sellOverflow();
 	}
 
@@ -78,7 +78,7 @@ ControllerRoom.prototype.commandCreeps = function () {
  * ControllerRoom.populate()
  */
 ControllerRoom.prototype.populate = function () {
-	if (Game.time % global.getInterval('checkPopulation') !== 0) return;
+	if (Game.time % global.getFixedValue('checkPopulation') !== 0) return;
 
 	var spawn = null;
 
@@ -103,7 +103,7 @@ ControllerRoom.prototype.populate = function () {
 };
 
 ControllerRoom.prototype.needResources = function () {
-	if (Game.time % global.getInterval('checkResourcesQueue') !== 0) return;
+	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
 	var needResources = {};
 
@@ -184,7 +184,7 @@ ControllerRoom.prototype.needResources = function () {
  */
 
 ControllerRoom.prototype.findResources = function () {
-	if (Game.time % global.getInterval('checkResourcesQueue') !== 0) return;
+	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
 	var droppedResources = {};
 

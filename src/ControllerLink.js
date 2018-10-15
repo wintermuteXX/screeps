@@ -24,7 +24,7 @@ Object.defineProperty(ControllerLink.prototype, "receivers", {
 });
 
 ControllerLink.prototype.transferEnergy = function () {
-  if (Game.time % global.getInterval("checkLinks") !== 0) return;
+  if (Game.time % global.getFixedValue("checkLinks") !== 0) return;
 
   var senders = _.filter(this.senders, function (s) {
     return (s.energy > s.energyCapacity - 100);

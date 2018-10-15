@@ -17,7 +17,8 @@ function initGlobal(g) {
 
   function getCacheExpiration() {
     return CACHE_TIMEOUT + Math.round((Math.random() * CACHE_OFFSET * 2) - CACHE_OFFSET);
-  }​
+  };​
+
   /********* CPU Profiling stats for Room.prototype._checkRoomCache ********** 
   calls         time      avg        function
   550106        5581.762  0.01015    Room._checkRoomCache
@@ -91,7 +92,7 @@ function initGlobal(g) {
    * Intervals
    */
 
-  g._intervals = {
+  g._fixedValue = {
     'checkPopulation': 10,
     'checkConstructions': 100,
     'checkLinks': 5,
@@ -102,9 +103,9 @@ function initGlobal(g) {
     'sellOverflow': 499
   };
 
-  g.getInterval = function (key) {
-    if (key && this._intervals[key]) {
-      return this._intervals[key];
+  g.getFixedValue = function (key) {
+    if (key && this._fixedValue[key]) {
+      return this._fixedValue[key];
     }
     return 0;
   };
