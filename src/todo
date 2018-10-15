@@ -1,32 +1,32 @@
 1. 	TODO
-		- miner with no free source is crashing code BANG BOOM BANG
-    	- Remote Mining (check for goals, new behavior)
-		- Remote Transport (for mining and abadoned rooms)
-		- 2 Upgrader if Dropped energy around Controller > 5000 ?
+		- Spawn only if room is full of energy
+        - createCreep. Calculate Move parts dynamically (body2) (difficult)
+        - 2 Upgraders if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
+        - miner build container
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
-        - recalculate needed transporters
-		- createCreep. Calculate Move parts dynamically (body2)
-        - prototype check if creep has same target (so not all creeps are running to the same ressource pile)
+        - miner with no free source is crashing code BANG BOOM BANG
+    	- recalculate needed transporters (maybe easier when transporter2 is running)
+		- prototype check if creep has same target (so not all creeps are running to the same ressource pile)
+        -- OS Based Tasks -> Priority, how often, sleep
         -- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
 		-- test attack behavior
 		-- spawn defenders if attacked
     	-- Boost creeps
+        -- Remote Mining ( there was a formula for calculation if RH makes sense)
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
 		
    	TESTING
-		- (testing) Upgraders should only pickup energy, not minerals
-    	- (testing) ControllerRoom:329
-				let containerId = this.getController().memory.container || null;
-		        TypeError: Cannot read property 'memory' of null
+    	
   	DONE
+		- (done) Upgraders should only pickup energy, not minerals
 		- (done) Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
 	  	- (done) (testing) behavior harvest works on empty source
 		- (done) (testing) build queue for pickable resources (id, amount, type)(bonus: implement priority (power-mineral-energy))

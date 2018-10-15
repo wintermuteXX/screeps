@@ -54,13 +54,12 @@ module.exports = {
     behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"],
 
     canBuild: function (rc) {
-      var miners = rc.getCreeps('miner');
+      // var miners = rc.getCreeps('miner');
       var transporters = rc.getCreeps('transporter');
-      var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
-        return (s.structureType === STRUCTURE_LINK);
-      });
+      // var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) { return (s.structureType === STRUCTURE_LINK); });
       // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
-      return ((transporters.length + links.length) - 1 < miners.length * 2 || transporters.length < 1);
+      // return ((transporters.length + links.length) - 1 < miners.length * 2 || transporters.length < 1);
+      return transporters.length < 2
     }
   },
 
@@ -73,8 +72,8 @@ module.exports = {
 
     canBuild: function (rc) {
       var transporters = rc.getCreeps('transporter2');
-      // return false;
-      return (transporters.length < 1);
+      return false;
+      // return (transporters.length < 1);
     }
   },
 
