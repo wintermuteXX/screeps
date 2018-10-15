@@ -1,19 +1,13 @@
 function initGlobal(g) {
 
-  // -- -- -- -- -- -- -- -- -- - Prototpyes für Room Structures-- -- -- -- -- -- -- -- -- -- --
+  // Prototpyes für Room Structures
   var roomStructures = {};
   var roomStructuresExpiration = {};​
   const CACHE_TIMEOUT = 50;
   const CACHE_OFFSET = 4;​
-  const multipleList = [
-    STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_WALL,
-    STRUCTURE_RAMPART, STRUCTURE_KEEPER_LAIR, STRUCTURE_PORTAL, STRUCTURE_LINK,
-    STRUCTURE_TOWER, STRUCTURE_LAB, STRUCTURE_CONTAINER, STRUCTURE_POWER_BANK,
-  ];​
-  const singleList = [
-    STRUCTURE_OBSERVER, STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_NUKER,
-    //STRUCTURE_TERMINAL,   STRUCTURE_CONTROLLER,   STRUCTURE_STORAGE,
-  ];
+  const multipleList = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_KEEPER_LAIR, STRUCTURE_PORTAL, STRUCTURE_LINK, STRUCTURE_TOWER, STRUCTURE_LAB, STRUCTURE_CONTAINER, STRUCTURE_POWER_BANK];​
+  const singleList = [STRUCTURE_OBSERVER, STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_NUKER];
+  //STRUCTURE_TERMINAL,   STRUCTURE_CONTROLLER,   STRUCTURE_STORAGE,
 
   function getCacheExpiration() {
     return CACHE_TIMEOUT + Math.round((Math.random() * CACHE_OFFSET * 2) - CACHE_OFFSET);
@@ -80,7 +74,7 @@ function initGlobal(g) {
       configurable: true,
     });
   });
-  //-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+  // End Room Structures Prototypes
 
   g.killAll = function () {
     for (var c in Game.creeps) {
