@@ -10,10 +10,12 @@ function ControllerRoom(room, ControllerGame) {
 	this._spawns = [];
 	this._towers = [];
 
-	var spawns = this.find(FIND_MY_SPAWNS);
-	for (var s in spawns) {
-		var spawn = spawns[s];
-		this._spawns.push(new ControllerSpawn(spawn, this));
+	if (this.room.energyCapacityAvailable === this.room.energyAvailable) {
+		var spawns = this.find(FIND_MY_SPAWNS);
+		for (var s in spawns) {
+			var spawn = spawns[s];
+			this._spawns.push(new ControllerSpawn(spawn, this));
+		}
 	}
 
 	this.links = new ControllerLink(this);
