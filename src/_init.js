@@ -91,7 +91,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (!resource) {
         continue;
       }
-   
+
       let returnCode = this.withdraw(structure, resource);
       if (returnCode === OK) {
         // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
@@ -135,30 +135,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       this.memory.defended = false;
       return false;
     }
-  });
-
-  Object.defineProperty(Source.prototype, 'freeSpaceCount', {
-    get: function () {
-      if (this._freeSpaceCount == undefined) {
-        if (this.memory.freeSpaceCount == undefined) {
-          let freeSpaceCount = 0;
-          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              // if (Game.map.getTerrainAt(x, y, this.pos.roomName) != 'wall')
-              let terr = Game.map.getRoomTerrain(this.pos.roomName);
-              if (terr.get(x, y) != 'wall') {
-                freeSpaceCount++;
-              }
-            }, this);
-          }, this);
-          this.memory.freeSpaceCount = freeSpaceCount;
-        }
-        this._freeSpaceCount = this.memory.freeSpaceCount;
-      }
-      return this._freeSpaceCount;
-    },
-    enumerable: false,
-    configurable: true
   });
 
   Object.defineProperty(Source.prototype, 'container', {
