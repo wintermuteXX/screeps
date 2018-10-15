@@ -1,5 +1,86 @@
 function initGlobal(g) {
 
+  // -- -- -- -- -- -- -- -- -- - Prototpyes für Room Structures-- -- -- -- -- -- -- -- -- -- --
+  var roomStructures = {};
+  var roomStructuresExpiration = {};​
+  const CACHE_TIMEOUT = 50;
+  const CACHE_OFFSET = 4;​
+  const multipleList = [
+    STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_WALL,
+    STRUCTURE_RAMPART, STRUCTURE_KEEPER_LAIR, STRUCTURE_PORTAL, STRUCTURE_LINK,
+    STRUCTURE_TOWER, STRUCTURE_LAB, STRUCTURE_CONTAINER, STRUCTURE_POWER_BANK,
+  ];​
+  const singleList = [
+    STRUCTURE_OBSERVER, STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_NUKER,
+    //STRUCTURE_TERMINAL,   STRUCTURE_CONTROLLER,   STRUCTURE_STORAGE,
+  ];
+
+  function getCacheExpiration() {
+    return CACHE_TIMEOUT + Math.round((Math.random() * CACHE_OFFSET * 2) - CACHE_OFFSET);
+  }​
+  /********* CPU Profiling stats for Room.prototype._checkRoomCache ********** 
+  calls         time      avg        function
+  550106        5581.762  0.01015    Room._checkRoomCache
+  calls with cache reset: 4085
+  avg for cache reset:    0.137165
+  calls without reset:    270968
+  avg without reset:      0.003262
+  ****************************************************************************/
+  Room.prototype._checkRoomCache = function _checkRoomCache() {
+    // if cache is expired or doesn't exist
+    if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {
+      roomStructuresExpiration[this.name] = Game.time + getCacheExpiration();
+      roomStructures[this.name] = _.groupBy(this.find(FIND_STRUCTURES), s => s.structureType);
+      var i;
+      for (i in roomStructures[this.name]) {
+        roomStructures[this.name][i] = _.map(roomStructures[this.name][i], s => s.id);
+      }
+    }
+  }​
+  multipleList.forEach(function (type) {
+    Object.defineProperty(Room.prototype, type + 's', {
+      get: function () {
+        if (this['_' + type + 's'] && this['_' + type + 's_ts'] === Game.time) {
+          return this['_' + type + 's'];
+        } else {
+          this._checkRoomCache();
+          if (roomStructures[this.name][type]) {
+            this['_' + type + 's_ts'] = Game.time;
+            return this['_' + type + 's'] = roomStructures[this.name][type].map(Game.getObjectById);
+          } else {
+            this['_' + type + 's_ts'] = Game.time;
+            return this['_' + type + 's'] = [];
+          }
+        }
+      },
+      set: function () {},
+      enumerable: false,
+      configurable: true,
+    });
+  });​
+  singleList.forEach(function (type) {
+    Object.defineProperty(Room.prototype, type, {
+      get: function () {
+        if (this['_' + type] && this['_' + type + '_ts'] === Game.time) {
+          return this['_' + type];
+        } else {
+          this._checkRoomCache();
+          if (roomStructures[this.name][type]) {
+            this['_' + type + '_ts'] = Game.time;
+            return this['_' + type] = Game.getObjectById(roomStructures[this.name][type][0]);
+          } else {
+            this['_' + type + '_ts'] = Game.time;
+            return this['_' + type] = undefined;
+          }
+        }
+      },
+      set: function () {},
+      enumerable: false,
+      configurable: true,
+    });
+  });
+  //-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
   g.killAll = function () {
     for (var c in Game.creeps) {
       Game.creeps[c].suicide();
@@ -16,7 +97,7 @@ function initGlobal(g) {
     'checkLinks': 5,
     'checkResourcesQueue': 10,
     'repairTower': 8,
-    'maxHitsDefense' : 6000000,
+    'maxHitsDefense': 6000000,
     'internalTrade': 300,
     'sellOverflow': 499
   };
@@ -73,41 +154,41 @@ function initGlobal(g) {
     });
   };
 
-  g.whatsInTerminals = function() {
+  g.whatsInTerminals = function () {
     let myUsername = Game.spawns[Object.keys(Game.spawns)[0]].owner.username;
     let roomData = {};
     let sums = {};
     let rooms = _.filter(Game.rooms, (r) => {
-        if(r.controller 
-           && r.controller.my
-           && r.terminal) {
-            return true;
-        }
+      if (r.controller &&
+        r.controller.my &&
+        r.terminal) {
+        return true;
+      }
     })
     _.forEach(rooms, (r) => {
-        roomData[r.name] = roomData[r.name] || {};
-        _.forEach(r.terminal.store, (quantity, item) => {
-            sums[item] = sums[item] || 0;
-            sums[item] = sums[item] + quantity;
-            roomData[r.name][item] = quantity;
-        })
+      roomData[r.name] = roomData[r.name] || {};
+      _.forEach(r.terminal.store, (quantity, item) => {
+        sums[item] = sums[item] || 0;
+        sums[item] = sums[item] + quantity;
+        roomData[r.name][item] = quantity;
+      })
     })
     console.log('Room Data:', JSON.stringify(roomData, null, 3));
     console.log('Totals:', JSON.stringify(sums, null, 3));
-}
+  }
 
-// The function below was developed late last year by @stybbe, published in
-//  Screeps Slack's #share-thy-code channel. No license was applied; all  
-//  rights remain with the author. Minor fixes were made by @SemperRabbit 
-//  to get it working again.
+  // The function below was developed late last year by @stybbe, published in
+  //  Screeps Slack's #share-thy-code channel. No license was applied; all  
+  //  rights remain with the author. Minor fixes were made by @SemperRabbit 
+  //  to get it working again.
 
-// NOTE: that this code works in chrome and firefox (albiet quietly
-//  in firefox) but not the steam client.
+  // NOTE: that this code works in chrome and firefox (albiet quietly
+  //  in firefox) but not the steam client.
 
-global.defaultVoice = "Deutsch Female"; // can be changed
-// see https://responsivevoice.org/text-to-speech-languages/
-// for options
-global.voiceConsole = function voiceConsole(text){
+  global.defaultVoice = "Deutsch Female"; // can be changed
+  // see https://responsivevoice.org/text-to-speech-languages/
+  // for options
+  global.voiceConsole = function voiceConsole(text) {
     console.log(`<span style="color:green; font-style: italic;">${text}</span>
                  <script>
                     if (!window.speakText){
@@ -141,8 +222,8 @@ global.voiceConsole = function voiceConsole(text){
                         setTimeout("responsiveVoice.init()", 1000);
                     }
                 </script>`
-                .replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm,""));
-}
+      .replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, ""));
+  }
 
 }
 
