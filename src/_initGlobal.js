@@ -2,10 +2,10 @@ function initGlobal(g) {
 
   // Prototpyes für Room Structures
   var roomStructures = {};
-  var roomStructuresExpiration = {};​
+  var roomStructuresExpiration = {};
   const CACHE_TIMEOUT = 50;
-  const CACHE_OFFSET = 4;​
-  const multipleList = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_KEEPER_LAIR, STRUCTURE_PORTAL, STRUCTURE_LINK, STRUCTURE_TOWER, STRUCTURE_LAB, STRUCTURE_CONTAINER, STRUCTURE_POWER_BANK];​
+  const CACHE_OFFSET = 4;
+  const multipleList = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_ROAD, STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_KEEPER_LAIR, STRUCTURE_PORTAL, STRUCTURE_LINK, STRUCTURE_TOWER, STRUCTURE_LAB, STRUCTURE_CONTAINER, STRUCTURE_POWER_BANK];
   const singleList = [STRUCTURE_OBSERVER, STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_NUKER];
   //STRUCTURE_TERMINAL,   STRUCTURE_CONTROLLER,   STRUCTURE_STORAGE,
 
@@ -31,7 +31,7 @@ function initGlobal(g) {
         roomStructures[this.name][i] = _.map(roomStructures[this.name][i], s => s.id);
       }
     }
-  }​
+  }​;
   multipleList.forEach(function (type) {
     Object.defineProperty(Room.prototype, type + 's', {
       get: function () {
