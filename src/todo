@@ -1,5 +1,4 @@
 1. 	TODO
-		- Spawn only if room is full of energy
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
         - 2 Upgraders if Dropped energy around Controller > 5000 ?
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
@@ -18,12 +17,14 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
         -- Remote Mining ( there was a formula for calculation if RH makes sense)
+        
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
 		
    	TESTING
+		- (testing) Spawn only if room is full of energy - (Will room die?)
     	
   	DONE
 		- (done) Upgraders should only pickup energy, not minerals

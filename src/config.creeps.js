@@ -71,7 +71,7 @@ module.exports = {
     behaviors: ["get_resources", "transfer_resources", "transfer_energy_storage"],
 
     canBuild: function (rc) {
-      var transporters = rc.getCreeps('transporter2');
+      // var transporters = rc.getCreeps('transporter2');
       return false;
       // return (transporters.length < 1);
     }
