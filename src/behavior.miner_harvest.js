@@ -26,20 +26,8 @@ b.work = function (creep, rc) {
   if (source !== null) {
     creep.target = source.id;
 
-    /* if (!creep.pos.isNearTo(source)) {
-      creep.moveTo(source);
-    } else {
-
-      var containers = creep.pos.findInRange(FIND_STRUCTURES, 1,
-        {filter: {structureType: STRUCTURE_CONTAINER}});
-        if(creep.pos.isNearTo(containers[0])) {
-          creep.memory.container = containers[0].id;
-          creep.moveTo(containers[0]);
-      }
- */
-    var container = Game.getObjectById(source.memory.container);
-    if (container && !creep.pos.isNearTo(container)) {
-      creep.moveTo(container);
+    if (!(creep.pos.isEqualTo(source.container.pos))) {
+      creep.moveTo(source.container);
     } else if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
     }

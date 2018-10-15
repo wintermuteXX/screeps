@@ -10,19 +10,33 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  var controller = creep.getTarget();
+    var target = creep.getTarget();
 
-  if (!controller) {
-    controller = rc.getController();
-    creep.target = controller.id;
-  }
-
-  if (controller) {
-    if (!creep.pos.inRangeTo(controller, 3)) {
-      creep.travelTo(controller);
-    } else {
-      creep.drop(RESOURCE_ENERGY);
+    if (!target) {
+      if (creep.room.controller.container) {
+        target = creep.room.controller.container;
+        creep.target = target.id;
+      } else {
+        target = rc.getController();
+        creep.target = target.id;
+      }
     }
-  }
-};
-module.exports = b;
+
+    if (target) {
+      if (target.structureType == STRUCTURE_CONTAINER) {
+        if (!creep.pos.isNearTo(target)) {
+          creep.travelTo(target);
+        } else {
+          creep.transfer(target, RESOURCE_ENERGY)
+        }
+      }
+
+      if (target.structureType == STRUCTURE_CONTROLLER) {
+        if (!creep.pos.inRangeTo(target, 3)) {
+          creep.travelTo(target);
+        } else {
+          creep.drop(RESOURCE_ENERGY);
+        }
+      }
+    };
+    module.exports = b;
