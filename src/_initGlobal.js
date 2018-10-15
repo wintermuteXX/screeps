@@ -11,7 +11,7 @@ function initGlobal(g) {
 
   function getCacheExpiration() {
     return CACHE_TIMEOUT + Math.round((Math.random() * CACHE_OFFSET * 2) - CACHE_OFFSET);
-  };​
+  };
 
   /********* CPU Profiling stats for Room.prototype._checkRoomCache ********** 
   calls         time      avg        function
