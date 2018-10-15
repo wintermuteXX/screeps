@@ -31,7 +31,7 @@ function initGlobal(g) {
         roomStructures[this.name][i] = _.map(roomStructures[this.name][i], s => s.id);
       }
     }
-  }​;
+  };
   multipleList.forEach(function (type) {
     Object.defineProperty(Room.prototype, type + 's', {
       get: function () {
