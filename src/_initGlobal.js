@@ -52,7 +52,7 @@ function initGlobal(g) {
       enumerable: false,
       configurable: true,
     });
-  });​
+  });
   singleList.forEach(function (type) {
     Object.defineProperty(Room.prototype, type, {
       get: function () {
