@@ -1,6 +1,7 @@
 1. 	TODO
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
         - 2 Upgraders if Dropped energy around Controller > 5000 ?
+        - implement renew if creep is still "up to date" (memory => Available energy, construction time)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
         - miner build container
@@ -17,7 +18,7 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
         -- Remote Mining ( there was a formula for calculation if RH makes sense)
-        
+
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
