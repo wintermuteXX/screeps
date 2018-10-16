@@ -14,6 +14,8 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   if (bodyConfig !== null && bodyConfig.length) {
     memory = memory || {};
     memory.role = role;
+    memory.born = Game.time;
+    memory.bornEnergyLevel = this.spawn.room.energyCapacityAvailable;
     result = this.spawn.spawnCreep(bodyConfig, theName, {
       memory: memory
     });
