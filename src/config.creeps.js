@@ -94,15 +94,13 @@ module.exports = {
           resourceType: RESOURCE_ENERGY
         });
         let amount = 0
-        console.log("Dropped: " + dropped);
         for (var d in dropped) {
-          amount = dropped[d].amount;
+          amount += dropped[d].amount;
         }
-        console.log("Amount: " + amount);
         return amount;
       }
 
-      if (energyAround(controller) > 3000) {
+      if (energyAround(controller) > 2000) {
         return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
       } else {
         return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
