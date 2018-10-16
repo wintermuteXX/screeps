@@ -1,3 +1,4 @@
+/// <reference path="..\ScreepsAutocomplete\_references.js" />
 // Game.spawns.Kassel.spawnCreep([WORK, CARRY, MOVE, CARRY, MOVE], 'Builder_666', {memory: {role: 'builder'}});
 // Game.spawns.Kassel.spawnCreep([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY], 'Transporter_666', {memory: {role: 'transporter'}});
 // Game.spawns.Kassel.spawnCreep([MOVE, CARRY, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK], 'Upgrader_666', {memory: {role: 'upgrader'}});
