@@ -86,8 +86,27 @@ module.exports = {
     behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
 
     canBuild: function (rc) {
+
       var controller = rc.getController();
-      return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+
+      function energyAround(obj) {
+        var dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
+          resourceType: RESOURCE_ENERGY
+        });
+        let amount = 0
+        console.log("Dropped: " + dropped);
+        for (var d in dropped) {
+          amount = dropped[d].amount;
+        }
+        console.log("Amount: " + amount);
+        return amount;
+      }
+
+      if (energyAround(controller) > 3000) {
+        return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
+      } else {
+        return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+      }
     }
   },
 
