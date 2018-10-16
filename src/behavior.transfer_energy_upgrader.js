@@ -13,7 +13,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    if (creep.room.controller.container && _.sum(creep.room.controller.container.store) < 2000) {
+    if (creep.room.controller.container && (_.sum(creep.room.controller.container.store) < creep.room.controller.container.storeCapacity)) {
       target = creep.room.controller.container;
       creep.target = target.id;
     } else {
@@ -28,6 +28,7 @@ b.work = function (creep, rc) {
         creep.travelTo(target);
       } else {
         creep.transfer(target, RESOURCE_ENERGY)
+        creep.target = null;
       }
     }
 
