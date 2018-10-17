@@ -1,6 +1,5 @@
 1. 	TODO
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
-        - 2 Upgraders if Dropped energy around Controller > 5000 ?
         - implement renew if creep is still "up to date" (memory => Available energy, construction time)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
@@ -25,7 +24,8 @@
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
 		
    	TESTING
-		- (testing) Spawn only if room is full of energy - (Will room die?)
+		- (testing) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
+        - (testing) 2 Upgraders if Dropped energy around Controller > 2000
     	
   	DONE
 		- (done) Upgraders should only pickup energy, not minerals
