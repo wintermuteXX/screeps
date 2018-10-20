@@ -26,11 +26,11 @@ b.work = function (creep, rc) {
   if (source !== null) {
     creep.target = source.id;
 
-    if (!(creep.pos.isEqualTo(source.container.pos))) {
-      creep.moveTo(source.container);
-    } else if (!creep.pos.isNearTo(source)) {
+    //if (!(creep.pos.isEqualTo(source.container.pos))) {
+    //  creep.moveTo(source.container);
+    //} else if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
-    }
+    //}
 
     creep.harvest(source);
     // TODO: Storage + Link in creep memory speichern und benutzen.
