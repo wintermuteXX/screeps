@@ -96,9 +96,7 @@ ControllerRoom.prototype.populate = function () {
 				console.log("I should create creep: " + role);
 				var result = spawn.createCreep(role, cfg);
 				console.log("create Creep Result: " + result);
-					if (result) {
 					return;
-				}
 				spawn = null;
 			}
 		}
