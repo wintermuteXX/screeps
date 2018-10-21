@@ -4,6 +4,7 @@
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
         - miner build container
+        - dropped minerals (outside container) doesn't get picked up
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.
         - miner with no free source is crashing code BANG BOOM BANG

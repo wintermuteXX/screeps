@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("renew");
 
 b.when = function (creep, rc) {
-  return (creep.ticksToLive < 30) && (creep.memory.renew == true) && (creep.memory.born.energyLevel == creep.room.energyCapacityAvailable);
+  return (creep.ticksToLive < 40) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable);
 };
 
 b.completed = function (creep, rc) {
