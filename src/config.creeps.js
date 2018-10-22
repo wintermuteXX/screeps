@@ -52,7 +52,7 @@ module.exports = {
       minParts: 6,
       renew: true,
       body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-      behaviors: [get_energy_link ", "
+      behaviors: ["get_energy_link ", "
         get_energy_dropped ", "
         get_energy_container ", "
         get_energy_storage ", "
