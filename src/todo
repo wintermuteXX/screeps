@@ -18,17 +18,23 @@
 		-- spawn defenders if attacked
     	-- Boost creeps
         -- Remote Mining ( there was a formula for calculation if RH makes sense)
+        -- cache important path in room
+
 
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
+        - (bug) Miners don't step on existing containers
+		- (bug) behavior "renew" is not executed
 		
    	TESTING
 		- (testing) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
-        - (testing) 2 Upgraders if Dropped energy around Controller > 2000
-    	
+    	- (testing) Spawn with prio (old version tried to spawn everything that "canSpawn" and used the last call (=less priority))
+
   	DONE
+        - (done) implement renew if creep is still "up to date" (memory => Available energy, construction time)
+		- (done) 2 Upgraders if Dropped energy around Controller > 2000
 		- (done) Upgraders should only pickup energy, not minerals
 		- (done) Use spawnCreep(body, name, [opts]), cancreate + create is deprecated
 	  	- (done) (testing) behavior harvest works on empty source

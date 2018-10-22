@@ -11,11 +11,11 @@ function ControllerRoom(room, ControllerGame) {
 	this._towers = [];
 
 	//if (this.room.energyCapacityAvailable === this.room.energyAvailable) {
-		var spawns = this.find(FIND_MY_SPAWNS);
-		for (var s in spawns) {
-			var spawn = spawns[s];
-			this._spawns.push(new ControllerSpawn(spawn, this));
-		}
+	var spawns = this.find(FIND_MY_SPAWNS);
+	for (var s in spawns) {
+		var spawn = spawns[s];
+		this._spawns.push(new ControllerSpawn(spawn, this));
+	}
 	//}
 
 	this.links = new ControllerLink(this);
@@ -96,7 +96,7 @@ ControllerRoom.prototype.populate = function () {
 				console.log("I should create creep: " + role);
 				var result = spawn.createCreep(role, cfg);
 				console.log("create Creep Result: " + result);
-					return;
+				return;
 				spawn = null;
 			}
 		}
@@ -310,7 +310,7 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 		return obj.memory.link;
 	}
 	var links = this.links.senders;
-	var thelink = obj.pos.findInRange(links, 1);
+	var thelink = obj.pos.findInRange(links, 2);
 	if (thelink) {
 		obj.memory.link = thelink;
 		return thelink;
