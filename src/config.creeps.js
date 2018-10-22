@@ -52,7 +52,7 @@ module.exports = {
     minParts: 6,
     renew: true,
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"],
+    behaviors: ["renew", "get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"],
 
     canBuild: function (rc) {
       // var miners = rc.getCreeps('miner');

@@ -11,28 +11,30 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-    var target = creep.getTarget();
+  var target = creep.getTarget();
 
-    if (!target) { 
-        target = rc.getIdleSpawn();
-        if (target) {creep.target = target.id;}
-    }
-
+  if (!target) {
+    target = rc.getIdleSpawn();
     if (target) {
-        var result = target.renew(creep);
-        witch (result) {
-            case OK:
-            case ERR_NOT_ENOUGH_RESOURCES:
-              console.log("Waiting for resources to renew");
-              break;
-            case ERR_NOT_IN_RANGE:
-              creep.travelTo(target);
-              break;
-      
-            default:
-              console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
-          }
+      creep.target = target.id;
     }
+  }
+
+  if (target) {
+    var result = target.renew(creep);
+    switch (result) {
+      case OK:
+      case ERR_NOT_ENOUGH_RESOURCES:
+        console.log("Waiting for resources to renew");
+        break;
+      case ERR_NOT_IN_RANGE:
+        creep.travelTo(target);
+        break;
+
+      default:
+        console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
+    }
+  }
 };
 
 module.exports = b;
