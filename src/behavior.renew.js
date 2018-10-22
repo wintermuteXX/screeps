@@ -21,7 +21,7 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
-    var result = target.renew(creep);
+    var result = target.renewCreep(creep);
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
