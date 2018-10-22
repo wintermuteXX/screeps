@@ -20,7 +20,11 @@ b.work = function (creep, rc) {
     }
   }
 
+  var str = JSON.stringify(target, null, 4); // (Optional) beautiful indented output.
+  console.log("Target renew: " + str); 
+
   if (target) {
+    console.log("Ich bin drin");
     var result = target.renewCreep(creep);
     switch (result) {
       case OK:
