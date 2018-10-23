@@ -93,9 +93,7 @@ ControllerRoom.prototype.populate = function () {
 		var cfg = cfgCreeps[role];
 		if (!cfg.produceGlobal || cfg.produceGlobal === false) {
 			if (this._shouldCreateCreep(role, cfg)) {
-				console.log("I should create creep: " + role);
 				var result = spawn.createCreep(role, cfg);
-				console.log("create Creep Result: " + result);
 				return;
 				spawn = null;
 			}

@@ -30,9 +30,9 @@
 		
    	TESTING
 		- (testing) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
-    	- (testing) Spawn with prio (old version tried to spawn everything that "canSpawn" and used the last call (=less priority))
 
   	DONE
+    	- (done) Spawn with prio (old version tried to spawn everything that "canSpawn" and used the last call (=less priority))
         - (done) implement renew if creep is still "up to date" (memory => Available energy, construction time)
 		- (done) 2 Upgraders if Dropped energy around Controller > 2000
 		- (done) Upgraders should only pickup energy, not minerals
