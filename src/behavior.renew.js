@@ -20,7 +20,7 @@ b.work = function (creep, rc) {
     }
   }
 
-  console.log(JSON.stringify(target));
+  console.log(target);
 
   if (target) {
     console.log("Ich bin drin");

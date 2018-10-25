@@ -65,6 +65,9 @@
 2. Code Snippets
 
 -------------------------------
+//The apply() is part of the function object/class and feeds a array as the parameters.
+body.push.apply(basicBodyParts);
+-------------------------------
 /**
 
 Module: prototype.Room.structures v1.5
