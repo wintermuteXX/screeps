@@ -20,11 +20,9 @@ b.work = function (creep, rc) {
     }
   }
 
-  console.log(target);
-
   if (target) {
-    console.log("Ich bin drin");
     var result = target.renewCreep(creep);
+    console.log("Renew Result: " + result);
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
@@ -35,7 +33,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
+        console.log(`unknown result from (creep ${creep}). renew (${target}): ${result}`);
     }
   }
 };
