@@ -19,9 +19,12 @@ b.work = function (creep, rc) {
       creep.target = target.id;
     }
   }
+  console.log("Renew Creep ID: " + creep.id);
+  console.log("Renew Spawn ID. " + target.id);
 
   if (target) {
-    var result = target.renewCreep(creep);
+    // var result = target.renewCreep(creep);
+    var result = OK
     console.log("Renew Result: " + result);
     switch (result) {
       case OK:
