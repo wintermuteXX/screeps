@@ -1,6 +1,5 @@
 1. 	TODO
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
-        - implement renew if creep is still "up to date" (memory => Available energy, construction time)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - source - define Container RoomPosition
         - miner build container
@@ -26,12 +25,13 @@
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) Miners don't step on existing containers
-		- (bug) behavior "renew" is not executed
 		
    	TESTING
 		- (testing) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
+        - (testing) implement renew if creep is still "up to date" (memory => Available energy, construction time)
 
   	DONE
+		- (done) (bug) behavior "renew" is not executed
     	- (done) Spawn with prio (old version tried to spawn everything that "canSpawn" and used the last call (=less priority))
         - (done) implement renew if creep is still "up to date" (memory => Available energy, construction time)
 		- (done) 2 Upgraders if Dropped energy around Controller > 2000
