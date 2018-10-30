@@ -95,7 +95,8 @@ function initGlobal(g) {
     'maxHitsDefense': 6000000,
     'internalTrade': 300,
     'sellOverflow': 499,
-    'repairLimit': 0.9
+    'repairLimit': 0.9,
+    'noAnalyseLimit': 100
   };
 
   g.getFixedValue = function (key) {

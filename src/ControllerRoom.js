@@ -770,8 +770,8 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 };
 
 ControllerRoom.prototype.analyse = function () {
-	// TODO: Hard coded CPU Limit? No way
-	if (Game.cpu.tickLimit <= 100) return;
+
+	if (Game.cpu.tickLimit <= global.getFixedValue('noAnalyseLimit')) return;
 	var memory = this.room.memory;
 
 	try {
