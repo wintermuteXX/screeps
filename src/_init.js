@@ -247,8 +247,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
     }
     // Repair remaining stuff if HP is under 90%
-    // TODO: 0.9 -> getFixedValue (maybe build a second function "getLimit")
-    return this.hits < (this.hitsMax * 0.9);
+    let repairLimit = global.getFixedValue('repairLimit');
+        return this.hits < (this.hitsMax * repairLimit);
   };
 
   Structure.prototype.calculateContainerPos = function (range = 1) {

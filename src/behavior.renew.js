@@ -27,7 +27,7 @@ b.work = function (creep, rc) {
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
-        console.log("Waiting for resources to renew");
+        console.log("No resources in Spawn");
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
