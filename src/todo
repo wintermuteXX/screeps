@@ -1,8 +1,8 @@
 1. 	TODO
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
-        - source - define Container RoomPosition
-        - miner build container
+        - source - define Container RoomPosition (use calculateContainerPos)
+        - miner build container (use calculateContainerPos)
         - dropped minerals (outside container) doesn't get picked up
         - miner - if idle - repair container
         - miner - if link empty + container filled -> transfer to link.

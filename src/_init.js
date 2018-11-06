@@ -74,17 +74,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return transferred;
   };
 
-  Creep.prototype.hasActiveBodypart = function (type) {
-    var i;
-    for (i = this.body.length - 1; i >= 0; i--) {
-      if (this.body[i].hits <= 0)
-        break;
-      if (this.body[i].type === type)
-        return true;
-    }
-    return false;
-  };
-
   Creep.prototype.withdrawAllResources = function (structure) {
     let transferred = false;
     for (let resource in structure.store) {
@@ -107,18 +96,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Creep.prototype.isNearTo = function (t) {
     return this.pos.isNearTo(t);
-  };
-
-  Creep.prototype.getActiveBodyparts = function (type) {
-    var count = 0;
-    for (var i = this.body.length; i-- > 0;) {
-      if (this.body[i].hits > 0) {
-        if (this.body[i].type === type) {
-          count++;
-        }
-      } else break;
-    }
-    return count;
   };
 
   Object.defineProperty(Source.prototype, "defended", {
@@ -248,7 +225,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     // Repair remaining stuff if HP is under 90%
     let repairLimit = global.getFixedValue('repairLimit');
-        return this.hits < (this.hitsMax * repairLimit);
+    return this.hits < (this.hitsMax * repairLimit);
   };
 
   Structure.prototype.calculateContainerPos = function (range = 1) {
