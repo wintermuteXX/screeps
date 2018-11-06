@@ -1,3 +1,6 @@
 {
-    "typescript.surveys.enabled": false
+    "typescript.surveys.enabled": false,
+    "search.exclude": {
+        "**/ScreepsAutocomplete": true
+    }
 }
