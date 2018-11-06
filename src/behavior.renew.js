@@ -31,6 +31,7 @@ b.work = function (creep, rc) {
     var result = target.renewCreep(creep);
     switch (result) {
       case OK:
+      break;
       case ERR_NOT_ENOUGH_RESOURCES:
         console.log("No resources in Spawn");
         creep.memory.abort = true;
