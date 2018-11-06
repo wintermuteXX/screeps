@@ -18,9 +18,10 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    // target = rc.getIdleSpawn(); // Does not work
+    var targettest = rc.getIdleSpawn(); // Does not work
     //TODO: Find Idle Spawn 
     target = creep.room.spawns[0];
+    console.log("Renew target: " + target + " Target2: " + targettest);
     if (target) {
       creep.target = target.id;
     }
