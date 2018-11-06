@@ -3,6 +3,7 @@ module.exports = {
     "builder": {
       priority: 1,
       minParts: 4,
+      wait4maxEnergy: false,
       body2: [MOVE, WORK, CARRY, MOVE],
       behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"],
 
@@ -19,6 +20,7 @@ module.exports = {
       priority: 2,
       levelMin: 2,
       minParts: 3,
+      wait4maxEnergy: false,
       body2: [MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
       behaviors: ["miner_harvest"],
 
@@ -33,6 +35,7 @@ module.exports = {
       priority: 5,
       levelMin: 6,
       minParts: 16,
+      wait4maxEnergy: true,
       body2: [MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
       behaviors: ["miner_harvest_mineral"],
 
@@ -50,6 +53,7 @@ module.exports = {
       priority: 3,
       levelMin: 2,
       minParts: 6,
+      wait4maxEnergy: false,
       renew: true,
       body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
       behaviors: ["renew", "get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"],
@@ -68,6 +72,7 @@ module.exports = {
         priority: 3,
         levelMin: 2,
         minParts: 6,
+        wait4maxEnergy: true,
         body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
         behaviors: ["get_resources", "transfer_resources", "transfer_energy_storage"],
 
@@ -83,6 +88,7 @@ module.exports = {
         levelMin: 2,
         levelMax: 7,
         minParts: 3,
+        wait4maxEnergy: true,
         body2: [MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
         behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
 
@@ -113,6 +119,7 @@ module.exports = {
         priority: 4,
         levelMin: 8,
         minParts: 36,
+        wait4maxEnergy: true,
         // Max 15 Energy in RCL 8 needed
         body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
         behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
@@ -127,6 +134,7 @@ module.exports = {
         priority: 5,
         levelMin: 3,
         minParts: 4,
+        wait4maxEnergy: true,
         body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
         behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "get_energy_terminal", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"],
 
@@ -142,7 +150,7 @@ module.exports = {
           });
           // return rc.getCreeps("constructor").length < 2;
 
-          return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
+          return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 1);
         }
       },
 
@@ -151,6 +159,7 @@ module.exports = {
         priority: 3,
         minLevel: 4,
         minParts: 6,
+        wait4maxEnergy: true,
         body2: [MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK],
         behaviors: ['goto_red_flag', 'attack_enemy'],
 
@@ -168,6 +177,7 @@ module.exports = {
         priority: 6,
         minLevel: 3,
         minParts: 8,
+        wait4maxEnergy: true,
         body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
         behaviors: ['goto_white_flag', "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"],
 
@@ -185,6 +195,7 @@ module.exports = {
         priority: 6,
         minLevel: 3,
         minParts: 4,
+        wait4maxEnergy: true,
         body2: [MOVE, CLAIM, MOVE, CLAIM],
         behaviors: ['goto_white_flag', "claim_controller"],
 

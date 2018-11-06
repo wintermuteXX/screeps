@@ -637,7 +637,7 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 	var lMax = cfg.levelMax || 10;
 	if (level < lReq) return false;
 	if (lMax < level) return false;
-
+	if ((cfg.wait4maxEnery == true) && (this.energyCapacityAvailable > this.energyAvailable)) return false;
 	if (!cfg.canBuild) {
 		console.log(role + " : no canBuild() implemented");
 		return false;
