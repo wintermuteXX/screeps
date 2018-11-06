@@ -7,6 +7,10 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
+  if (creep.memory.abort) {
+    creep.memory.abort = false;
+    return true
+  }
   return creep.ticksToLive > 1450;
 };
 
@@ -28,6 +32,7 @@ b.work = function (creep, rc) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
         console.log("No resources in Spawn");
+        creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);

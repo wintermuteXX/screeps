@@ -94,10 +94,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return Game.getObjectById(this.target);
   };
 
-  Creep.prototype.isNearTo = function (t) {
-    return this.pos.isNearTo(t);
-  };
-
   Object.defineProperty(Source.prototype, "defended", {
     get: function () {
       if (this.memory.defended) {
