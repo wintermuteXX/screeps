@@ -242,7 +242,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     if (!startingPosition)
       return;
-    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, 1).length > 0)
+    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
       return;
     var ret = PathFinder.search(this.pos, startingPosition, {
       maxOps: 4000,
@@ -265,6 +265,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         continue;
       } */
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
+    this.memory.containerPos = position_1;
     console.log("Placed container in " + this.room);
     return position_1;
   };
