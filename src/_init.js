@@ -224,7 +224,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.hits < (this.hitsMax * repairLimit);
   };
 
-  Structure.prototype.calculateContainerPos = function (range) {
+  Structure.prototype.calculateContainerPos = function (range = 1) {
     if (this.room.controller.reservation &&
       /* reserved and not mine */
       this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
