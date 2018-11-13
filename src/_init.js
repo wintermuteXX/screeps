@@ -224,52 +224,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.hits < (this.hitsMax * repairLimit);
   };
 
-  Structure.prototype.calculateContainerPos = function (range = 1) {
-    if (this.room.controller.reservation &&
-      /* reserved and not mine */
-      this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-      console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
-      return;
-    }
-    var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
-    console.log("Calculate Container Position?: " + startingPosition);
-    if (!startingPosition) {
-      startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
-        filter: (function (s) {
-          return s.structureType === STRUCTURE_SPAWN;
-        })
-      })[0];
-    }
-    if (!startingPosition)
-      return;
-    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
-      return;
-    var ret = PathFinder.search(this.pos, startingPosition, {
-      maxOps: 4000,
-      swampCost: 2,
-      plainCost: 2,
-    });
-    if (ret.incomplete || ret.path.length === 0) {
-      console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
-      return;
-    }
-    var position_1 = ret.path[range - 1];
-    console.log("Position1: " + position_1);
-    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
-      return p.getRangeTo(position_1);
-    });
-    for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
-      var testPosition = testPositions_1[_i];
-      var sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
-      if (sourcesInRange.length > 1) {
-        continue;
-      } */
-    position_1.createConstructionSite(STRUCTURE_CONTAINER);
-    this.memory.containerPos = position_1;
-    console.log("Placed container in " + this.room);
-    return position_1;
-  };
-
   Object.defineProperty(Room.prototype, 'mineral', {
     get: function () {
       if (this == Room.prototype || this == undefined)
@@ -341,6 +295,52 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
+
+  RoomObject.prototype.calculateContainerPos = function (range = 1) {
+    if (this.room.controller.reservation &&
+      /* reserved and not mine */
+      this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
+      console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
+      return;
+    }
+    var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
+    console.log("Calculate Container Position?: " + startingPosition);
+    if (!startingPosition) {
+      startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
+        filter: (function (s) {
+          return s.structureType === STRUCTURE_SPAWN;
+        })
+      })[0];
+    }
+    if (!startingPosition)
+      return;
+    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
+      return;
+    var ret = PathFinder.search(this.pos, startingPosition, {
+      maxOps: 4000,
+      swampCost: 2,
+      plainCost: 2,
+    });
+    if (ret.incomplete || ret.path.length === 0) {
+      console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
+      return;
+    }
+    var position_1 = ret.path[range - 1];
+    console.log("Position1: " + position_1);
+    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
+      return p.getRangeTo(position_1);
+    });
+    for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
+      var testPosition = testPositions_1[_i];
+      var sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
+      if (sourcesInRange.length > 1) {
+        continue;
+      } */
+    position_1.createConstructionSite(STRUCTURE_CONTAINER);
+    this.memory.containerPos = position_1;
+    console.log("Placed container in " + this.room);
+    return position_1;
+  };
 
   RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
     var {
