@@ -296,7 +296,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
 
-  RoomObject.prototype.calculateContainerPos = function (range = 1) {
+  RoomObject.prototype.calculateContainerPos = function (range) {
     if (this.room.controller.reservation &&
       /* reserved and not mine */
       this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
