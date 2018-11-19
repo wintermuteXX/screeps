@@ -23,7 +23,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   }
 
   if (result !== null) {
-    Log.info('${this.spawn.pos} Build creep: ${role)}', "test")
+    Log.warn('${this.spawn.pos} Build creep: ${role}', "Spawn")
     return (result === OK);
   }
   return false;
