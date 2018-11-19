@@ -8,7 +8,6 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  // works with minerals?
   return (creep.energy > 0 || creep.target === null);
 };
 
@@ -18,10 +17,11 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
-      if (resources[resource].amount > 0) {
+      console.log("Get creeps with same target: " + rc.getCreeps(null, resources[resource.id]));
+      if (resources[resource].amount > 0 && rc.getCreeps(null, resources[resource.id])) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         // console.log(creep.carryCapacity);
-        creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
+        // creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
