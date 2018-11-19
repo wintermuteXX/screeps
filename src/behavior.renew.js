@@ -3,7 +3,8 @@ var Behavior = require("_behavior");
 var b = new Behavior("renew");
 
 b.when = function (creep, rc) {
-  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable);
+  Log.warn(´creep.room.spawns[0].spawning´, "Spawning")
+  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
 };
 
 b.completed = function (creep, rc) {
@@ -31,7 +32,7 @@ b.work = function (creep, rc) {
     var result = target.renewCreep(creep);
     switch (result) {
       case OK:
-      break;
+        break;
       case ERR_NOT_ENOUGH_RESOURCES:
         console.log("No resources in Spawn");
         creep.memory.abort = true;
@@ -39,7 +40,9 @@ b.work = function (creep, rc) {
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
         break;
-
+      case ERR_BUSY:
+        creep.memory.abort = true;
+        break;
       default:
         console.log(`unknown result from (creep ${creep}). renew (${target}): ${result}`);
     }
