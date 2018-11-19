@@ -174,6 +174,8 @@ function initGlobal(g) {
     console.log('Totals:', JSON.stringify(sums, null, 3));
   }
 
+  global.json = (x) => JSON.stringify(x, null, 2);
+
   // The function below was developed late last year by @stybbe, published in
   //  Screeps Slack's #share-thy-code channel. No license was applied; all  
   //  rights remain with the author. Minor fixes were made by @SemperRabbit 
