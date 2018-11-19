@@ -17,8 +17,8 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
-      console.log("Get creeps with same target: " + rc.getCreeps(null, resources[resource.id]));
-      if (resources[resource].amount > 0 && rc.getCreeps(null, resources[resource.id])) {
+      console.log("Get creeps with same target: " + rc.getCreeps(null, resources[resource].id).length + " " + rc.getCreeps("transporter", resources[resource].id));
+      if (resources[resource].amount > 0 && rc.getCreeps(null, resources[resource].id).length == 0) {
         // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         // console.log(creep.carryCapacity);
         // creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
