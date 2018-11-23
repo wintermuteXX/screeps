@@ -90,7 +90,7 @@ function initGlobal(g) {
     'checkPopulation': 10,
     'checkConstructions': 100,
     'checkLinks': 5,
-    'checkResourcesQueue': 10,
+    'checkResourcesQueue': 1,
     'repairTower': 8,
     'maxHitsDefense': 6000000,
     'internalTrade': 300,
