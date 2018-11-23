@@ -28,13 +28,13 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        // console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType);
+        console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType + " to " + resources[resource].id);
         break;
       }
     }
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal) {
-      // console.log("Creep will deliver to Terminal (Backup): " + creep.name);
+      console.log("Creep will deliver to Terminal (Backup): " + creep.name);
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
     }
@@ -45,6 +45,9 @@ b.work = function (creep, rc) {
 
     switch (result) {
       case OK:
+      creep.target = null;
+      creep.memory.structure = null;
+      break;
       case ERR_NOT_ENOUGH_RESOURCES:
         if (creep.energy === 0) creep.memory.resourceType = null;
       case ERR_FULL:
