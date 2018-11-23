@@ -35,6 +35,7 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
+    console.log("Target is structure: " + _.has(target,'structureType') + " " + (target instanceof Structure));
     if (creep.memory.structure === false) {
       result = creep.pickup(target, creep.memory.resourceType);
     } else {
