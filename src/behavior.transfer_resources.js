@@ -34,7 +34,7 @@ b.work = function (creep, rc) {
     }
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal) {
-      console.log("Creep will deliver to Terminal (Backup): " + creep.name);
+      // console.log("Creep will deliver to Terminal (Backup): " + creep.name);
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
     }
