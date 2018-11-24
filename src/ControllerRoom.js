@@ -124,6 +124,17 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
+	let tow = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
+		if (s.structureType === STRUCTURE_TOWER) { return s.energy < (s.energyCapacity - 100); }
+	  });
+	  for (var t of tow) {
+		needResources[t.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': t.energyCapacity - t.energy,
+			'id': t.id
+		};
+	}
+
 	let con = this.getControllerNotFull();
 	if (con && con != null) {
 		needResources[con.id + "|energy"] = {
