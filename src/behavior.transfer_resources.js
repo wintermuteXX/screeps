@@ -4,13 +4,6 @@ var b = new Behavior("transfer_resources");
 b.when = function (creep, rc) {
   if (!creep.room.memory.QueueNeededResources) return false;
   if (creep.energy == 0) return false;
-
-  /*var resources = creep.room.memory.QueueNeededResources;
-  for (var resource in resources) {
-    if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
-      return true;
-    }
-  }*/
   return true;
 };
 
@@ -28,13 +21,13 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        console.log("Creep " + creep.pos + " will deliver " + resources[resource].resourceType + " to " + resources[resource].id);
+        Log.info(`Creep ${creep.pos} will deliver ${resources[resource].resourceType} to ${resources[resource].id}`, "Creep");
         break;
       }
     }
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal) {
-      console.log("Creep will deliver to Terminal (Backup): " + creep.name);
+      Log.info(`Creep will deliver to Terminal (Backup): ${creep.name}`, "Creep");
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
     }
@@ -59,7 +52,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        console.log(`unknown result from (creep ${creep}).transfer(${target}): ${result}`);
+        Log.warn(`unknown result from (creep ${creep}).transfer(${target}): ${result}`, "Creep");
     }
   }
 };

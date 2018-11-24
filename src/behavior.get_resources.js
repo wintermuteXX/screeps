@@ -47,7 +47,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        console.log(`unknown result from (creep ${creep}).pickup(${target}): ${result}`);
+        Log.warn(`unknown result from (creep ${creep}).pickup(${target}): ${result}`, "Creep");
     }
   }
 };
