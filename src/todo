@@ -4,6 +4,7 @@
         - source - define Container RoomPosition (use calculateContainerPos)
         - miner build container (use calculateContainerPos)
         - miner - if idle - repair container
+        - Cleanup ControllerRoom (getController, getControllerFull etc.)
         - miner - if link empty + container filled -> transfer to link.
         - miner with no free source is crashing code BANG BOOM BANG
     	- recalculate needed transporters (maybe easier when transporter2 is running)

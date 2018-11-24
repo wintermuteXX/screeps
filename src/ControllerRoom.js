@@ -203,7 +203,6 @@ ControllerRoom.prototype.findResources = function () {
 		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
 			droppedResources[s.id + "|" + s.resourceType] = {
 				'resourceType': s.resourceType,
-				'structure': false,
 				'amount': s.amount,
 				'id': s.id
 			};
@@ -216,7 +215,6 @@ ControllerRoom.prototype.findResources = function () {
 		})) {
 		droppedResources[l.id + "|energy"] = {
 			'resourceType': "energy",
-			'structure': true,
 			'amount': l.energy,
 			'id': l.id
 		};
@@ -233,7 +231,6 @@ ControllerRoom.prototype.findResources = function () {
 				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 				droppedResources[c.id + "|" + resourceType] = {
 					'resourceType': resourceType,
-					'structure': true,
 					'amount': amount,
 					'id': c.id
 				};
@@ -251,7 +248,6 @@ ControllerRoom.prototype.findResources = function () {
 				if ((sto[0].store[resourceType] === undefined || sto[0].store[resourceType] < 20000) || (resourceType == 'energy' && amount > 100000)) {
 					droppedResources[t.id + "|" + resourceType] = {
 						'resourceType': resourceType,
-						'structure': true,
 						'amount': amount,
 						'id': t.id
 					};
@@ -267,7 +263,6 @@ ControllerRoom.prototype.findResources = function () {
 				if ((amount > 20000) || (resourceType == 'energy' && amount > 0)) {
 					droppedResources[s.id + "|" + resourceType] = {
 						'resourceType': resourceType,
-						'structure': true,
 						'amount': amount,
 						'id': s.id
 					};
