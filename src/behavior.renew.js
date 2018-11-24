@@ -43,7 +43,7 @@ b.work = function (creep, rc) {
         creep.memory.abort = true;
         break;
       default:
-        console.log(`unknown result from (creep ${creep}). renew (${target}): ${result}`);
+        Log.warn(`unknown result from (creep ${creep}). renew (${target}): ${result}`, "Creep");
     }
   }
 };

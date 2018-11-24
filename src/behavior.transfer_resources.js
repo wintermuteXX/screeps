@@ -12,7 +12,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  Log.warn(`I am running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
+  Log.debug(`${creep} is running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
   var target = creep.getTarget();
 
   if (!target) {

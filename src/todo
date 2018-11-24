@@ -24,11 +24,11 @@
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) Miners don't step on existing containers
-        - (bug) implement renew if creep is still "up to date" (stalls if no energy available)
-		
+        
    	TESTING
 
   	DONE
+		- (done) (bug) implement renew if creep is still "up to date" (stalls if no energy available)
 		- (done) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
 		- (done) (bug) behavior "renew" is not executed
     	- (done) Spawn with prio (old version tried to spawn everything that "canSpawn" and used the last call (=less priority))
