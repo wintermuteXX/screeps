@@ -64,8 +64,8 @@ module.exports = {
           // var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) { return (s.structureType === STRUCTURE_LINK); });
           // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
           // return ((transporters.length + links.length) - 1 < miners.length * 2 || transporters.length < 1);
-          return false;
-          // return transporters.length < 2
+          // return false;
+          return transporters.length < 1;
         }
       },
 
@@ -80,7 +80,7 @@ module.exports = {
         canBuild: function (rc) {
           var transporters = rc.getCreeps('transporter2');
           // return false;
-          return (transporters.length < 2);
+          return (transporters.length < 1);
         }
       },
 
