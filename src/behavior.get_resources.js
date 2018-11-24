@@ -17,15 +17,10 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
-      // console.log("Get creeps with same target: " + rc.getCreeps(null, resources[resource].id).length + " " + rc.getCreeps("transporter", resources[resource].id));
+      // check if ther creep has same target -> abort
       if (resources[resource].amount > 0 && rc.getCreeps(null, resources[resource].id).length == 0) {
-        // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
-        // console.log(creep.carryCapacity);
-        // creep.room.memory.QueueAvailableResources[resource].amount -= creep.carryCapacity;
-        // console.log(creep.room.memory.QueueAvailableResources[resource].amount);
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        // console.log("Creep " + creep.pos + " has target " + resources[resource].resourceType);
         creep.memory.resourceType = resources[resource].resourceType;
         creep.memory.structure = resources[resource].structure;
         break;
@@ -35,8 +30,8 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
-    console.log("Target is structure: "  + " " + (target instanceof Structure) + " " + target.my);
-    if (creep.memory.structure === false) {
+     // test if target is structure
+    if (target.my === false) {
       result = creep.pickup(target, creep.memory.resourceType);
     } else {
       result = creep.withdraw(target, creep.memory.resourceType);
@@ -45,7 +40,6 @@ b.work = function (creep, rc) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
         creep.target = null;
-        // creep.memory.resourceType = null;
         creep.memory.structure = null;
         break;
       case ERR_NOT_IN_RANGE:
