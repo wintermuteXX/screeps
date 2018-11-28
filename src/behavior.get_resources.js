@@ -31,7 +31,7 @@ b.work = function (creep, rc) {
   if (target) {
     let result;
     // test if target is structure
-    if (target.my === false || target.my === undefined) {
+    if (target.structureType === undefined) {
       result = creep.pickup(target, creep.memory.resourceType);
       Log.info(`creep${creep} tries to pickup ${creep.memory.resourceType}${target}): ${result}`, "Creep");
     } else {
