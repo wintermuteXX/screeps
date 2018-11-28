@@ -34,15 +34,16 @@ b.work = function (creep, rc) {
     // test if target is structure
     if (target.my === false) {
       result = creep.pickup(target, creep.memory.resourceType);
+      Log.info(`creep${creep} tries to pickup ${creep.memory.resourceType}${target}): ${result}`, "Creep");
     } else {
       result = creep.withdraw(target, creep.memory.resourceType);
+      Log.info(`creep${creep} tries to withdraw ${creep.memory.resourceType}${target}): ${result}`, "Creep");
     }
     switch (result) {
       case OK:
       case ERR_INVALID_TARGET:
       case ERR_NOT_ENOUGH_RESOURCES:
         creep.target = null;
-        creep.memory.structure = null;
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
