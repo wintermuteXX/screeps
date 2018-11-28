@@ -23,7 +23,6 @@ b.work = function (creep, rc) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
         creep.memory.resourceType = resources[resource].resourceType;
-        creep.memory.structure = resources[resource].structure;
         break;
       }
     }
