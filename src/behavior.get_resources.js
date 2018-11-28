@@ -31,7 +31,7 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
-     // test if target is structure
+    // test if target is structure
     if (target.my === false) {
       result = creep.pickup(target, creep.memory.resourceType);
     } else {
@@ -39,6 +39,7 @@ b.work = function (creep, rc) {
     }
     switch (result) {
       case OK:
+      case ERR_INVALID_TARGET:
       case ERR_NOT_ENOUGH_RESOURCES:
         creep.target = null;
         creep.memory.structure = null;
