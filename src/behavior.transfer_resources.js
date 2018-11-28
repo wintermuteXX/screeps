@@ -13,13 +13,14 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   Log.debug(`${creep} is running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
-  var target = creep.getTarget();
+  let target = creep.getTarget();
+  let creepRes = _.findKey(creep.carry);
 
   if (!target) {
     var resources = creep.room.memory.QueueNeededResources;
     creep.target = null;
     for (var resource in resources) {
-      if (resources[resource].amount > 0 && creep.memory.resourceType == resources[resource].resourceType) {
+      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
         Log.info(`Creep ${creep.pos} will deliver ${resources[resource].resourceType} to ${resources[resource].id}`, "Creep");
@@ -35,9 +36,7 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
-    let res = _.findKey(creep.carry);
-          console.log("Resource: " + res + " " + creep.memory.resourceType);
-    let result = creep.transfer(target, creep.memory.resourceType);
+    let result = creep.transfer(target, creepRes);
 
     switch (result) {
       case OK:
