@@ -35,6 +35,11 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
+    for (let resource in creep.carry) {
+      let res;
+      if (resource.RESOURCE_ENERGY > 0) {res = "RESOURCE_ENERGY"} 
+          else if (resource !== RESOURCE_ENERGY) {res = resource;}}
+          console.log("Resource: " + res + creep.memory.resourceType);
     let result = creep.transfer(target, creep.memory.resourceType);
 
     switch (result) {
