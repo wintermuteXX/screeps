@@ -3,12 +3,15 @@ var b = new Behavior("transfer_resources");
 
 b.when = function (creep, rc) {
   if (!creep.room.memory.QueueNeededResources) return false;
-  if (creep.energy == 0) return false;
+  if (creep.energy === 0) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
-  return (creep.energy == 0 || creep.target === null);
+  if (creep.energy === 0) return true;
+  let tar = creep.getTarget();
+  if (!tar) return true;
+  return false;
 };
 
 b.work = function (creep, rc) {
@@ -41,7 +44,6 @@ b.work = function (creep, rc) {
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
-        //creep.memory.resourceType = null;
       case ERR_FULL:
         creep.target = null;
         break;
