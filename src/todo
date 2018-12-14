@@ -25,6 +25,7 @@
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) Miners don't step on existing containers
+        - (bug) Transporter2 skips a tick after completion of behaviour
         
    	TESTING
 
