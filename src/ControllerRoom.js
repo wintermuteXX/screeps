@@ -171,7 +171,7 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	let [sto] = this.getStorage();
+	let [sto] = this.getStorageNotFull();
 	if (sto) {
 		for (var r of RESOURCES_ALL) {
 			if (sto.store[r] === undefined || sto.store[r] < 20000) {
@@ -402,6 +402,15 @@ ControllerRoom.prototype.getStorage = function () {
 	if (!this._storage) {
 		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_STORAGE
+		});
+	}
+	return this._storage;
+};
+
+ControllerRoom.prototype.getStorageNotFull = function () {
+	if (!this._storage) {
+		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), function(e) {
+			return e.structureType === STRUCTURE_STORAGE && _.sum(e.store) < e.storeCapacity
 		});
 	}
 	return this._storage;
