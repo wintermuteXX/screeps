@@ -31,7 +31,7 @@ b.work = function (creep, rc) {
       }
     }
     // Backup if no target found -> Terminal
-    if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity == _.sum(creep.room.terminal.store))) {
+    if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity > _.sum(creep.room.terminal.store))) {
       Log.info(`Creep will deliver to Terminal (Backup): ${creep.name}`, "Creep");
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
