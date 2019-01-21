@@ -176,17 +176,21 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   Object.defineProperty(Structure.prototype, 'container', {
     get: function () {
       if (this._container == undefined) {
-        if (this.memory.container == undefined) {
+        if (this.memory.containerID == undefined) {
           let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
             filter: {
               structureType: STRUCTURE_CONTAINER
             }
           });
           if (found !== undefined) {
-            this.memory.container = found.id;
+            this.memory.containerID = found.id;
           }
+        } else {
+          this.calculateContainerPos(1);
+          console.log("ContainerPos calculated and build order given");
+          this._container = null;
         }
-        this._container = Game.getObjectById(this.memory.container);
+        this._container = Game.getObjectById(this.memory.containerID);
       }
       return this._container;
     },
@@ -337,7 +341,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         continue;
       } */
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
-    this.memory.containerPos = position_1;
+    // this.memory.containerPos = position_1;
     console.log("Placed container in " + this.room);
     return position_1;
   };
