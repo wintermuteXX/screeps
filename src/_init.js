@@ -183,15 +183,16 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
               structureType: STRUCTURE_CONTAINER
             }
           });
+
           if (found !== undefined) {
             Log.info(`Container found -> Memory`, "Container");
             this.memory.containerID = found.id;
+          } else {
+            Log.info(`ContainerPos will be calculated`, "Container");
+            this.calculateContainerPos(1);
+            Log.info(`ContainerPos calculated and build order given`, "Container");
+            this._container = null;
           }
-        } else {
-          Log.info(`ContainerPos will be calculated`, "Container");
-          this.calculateContainerPos(1);
-          Log.info(`ContainerPos calculated and build order given`, "Container");
-          this._container = null;
         }
         this._container = Game.getObjectById(this.memory.containerID);
       }
@@ -321,7 +322,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     if (!startingPosition) {
       Log.info(`No starting Position`, "Container");
-      return;}
+      return;
+    }
     if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
       return;
     var ret = PathFinder.search(this.pos, startingPosition, {
@@ -335,7 +337,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     var position_1 = ret.path[range - 1];
     Log.info(`New container Postistion ${position_1}`, "Container");
-      /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
+    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
       return p.getRangeTo(position_1);
     });
     for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
