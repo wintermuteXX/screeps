@@ -196,12 +196,12 @@ ControllerRoom.prototype.needResources = function () {
 ControllerRoom.prototype.findResources = function () {
 	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
-	var droppedResources = {};
+	var existingResources = {};
 
 	// Dropped Resources
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-			droppedResources[s.id + "|" + s.resourceType] = {
+			existingResources[s.id + "|" + s.resourceType] = {
 				'resourceType': s.resourceType,
 				'amount': s.amount,
 				'id': s.id
@@ -213,7 +213,7 @@ ControllerRoom.prototype.findResources = function () {
 	for (var l of _.filter(this.links.receivers, function (l) {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 		})) {
-		droppedResources[l.id + "|energy"] = {
+		existingResources[l.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': l.energy,
 			'id': l.id
@@ -225,11 +225,17 @@ ControllerRoom.prototype.findResources = function () {
 		return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
 	});
 
+	var containers2 = []
+	var Sources = this.getSources;
+	for (var s of Sources) {containers2.push(s.container)}
+	console.log("Find containers old school: " + containers);
+	console.log("Find containers new school: " + containers2);
+	
 	_.each(containers, function (c) {
 		_.each(c.store, function (amount, resourceType) {
 			if (amount > 200) {
 				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
-				droppedResources[c.id + "|" + resourceType] = {
+				existingResources[c.id + "|" + resourceType] = {
 					'resourceType': resourceType,
 					'amount': amount,
 					'id': c.id
@@ -246,7 +252,7 @@ ControllerRoom.prototype.findResources = function () {
 		_.each(ter, function (t) {
 			_.each(t.store, function (amount, resourceType) {
 				if ((sto[0].store[resourceType] === undefined || sto[0].store[resourceType] < 20000) || (resourceType == 'energy' && amount > 100000)) {
-					droppedResources[t.id + "|" + resourceType] = {
+					existingResources[t.id + "|" + resourceType] = {
 						'resourceType': resourceType,
 						'amount': amount,
 						'id': t.id
@@ -261,7 +267,7 @@ ControllerRoom.prototype.findResources = function () {
 		_.each(sto, function (s) {
 			_.each(s.store, function (amount, resourceType) {
 				if ((amount > 20000) || (resourceType == 'energy' && amount > 0)) {
-					droppedResources[s.id + "|" + resourceType] = {
+					existingResources[s.id + "|" + resourceType] = {
 						'resourceType': resourceType,
 						'amount': amount,
 						'id': s.id
@@ -271,7 +277,7 @@ ControllerRoom.prototype.findResources = function () {
 		});
 	};
 
-	memory.QueueAvailableResources = droppedResources;
+	memory.QueueAvailableResources = existingResources;
 };
 
 ControllerRoom.prototype.find = function (type) {

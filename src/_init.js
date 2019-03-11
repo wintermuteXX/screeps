@@ -189,7 +189,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             this.memory.containerID = found.id;
           } else {
             Log.info(`ContainerPos will be calculated`, "Container");
-            this.calculateContainerPos(2);
+            this.calculateContainerPos(1);
             Log.info(`ContainerPos calculated and build order given`, "Container");
             this._container = null;
           }
