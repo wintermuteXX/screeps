@@ -186,8 +186,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             this.memory.containerID = found.id;
           }
         } else {
+          Log.info(`ContainerPos will be calculated`, "Container");
           this.calculateContainerPos(1);
-          console.log("ContainerPos calculated and build order given");
+          Log.info(`ContainerPos calculated and build order given`, "Container");
           this._container = null;
         }
         this._container = Game.getObjectById(this.memory.containerID);
