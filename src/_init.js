@@ -177,12 +177,14 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.containerID == undefined) {
+          Log.info(`No ContainerPos found in memory`, "Container");
           let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
             filter: {
               structureType: STRUCTURE_CONTAINER
             }
           });
           if (found !== undefined) {
+            Log.info(`Container found -> Memory`, "Container");
             this.memory.containerID = found.id;
           }
         } else {
@@ -309,7 +311,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return;
     }
     var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
-    console.log("Calculate Container Position?: " + startingPosition);
+    Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
     if (!startingPosition) {
       startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
         filter: (function (s) {
@@ -317,8 +319,9 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
         })
       })[0];
     }
-    if (!startingPosition)
-      return;
+    if (!startingPosition) {
+      Log.info(`No starting Position`, "Container");
+      return;}
     if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
       return;
     var ret = PathFinder.search(this.pos, startingPosition, {
@@ -331,8 +334,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return;
     }
     var position_1 = ret.path[range - 1];
-    console.log("Position1: " + position_1);
-    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
+    Log.info(`New container Postistion ${position_1}`, "Container");
+      /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
       return p.getRangeTo(position_1);
     });
     for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
@@ -343,7 +346,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       } */
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
     // this.memory.containerPos = position_1;
-    console.log("Placed container in " + this.room);
+    Log.info(`Placed Container in  ${this.room}`, "Container");
     return position_1;
   };
 
