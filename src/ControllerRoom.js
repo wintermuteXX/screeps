@@ -226,8 +226,9 @@ ControllerRoom.prototype.findResources = function () {
 	});
 
 	var containers2 = []
-	var Sources = this.getSources;
-	for (var s of Sources) {containers2.push(s.container)}
+	var sources = this.getSources;
+	console.log("Sources: " +sources);
+	for (var s of sources) {containers2.push(s.container)}
 	console.log("Find containers old school: " + containers);
 	console.log("Find containers new school: " + containers2);
 	
