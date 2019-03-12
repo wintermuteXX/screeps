@@ -390,12 +390,9 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 
 		let controllerz = this.getController();
 		if (controllerz) {
-			//console.log("Is this an object?: " + controllerz);
 			let containerId = controllerz.memory.containerID || null;
-			console.log("Is this an ID?: " + containerId);
 			if (containerId != null) {
 				var container = Game.getObjectById(containerId);
-				//console.log("Is this an object?: " + container);
 				if (container != null) {
 					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
 						this._controllerNF = container
