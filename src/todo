@@ -8,8 +8,7 @@
         - miner - if link empty + container filled -> transfer to link.
         - miner with no free source is crashing code BANG BOOM BANG
     	- recalculate needed transporters (maybe easier when transporter2 is running)
-		- prototype check if creep has same target (so not all creeps are running to the same ressource pile)
-        -- OS Based Tasks -> Priority, how often, sleep
+		- prototype check if creep has same target (so not all creeps are running to the same resource pile)
         -- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
@@ -18,7 +17,8 @@
     	-- Boost creeps
         -- Remote Mining ( there was a formula for calculation if RH makes sense)
         -- cache important path in room
-
+        --- OS Based Tasks -> Priority, how often, sleep
+        
 
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
