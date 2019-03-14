@@ -24,11 +24,11 @@
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
-        - (bug) Miners don't step on existing containers
         - (bug) If terminal is full of minerals, transporter2 fails
         
    	TESTING
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
+        - (testing)(bug) Miners don't step on existing containers
 
   	DONE
 		- (done) (bug) implement renew if creep is still "up to date" (stalls if no energy available)

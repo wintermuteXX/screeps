@@ -26,7 +26,7 @@ b.work = function (creep, rc) {
   if (source !== null) {
     creep.target = source.id;
 
-    if (creep.container && !(creep.pos.isEqualTo(source.container.pos))) {
+    if (source.container && !(creep.pos.isEqualTo(source.container.pos))) {
       creep.moveTo(source.container);
     } else if (!creep.pos.isNearTo(source)) {
       creep.moveTo(source);
