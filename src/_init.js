@@ -131,6 +131,42 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     configurable: true
   });
  */
+
+Object.defineProperty(Source.prototype, 'container', {
+  get: function () {
+    if (this._container == undefined) {
+      if (this.memory.containerID == undefined) {
+        Log.info(`No ContainerPos found in memory`, "Container");
+        let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: {
+            structureType: STRUCTURE_CONTAINER
+          }
+        });
+
+        if (found !== undefined) {
+          Log.info(`Container found -> Memory`, "Container");
+          this.memory.containerID = found.id;
+        } else {
+          Log.info(`ContainerPos will be calculated`, "Container");
+          this.calculateContainerPos(1);
+          Log.info(`ContainerPos calculated and build order given`, "Container");
+          this._container = null;
+        }
+      }
+      if (Game.getObjectById(this.memory.containerID)) {
+        this._container = Game.getObjectById(this.memory.containerID);
+      } else {
+        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
+        this.memory.containerID = null;
+        this._container = null;
+      }
+    }
+    return this._container;
+  },
+  enumerable: false,
+  configurable: true
+});
+
   Object.defineProperty(Source.prototype, 'memory', {
     get: function () {
       if (!Memory.rooms[this.room.name].sources)
