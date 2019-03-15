@@ -230,7 +230,7 @@ ControllerRoom.prototype.findResources = function () {
 	var containers = []
 	var sources = this.getSources();
 	for (var s of sources) {
-		if (!s) {
+		if (s) {
 			containers.push(s.container)
 		};
 	};
