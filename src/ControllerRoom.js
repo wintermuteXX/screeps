@@ -230,9 +230,10 @@ ControllerRoom.prototype.findResources = function () {
 	var containers = []
 	var sources = this.getSources();
 	for (var s of sources) {
-		containers.push(s.container)
-	}
-
+		if (!s) {
+			containers.push(s.container)
+		};
+	};
 	_.each(containers, function (c) {
 		_.each(c.store, function (amount, resourceType) {
 			if (amount > 200) {
@@ -245,6 +246,7 @@ ControllerRoom.prototype.findResources = function () {
 			};
 		});
 	});
+
 
 	var ter = this.getTerminal();
 	var sto = this.getStorage();
@@ -355,7 +357,6 @@ ControllerRoom.prototype.getController = function () {
 	return this.room.controller || null;
 };
 
-// Get Controller Energy Target
 ControllerRoom.prototype.getControllerEnergyTarget = function () {
 	var controller = this.getController();
 
@@ -382,7 +383,6 @@ ControllerRoom.prototype.getControllerEnergyTarget = function () {
 
 	return controller;
 }
-
 
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {

@@ -194,7 +194,13 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             this._container = null;
           }
         }
-        this._container = Game.getObjectById(this.memory.containerID);
+        if (Game.getObjectById(this.memory.containerID)) {
+          this._container = Game.getObjectById(this.memory.containerID);
+        } else {
+          Log.info(`Container does not exist anymore. Delete from memory`, "Container");
+          this.memory.containerID = null;
+          this._container = null;
+        }
       }
       return this._container;
     },
