@@ -110,7 +110,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  Object.defineProperty(Source.prototype, 'container', {
+  /* Object.defineProperty(Source.prototype, 'container', {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.container == undefined) {
@@ -130,7 +130,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
-
+ */
   Object.defineProperty(Source.prototype, 'memory', {
     get: function () {
       if (!Memory.rooms[this.room.name].sources)
