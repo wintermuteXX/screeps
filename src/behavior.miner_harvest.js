@@ -33,12 +33,16 @@ b.work = function (creep, rc) {
     }
 
     creep.harvest(source);
-    // TODO: Storage + Link in creep memory speichern und benutzen.
-    var link = rc.findNearLink(creep);
+    var link;
+    if (creep.memory.link) {
+      link = Game.getObjectById(creep.memory.link);
+    } else {
+      link = rc.findNearLink(creep);
+    }
+    console.log("Link ist Objekt: " + link);
     // TODO: transfer only when full
-    if (link.length) {
-      creep.memory.link = link[0].id;
-      creep.transfer(link[0], RESOURCE_ENERGY);
+    if (link) {
+      creep.transfer(link, RESOURCE_ENERGY);
     } else {
       creep.drop(RESOURCE_ENERGY);
     }
