@@ -42,8 +42,7 @@ b.work = function (creep, rc) {
       link = rc.findNearLink(creep);
     }
     if (link) {
-      var result = creep.transfer(link, RESOURCE_ENERGY);
-      console.log("Transfer to Link sucess? " + result);
+      creep.transfer(link, RESOURCE_ENERGY);
     } else {
       creep.drop(RESOURCE_ENERGY);
     }

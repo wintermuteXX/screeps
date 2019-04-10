@@ -80,7 +80,7 @@ module.exports = {
         canBuild: function (rc) {
           var transporters = rc.getCreeps('transporter2');
           // return false;
-          return (transporters.length < 2);
+          return (transporters.length < 1);
         }
       },
 
@@ -109,9 +109,9 @@ module.exports = {
           }
 
           if (energyAround(controller) > 2000) {
-            return (controller && controller.my && rc.getCreeps('upgrader').length < 3);
-          } else {
             return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
+          } else {
+            return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
           }
         }
       },
