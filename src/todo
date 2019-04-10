@@ -28,9 +28,9 @@
         
    	TESTING
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
-        - (testing)(bug) Miners don't step on existing containers
 
   	DONE
+        - (done) (bug) Miners don't step on existing containers
 		- (done) (bug) implement renew if creep is still "up to date" (stalls if no energy available)
 		- (done) Spawn only if room is full of energy - (Will room die?) - Make exception if transporter+builder = 0
 		- (done) (bug) behavior "renew" is not executed
