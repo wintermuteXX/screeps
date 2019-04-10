@@ -331,7 +331,7 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 	var thelink = obj.pos.findInRange(links, 2);
 	console.log("findNearLink the one sender" + thelink);
 	if (thelink) {
-		obj.memory.link = thelink;
+		obj.memory.link = thelink.id;
 		return thelink;
 	}
 	return null;
