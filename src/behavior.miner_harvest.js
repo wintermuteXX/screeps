@@ -33,7 +33,9 @@ b.work = function (creep, rc) {
     }
 
     creep.harvest(source);
-    //TODO: Abbruch wenn Creep leer bzw Source leer
+    if (creep.energy == 0) {
+      return
+    }
     var link;
     if (creep.memory.link) {
       link = Game.getObjectById(creep.memory.link);
