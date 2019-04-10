@@ -33,11 +33,12 @@ b.work = function (creep, rc) {
     }
 
     creep.harvest(source);
+    //TODO: Abbruch wenn Creep leer bzw Source leer
     var link;
     if (creep.memory.link) {
       link = Game.getObjectById(creep.memory.link);
     } else {
-      link = rc.findNearLink(creep)[0];
+      link = rc.findNearLink(creep);
     }
     console.log("Link ist Objekt: " + link + " von creep: " + creep.name);
     // TODO: transfer only when full
