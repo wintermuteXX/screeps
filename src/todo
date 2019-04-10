@@ -25,6 +25,7 @@
 		- (bug) when controller downgrades during construction, workers can't finish behavior construction
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) If terminal is full of minerals, transporter2 fails
+        - (bug) Transporter2 does not collect mineral Container and Link.reciever
         
    	TESTING
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour

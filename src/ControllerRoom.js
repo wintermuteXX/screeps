@@ -321,7 +321,6 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 
 ControllerRoom.prototype.findNearLink = function (obj) {
 	if (obj.memory.link) {
-		console.log("findNearLink Memory entry found and returned");
 		var result = Game.getObjectById(obj.memory.link)
 		if (result) {
 			return result;

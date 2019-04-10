@@ -1,7 +1,6 @@
 var Behavior = require("_behavior");
 
 var b = new Behavior("miner_harvest");
-
 b.when = function () {
   return true;
 };
@@ -42,8 +41,6 @@ b.work = function (creep, rc) {
     } else {
       link = rc.findNearLink(creep);
     }
-    console.log("Link ist Objekt: " + link + " von creep: " + creep.name);
-    // TODO: transfer only when full
     if (link) {
       var result = creep.transfer(link, RESOURCE_ENERGY);
       console.log("Transfer to Link sucess? " + result);
