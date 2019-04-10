@@ -37,12 +37,12 @@ b.work = function (creep, rc) {
     if (creep.memory.link) {
       link = Game.getObjectById(creep.memory.link);
     } else {
-      link = rc.findNearLink(creep);
+      link = rc.findNearLink(creep)[0];
     }
     console.log("Link ist Objekt: " + link + " von creep: " + creep.name);
     // TODO: transfer only when full
     if (link) {
-      var result = creep.transfer(link[0], RESOURCE_ENERGY);
+      var result = creep.transfer(link, RESOURCE_ENERGY);
       console.log("Transfer to Link sucess? " + result);
     } else {
       creep.drop(RESOURCE_ENERGY);
