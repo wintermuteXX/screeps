@@ -320,11 +320,11 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
-	console.log("findNearLink in RC executed");
 	if (obj.memory.link) {
 		console.log("findNearLink Memory entry found and returned");
 		// TO-Do check if objekt link exists, if not delete memory 
-		return obj.memory.link;
+		var result = Game.getObjectById(obj.memory.link)
+		return result;
 	}
 	var links = this.links.senders;
 	console.log("findNearLink the senders: " + links);

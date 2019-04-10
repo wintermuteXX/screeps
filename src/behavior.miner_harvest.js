@@ -42,7 +42,8 @@ b.work = function (creep, rc) {
     console.log("Link ist Objekt: " + link);
     // TODO: transfer only when full
     if (link) {
-      creep.transfer(link, RESOURCE_ENERGY);
+      var result = creep.transfer(link, RESOURCE_ENERGY);
+      console.log("Transfer to Link sucess? " + result);
     } else {
       creep.drop(RESOURCE_ENERGY);
     }
