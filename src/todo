@@ -1,8 +1,7 @@
 1. 	TODO
+        - Mineral Container is not emptied
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
-        - source - define Container RoomPosition (use calculateContainerPos)
-        - miner build container (use calculateContainerPos)
         - miner - if idle - repair container
         - Cleanup ControllerRoom (getController, getControllerFull etc.)
         - miner - if link empty + container filled -> transfer to link.
@@ -29,7 +28,9 @@
         
    	TESTING
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
-
+        - (testing) source - define Container RoomPosition (use calculateContainerPos)
+        - (testing) miner build container (use calculateContainerPos)
+        
   	DONE
         - (done) (bug) Miners don't step on existing containers
 		- (done) (bug) implement renew if creep is still "up to date" (stalls if no energy available)
