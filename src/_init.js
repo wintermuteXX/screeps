@@ -110,28 +110,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  /* Object.defineProperty(Source.prototype, 'container', {
-    get: function () {
-      if (this._container == undefined) {
-        if (this.memory.container == undefined) {
-          [this.pos.x - 1, this.pos.x, this.pos.x + 1].forEach(x => {
-            [this.pos.y - 1, this.pos.y, this.pos.y + 1].forEach(y => {
-              let [found] = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-              if (found !== undefined && found.structureType === 'container') {
-                this.memory.container = found.id;
-              }
-            }, this);
-          }, this);
-        }
-        this._container = Game.getObjectById(this.memory.container);
-      }
-      return this._container;
-    },
-    enumerable: false,
-    configurable: true
-  });
- */
-
   Object.defineProperty(Source.prototype, 'container', {
     get: function () {
       if (this._container == undefined) {
@@ -365,7 +343,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     if (this.room.controller.reservation &&
       /* reserved and not mine */
       this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-      console.log(`MINER: Unable to place container in ${this.operation.name}, hostile reserved room`);
+      console.log(`Unable to place container in ${this.operation.name}, hostile reserved room`);
       return;
     }
     var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
@@ -394,17 +372,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     var position_1 = ret.path[range - 1];
     Log.info(`New container Postistion ${position_1}`, "Container");
-    /* var testPositions = _.sortBy(this.pos.openAdjacentSpots(true), function (p) {
-      return p.getRangeTo(position_1);
-    });
-    for (var _i = 0, testPositions_1 = testPositions; _i < testPositions_1.length; _i++) {
-      var testPosition = testPositions_1[_i];
-      var sourcesInRange = testPosition.findInRange(FIND_SOURCES, 1);
-      if (sourcesInRange.length > 1) {
-        continue;
-      } */
+   
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
-    // this.memory.containerPos = position_1;
     Log.info(`Placed Container in  ${this.room}`, "Container");
     return position_1;
   };

@@ -1,5 +1,6 @@
 1. 	TODO
         - Mineral Container is not emptied
+        - Prototype mineralcontainer durch container or calculateContainerPos ersetzen
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - miner - if idle - repair container
