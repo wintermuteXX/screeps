@@ -3,9 +3,7 @@
  * Example: var Traveler = require('Traveler.js');
  */
 "use strict";
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
+Object.defineProperty(exports, "__esModule", { value: true });
 class Traveler {
     /**
      * move creep to destination
@@ -29,7 +27,8 @@ class Traveler {
         let rangeToDestination = creep.pos.getRangeTo(destination);
         if (options.range && rangeToDestination <= options.range) {
             return OK;
-        } else if (rangeToDestination <= 1) {
+        }
+        else if (rangeToDestination <= 1) {
             if (rangeToDestination === 1 && !options.range) {
                 let direction = creep.pos.getDirectionTo(destination);
                 if (options.returnData) {
@@ -53,7 +52,8 @@ class Traveler {
         if (this.isStuck(creep, state)) {
             state.stuckCount++;
             Traveler.circle(creep.pos, "magenta", state.stuckCount * .2);
-        } else {
+        }
+        else {
             state.stuckCount = 0;
         }
         // handle case where creep is stuck
@@ -71,7 +71,8 @@ class Traveler {
             if (options.movingTarget && state.destination.isNearTo(destination)) {
                 travelData.path += state.destination.getDirectionTo(destination);
                 state.destination = destination;
-            } else {
+            }
+            else {
                 delete travelData.path;
             }
         }
@@ -181,11 +182,7 @@ class Traveler {
      */
     static circle(pos, color, opacity) {
         new RoomVisual(pos.roomName).circle(pos, {
-            radius: .45,
-            fill: "transparent",
-            stroke: color,
-            strokeWidth: .15,
-            opacity: opacity
+            radius: .45, fill: "transparent", stroke: color, strokeWidth: .15, opacity: opacity
         });
     }
     /**
@@ -199,7 +196,8 @@ class Traveler {
         if (room.controller) {
             if (room.controller.owner && !room.controller.my) {
                 room.memory.avoid = 1;
-            } else {
+            }
+            else {
                 delete room.memory.avoid;
             }
         }
@@ -239,8 +237,9 @@ class Traveler {
                 if (!allowedRooms[roomName]) {
                     return false;
                 }
-            } else if (!options.allowHostile && Traveler.checkAvoid(roomName) &&
-                roomName !== destRoomName && roomName !== originRoomName) {
+            }
+            else if (!options.allowHostile && Traveler.checkAvoid(roomName)
+                && roomName !== destRoomName && roomName !== originRoomName) {
                 return false;
             }
             roomsSearched++;
@@ -252,9 +251,11 @@ class Traveler {
                     if (!options.ignoreCreeps) {
                         Traveler.addCreepsToMatrix(room, matrix);
                     }
-                } else if (options.ignoreCreeps || roomName !== originRoomName) {
+                }
+                else if (options.ignoreCreeps || roomName !== originRoomName) {
                     matrix = this.getStructureMatrix(room, options.freshMatrix);
-                } else {
+                }
+                else {
                     matrix = this.getCreepMatrix(room);
                 }
                 if (options.obstacles) {
@@ -278,10 +279,7 @@ class Traveler {
             }
             return matrix;
         };
-        let ret = PathFinder.search(origin, {
-            pos: destination,
-            range: options.range
-        }, {
+        let ret = PathFinder.search(origin, { pos: destination, range: options.range }, {
             maxOps: options.maxOps,
             maxRooms: options.maxRooms,
             plainCost: options.offRoad ? 1 : options.ignoreRoads ? 1 : 2,
@@ -302,7 +300,9 @@ class Traveler {
                     return ret;
                 }
                 // TODO: handle case where a wall or some other obstacle is blocking the exit assumed by findRoute
-            } else {}
+            }
+            else {
+            }
         }
         return ret;
     }
@@ -315,10 +315,7 @@ class Traveler {
      */
     static findRoute(origin, destination, options = {}) {
         let restrictDistance = options.restrictDistance || Game.map.getRoomLinearDistance(origin, destination) + 10;
-        let allowedRooms = {
-            [origin]: true,
-            [destination]: true
-        };
+        let allowedRooms = { [origin]: true, [destination]: true };
         let highwayBias = 1;
         if (options.preferHighway) {
             highwayBias = 2.5;
@@ -434,17 +431,20 @@ class Traveler {
                 if (!structure.my && !structure.isPublic) {
                     impassibleStructures.push(structure);
                 }
-            } else if (structure instanceof StructureRoad) {
+            }
+            else if (structure instanceof StructureRoad) {
                 matrix.set(structure.pos.x, structure.pos.y, roadCost);
-            } else if (structure instanceof StructureContainer) {
+            }
+            else if (structure instanceof StructureContainer) {
                 matrix.set(structure.pos.x, structure.pos.y, 5);
-            } else {
+            }
+            else {
                 impassibleStructures.push(structure);
             }
         }
         for (let site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
-            if (site.structureType === STRUCTURE_CONTAINER || site.structureType === STRUCTURE_ROAD ||
-                site.structureType === STRUCTURE_RAMPART) {
+            if (site.structureType === STRUCTURE_CONTAINER || site.structureType === STRUCTURE_ROAD
+                || site.structureType === STRUCTURE_RAMPART) {
                 continue;
             }
             matrix.set(site.pos.x, site.pos.y, 0xff);
@@ -478,10 +478,7 @@ class Traveler {
         for (let position of path) {
             if (position.roomName === lastPosition.roomName) {
                 new RoomVisual(position.roomName)
-                    .line(position, lastPosition, {
-                        color: color,
-                        lineStyle: "dashed"
-                    });
+                    .line(position, lastPosition, { color: color, lineStyle: "dashed" });
                 serializedPath += lastPosition.getDirectionTo(position);
             }
             lastPosition = position;
@@ -536,14 +533,12 @@ class Traveler {
     static deserializeState(travelData, destination) {
         let state = {};
         if (travelData.state) {
-            state.lastCoord = {
-                x: travelData.state[STATE_PREV_X],
-                y: travelData.state[STATE_PREV_Y]
-            };
+            state.lastCoord = { x: travelData.state[STATE_PREV_X], y: travelData.state[STATE_PREV_Y] };
             state.cpu = travelData.state[STATE_CPU];
             state.stuckCount = travelData.state[STATE_STUCK];
             state.destination = new RoomPosition(travelData.state[STATE_DEST_X], travelData.state[STATE_DEST_Y], travelData.state[STATE_DEST_ROOMNAME]);
-        } else {
+        }
+        else {
             state.cpu = 0;
             state.destination = destination;
         }
@@ -551,8 +546,7 @@ class Traveler {
     }
     static serializeState(creep, destination, state, travelData) {
         travelData.state = [creep.pos.x, creep.pos.y, state.stuckCount, state.cpu, destination.x, destination.y,
-            destination.roomName
-        ];
+            destination.roomName];
     }
     static isStuck(creep, state) {
         let stuck = false;
@@ -560,7 +554,8 @@ class Traveler {
             if (this.sameCoord(creep.pos, state.lastCoord)) {
                 // didn't move
                 stuck = true;
-            } else if (this.isExit(creep.pos) && this.isExit(state.lastCoord)) {
+            }
+            else if (this.isExit(creep.pos) && this.isExit(state.lastCoord)) {
                 // moved against exit
                 stuck = true;
             }

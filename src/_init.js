@@ -290,8 +290,8 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   });
-
-  Object.defineProperty(Room.prototype, 'mineralContainer', {
+  
+    /* Object.defineProperty(Room.prototype, 'mineralContainer', {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
@@ -317,7 +317,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     },
     enumerable: false,
     configurable: true
-  });
+  }); */
 
   Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
     get: function () {
@@ -442,6 +442,15 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return `[${ this.roomName } ${ this.x },${ this.y }]`;
   };
 
+  Room.prototype.getContainers = function () {
+    if (!this._containers) {
+      this._containers = _.filter(this.find(FIND_STRUCTURES), {
+        structureType: STRUCTURE_CONTAINER
+      });
+    }
+    return this._containers;
+  };
+  
   Room.prototype.getResourceAmount = function (res) {
     var amount = 0;
     if (this.storage && this.storage.store[res]) {
