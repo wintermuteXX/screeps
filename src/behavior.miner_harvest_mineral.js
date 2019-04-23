@@ -1,9 +1,14 @@
 var Behavior = require("_behavior");
 var b = new Behavior("miner_harvest_mineral");
 
+var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
+  return (s.structureType === STRUCTURE_EXTRACTOR);
+});
 
 b.when = function () {
-  return true;
+  
+  console.log("Extractor: " + extractor)
+  return extractor;
 };
 
 b.completed = function () {
@@ -20,6 +25,7 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
     let container = rc.getMineralContainer();
+    console.log("Container Mineral: " + container + " new: " + extractor.container);
     if (container) {
     let test = creep.moveTo(container);
     } else if (!creep.pos.isNearTo(target)) {
