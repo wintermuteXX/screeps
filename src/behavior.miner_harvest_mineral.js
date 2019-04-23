@@ -23,7 +23,8 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    let container = rc.getMineralContainer();
+    // let container = rc.getMineralContainer();
+    let container = creep.room.extractor.container;
     // console.log("Container Mineral: " + container + " new: " + extractor.container);
     if (container) {
     let test = creep.moveTo(container);
