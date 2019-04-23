@@ -12,14 +12,10 @@ b.completed = function () {
 b.work = function (creep, rc) {
   var source = creep.getTarget();
 
-  if (!creep.target) {
+  if (source === null) {
     source = _.find(rc.getSources(), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
-  }
-
-  if (source === null) {
-    source = Game.getObjectById(creep.target);
   }
 
   if (source !== null) {
@@ -46,6 +42,8 @@ b.work = function (creep, rc) {
     } else {
       creep.drop(RESOURCE_ENERGY);
     }
+  } else {
+    console.log("Keine Source gefunden");
   }
 }
 
