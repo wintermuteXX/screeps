@@ -6,7 +6,6 @@ b.when = function (creep,rc) {
     return (s.structureType === STRUCTURE_EXTRACTOR);
   });
 
-  console.log("Extractor: " + extractor)
   return extractor;
 };
 
@@ -23,16 +22,18 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
+    // Old way - delete later
     // let container = rc.getMineralContainer();
     let container = creep.room.extractor.container;
     // console.log("Container Mineral: " + container + " new: " + extractor.container);
     if (container) {
-    let test = creep.moveTo(container);
+    creep.moveTo(container);
     } else if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target);
     }
     if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
-      let test = creep.harvest(target);
+      creep.harvest(target);
+      // TODO Errorhandling
     }
   }
 };
