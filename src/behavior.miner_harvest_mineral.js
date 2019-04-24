@@ -1,7 +1,7 @@
 var Behavior = require("_behavior");
 var b = new Behavior("miner_harvest_mineral");
 
-b.when = function (creep,rc) {
+b.when = function (creep, rc) {
   var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
     return (s.structureType === STRUCTURE_EXTRACTOR);
   });
@@ -22,18 +22,21 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    // Old way - delete later
-    // let container = rc.getMineralContainer();
     let container = creep.room.extractor.container;
-    // console.log("Container Mineral: " + container + " new: " + extractor.container);
     if (container) {
-    creep.moveTo(container);
+      creep.moveTo(container);
     } else if (!creep.pos.isNearTo(target)) {
       creep.moveTo(target);
     }
     if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
-      creep.harvest(target);
-      // TODO Errorhandling
+      let result = creep.harvest(target);
+
+      switch (result) {
+        case OK:
+          break;
+        default:
+          Log.warn(`unknown result from (creep ${creep}).harvest mineral(${target}): ${result}`, "Creep");
+      }
     }
   }
 };

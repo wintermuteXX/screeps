@@ -21,7 +21,6 @@ b.work = function (creep, rc) {
     var targettest = rc.getIdleSpawn(); // Does not work
     //TODO: Find Idle Spawn 
     target = creep.room.spawns[0];
-    console.log("Renew target: " + target + " Target2: " + targettest);
     if (target && !target.Spawning) {
       creep.target = target.id;
     }
@@ -33,7 +32,7 @@ b.work = function (creep, rc) {
       case OK:
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
-        console.log("No resources in Spawn");
+        Log.warn(`not enough resources for (creep ${creep}). renew (${target}): ${result}`, "Creep");
         creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
