@@ -168,32 +168,32 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
   });
 
-  Object.defineProperty(Structure.prototype, 'dropEnergy', {
-    get: function () {
-      if (this._dropEnergy == undefined) {
-        if (this.memory.dropEnergy == undefined) {
-          [this.pos.x - 2, this.pos.x - 1, this.pos.x, this.pos.x + 1, this.pos.x + 2].forEach(x => {
-            [this.pos.y - 2, this.pos.y - 1, this.pos.y, this.pos.y + 1, this.pos.y + 2].forEach(y => {
-              let pos = new RoomPosition(x, y, this.room.name);
-              let count = pos.freeFieldsCount;
-              console.log("Pos: " + pos + " Count: " + count);
-              if (count == 8) {
-                this.memory.dropEnergy = {
-                  x: pos.x,
-                  y: pos.y,
-                  roomName: pos.roomName
-                };
-              }
+  /*   Object.defineProperty(Structure.prototype, 'dropEnergy', {
+      get: function () {
+        if (this._dropEnergy == undefined) {
+          if (this.memory.dropEnergy == undefined) {
+            [this.pos.x - 2, this.pos.x - 1, this.pos.x, this.pos.x + 1, this.pos.x + 2].forEach(x => {
+              [this.pos.y - 2, this.pos.y - 1, this.pos.y, this.pos.y + 1, this.pos.y + 2].forEach(y => {
+                let pos = new RoomPosition(x, y, this.room.name);
+                let count = pos.freeFieldsCount;
+                console.log("Pos: " + pos + " Count: " + count);
+                if (count == 8) {
+                  this.memory.dropEnergy = {
+                    x: pos.x,
+                    y: pos.y,
+                    roomName: pos.roomName
+                  };
+                }
+              }, this);
             }, this);
-          }, this);
+          }
+          this._dropEnergy = this.memory.dropEnergy;
         }
-        this._dropEnergy = this.memory.dropEnergy;
-      }
-      return this._dropEnergy;
-    },
-    enumerable: false,
-    configurable: true
-  });
+        return this._dropEnergy;
+      },
+      enumerable: false,
+      configurable: true
+    }); */
 
   Object.defineProperty(Structure.prototype, 'container', {
     get: function () {
@@ -291,7 +291,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     enumerable: false,
     configurable: true
   }); */
-  
+
   Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
     get: function () {
       var self = this;
@@ -345,35 +345,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     var position_1 = ret.path[range - 1];
     Log.info(`New container Postistion ${position_1}`, "Container");
-   
+
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
     Log.info(`Placed Container in  ${this.room}`, "Container");
     return position_1;
-  };
-
-  RoomObject.prototype.lookForNear = function (lookFor, asArray, range = 1) {
-    var {
-      x,
-      y
-    } = this.pos;
-    return this.room.lookForAtArea(lookFor,
-      Math.max(0, y - range),
-      Math.max(0, x - range),
-      Math.min(49, y + range),
-      Math.min(49, x + range),
-      asArray);
-  };
-
-  RoomObject.prototype.lookNear = function (asArray, range = 1) {
-    var {
-      x,
-      y
-    } = this.pos;
-    return this.room.lookAtArea(Math.max(0, y - range),
-      Math.max(0, x - range),
-      Math.min(49, y + range),
-      Math.min(49, x + range),
-      asArray);
   };
 
   RoomObject.prototype.say = function (what) {
@@ -423,7 +398,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     }
     return this._containers;
   };
-  
+
   Room.prototype.getResourceAmount = function (res) {
     var amount = 0;
     if (this.storage && this.storage.store[res]) {
