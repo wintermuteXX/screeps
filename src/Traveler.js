@@ -65,7 +65,7 @@ class Traveler {
             options.freshMatrix = true;
             delete travelData.path;
         }
-        // TODO:handle case where creep moved by some other function, but destination is still the same
+        // handle case where creep moved by some other function, but destination is still the same
         // delete path cache if destination is different
         if (!this.samePos(state.destination, destination)) {
             if (options.movingTarget && state.destination.isNearTo(destination)) {
@@ -299,7 +299,7 @@ class Traveler {
                     console.log(`TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`);
                     return ret;
                 }
-                // TODO: handle case where a wall or some other obstacle is blocking the exit assumed by findRoute
+                // handle case where a wall or some other obstacle is blocking the exit assumed by findRoute
             }
             else {
             }
