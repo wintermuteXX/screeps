@@ -115,6 +115,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       if (this._container == undefined) {
         if (this.memory.containerID == undefined) {
           //TODO: Is calculated every time during container is build
+          // During construction containerID = null
           Log.info(`No ContainerPos found in memory`, "Container");
           let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
             filter: {
@@ -268,7 +269,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.hits < (this.hitsMax * repairLimit);
   };
 
-  /* Object.defineProperty(Room.prototype, 'mineral', {
+  Object.defineProperty(Room.prototype, 'mineral', {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
@@ -290,7 +291,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     },
     enumerable: false,
     configurable: true
-  }); */
+  });
 
   Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
     get: function () {
