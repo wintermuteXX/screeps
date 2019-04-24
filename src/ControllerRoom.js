@@ -234,19 +234,21 @@ ControllerRoom.prototype.findResources = function () {
 			containers.push(s.container)
 		};
 	};
-	_.each(containers, function (c) {
-		_.each(c.store, function (amount, resourceType) {
-			if (amount > 200) {
-				// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
-				existingResources[c.id + "|" + resourceType] = {
-					'resourceType': resourceType,
-					'amount': amount,
-					'id': c.id
-				};
-			};
-		});
-	});
 
+	if (containers.store !== undefined) {
+		_.each(containers, function (c) {
+			_.each(c.store, function (amount, resourceType) {
+				if (amount > 200) {
+					// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
+					existingResources[c.id + "|" + resourceType] = {
+						'resourceType': resourceType,
+						'amount': amount,
+						'id': c.id
+					};
+				};
+			});
+		});
+	}
 
 	var ter = this.getTerminal();
 	var sto = this.getStorage();

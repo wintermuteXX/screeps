@@ -114,6 +114,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     get: function () {
       if (this._container == undefined) {
         if (this.memory.containerID == undefined) {
+          //TODO: Is calculated every time during container is build
           Log.info(`No ContainerPos found in memory`, "Container");
           let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
             filter: {

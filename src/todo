@@ -27,10 +27,10 @@
    	TESTING
 		- (testing)(bug) when controller downgrades during construction, workers can't finish behavior construction
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
-        - (testing) source - define Container RoomPosition (use calculateContainerPos)
-        - (testing) miner build container (use calculateContainerPos)
     	
   	DONE
+        - (done) (testing) miner build container (use calculateContainerPos)
+        - (done) (testing) source - define Container RoomPosition (use calculateContainerPos)
         - (done) (testing) miner with no free source is crashing code BANG BOOM BANG
         - (done) (bug) Miners don't step on existing containers
 		- (done) (bug) implement renew if creep is still "up to date" (stalls if no energy available)
