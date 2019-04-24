@@ -459,7 +459,8 @@ ControllerRoom.prototype.getSpawnsNotFull = function () {
 	return this._spawnsNF;
 };
 
-ControllerRoom.prototype.getMineralContainer = function () {
+//TODO: Remove after test
+/* ControllerRoom.prototype.getMineralContainer = function () {
 	var containers = this.getContainers();
 	var mineral = this.find(FIND_MINERALS);
 	containers = _.filter(containers, function (f) {
@@ -469,7 +470,7 @@ ControllerRoom.prototype.getMineralContainer = function () {
 		return containers[0];
 	}
 	return null;
-};
+}; */
 
 ControllerRoom.prototype.getMineralAmount = function () {
 	var minerals = this.find(FIND_MINERALS);

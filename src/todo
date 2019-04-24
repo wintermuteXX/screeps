@@ -1,6 +1,5 @@
 1. 	TODO
         - Link should transport to most empty link
-        - Prototype mineralcontainer durch container or calculateContainerPos ersetzen
         - createCreep. Calculate Move parts dynamically (body2) (difficult)
 		- Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
         - miner - if idle - repair container
@@ -29,6 +28,7 @@
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
     	
   	DONE
+        - (done) Prototype mineralcontainer durch container or calculateContainerPos ersetzen
         - (done) (testing) miner build container (use calculateContainerPos)
         - (done) (testing) source - define Container RoomPosition (use calculateContainerPos)
         - (done) (testing) miner with no free source is crashing code BANG BOOM BANG
