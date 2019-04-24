@@ -268,7 +268,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return this.hits < (this.hitsMax * repairLimit);
   };
 
-  Object.defineProperty(Room.prototype, 'mineral', {
+  /* Object.defineProperty(Room.prototype, 'mineral', {
     get: function () {
       if (this == Room.prototype || this == undefined)
         return undefined;
@@ -290,7 +290,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     },
     enumerable: false,
     configurable: true
-  });
+  }); */
   
   Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
     get: function () {
