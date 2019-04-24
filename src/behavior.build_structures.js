@@ -17,18 +17,27 @@ b.work = function (creep, rc) {
     var constructions = rc.find(FIND_CONSTRUCTION_SITES);
     if (constructions.length) {
       target = constructions[0];
+      creep.target = target.id;
     }
   }
 
   if (target !== null) {
 
-    if (creep.build(target) == ERR_NOT_IN_RANGE) {
+    /* if (creep.build(target) == ERR_NOT_IN_RANGE) {
       creep.travelTo(target);
-    }
+    } */
 
-    creep.target = target.id;
-  } else {
-    creep.target = null;
+    var result = creep.build(target);
+    switch (result) {
+      case OK:
+        break;
+      case ERR_NOT_IN_RANGE:
+        creep.travelTo(target);
+        break;
+      default:
+        Log.warn(`unknown result from (creep ${creep}). build (${target}): ${result}`, "Creep");
+        creep.target = null
+    }
   }
 };
 
