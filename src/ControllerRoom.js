@@ -223,10 +223,6 @@ ControllerRoom.prototype.findResources = function () {
 	}
 
 	// Containers
-	//var containers = _.filter(this.find(FIND_STRUCTURES), function (d) {
-	//	return d.structureType === STRUCTURE_CONTAINER && !d.pos.inRangeTo(d.room.controller.pos, 3);
-	//});
-
 	var containers = []
 	var sources = this.getSources();
 	for (var s of sources) {

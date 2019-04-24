@@ -21,11 +21,11 @@
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
 		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) If terminal is full of minerals, transporter2 fails
-        - (bug) Transporter2 does not collect mineral Container and Link.reciever
         
    	TESTING
 		- (testing)(bug) when controller downgrades during construction, workers can't finish behavior construction
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
+        - (testing)(bug) Transporter2 does not collect mineral Container and Link.reciever
     	
   	DONE
         - (done) Prototype mineralcontainer durch container or calculateContainerPos ersetzen
