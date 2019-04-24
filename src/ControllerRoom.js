@@ -235,8 +235,12 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	};
 
-	if (containers.store !== undefined) {
-		_.each(containers, function (c) {
+	if (this.room.extractor.container) {
+		containers.push(this.room.extractor.container)
+	}
+
+	_.each(containers, function (c) {
+		if (c.store !== undefined) {
 			_.each(c.store, function (amount, resourceType) {
 				if (amount > 200) {
 					// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
@@ -247,8 +251,9 @@ ControllerRoom.prototype.findResources = function () {
 					};
 				};
 			});
-		});
-	}
+		}
+	});
+
 
 	var ter = this.getTerminal();
 	var sto = this.getStorage();
