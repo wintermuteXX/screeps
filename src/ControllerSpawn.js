@@ -3,9 +3,9 @@ function ControllerSpawn(spawn, ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
 
-ControllerSpawn.prototype.idle = function () {
+/* ControllerSpawn.prototype.idle = function () {
   return (this.spawn.spawning === null || this.spawn.spawning === undefined);
-};
+}; */
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   var theName = role + "_" + Math.round(Math.random() * 999);

@@ -137,6 +137,10 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
+	//TODO: Add empty Upgrader if no container is present
+	//TODO: Maybe define a spot where energy can lie on the ground if no container
+	//TODO: Transport directly to Updgrader if no container availible
+
 	let con = this.getControllerNotFull();
 	if (con && con != null) {
 		needResources[con.id + "|energy"] = {
@@ -436,7 +440,7 @@ ControllerRoom.prototype.getStorageNotFull = function () {
 ControllerRoom.prototype.getIdleSpawn = function () {
 	for (var i in this._spawns) {
 		var sc = this._spawns[i];
-		if (sc.idle()) {
+		if (!sc.spawning) {
 			return sc;
 		}
 	}
