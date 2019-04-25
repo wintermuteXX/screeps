@@ -6,8 +6,7 @@
         - Cleanup ControllerRoom (getController, getControllerFull etc.)
         - miner - if link empty + container filled -> transfer to link.
         - recalculate needed transporters (maybe easier when transporter2 is running)
-		- prototype check if creep has same target (so not all creeps are running to the same resource pile)
-        -- Sell + Buy at Market
+		-- Sell + Buy at Market
     	-- Scout could dismantle buildings in target room?
     	-- Harvest Power
 		-- test attack behavior
@@ -19,10 +18,10 @@
 
    	BUGS
 	    - (bug) internalTrade will send 20000 Resources from every terminal, even if there is enough already
-		- (bug) when creating Queues for resources, there is no check if creep is "on the way"
         - (bug) If terminal is full of minerals, transporter2 fails
         
    	TESTING
+		- (testing)(bug) when creating Queues for resources, there is no check if creep is "on the way"
 		- (testing)(bug) when controller downgrades during construction, workers can't finish behavior construction
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
         - (testing)(bug) Transporter2 does not collect mineral Container and Link.reciever

@@ -137,9 +137,17 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	//TODO: Add empty Upgrader if no container is present
-	//TODO: Maybe define a spot where energy can lie on the ground if no container
-	//TODO: Transport directly to Updgrader if no container availible
+	//	Fill Upgrader directly, if no container in position
+	if (!this.room.controller.container) {
+		let upgrader = this.getCreeps('upgrader')
+		for (var u of upgrader) {
+			needResources[u.id + "|energy"] = {
+				'resourceType': "energy",
+				'amount': u.energyCapacity - u.energy,
+				'id': u.id
+			};
+		}
+	}
 
 	let con = this.getControllerNotFull();
 	if (con && con != null) {
@@ -147,6 +155,16 @@ ControllerRoom.prototype.needResources = function () {
 			'resourceType': "energy",
 			'amount': con.storeCapacity - _.sum(con.store),
 			'id': con.id
+		};
+	}
+
+	//TODO Test/ transfer directly to constructor
+	let constructor = this.getCreeps('constructor')
+	for (var c of constructor) {
+		needResources[c.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': c.energyCapacity - c.energy,
+			'id': c.id
 		};
 	}
 
@@ -243,7 +261,6 @@ ControllerRoom.prototype.findResources = function () {
 		if (c.store !== undefined) {
 			_.each(c.store, function (amount, resourceType) {
 				if (amount > 200) {
-					// console.log(c.room.name + " In Container: " + resourceType + " " + amount);
 					existingResources[c.id + "|" + resourceType] = {
 						'resourceType': resourceType,
 						'amount': amount,
@@ -399,24 +416,23 @@ ControllerRoom.prototype.getControllerEnergyTarget = function () {
 	return controller;
 }
 
-ControllerRoom.prototype.getControllerNotFull = function () {
-	if (!this._controllerNF) {
-		this._controllerNF = null;
+if (!this._controllerNF) {
+	this._controllerNF = null;
 
-		let controllerz = this.getController();
-		if (controllerz) {
-			let containerId = controllerz.memory.containerID || null;
-			if (containerId != null) {
-				var container = Game.getObjectById(containerId);
-				if (container != null) {
-					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
-						this._controllerNF = container
-					}
+	let controllerz = this.getController();
+	if (controllerz) {
+		let containerId = controllerz.memory.containerID || null;
+		if (containerId != null) {
+			var container = Game.getObjectById(containerId);
+			if (container != null) {
+				if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
+					this._controllerNF = container
 				}
 			}
 		}
 	}
-	return this._controllerNF;
+}
+return this._controllerNF;
 };
 
 ControllerRoom.prototype.getStorage = function () {
