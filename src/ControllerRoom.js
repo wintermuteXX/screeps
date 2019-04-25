@@ -235,7 +235,7 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	};
 
-	if (this.room.extractor.container) {
+	if (this.room.extractor && this.room.extractor.container) {
 		containers.push(this.room.extractor.container)
 	}
 
