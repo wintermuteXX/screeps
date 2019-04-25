@@ -160,11 +160,11 @@ ControllerRoom.prototype.needResources = function () {
 
 	//TODO Test/ transfer directly to constructor
 	let constructor = this.getCreeps('constructor')
-	for (var c of constructor) {
-		needResources[c.id + "|energy"] = {
+	for (var constr of constructor) {
+		needResources[constr.id + "|energy"] = {
 			'resourceType': "energy",
-			'amount': c.energyCapacity - c.energy,
-			'id': c.id
+			'amount': constr.energyCapacity - constr.energy,
+			'id': constr.id
 		};
 	}
 
@@ -207,7 +207,6 @@ ControllerRoom.prototype.needResources = function () {
 			}
 		}
 	}
-
 	memory.QueueNeededResources = needResources;
 };
 
@@ -416,22 +415,24 @@ ControllerRoom.prototype.getControllerEnergyTarget = function () {
 	return controller;
 }
 
-if (!this._controllerNF) {
-	this._controllerNF = null;
+ControllerRoom.prototype.getControllerNotFull = function () {
+	if (!this._controllerNF) {
+		this._controllerNF = null;
 
-	let controllerz = this.getController();
-	if (controllerz) {
-		let containerId = controllerz.memory.containerID || null;
-		if (containerId != null) {
-			var container = Game.getObjectById(containerId);
-			if (container != null) {
-				if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
-					this._controllerNF = container
+		let controllerz = this.getController();
+		if (controllerz) {
+			let containerId = controllerz.memory.containerID || null;
+			if (containerId != null) {
+				var container = Game.getObjectById(containerId);
+				if (container != null) {
+					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
+						this._controllerNF = container
+					}
 				}
 			}
 		}
+		return this._controllerNF;
 	}
-	return this._controllerNF;
 };
 
 ControllerRoom.prototype.getStorage = function () {
