@@ -431,8 +431,7 @@ if (!this._controllerNF) {
 			}
 		}
 	}
-}
-return this._controllerNF;
+	return this._controllerNF;
 };
 
 ControllerRoom.prototype.getStorage = function () {
