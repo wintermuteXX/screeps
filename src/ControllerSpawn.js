@@ -3,7 +3,7 @@ function ControllerSpawn(spawn, ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
 
-//TODO: Remove
+//REMOVE
 /* ControllerSpawn.prototype.idle = function () {
   return (this.spawn.spawning === null || this.spawn.spawning === undefined);
 }; */

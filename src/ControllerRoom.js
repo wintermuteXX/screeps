@@ -158,7 +158,7 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	//TODO Test/ transfer directly to constructor
+	//TEST transfer directly to constructor
 	let constructor = this.getCreeps('constructor')
 	for (var constr of constructor) {
 		needResources[constr.id + "|energy"] = {
@@ -257,16 +257,18 @@ ControllerRoom.prototype.findResources = function () {
 	}
 
 	_.each(containers, function (c) {
-		if (c.store !== undefined) {
-			_.each(c.store, function (amount, resourceType) {
-				if (amount > 200) {
-					existingResources[c.id + "|" + resourceType] = {
-						'resourceType': resourceType,
-						'amount': amount,
-						'id': c.id
+		if (c && c.store) {
+			if (c.store !== undefined) {
+				_.each(c.store, function (amount, resourceType) {
+					if (amount > 200) {
+						existingResources[c.id + "|" + resourceType] = {
+							'resourceType': resourceType,
+							'amount': amount,
+							'id': c.id
+						};
 					};
-				};
-			});
+				});
+			}
 		}
 	});
 
@@ -480,7 +482,7 @@ ControllerRoom.prototype.getSpawnsNotFull = function () {
 	return this._spawnsNF;
 };
 
-//TODO: Remove after test
+//TEST REMOVE: after test
 /* ControllerRoom.prototype.getMineralContainer = function () {
 	var containers = this.getContainers();
 	var mineral = this.find(FIND_MINERALS);
