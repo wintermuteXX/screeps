@@ -177,6 +177,7 @@ module.exports = {
         }
       },
 
+      //TODO: Redefine Scout to support unit who supports rooms with RCL <= 3. Build in the nearest poosible Spawn.
       'scout': {
         produceGlobal: false,
         priority: 6,
@@ -195,6 +196,7 @@ module.exports = {
         }
       },
 
+      //TODO Let claimer also bild Spawn after Controller is claimed. Also: Remove White Flag
       'claimer': {
         produceGlobal: false,
         priority: 6,
