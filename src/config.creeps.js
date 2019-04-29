@@ -60,6 +60,9 @@ module.exports = {
 
         canBuild: function (rc) {
           // var miners = rc.getCreeps('miner');
+          
+          // Disabled, now use transporter2
+          return false;
           var transporters = rc.getCreeps('transporter');
           // var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) { return (s.structureType === STRUCTURE_LINK); });
           // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
@@ -121,7 +124,7 @@ module.exports = {
         levelMin: 8,
         minParts: 36,
         wait4maxEnergy: true,
-        // Max 15 Energy in RCL 8 needed
+        // Max 15 Energy per tick in RCL 8 needed
         body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK],
         behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
 
@@ -137,7 +140,8 @@ module.exports = {
         minParts: 4,
         wait4maxEnergy: true,
         body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-        behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "get_energy_terminal", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"],
+        // behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "get_energy_terminal", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"],
+        behaviors: ["build_structures", "repair", "find_near_energy", "upgrade_controller"],
 
         canBuild: function (rc) {
           var towers = rc.find(FIND_MY_STRUCTURES, {

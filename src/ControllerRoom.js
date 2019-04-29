@@ -272,7 +272,6 @@ ControllerRoom.prototype.findResources = function () {
 		}
 	});
 
-
 	var ter = this.getTerminal();
 	var sto = this.getStorage();
 
