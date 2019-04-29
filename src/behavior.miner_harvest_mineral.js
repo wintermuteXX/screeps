@@ -2,11 +2,6 @@ var Behavior = require("_behavior");
 var b = new Behavior("miner_harvest_mineral");
 
 b.when = function (creep, rc) {
-  //TEST REMOVE after Test
-  /* var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
-    return (s.structureType === STRUCTURE_EXTRACTOR);
-  }); */
-
   return creep.room.extractor;
 };
 

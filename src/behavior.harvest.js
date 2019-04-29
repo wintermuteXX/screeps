@@ -8,7 +8,8 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  if(!creep.getTarget()) return false;
+  if (!creep.getTarget()) return false;
+  if (creep.getTarget().energy == 0) return true;
   return (creep.energy === creep.energyCapacity);
 };
 
@@ -16,7 +17,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (target === null) {
-       var sources = rc.getSourcesNotEmpty();
+    var sources = rc.getSourcesNotEmpty();
     if (sources.length) {
       // Source per Zufall auswählen
       target = sources[Math.floor(Math.random() * sources.length)];
