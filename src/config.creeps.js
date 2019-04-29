@@ -83,7 +83,7 @@ module.exports = {
         canBuild: function (rc) {
           var transporters = rc.getCreeps('transporter2');
           // return false;
-          return (transporters.length < 1);
+          return (transporters.length < 2);
         }
       },
 
