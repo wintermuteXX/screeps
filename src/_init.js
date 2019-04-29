@@ -314,6 +314,7 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
   });
 
   RoomObject.prototype.calculateContainerPos = function (range) {
+    // TODO set range for Sources=1, Controllers = 3 if no range given
     if (this.room.controller.reservation &&
       /* reserved and not mine */
       this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
@@ -345,10 +346,10 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return;
     }
     var position_1 = ret.path[range - 1];
-    Log.info(`New container Postistion ${position_1}`, "Container");
+    Log.info(`New container Postition ${position_1}`, "Container");
 
     position_1.createConstructionSite(STRUCTURE_CONTAINER);
-    Log.info(`Placed Container in  ${this.room}`, "Container");
+    Log.info(`Placed Container in ${this.room}`, "Container");
     return position_1;
   };
 

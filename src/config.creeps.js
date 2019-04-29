@@ -84,7 +84,7 @@ module.exports = {
       var transporters = rc.getCreeps('transporter2');
 
       if (rc.getLevel() < 4) {
-        return transporters.length < 3
+        return transporters.length < 4
       }
       return (transporters.length < 2);
     }
