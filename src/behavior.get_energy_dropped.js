@@ -17,6 +17,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
+  //TODO Should find closest dropped energy
   var target = creep.getTarget();
 
 
