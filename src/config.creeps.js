@@ -118,7 +118,7 @@ module.exports = {
       if (rc.getLevel() < 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 4
       }
-      if (rc.getLevel() = 4) {
+      if (rc.getLevel() == 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 3
       }
       // High Level
