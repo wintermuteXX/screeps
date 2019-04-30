@@ -346,21 +346,10 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
-	if (obj.memory.link) {
-		var result = Game.getObjectById(obj.memory.link)
-		if (result) {
-			return result;
-		} else {
-			obj.memory.link = null;
-			return null
-		}
-
-	}
-	var links = this.links.senders;
-	var thelink = obj.pos.findInRange(links, 2);
-	if (thelink) {
-		var link = thelink[0];
-		obj.memory.link = link.id;
+	let allLinks = this.getLinks();
+	let thelink = obj.pos.findInRange(allLinks, 2);
+	if (thelink.length > 0) {
+		let link = thelink[0];
 		return link;
 	}
 	return null;

@@ -32,10 +32,11 @@ b.work = function (creep, rc) {
       return
     }
     var link;
-    if (creep.memory.link) {
-      link = Game.getObjectById(creep.memory.link);
+    if (source.memory.linkID) {
+      link = Game.getObjectById(source.memory.linkID);
     } else {
       link = rc.findNearLink(creep);
+      if (link) {source.memory.linkID = link.id}
     }
     if (link) {
       creep.transfer(link, RESOURCE_ENERGY);
