@@ -122,23 +122,31 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
               structureType: STRUCTURE_CONTAINER
             }
           });
+          if (found) {
+            Log.info(`Container found -> Memory`, "Container");
+            this.memory.containerID = found.id;
+            this._container = Game.getObjectById(found.id);
+            return this._container;
+          }
+
           if (found == undefined) {
             let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
               filter: {
                 structureType: STRUCTURE_CONTAINER
               }
             });
+            if (found) {
+              Log.info(`Container Construction Site is returned`, "Container");
+              this._container = Game.getObjectById(found.id);
+              return this._container;
+            }
           }
 
-          if (found !== undefined) {
-            Log.info(`Container found -> Memory`, "Container");
-            this.memory.containerID = found.id;
-          } else {
             Log.info(`ContainerPos will be calculated`, "Container");
             this.calculateContainerPos(1);
             Log.info(`ContainerPos calculated and build order given`, "Container");
             this._container = null;
-          }
+          
         }
         if (Game.getObjectById(this.memory.containerID)) {
           this._container = Game.getObjectById(this.memory.containerID);
