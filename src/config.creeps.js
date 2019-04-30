@@ -83,10 +83,11 @@ module.exports = {
     canBuild: function (rc) {
       var transporters = rc.getCreeps('transporter2');
 
-      if (rc.getLevel() < 4) {
-        return transporters.length < 4
+      if (rc.getLevel() < 5) {
+        return (transporters.length < 4)
+      } else {
+        return (transporters.length < 2);
       }
-      return (transporters.length < 2);
     }
   },
 
