@@ -152,7 +152,7 @@ module.exports = {
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK],
     // behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "get_energy_terminal", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"],
-    behaviors: ["get_energy_dropped", "get_energy_container", "build_structures", "repair"],
+    behaviors: ["build_structures", "repair"],
 
     canBuild: function (rc) {
       var towers = rc.find(FIND_MY_STRUCTURES, {

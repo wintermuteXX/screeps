@@ -137,6 +137,18 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
+	//TEST transfer directly to constructor
+	let constructor = this.getCreeps('constructor')
+	for (var constr of constructor) {
+		if (constr.energyCapacity - constr.energy > 49) {
+			needResources[constr.id + "|energy"] = {
+				'resourceType': "energy",
+				'amount': constr.energyCapacity - constr.energy,
+				'id': constr.id
+			};
+		}
+	}
+
 	//	Fill Upgrader directly, if no container in position
 	if (!this.room.controller.container) {
 		let upgrader = this.getCreeps('upgrader')
@@ -158,18 +170,6 @@ ControllerRoom.prototype.needResources = function () {
 			'amount': con.storeCapacity - _.sum(con.store),
 			'id': con.id
 		};
-	}
-
-	//TEST transfer directly to constructor
-	let constructor = this.getCreeps('constructor')
-	for (var constr of constructor) {
-		if (constr.energyCapacity - constr.energy > 49) {
-			needResources[constr.id + "|energy"] = {
-				'resourceType': "energy",
-				'amount': constr.energyCapacity - constr.energy,
-				'id': constr.id
-			};
-		}
 	}
 
 	let lab = this.getLabsNotFull();
