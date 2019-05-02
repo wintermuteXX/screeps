@@ -83,7 +83,7 @@ module.exports = {
     canBuild: function (rc) {
       var transporters = rc.getCreeps('transporter2');
 
-      if (rc.getLevel() < 5) {
+      if (rc.getLevel() < 4) {
         return (transporters.length < 4)
       } else {
         return (transporters.length < 2);
@@ -119,9 +119,9 @@ module.exports = {
       if (rc.getLevel() < 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 4
       }
-      if (rc.getLevel() == 4) {
+      /* if (rc.getLevel() == 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 3
-      }
+      } */
       // High Level
       if (energyAround(controller) > 2000) {
         return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
