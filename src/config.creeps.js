@@ -96,9 +96,9 @@ module.exports = {
       if (rc.getLevel() < 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 4
       }
-      /* if (rc.getLevel() == 4) {
-        return controller && controller.my && rc.getCreeps('upgrader').length < 3
-      } */
+       if (rc.getLevel() == 5) {
+        return controller && controller.my && rc.getCreeps('upgrader').length < 2
+      } 
       // High Level
       if (energyAround(controller) > 2000) {
         return (controller && controller.my && rc.getCreeps('upgrader').length < 2);

@@ -29,6 +29,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
 ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
   var parts = _.clone(body);
   while (parts.length >= minParts) {
+    // TODO Is there a better way to calculate creep body cost? -> API
     if (this.spawn.spawnCreep(parts, theName, {
         dryRun: true
       }) == 0) {
