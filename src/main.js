@@ -15,7 +15,7 @@ Log.LEVEL_ERROR = 3;
 Log.LEVEL_SUCCESS = 4;
  */
 
- var profiler = require('screeps-profiler');
+var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log')
 // var stats = require('ControllerStats');

@@ -18,8 +18,9 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
     });
   }
 
+  //TODO Is this Log correct? Result can be negative?
   if (result !== null) {
-    Log.warn(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
+    Log.success(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
     return (result === OK);
   }
   return false;
