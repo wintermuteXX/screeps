@@ -347,7 +347,7 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 
 ControllerRoom.prototype.findNearLink = function (obj) {
 	let allLinks = this.getLinks();
-	let thelink = obj.pos.findInRange(allLinks, 2);
+	let thelink = obj.pos.findInRange(allLinks, 3);
 	if (thelink.length > 0) {
 		let link = thelink[0];
 		return link;
