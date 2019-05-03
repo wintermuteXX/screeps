@@ -64,8 +64,7 @@ b.work = function (creep, rc) {
 
   if (!energy) {
     energy = findNearLink(controller, rc);
-    if (energy.length && energy[0].energy > 0) {
-      energy = energy[0];
+    if (energy && energy.energy > 0) {
       creep.target = energy.id;
     } else {
       energy = null;
