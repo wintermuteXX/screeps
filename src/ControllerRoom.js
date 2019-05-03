@@ -755,28 +755,23 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	let mtype = _this.find(FIND_MINERALS)[0].mineralType;
 
 	var orders = Game.market.getAllOrders().filter(function (order) {
-		return order.type === ORDER_BUY // Only check sell orders
+		return order.type === ORDER_BUY // Only check sell orders		
+			// order.resourceType !== RESOURCE_ENERGY // Don't sell energy
 			&&
-			//order.resourceType !== RESOURCE_ENERGY // Don't sell energy
 			order.resourceType === mtype // Only Room Mineral
 			&&
-			order.remainingAmount > minAmount
-			// Only look at orders with 1000+ units
+			order.remainingAmount > minAmount // Only look at orders with 1000+ units
 			&&
-			_this.terminal.store[order.resourceType] >= minInStock
-	}); // terminal must have at least 1k of this resource
-	// Compute, map and filter on profit
-	// console.log("Step1: " + orders);
+			_this.terminal.store[order.resourceType] >= minInStock // terminal must have at least 1k of this resource
+	});
+
 	var energyPrice = 0.01;
 	orders = orders.map(function (order) {
-		// console.log(order.remainingAmount, order.resourceType, _this.terminal.store[order.resourceType]);
 		var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
-		// console.log(_this.name , order.roomName);
 		var profit = 0;
 		if (_this.name && order.roomName) {
 			var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
 			profit = order.price + (fee * energyPrice / amount);
-			// console.log("Amount: " + amount + " Fee: " + fee + " Price: " + order.price  + " Profit: " + profit);
 		}
 
 		return _.merge(order, {
@@ -785,15 +780,16 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 			amount: amount
 		});
 	});
-	// console.log("Step2: " + orders);
-	// orders = orders.filter(function (order) { return order.profit > cfg.get("market.minProfit." + order.resourceType); });
+
 	orders = orders.filter(function (order) {
 		return order.profit > 0.07;
 	});
+
 	// Get best order and deal
 	if (orders.length === 0)
 		console.log('Found no deal in buy orders.', _this.name);
 	var bestOrder = _.max(orders, 'profit');
+	// TODO Logging verbessern
 	console.log("Amount: " + bestOrder.amount + " Fee: " + bestOrder.fee + " Profit: " + bestOrder.profit);
 	// console.log(this.deal(bestOrder));
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
