@@ -5,7 +5,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: false,
     body2: [MOVE, WORK, CARRY, MOVE],
-    behaviors: ["get_energy_dropped", "get_energy_link", "get_energy_storage", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"],
+    behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
@@ -46,29 +46,6 @@ module.exports = {
       });
 
       return (extractor.length && rc.getMineralAmount() > 0 && miners < 1);
-    }
-  },
-
-  "transporter": {
-    priority: 3,
-    levelMin: 2,
-    minParts: 6,
-    wait4maxEnergy: false,
-    renew: true,
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["renew", "get_energy_link", "get_energy_dropped", "get_energy_container", "get_energy_storage", "get_energy_terminal", "transfer_energy_extensions", "transfer_energy_spawn", "transfer_energy_tower", "transfer_energy_upgrader", "transfer_energy_storage"],
-
-    canBuild: function (rc) {
-      // var miners = rc.getCreeps('miner');
-
-      // Disabled, now use transporter2
-      return false;
-      var transporters = rc.getCreeps('transporter');
-      // var links = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) { return (s.structureType === STRUCTURE_LINK); });
-      // Generell doppelt so viele Transporter wie Miner. Zahl verringert sich mit Links. Formel ist noch nicht 100% korrekt. 
-      // return ((transporters.length + links.length) - 1 < miners.length * 2 || transporters.length < 1);
-      // return false;
-      return transporters.length < 1;
     }
   },
 
@@ -197,7 +174,7 @@ module.exports = {
     minParts: 8,
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ['goto_white_flag', "get_energy_dropped", "harvest", "transfer_energy_spawn", "transfer_energy_extensions", "build_structures", "upgrade_controller"],
+    behaviors: ['goto_white_flag', "get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {

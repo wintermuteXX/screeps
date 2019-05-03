@@ -1,5 +1,6 @@
 var Behavior = require("_behavior");
 var b = new Behavior("goto_controller");
+//TODO Maybe delete and integrate in upgrade_controller
 b.when = function (creep, rc) {
   var c = rc.getController();
   return !creep.pos.inRangeTo(c, 3);
