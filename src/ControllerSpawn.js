@@ -3,11 +3,6 @@ function ControllerSpawn(spawn, ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
 
-//REMOVE
-/* ControllerSpawn.prototype.idle = function () {
-  return (this.spawn.spawning === null || this.spawn.spawning === undefined);
-}; */
-
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   var theName = role + "_" + Math.round(Math.random() * 999);
   var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts, theName);
@@ -43,47 +38,6 @@ ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
   }
 
   return null;
-};
-
-ControllerSpawn.prototype.getCosts = function (body) {
-  var costs = 0;
-
-  if (body && body.length) {
-    for (var index in body) {
-      switch (body[index]) {
-        case MOVE:
-        case CARRY:
-          costs += 50;
-          break;
-
-        case WORK:
-          costs += 100;
-          break;
-
-        case ATTACK:
-          costs += 80;
-          break;
-
-        case RANGED_ATTACK:
-          costs += 150;
-          break;
-
-        case HEAL:
-          costs += 250;
-          break;
-
-        case TOUGH:
-          costs += 10;
-          break;
-
-        case CLAIM:
-          costs += 600;
-          break;
-      }
-    }
-  }
-
-  return costs;
 };
 
 module.exports = ControllerSpawn;

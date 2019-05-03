@@ -23,10 +23,7 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
 
-    /* if (creep.build(target) == ERR_NOT_IN_RANGE) {
-      creep.travelTo(target);
-    } */
-
+    //TODO When building Ramparts, maybe spend all energy on them (decays fast)
     var result = creep.build(target);
     switch (result) {
       case OK:

@@ -135,7 +135,6 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	//TEST transfer directly to constructor
 	let constructor = this.getCreeps('constructor')
 	for (var constr of constructor) {
 		if (constr.energyCapacity - constr.energy > 49) {
