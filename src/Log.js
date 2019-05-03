@@ -2,8 +2,6 @@
  * Log.js
  *
  * ES6 log class for logging screeps messages with color, where it makes sense.
- * @todo: abbr tag '<abbr title="World Health Organization">WHO</abbr>'
- * @todo: log groups / log levels?
  */
 'use strict';
 
