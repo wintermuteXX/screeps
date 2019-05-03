@@ -15,7 +15,7 @@ function findEnergy(obj, rc) {
 
 function findNearLink(obj, rc) {
   var links = rc.links.receivers;
-  var thelink = obj.pos.findInRange(links, 3);
+  var [thelink] = obj.pos.findInRange(links, 3);
   if (thelink && (thelink.energy != 0))
     return thelink;
 }
@@ -31,6 +31,7 @@ b.when = function (creep, rc) {
   }
   return false;
 };
+
 b.completed = function (creep, rc) {
   var target = creep.getTarget();
 
@@ -41,10 +42,11 @@ b.completed = function (creep, rc) {
 
   return false;
 };
+
 b.work = function (creep, rc) {
+  //TODO What a mess. Clean up
   var energy = creep.getTarget();
   var controller = rc.getController();
-
 
   if (!energy) {
 
