@@ -14,7 +14,7 @@ b.completed = function (creep, rc) {
   return false;
 };
 
-// TODO TESTING when creating Queues for resources, there is no check if creep is "on the way"
+// TEST when creating Queues for resources, there is no check if creep is "on the way"
 b.work = function (creep, rc) {
   Log.debug(`${creep} is running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
   let target = creep.getTarget();

@@ -51,8 +51,8 @@ module.exports = {
     }
   },
 
-  // TODO rename to transporter
-  // TODO recalculate needed transporters based on resources needed to transport (check queue)
+  // FIXME rename to transporter
+  // FIXME recalculate needed transporters based on resources needed to transport (check queue)
   // BUG Transporter2 skips a tick after completion of behaviour
   "transporter2": {
     priority: 3,
