@@ -17,6 +17,8 @@ module.exports = {
   },
 
   "miner": {
+    // TODO miner - if idle - repair container
+    // TODO miner - if link empty + container filled -> transfer to link.
     priority: 2,
     levelMin: 2,
     minParts: 3,
@@ -49,6 +51,9 @@ module.exports = {
     }
   },
 
+  // TODO rename to transporter
+  // TODO recalculate needed transporters based on resources needed to transport (check queue)
+  // BUG Transporter2 skips a tick after completion of behaviour
   "transporter2": {
     priority: 3,
     levelMin: 2,
@@ -166,7 +171,8 @@ module.exports = {
     }
   },
 
-  //TODO: Redefine Scout to support unit who supports rooms with RCL <= 3. Build in the nearest poosible Spawn.
+  // TODO Redefine Scout to support unit who supports rooms with RCL <= 3. Build in the nearest poosible Spawn.
+  // TODO Scout could dismantle buildings in target room
   'scout': {
     produceGlobal: false,
     priority: 6,

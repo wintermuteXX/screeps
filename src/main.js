@@ -14,15 +14,20 @@ Log.LEVEL_WARN = 2;
 Log.LEVEL_ERROR = 3;
 Log.LEVEL_SUCCESS = 4;
 
-"todo-tree.tags
-  TODO
-  FIXME
-  TEST
-  BUG
-  REMOVE
- */
+todo-tree.tags
+  TODO,FIXME,TEST,BUG,REMOVE
+*/
 
- var profiler = require('screeps-profiler');
+/* 
+TODO Long term
+-- Remote Mining (there was a formula for calculation if RH makes sense)
+-- Sell + Buy at Market
+-- Harvest Power
+-- test attack behavior
+-- spawn defenders if attacked
+-- Boost creeps
+
+ */ var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log')
 // var stats = require('ControllerStats');

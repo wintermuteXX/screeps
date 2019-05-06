@@ -502,6 +502,7 @@ ControllerRoom.prototype.getExtensions = function () {
 	return this._extensions;
 };
 
+// TODO  Cleanup ControllerRoom (getController, getControllerFull etc.)
 ControllerRoom.prototype.getExtensionsNotFull = function () {
 	if (!this._extensionsNF) {
 		let extensions = this.getExtensions();

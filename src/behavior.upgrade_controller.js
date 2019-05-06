@@ -11,6 +11,8 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
+  // TODO Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
+  
   let target = creep.room.controller;
   if (target) {
     let result = creep.upgradeController(target);

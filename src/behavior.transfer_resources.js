@@ -14,6 +14,7 @@ b.completed = function (creep, rc) {
   return false;
 };
 
+// TODO TESTING when creating Queues for resources, there is no check if creep is "on the way"
 b.work = function (creep, rc) {
   Log.debug(`${creep} is running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
   let target = creep.getTarget();
@@ -30,6 +31,7 @@ b.work = function (creep, rc) {
         break;
       }
     }
+    // BUG If terminal is full of minerals, transporter2 fails
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity > _.sum(creep.room.terminal.store))) {
       Log.info(`Creep will deliver to Terminal (Backup): ${creep.name}`, "Creep");

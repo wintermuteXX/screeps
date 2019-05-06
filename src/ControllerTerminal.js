@@ -3,7 +3,7 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// Needs optimization
+// BUG internalTrade will send 20000 Resources from every terminal, even if there is enough already
 ControllerTerminal.prototype.internalTrade = function (){ 
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
