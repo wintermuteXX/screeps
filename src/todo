@@ -12,7 +12,7 @@
 		-- test attack behavior
 		-- spawn defenders if attacked
     	-- Boost creeps
-        -- Remote Mining ( there was a formula for calculation if RH makes sense)
+        -- Remote Mining (there was a formula for calculation if RH makes sense)
         -- cache important path in room
         --- OS Based Tasks -> Priority, how often, sleep
 
@@ -24,9 +24,9 @@
 		- (testing)(bug) when creating Queues for resources, there is no check if creep is "on the way"
 		- (testing)(bug) when controller downgrades during construction, workers can't finish behavior construction
         - (testing)(bug) Transporter2 skips a tick after completion of behaviour
-        - (testing)(bug) Transporter2 does not collect mineral Container and Link.reciever
     	
   	DONE
+        - (done) (testing)(bug) Transporter2 does not collect mineral Container and Link.reciever
         - (done) Prototype mineralcontainer durch container or calculateContainerPos ersetzen
         - (done) (testing) miner build container (use calculateContainerPos)
         - (done) (testing) source - define Container RoomPosition (use calculateContainerPos)
