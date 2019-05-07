@@ -2,21 +2,22 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_resources");
 
 b.when = function (creep, rc) {
+  Log.info(`${creep} is checking "when" in transfer_resources`, "transfer_resources")
   if (!creep.room.memory.QueueNeededResources) return false;
   if (creep.energy === 0) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
+  Log.info(`${creep} is checking "completed" in transfer_resources`, "transfer_resources")
   if (creep.energy === 0) return true;
   let tar = creep.getTarget();
   if (!tar) return true;
   return false;
 };
 
-// TEST when creating Queues for resources, there is no check if creep is "on the way"
 b.work = function (creep, rc) {
-  Log.debug(`${creep} is running TRANSFER RESOURCES in Tick ${Game.time}`, "Creep")
+  Log.info(`${creep} is performing "work" in transfer_resources`, "transfer_resources")
   let target = creep.getTarget();
   let creepRes = _.findKey(creep.carry);
 
@@ -24,17 +25,18 @@ b.work = function (creep, rc) {
     var resources = creep.room.memory.QueueNeededResources;
     creep.target = null;
     for (var resource in resources) {
-      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType) {
+      // TEST when creating Queues for resources, there is no check if creep is "on the way"
+      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        Log.info(`Creep ${creep.pos} will deliver ${resources[resource].resourceType} to ${resources[resource].id}`, "Creep");
+        Log.debug(`Creep ${creep.pos} will deliver ${resources[resource].resourceType} to ${resources[resource].id}`, "transfer_resources");
         break;
       }
     }
     // BUG If terminal is full of minerals, transporter fails
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity > _.sum(creep.room.terminal.store))) {
-      Log.info(`Creep will deliver to Terminal (Backup): ${creep.name}`, "Creep");
+      Log.debug(`Creep will deliver to Terminal (Backup): ${creep.name}`, "transfer_resources");
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
     }
@@ -54,7 +56,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        Log.warn(`unknown result from (creep ${creep}).transfer(${target}): ${result}`, "Creep");
+        Log.warn(`unknown result from (creep ${creep}).transfer(${target}): ${result}`, "transfer_resources");
     }
   }
 };

@@ -3,8 +3,7 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// BUG internalTrade will send 20000 Resources from every terminal, even if there is enough already
-ControllerTerminal.prototype.internalTrade = function (){ 
+ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
     let cancelOrders = false;
@@ -23,6 +22,7 @@ ControllerTerminal.prototype.internalTrade = function (){
             for (var r in myRooms) {
                 var aroom = myRooms[r];
                 // Only check other rooms
+                // BUG internalTrade will send 20000 Resources from every terminal, even if there is enough already
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
@@ -38,7 +38,7 @@ ControllerTerminal.prototype.internalTrade = function (){
                         cancelOrders = true;
                         console.log("Deal:" + terminal.room.name, sendAmount, resourceType + " To: " + aroom.name + " " + e);
                     }
-                    
+
                 }
             }
         })
@@ -46,10 +46,10 @@ ControllerTerminal.prototype.internalTrade = function (){
 };
 
 
-ControllerTerminal.prototype.sellOverflow = function (){ 
+ControllerTerminal.prototype.sellOverflow = function () {
     let minInStock = 20000;
     let [terminal] = this.terminal;
-    
+
     if (terminal && terminal.cooldown === 0) {
         terminal.room.getBestOrder(minInStock);
     }
