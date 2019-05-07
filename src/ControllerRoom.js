@@ -774,14 +774,12 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 		return order.profit > 0.07;
 	});
 
-	// Get best order and deal
 	if (orders.length === 0)
-		console.log('Found no deal in buy orders.', _this.name);
+	Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
-	// TODO Logging verbessern
-	console.log("Amount: " + bestOrder.amount + " Fee: " + bestOrder.fee + " Profit: " + bestOrder.profit);
-	// console.log(this.deal(bestOrder));
+	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
+	Log.info(`Result for getBestOrder: ${result}`, "getBestOrder");
 	return result;
 };
 
