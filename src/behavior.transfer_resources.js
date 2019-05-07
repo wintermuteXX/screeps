@@ -51,10 +51,10 @@ b.work = function (creep, rc) {
         break;
       case ERR_FULL:
         // TEST If terminal is full of minerals, transporter fails
-        for (const resourceType in creep.carry) {
+        /* for (const resourceType in creep.carry) {
           creep.drop(resourceType);
-        }
-        Log.error(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore, dropping Resources!`, "transfer_resources");
+        } */
+        Log.error(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore`, "transfer_resources");
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
