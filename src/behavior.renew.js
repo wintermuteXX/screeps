@@ -19,8 +19,9 @@ b.work = function (creep, rc) {
 
   if (!target) {
     // TEST Find Idle Spawn 
-    var target = rc.getIdleSpawn();
-    // target = creep.room.spawns[0];
+    var target2 = rc.getIdleSpawn();
+    var target = creep.room.spawns[0];
+    console.log("T1 + T2: " + target + " " + target2)
   }
 
   if (target) {

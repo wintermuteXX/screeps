@@ -91,12 +91,8 @@ ControllerRoom.prototype.populate = function () {
 		var cfg = cfgCreeps[role];
 		if (!cfg.produceGlobal || cfg.produceGlobal === false) {
 			if (this._shouldCreateCreep(role, cfg)) {
-				let name = role + Math.random(1000);
-				console.log("Name: " + name);
 				var result = spawn.createCreep(role, cfg);
-				console.log("Result: " + result)
 				return;
-				spawn = null;
 			}
 		}
 	}
@@ -653,21 +649,6 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 		}
 	}
 	return this._sourcesUD;
-};
-
-// TEST STill used
-ControllerRoom.prototype.getSourceToMine = function () {
-	if (!this._sourceTM) {
-		let sources = this.getSources();
-		if (sources) {
-			this._sourceTM = _.filter(sources, function (s) {
-				return (defended || false) == s.defended;
-			});
-		} else {
-			return null;
-		}
-	}
-	return this._sourceTM;
 };
 
 ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
