@@ -23,13 +23,15 @@ function findNearLink(obj, rc) {
 var b = new Behavior("find_near_energy");
 
 b.when = function (creep, rc) {
-  if (creep.energy === 0) {
+  /* if (creep.energy === 0) {
     var controller = rc.getController();
     var energy = findEnergy(controller, rc);
     var link = findNearLink(controller, rc);
     return (energy.length > 0 || link);
   }
-  return false;
+  return false; */
+  // TEST enough when arguments?
+  return (creep.energy === 0);
 };
 
 b.completed = function (creep, rc) {

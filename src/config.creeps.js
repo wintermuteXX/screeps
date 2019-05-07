@@ -23,7 +23,7 @@ module.exports = {
     levelMin: 2,
     minParts: 3,
     wait4maxEnergy: false,
-    body2: [MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
+    body2: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
     behaviors: ["miner_harvest"],
 
     canBuild: function (rc) {
@@ -101,9 +101,9 @@ module.exports = {
       if (rc.getLevel() < 4) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 4
       }
-       if (rc.getLevel() == 5) {
+      if (rc.getLevel() == 5) {
         return controller && controller.my && rc.getCreeps('upgrader').length < 2
-      } 
+      }
       // High Level
       if (energyAround(controller) > 2000) {
         return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
