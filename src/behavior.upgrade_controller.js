@@ -7,13 +7,13 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  return (rc.getController() === null || creep.energy === 0);
+  let controller = rc.getController()
+  return (creep.energy === 0 || controller === null || controller.my == false);
 };
 
 b.work = function (creep, rc) {
-  // TEST Scout upgrade controller - check if still exists + my (in case you unclaim controller for a reason)
   
-  let target = creep.room.controller;
+  let target = rc.getController();
   if (target && target.my) {
     let result = creep.upgradeController(target);
 

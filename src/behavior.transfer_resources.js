@@ -25,7 +25,6 @@ b.work = function (creep, rc) {
     var resources = creep.room.memory.QueueNeededResources;
     creep.target = null;
     for (var resource in resources) {
-      // TEST when creating Queues for resources, there is no check if creep is "on the way"
       // TODO Needs optimization. Only check for resource the creep carries
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
