@@ -23,17 +23,19 @@ function findNearLink(obj, rc) {
 var b = new Behavior("find_near_energy");
 
 b.when = function (creep) {
+  Log.info(`${creep.room.name} ${creep.name} is checking "when" condition`, "find_near_energy")
   return (creep.energy === 0);
 };
 
 b.completed = function (creep) {
+  Log.info(`${creep.room.name} ${creep.name} is checking "completed" condition`, "find_near_energy")
   var target = creep.getTarget();
   if (creep.energy > 0 || !target) return true;
   return false;
 };
 
 b.work = function (creep, rc) {
-  //TODO What a mess. Clean up
+  Log.info(`${creep.room.name} ${creep.name} is is performing "work" condition`, "find_near_energy")
   var target = creep.getTarget();
   var controller = rc.getController();
 
