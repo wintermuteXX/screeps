@@ -91,7 +91,10 @@ ControllerRoom.prototype.populate = function () {
 		var cfg = cfgCreeps[role];
 		if (!cfg.produceGlobal || cfg.produceGlobal === false) {
 			if (this._shouldCreateCreep(role, cfg)) {
-				var result = spawn.createCreep(role, cfg);
+				let name = role + Math.random(1000);
+				console.log("Name: " + name);
+				var result = spawn.spawnCreep(role, name, cfg);
+				console.log("Result: " + result)
 				return;
 				spawn = null;
 			}
@@ -652,6 +655,7 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	return this._sourcesUD;
 };
 
+// TEST STill used
 ControllerRoom.prototype.getSourceToMine = function () {
 	if (!this._sourceTM) {
 		let sources = this.getSources();
