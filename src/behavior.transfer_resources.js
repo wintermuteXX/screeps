@@ -33,7 +33,6 @@ b.work = function (creep, rc) {
         break;
       }
     }
-    // BUG If terminal is full of minerals, transporter fails
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity > _.sum(creep.room.terminal.store))) {
       Log.debug(`Creep will deliver to Terminal (Backup): ${creep.name}`, "transfer_resources");
@@ -48,7 +47,14 @@ b.work = function (creep, rc) {
     switch (result) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
+        creep.target = null;
+        break;
       case ERR_FULL:
+        // TEST If terminal is full of minerals, transporter fails
+        for (const resourceType in creep.carry) {
+          creep.drop(resourceType);
+        }
+        Log.error(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore, dropping Resources!`, "transfer_resources");
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
