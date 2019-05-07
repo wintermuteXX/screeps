@@ -233,6 +233,8 @@ ControllerRoom.prototype.findResources = function () {
 		};
 	}
 
+	// TODO Check for Tombstones (E>100, any mineral)
+
 	// Links
 	for (var l of _.filter(this.links.receivers, function (l) {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
@@ -445,8 +447,9 @@ ControllerRoom.prototype.getStorageNotFull = function () {
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
-	for (var i in this._spawns) {
-		var sc = this._spawns[i];
+	let spwn = this.getSpawns();
+	for (var i in spwn) {
+		var sc = spwn[i];
 		if (!sc.spawning) {
 			return sc;
 		}
@@ -747,7 +750,7 @@ Room.prototype.centerPoint = function () {
 		}
 	}
 
-	this.createFlag(bestPos.x, bestPos.y, 'distrSquare:' + this.name, COLOR_PURPLE, COLOR_BLUE);
+	this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
 Room.prototype.getBestOrder = function (minInStock = 1000) {
