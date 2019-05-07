@@ -26,6 +26,7 @@ b.work = function (creep, rc) {
     creep.target = null;
     for (var resource in resources) {
       // TEST when creating Queues for resources, there is no check if creep is "on the way"
+      // TODO Needs optimization. Only check for resource the creep carries
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
@@ -51,10 +52,7 @@ b.work = function (creep, rc) {
         break;
       case ERR_FULL:
         // TEST If terminal is full of minerals, transporter fails
-        /* for (const resourceType in creep.carry) {
-          creep.drop(resourceType);
-        } */
-        Log.error(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore`, "transfer_resources");
+        Log.info(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore`, "transfer_resources");
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
