@@ -93,7 +93,7 @@ ControllerRoom.prototype.populate = function () {
 			if (this._shouldCreateCreep(role, cfg)) {
 				let name = role + Math.random(1000);
 				console.log("Name: " + name);
-				var result = spawn.spawnCreep(role, name, cfg);
+				var result = spawn.createCreep(role, cfg);
 				console.log("Result: " + result)
 				return;
 				spawn = null;

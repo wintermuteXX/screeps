@@ -420,6 +420,22 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return amount;
   };
 
+ Structure.Spawn.prototype.createCreep = function (role, creepConfig, memory) {
+    // TODO createCreep. Calculate Move parts dynamically (body2) (difficult)
+    var theName = role + "_" + Math.round(Math.random() * 999);
+    var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts, theName);
+    var result = null;
+    if (bodyConfig !== null && bodyConfig.length) {
+      memory = memory || {};
+      memory.role = role;
+      memory.renew = creepConfig.renew;
+      memory.born = Game.time;
+      memory.bornEnergyLevel = this.spawn.room.energyCapacityAvailable;
+      result = this.spawn.spawnCreep(bodyConfig, theName, {
+        memory: memory
+      });
+    }
+
   Creep.prototype.toString = function (htmlLink = true) {
     return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
   };
