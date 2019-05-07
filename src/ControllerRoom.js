@@ -450,9 +450,9 @@ ControllerRoom.prototype.getStorageNotFull = function () {
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
-	let spwn = this.getSpawns();
-	for (var i in spwn) {
-		var sc = spwn[i];
+
+	for (var i in this._spawns) {
+		var sc = this._spawns[i];
 		if (!sc.spawning) {
 			return sc;
 		}
