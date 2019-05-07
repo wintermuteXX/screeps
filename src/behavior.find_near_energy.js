@@ -22,15 +22,7 @@ function findNearLink(obj, rc) {
 
 var b = new Behavior("find_near_energy");
 
-b.when = function (creep, rc) {
-  /* if (creep.energy === 0) {
-    var controller = rc.getController();
-    var energy = findEnergy(controller, rc);
-    var link = findNearLink(controller, rc);
-    return (energy.length > 0 || link);
-  }
-  return false; */
-  // TEST enough when arguments?
+b.when = function (creep) {
   return (creep.energy === 0);
 };
 
@@ -38,49 +30,47 @@ b.completed = function (creep, rc) {
   var target = creep.getTarget();
 
   if (creep.energy > 0 || !target) return true;
-  if (target && target.structureType) {
+  // REMOVE
+  /* if (target && target.structureType) {
     return target.energy === 0;
-  }
+  } */
 
   return false;
 };
 
 b.work = function (creep, rc) {
   //TODO What a mess. Clean up
-  var energy = creep.getTarget();
+  var target = creep.getTarget();
   var controller = rc.getController();
 
-  if (!energy) {
+  if (!target) {
 
-    if (creep.room.controller.container && _.sum(creep.room.controller.container.store) > 0) {
+    let link = findNearLink(controller, rc);
+    if (link && link.energy > 0) {
+      creep.target = link.id;
+      target = creep.getTarget();
+    } else if (creep.room.controller.container && _.sum(creep.room.controller.container.store) > 0) {
       creep.target = creep.room.controller.container.id
-      energy = creep.getTarget();
+      target = creep.getTarget();
     } else {
       var dropped = findEnergy(controller, rc);
       if (dropped.length) {
-        energy = dropped[0];
-        creep.target = energy.id;
+        target = dropped[0];
+        creep.target = target.id;
+      } else {
+        target = null;
       }
     }
   }
 
-  if (!energy) {
-    energy = findNearLink(controller, rc);
-    if (energy && energy.energy > 0) {
-      creep.target = energy.id;
+  if (target) {
+    if (!creep.pos.isNearTo(target)) {
+      creep.travelTo(target);
     } else {
-      energy = null;
-    }
-  }
-
-  if (energy) {
-    if (!creep.pos.isNearTo(energy)) {
-      creep.travelTo(energy);
-    } else {
-      if (energy.structureType) {
-        creep.withdraw(energy, RESOURCE_ENERGY);
+      if (target.structureType) {
+        creep.withdraw(target, RESOURCE_ENERGY);
       } else {
-        creep.pickup(energy);
+        creep.pickup(target);
       }
     }
   }

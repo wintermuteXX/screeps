@@ -51,7 +51,6 @@ module.exports = {
     }
   },
 
-  // TEST rename to transporter
   // FIXME recalculate needed transporters based on resources needed to transport (check queue)
   // BUG transporter skips a tick after completion of behaviour
   "transporter": {
