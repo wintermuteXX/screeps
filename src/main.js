@@ -28,6 +28,8 @@ todo-tree.tags
 ** Boost creeps
 */ 
 
+// BUG Build Terminal before extractor
+
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log')

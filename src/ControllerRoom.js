@@ -221,17 +221,6 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var existingResources = {};
 
-	// Dropped Resources
-	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-			existingResources[s.id + "|" + s.resourceType] = {
-				'resourceType': s.resourceType,
-				'amount': s.amount,
-				'id': s.id
-			};
-		};
-	}
-
 	// TODO Check for Tombstones (E>100, any mineral)
 
 	// Links
@@ -244,6 +233,18 @@ ControllerRoom.prototype.findResources = function () {
 			'id': l.id
 		};
 	}
+
+	// Dropped Resources
+	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
+			existingResources[s.id + "|" + s.resourceType] = {
+				'resourceType': s.resourceType,
+				'amount': s.amount,
+				'id': s.id
+			};
+		};
+	}
+
 
 	// Containers
 	var containers = []
@@ -775,7 +776,7 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	});
 
 	if (orders.length === 0)
-	Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
+		Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
 	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
