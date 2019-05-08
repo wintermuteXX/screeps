@@ -22,8 +22,6 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-
-    //TODO When building Ramparts, maybe spend all energy on them (decays fast)
     var result = creep.build(target);
     switch (result) {
       case OK:

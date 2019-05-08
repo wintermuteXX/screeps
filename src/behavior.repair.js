@@ -9,6 +9,8 @@ function findStructures(rc) {
   return _.sortBy(structures, function (s) {
     return s.hits;
   });
+
+  // _.sortBy(structures, function (s) { return [s.hits,s.structureType].join("_"); });
 }
 
 var b = new Behavior("repair");

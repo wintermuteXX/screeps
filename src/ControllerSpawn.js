@@ -22,13 +22,17 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   // TEST Is this Log correct? Result can be negative?
   switch (result) {
     case OK:
-      Log.success(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
+      Log.success(`${this.spawn.pos} Build creep: ${role}`, "createCreep")
       return true;
       break;
+    case null:
+    Log.debug(`createCreep returns: ${result}`, "createCreep");
+    return false;
+    break;
     default:
-      Log.warn(`unknown result in createCreep: ${result}`, "Creep");
-      return false;
-    }
+    Log.warn(`unknown result in createCreep: ${result}`, "createCreep");
+    return false;
+  }
 };
 
 ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
