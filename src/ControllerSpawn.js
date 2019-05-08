@@ -19,18 +19,21 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
     });
   }
 
-  //TODO Is this Log correct? Result can be negative?
-  if (result !== null) {
-    Log.success(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
-    return (result === OK);
-  }
-  return false;
+  // TEST Is this Log correct? Result can be negative?
+  switch (result) {
+    case OK:
+      Log.success(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
+      return (result === OK);
+      break;
+    default:
+      Log.warn(`unknown result in createCreep: ${result}`, "Creep");
+      return false;
+    }
 };
 
 ControllerSpawn.prototype.evalCreepBody = function (body, minParts, theName) {
   var parts = _.clone(body);
   while (parts.length >= minParts) {
-    // TODO Is there a better way to calculate creep body cost? -> API
     if (this.spawn.spawnCreep(parts, theName, {
         dryRun: true
       }) == 0) {

@@ -43,4 +43,5 @@ ControllerTower.prototype.repair = function () {
     };
 }
 
+// TODO Create Prototype heal
 module.exports = ControllerTower;
