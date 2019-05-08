@@ -146,9 +146,12 @@ module.exports = {
       var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
         return s.needsRepair();
       });
-      // return rc.getCreeps("constructor").length < 2;
-
-      return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
+      
+      if (rc.getLevel() < 4) {
+        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
+      } else {
+        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 1);
+      }
     }
   },
 
