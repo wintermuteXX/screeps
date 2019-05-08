@@ -23,7 +23,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   switch (result) {
     case OK:
       Log.success(`${this.spawn.pos} Build creep: ${role}`, "Spawn")
-      return (result === OK);
+      return true;
       break;
     default:
       Log.warn(`unknown result in createCreep: ${result}`, "Creep");
