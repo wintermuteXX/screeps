@@ -781,7 +781,7 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 	if (result == OK) {
-		Log.succsess(`Result for getBestOrder: Success - Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
+		Log.success(`Result for getBestOrder: Success - Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	} else {
 		Log.info(`Result for getBestOrder: ${result}`, "getBestOrder");
 
