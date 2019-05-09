@@ -84,7 +84,7 @@ ControllerRoom.prototype.populate = function () {
 	var cfgCreeps = global.getCreepsConfig();
 	// BUG Multispawn does not work
 
-	if (spawn === null) spawn = this.getIdleSpawnObject();
+	if (spawn === null) spawn = this.getIdleSpawn();
 	Log.error(`${this.room.name} found free spawn: ${spawn.name}`, "Spawning")
 	if (spawn === null) return;
 
