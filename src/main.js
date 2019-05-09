@@ -25,6 +25,7 @@ todo-tree.tags
 // LONGTERM spawn defenders if attacked
 // LONGTERM Boost creeps
 // LONGTERM Build Terminal before extractor
+// LONGTERM Allow creeps to transport more then 1 resource 
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');

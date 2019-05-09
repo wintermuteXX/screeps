@@ -85,6 +85,7 @@ ControllerRoom.prototype.populate = function () {
 
 	for (var i in roles) {
 		var role = roles[i];
+		// BUG Multispawn does not work
 		if (spawn === null) spawn = this.getIdleSpawn();
 		if (spawn === null) return;
 
