@@ -82,13 +82,14 @@ ControllerRoom.prototype.populate = function () {
 
 	var roles = global.getCreepRoles();
 	var cfgCreeps = global.getCreepsConfig();
+	// BUG Multispawn does not work
+
+	if (spawn === null) spawn = this.getIdleSpawnObject();
+	Log.error(`${this.room.name} found free spawn: ${spawn.name}`, "Spawning")
+	if (spawn === null) return;
 
 	for (var i in roles) {
 		var role = roles[i];
-		// BUG Multispawn does not work
-		if (spawn === null) spawn = this.getIdleSpawn();
-		Log.error(`${this.room.name} found free spawn: ${spawn}`, "Spawning")
-		if (spawn === null) return;
 
 		var cfg = cfgCreeps[role];
 		if (!cfg.produceGlobal || cfg.produceGlobal === false) {
@@ -452,6 +453,17 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 
 	for (var i in this._spawns) {
 		var sc = this._spawns[i];
+		if (!sc.spawning) {
+			return sc;
+		}
+	}
+	return null;
+};
+
+ControllerRoom.prototype.getIdleSpawnObject = function () {
+
+	for (var i in this.room.spawns) {
+		var sc = this.room.spawns[i];
 		if (!sc.spawning) {
 			return sc;
 		}
