@@ -36,7 +36,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                     var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
                     if (result == 0) {
                         cancelOrders = true;
-                        Log.warn(`${terminal.room.name} transfers ${sendAmount} of ${resourceType} to ${aroom.name}`, "internalTrade")
+                        Log.success(`${terminal.room.name} transfers ${sendAmount} of ${resourceType} to ${aroom.name}`, "internalTrade")
                     }
 
                 }
