@@ -19,7 +19,6 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
     });
   }
 
-  // TEST Is this Log correct? Result can be negative?
   switch (result) {
     case OK:
       Log.success(`${this.spawn.pos} Build creep: ${role}`, "createCreep")

@@ -780,7 +780,12 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	var bestOrder = _.max(orders, 'profit');
 	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
-	Log.info(`Result for getBestOrder: ${result}`, "getBestOrder");
+	if (result == OK) {
+		Log.succsess(`Result for getBestOrder: Success - Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
+	} else {
+		Log.info(`Result for getBestOrder: ${result}`, "getBestOrder");
+
+	}
 	return result;
 };
 
