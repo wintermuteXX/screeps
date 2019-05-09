@@ -793,7 +793,7 @@ ControllerRoom.prototype.getOneAvailableResource = function () {
 	let resources = this.room.memory.QueueAvailableResources
 	for (var resource in resources) {
 		if (resources[resource].amount > 0 && this.getCreeps(null, resources[resource].id).length == 0) {
-			return Game.getObjectById(resources[resource].id)
+			return resources[resource]
 		}
 	}
 	return null;
