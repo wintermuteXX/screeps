@@ -4,7 +4,7 @@ var b = new Behavior("get_resources");
 b.when = function (creep, rc) {
   Log.info(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
   // FIXME Does not work when nothing needs to be transported, check must include if resource with amount is available (like in work)
-    if (!creep.room.memory.QueueAvailableResources) return false;
+  if (!creep.room.memory.QueueAvailableResources) return false;
   if (creep.energy > 0) return false;
   return true;
 };
@@ -18,7 +18,7 @@ b.work = function (creep, rc) {
   Log.info(`${creep} is running "work" in Tick ${Game.time}`, "get_resources");
   var target = creep.getTarget();
 
-  if (!target) {
+  /* if (!target) {
     var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
       // check if the creep has same target -> abort
@@ -29,11 +29,27 @@ b.work = function (creep, rc) {
         break;
       }
     }
+  } */
+
+  if (!target) {
+    // var resources = creep.room.memory.QueueAvailableResources;
+    console.log("One: " + rc.getOneAvailableResource());
+    var resource = rc.getOneAvailableResource()
+    console.log("Resource : " + resource);
+
+    // check if the creep has same target -> abort
+    if (resource !== null) {
+      console.log("In da loop")
+      creep.target = resource.id;
+      target = creep.getTarget();
+      creep.memory.resourceType = resource.resourceType;
+    }
   }
 
   if (target) {
     let result;
     // test if target is structure
+    console.log("Target: " + target + "Creep Memory: " + creep.momory.resourceType)
     if (target.structureType === undefined) {
       result = creep.pickup(target, creep.memory.resourceType);
       Log.debug(`creep${creep} tries to pickup ${creep.memory.resourceType}${target}): ${result}`, "get_resources");
