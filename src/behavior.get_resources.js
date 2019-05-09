@@ -3,8 +3,8 @@ var b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
   Log.info(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
-  // FIXME Does not work when nothing needs to be transported, check must include if resource with amount is available (like in work)
-  if (!creep.room.memory.QueueAvailableResources) return false;
+  // TEST Does not work when nothing needs to be transported, check must include if resource with amount is available (like in work)
+  if (rc.getOneAvailableResource() == null) return false;
   if (creep.energy > 0) return false;
   return true;
 };
