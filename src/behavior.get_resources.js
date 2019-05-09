@@ -3,14 +3,14 @@ var b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
   Log.info(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
-  if (!creep.room.memory.QueueAvailableResources) return false;
+  // FIXME Does not work when nothing needs to be transported, check must include if resource with amount is available (like in work)
+    if (!creep.room.memory.QueueAvailableResources) return false;
   if (creep.energy > 0) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
   Log.info(`${creep} is running "completed" in Tick ${Game.time}`, "get_resources");
-  // FIXME Does not work when nothing needs to be transported
   return (creep.energy > 0 || creep.target === null);
 };
 
@@ -21,7 +21,7 @@ b.work = function (creep, rc) {
   if (!target) {
     var resources = creep.room.memory.QueueAvailableResources;
     for (var resource in resources) {
-      // check if ther creep has same target -> abort
+      // check if the creep has same target -> abort
       if (resources[resource].amount > 0 && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
