@@ -455,7 +455,7 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 		var sc = this._spawns[i];
 		var idleSpawn = sc.isIdle();
 		if (idleSpawn) {
-			return idleSpawn;
+			return sc;
 		}
 	}
 	return null;
