@@ -19,7 +19,6 @@ b.work = function (creep, rc) {
   }
 
   if (source !== null && source !== undefined) {
-    // TEST Cannot read property 'id' of undefined (when 3 Miner present)
     creep.target = source.id;
 
     if (source.container && !(creep.pos.isEqualTo(source.container.pos))) {
@@ -45,7 +44,7 @@ b.work = function (creep, rc) {
       creep.drop(RESOURCE_ENERGY);
     }
   } else {
-    console.log("Keine Source gefunden");
+    Log.warn(`creep${creep} does not find free source`, "miner_harvest");
   }
 }
 
