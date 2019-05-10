@@ -3,6 +3,14 @@ function ControllerSpawn(spawn, ControllerRoom) {
   this.ControllerRoom = ControllerRoom;
 }
 
+ControllerSpawn.prototype.isIdle = function () {
+
+		if (!this.spawn.spawning) {
+			return this.spawn;
+	}
+	return null;
+};
+
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   // TODO createCreep. Calculate Move parts dynamically (body2) (difficult)
   var theName = role + "_" + Math.round(Math.random() * 999);
