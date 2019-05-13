@@ -792,8 +792,6 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	if (orders.length === 0)
 		Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
-	// TEST Replace Profit with Credits
-	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 	if (result == OK) {
 		Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "getBestOrder");
