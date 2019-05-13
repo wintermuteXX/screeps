@@ -29,7 +29,7 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        Log.debug(`${creep} will deliver ${resources[resource].resourceType} to ${resources[resource].structureType} ${resources[resource].id}`, "transfer_resources");
+        Log.debug(`${creep} will deliver ${resources[resource].resourceType} to ${target} `, "transfer_resources");
         break;
       }
     }
