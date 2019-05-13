@@ -29,13 +29,13 @@ b.work = function (creep, rc) {
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
-        Log.debug(`Creep ${creep.pos} will deliver ${resources[resource].resourceType} to ${resources[resource].id}`, "transfer_resources");
+        Log.debug(`${creep} will deliver ${resources[resource].resourceType} to ${resources[resource].structureType} ${resources[resource].id}`, "transfer_resources");
         break;
       }
     }
     // Backup if no target found -> Terminal
     if (!target && creep.room.terminal && (creep.room.terminal.storeCapacity > _.sum(creep.room.terminal.store))) {
-      Log.debug(`Creep will deliver to Terminal (Backup): ${creep.name}`, "transfer_resources");
+      Log.debug(`${creep} will deliver to Terminal (Backup)`, "transfer_resources");
       creep.target = creep.room.terminal.id;
       target = creep.getTarget();
     }
@@ -50,8 +50,7 @@ b.work = function (creep, rc) {
         creep.target = null;
         break;
       case ERR_FULL:
-        // TEST If terminal is full of minerals, transporter fails
-        Log.info(`${creep} transfer_resources ${target} is full. This shouldn't happen anymore`, "transfer_resources");
+        Log.info(`${creep} ${target} is full. This shouldn't happen anymore`, "transfer_resources");
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
@@ -59,7 +58,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        Log.warn(`unknown result from (creep ${creep}).transfer(${target}): ${result}`, "transfer_resources");
+        Log.warn(`unknown result from ${creep}. Transfer to (${target}): ${result}`, "transfer_resources");
     }
   }
 };
