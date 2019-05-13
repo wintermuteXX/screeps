@@ -314,10 +314,12 @@ ControllerRoom.prototype.findResources = function () {
 };
 
 ControllerRoom.prototype.find = function (type) {
-	if (!this._find[type]) {
+	// REMOVE deleted caching. conflicts with spawning (old values for creeps)
+	return this.room.find(type)
+	/* if (!this._find[type]) {
 		this._find[type] = this.room.find(type);
 	}
-	return this._find[type];
+	return this._find[type]; */
 };
 
 /**
