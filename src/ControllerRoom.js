@@ -82,7 +82,7 @@ ControllerRoom.prototype.populate = function () {
 
 	var roles = global.getCreepRoles();
 	var cfgCreeps = global.getCreepsConfig();
-	// TEST Multispawn does not work
+	// BUG Multispawn does not check if another creep with role is spawning
 
 	if (spawn === null) spawn = this.getIdleSpawn();
 	if (spawn === null) return;
@@ -792,10 +792,11 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	if (orders.length === 0)
 		Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
+	// TEST Replace Profit with Credits
 	Log.info(`Amount: ${bestOrder.amount} Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 	if (result == OK) {
-		Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Fee: ${bestOrder.fee} Profit: ${bestOrder.profit}`, "getBestOrder");
+		Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Fee: ${bestOrder.fee} Credits: ${bestOrder.amount * bestOrder.price}`, "getBestOrder");
 	} else {
 		Log.info(`No deal because: ${result}`, "getBestOrder");
 
