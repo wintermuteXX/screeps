@@ -352,11 +352,15 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 // Also finds creeps that are spawning (getCreeps does not)
 ControllerRoom.prototype.getAllCreeps = function (role) {
 	var room = this.room
+	var creeps = []
 	if (role) {
-		var creeps = Object.values(Game.creeps).filter(c => c.memory.role === role && c.room === room);
+		creeps = Object.values(Game.creeps).filter(c => c.memory.role === role && c.room === room);
+	} else {
+		creeps = Object.values(Game.creeps).filter(c => c.room === room);
 	}
 	return creeps;
 };
+
 
 
 ControllerRoom.prototype.findNearLink = function (obj) {
