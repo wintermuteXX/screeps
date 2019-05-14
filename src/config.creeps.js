@@ -193,7 +193,7 @@ module.exports = {
     }
   },
 
-  //TODO Let claimer also bild Spawn after Controller is claimed. Also: Remove White Flag
+  //TODO Let claimer also build Spawn after Controller is claimed. Also: Remove White Flag
   'claimer': {
     produceGlobal: false,
     priority: 6,

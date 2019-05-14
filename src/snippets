@@ -1,5 +1,7 @@
 Code Snippets
 
+var creepRoles = _.groupBy(Game.creeps, (c) => creep.room.name + "_" + creep.memory.role)`;
+
 -------------------------------
 module.exports.loop = function() {
     var dt = distanceTransform(walkablePixelsForRoom('sim'));
