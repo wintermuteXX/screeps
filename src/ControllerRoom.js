@@ -349,6 +349,15 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 	return creeps;
 };
 
+ControllerRoom.prototype.getAllCreeps = function (role) {
+	var room = this.room
+	if (role) {
+		var creeps = Object.values(Game.creeps).filter(c => c.memory.role === role && c.room === room);
+	}
+	return creeps;
+};
+
+
 ControllerRoom.prototype.findNearLink = function (obj) {
 	let allLinks = this.getLinks();
 	let thelink = obj.pos.findInRange(allLinks, 3);
