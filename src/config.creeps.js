@@ -9,9 +9,9 @@ module.exports = {
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
-        return rc.getCreeps().length === 0;
+        return rc.getAllCreeps().length === 0;
       } else {
-        return rc.getCreeps("builder").length < 5;
+        return rc.getAllCreeps("builder").length < 5;
       }
     }
   },
@@ -27,7 +27,7 @@ module.exports = {
     behaviors: ["miner_harvest"],
 
     canBuild: function (rc) {
-      var miners = rc.getCreeps("miner");
+      var miners = rc.getAllCreeps("miner");
       var sources = rc.getSources();
       return (miners.length < sources.length);
     }
@@ -42,7 +42,7 @@ module.exports = {
     behaviors: ["miner_harvest_mineral"],
 
     canBuild: function (rc) {
-      var miners = rc.getCreeps("miner_mineral");
+      var miners = rc.getAllCreeps("miner_mineral");
       var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
         return (s.structureType === STRUCTURE_EXTRACTOR);
       });
@@ -62,7 +62,7 @@ module.exports = {
     behaviors: ["renew", "get_resources", "transfer_resources", "transfer_energy_storage"],
 
     canBuild: function (rc) {
-      var transporters = rc.getCreeps('transporter');
+      var transporters = rc.getAllCreeps('transporter');
 
       if (rc.getLevel() < 4) {
         return (transporters.length < 4)
@@ -98,16 +98,16 @@ module.exports = {
 
       // Low Level
       if (rc.getLevel() < 4) {
-        return controller && controller.my && rc.getCreeps('upgrader').length < 4
+        return controller && controller.my && rc.getAllCreeps('upgrader').length < 4
       }
       if (rc.getLevel() == 5) {
-        return controller && controller.my && rc.getCreeps('upgrader').length < 2
+        return controller && controller.my && rc.getAllCreeps('upgrader').length < 2
       }
       // High Level
       if (energyAround(controller) > 2000) {
-        return (controller && controller.my && rc.getCreeps('upgrader').length < 2);
+        return (controller && controller.my && rc.getAllCreeps('upgrader').length < 2);
       } else {
-        return (controller && controller.my && rc.getCreeps('upgrader').length < 1);
+        return (controller && controller.my && rc.getAllCreeps('upgrader').length < 1);
       }
     }
   },
@@ -123,7 +123,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var controller = rc.getController();
-      return (controller && controller.my && rc.getCreeps('upgrader8').length < 1);
+      return (controller && controller.my && rc.getAllCreeps('upgrader8').length < 1);
     }
   },
 
@@ -148,9 +148,9 @@ module.exports = {
       });
       
       if (rc.getLevel() < 4) {
-        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 2);
+        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 2);
       } else {
-        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getCreeps("constructor").length < 1);
+        return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 1);
       }
     }
   },

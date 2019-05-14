@@ -82,7 +82,7 @@ ControllerRoom.prototype.populate = function () {
 
 	var roles = global.getCreepRoles();
 	var cfgCreeps = global.getCreepsConfig();
-	// BUG Multispawn does not check if another creep with role is spawning. Bigger problem. getCreeps doesn't work for spawning creeps.
+	// TEST Multispawn does not check if another creep with role is spawning. Bigger problem. getCreeps doesn't work for spawning creeps.
 	// var creepRoles = _.groupBy(Game.creeps, (c) => creep.room.name + "_" + creep.memory.role)`;
 
 	if (spawn === null) spawn = this.getIdleSpawn();
@@ -349,6 +349,7 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 	return creeps;
 };
 
+// Also finds creeps that are spawning (getCreeps does not)
 ControllerRoom.prototype.getAllCreeps = function (role) {
 	var room = this.room
 	if (role) {
