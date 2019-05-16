@@ -1,4 +1,3 @@
-define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 [
     StructureSpawn,
     StructureStorage,
@@ -18,7 +17,7 @@ define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
     define(type, "Health", (self) => ({current: self.hits, max: self.hitsMax}));
     define(type, "HealthPercent", (self) => Math.round((self.Health.current/self.Health.max)*100));
 });
-define(Structure, "mem", (self) => Memory.idData[self.id] === undefined ? Memory.idData[self.id] = {} : Memory.idData[self.id]);
+define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 define(Creep, "Health", (self) => ({current: self.hits, max: self.hitsMax}));
 define(Creep, "HealthPercent", (self) => Math.round((self.Health.current/self.Health.max)*100));
 define(Creep, "Energy", (self) => ({current: self.carry[RESOURCE_ENERGY], max: self.carryCapacity - _.sum(self.carry) + self.carry[RESOURCE_ENERGY]}));
