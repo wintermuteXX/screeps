@@ -4,7 +4,7 @@ require("_initGlobal")(global);
  * Extend Creep
  */
 
-if (Creep && Creep.prototype && !Creep.prototype.behavior) {
+// if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
   Object.defineProperty(Creep.prototype, "behavior", {
     get: function () {
@@ -142,11 +142,11 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
             }
           }
 
-            Log.info(`ContainerPos will be calculated`, "Container");
-            this.calculateContainerPos(1);
-            Log.info(`ContainerPos calculated and build order given`, "Container");
-            this._container = null;
-          
+          Log.info(`ContainerPos will be calculated`, "Container");
+          this.calculateContainerPos(1);
+          Log.info(`ContainerPos calculated and build order given`, "Container");
+          this._container = null;
+
         }
         if (Game.getObjectById(this.memory.containerID)) {
           this._container = Game.getObjectById(this.memory.containerID);
@@ -176,33 +176,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
       return Memory.rooms[this.room.name].sources[this.id] = v;
     }
   });
-
-  /*   Object.defineProperty(Structure.prototype, 'dropEnergy', {
-      get: function () {
-        if (this._dropEnergy == undefined) {
-          if (this.memory.dropEnergy == undefined) {
-            [this.pos.x - 2, this.pos.x - 1, this.pos.x, this.pos.x + 1, this.pos.x + 2].forEach(x => {
-              [this.pos.y - 2, this.pos.y - 1, this.pos.y, this.pos.y + 1, this.pos.y + 2].forEach(y => {
-                let pos = new RoomPosition(x, y, this.room.name);
-                let count = pos.freeFieldsCount;
-                console.log("Pos: " + pos + " Count: " + count);
-                if (count == 8) {
-                  this.memory.dropEnergy = {
-                    x: pos.x,
-                    y: pos.y,
-                    roomName: pos.roomName
-                  };
-                }
-              }, this);
-            }, this);
-          }
-          this._dropEnergy = this.memory.dropEnergy;
-        }
-        return this._dropEnergy;
-      },
-      enumerable: false,
-      configurable: true
-    }); */
 
   Object.defineProperty(Structure.prototype, 'container', {
     get: function () {
@@ -390,16 +363,6 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     });
   };
 
-  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
-    if (htmlLink) {
-      var onClick = '';
-      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +
-        `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${id}')[0]);`
-      return `<a href="#!/room/${Game.shard.name}/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
-    }
-    return `[${ this.roomName } ${ this.x },${ this.y }]`;
-  };
-
   Room.prototype.getContainers = function () {
     if (!this._containers) {
       this._containers = _.filter(this.find(FIND_STRUCTURES), {
@@ -420,6 +383,16 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return amount;
   };
 
+  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
+    if (htmlLink) {
+      var onClick = '';
+      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +
+        `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${id}')[0]);`
+      return `<a href="#!/room/${Game.shard.name}/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
+    }
+    return `[${ this.roomName } ${ this.x },${ this.y }]`;
+  };
+
   Creep.prototype.toString = function (htmlLink = true) {
     return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
   };
@@ -432,4 +405,4 @@ if (Creep && Creep.prototype && !Creep.prototype.behavior) {
     return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
   };
 
-}
+// }
