@@ -43,7 +43,7 @@ ControllerRoom.prototype.run = function () {
 	_.each(this._towers, function (tower) {
 		tower.fire();
 		if (Game.time % global.getFixedValue('repairTower') === 0) {
-			if (this.room.controller.level == 8 && (Math.random() >= 0.5)) { return }
+			if (this.getLevel == 8 && (Math.random() >= 0.5)) { return }
 			tower.repair();
 		}
 	})
