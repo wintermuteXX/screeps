@@ -4,7 +4,7 @@ var b = new Behavior("renew");
 
 b.when = function (creep, rc) {
 //  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
-  return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
+  return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
 };
 
 b.completed = function (creep, rc) {
@@ -20,9 +20,9 @@ b.work = function (creep, rc) {
 
   if (!target) {
     // TEST Find Idle Spawn 
-    var target2 = rc.getIdleSpawnObject();
-    var target = creep.room.spawns[0];
-    console.log("T1 + T2: " + target + " " + target2)
+    var target = rc.getIdleSpawnObject();
+    // REMOVE
+    // var target = creep.room.spawns[0];
   }
 
   if (target) {
