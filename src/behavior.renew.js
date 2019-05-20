@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("renew");
 
 b.when = function (creep, rc) {
-//  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
+  //  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
   return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
 };
 
@@ -19,10 +19,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    // TEST Find Idle Spawn 
     var target = rc.getIdleSpawnObject();
-    // REMOVE
-    // var target = creep.room.spawns[0];
   }
 
   if (target) {
