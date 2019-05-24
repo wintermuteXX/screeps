@@ -1,6 +1,7 @@
 var Behavior = require("_behavior");
 var b = new Behavior("miner_harvest_mineral");
 
+// FIXME Only work when minerals are available (when + completed needs addition)
 b.when = function (creep, rc) {
   return creep.room.extractor;
 };
