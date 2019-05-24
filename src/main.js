@@ -26,6 +26,7 @@ todo-tree.tags
 // LONGTERM Boost creeps
 // LONGTERM Build Terminal before extractor
 // LONGTERM Allow creeps to transport more then 1 resource 
+// LONGTERM New Task "recycle" for e.g. mineral miner
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
