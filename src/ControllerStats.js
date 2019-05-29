@@ -1,11 +1,12 @@
 module.exports = {
 
+  //TODO Activate Logs and log the used CPU -> memory.stats.cpu.used (Array with history)
   doStats() {
     if (!Memory.stats) {
       Memory.stats = {}
     }
 
-    Memory.stats['cpu.limit'] = Game.cpu.limit
+    /* Memory.stats['cpu.limit'] = Game.cpu.limit
     Memory.stats['cpu.bucket'] = Game.cpu.bucket
     Memory.stats['gcl.controllerProgress'] = Game.gcl.progress
     Memory.stats['gcl.controllerProgressTotal'] = Game.gcl.progressTotal
@@ -34,8 +35,8 @@ module.exports = {
           })
         }
       }
-    })
+    }) */
 
-    Memory.stats['cpu.getUsed'] = Game.cpu.getUsed();
+    Memory.stats['cpu.used'] = Game.cpu.getUsed();
   }
 }

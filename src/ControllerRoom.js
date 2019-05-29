@@ -804,7 +804,7 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	});
 
 	if (orders.length === 0)
-		Log.warn(`Found no deal in BUY Orders`, "getBestOrder");
+		Log.warn(`Found no deal in BUY Orders for ${orders.resourceType}`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 	if (result == OK) {
