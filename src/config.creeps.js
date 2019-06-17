@@ -42,8 +42,13 @@ module.exports = {
     behaviors: ["miner_harvest_mineral"],
 
     canBuild: function (rc) {
-      var ter = rc.getTerminal()
-      if (_.sum(ter.store) > 270000) {return false}
+
+      // TODO Clean up terminal code
+      var [te] = rc.getTerminal()
+      te = Game.getObjectById(te.id)
+      var stor = _.sum(te.store)
+      console.log('Mineral Miner: ' + te + " " + stor)
+      if (stor > 270000) {return false}
       var miners = rc.getAllCreeps("miner_mineral");
       var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
         return (s.structureType === STRUCTURE_EXTRACTOR);
