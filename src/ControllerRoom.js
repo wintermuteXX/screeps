@@ -284,7 +284,7 @@ ControllerRoom.prototype.findResources = function () {
 	if (ter && sto) {
 		_.each(ter, function (t) {
 			_.each(t.store, function (amount, resourceType) {
-				if (((sto[0].store[resourceType] === undefined || sto[0].store[resourceType] < 20000)) || (resourceType == 'energy' && amount > 50000)) {
+				if ((sto[0].store[resourceType] === undefined || ((sto[0].store[resourceType] < 20000) && (resourceType !== 'energy')) || (resourceType == 'energy' && amount > 50000)) {
 					existingResources[t.id + "|" + resourceType] = {
 						'resourceType': resourceType,
 						'amount': amount,
