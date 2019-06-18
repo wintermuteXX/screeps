@@ -42,19 +42,8 @@ module.exports = {
     behaviors: ["miner_harvest_mineral"],
 
     canBuild: function (rc) {
-
-      // TODO Clean up terminal code
-      var [te] = rc.getTerminal()
-      te = Game.getObjectById(te.id)
-      var stor = _.sum(te.store)
-      console.log('Mineral Miner: ' + te + " " + stor)
-      if (stor > 270000) {return false}
       var miners = rc.getAllCreeps("miner_mineral");
-      var extractor = _.filter(rc.find(FIND_MY_STRUCTURES), function (s) {
-        return (s.structureType === STRUCTURE_EXTRACTOR);
-      });
-
-      return (extractor.length && rc.getMineralAmount() > 0 && miners < 1);
+      return (rc.room.extractor && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000);
     }
   },
 
@@ -90,7 +79,7 @@ module.exports = {
 
     canBuild: function (rc) {
 
-      var controller = rc.getController();
+      var controller = rc.room.controller;
 
       function energyAround(obj) {
         var dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
@@ -105,10 +94,10 @@ module.exports = {
 
       // Low Level
       if (rc.getLevel() < 4) {
-        return controller && controller.my && rc.getAllCreeps('upgrader').length < 4
+        return controller.my && rc.getAllCreeps('upgrader').length < 4
       }
       if (rc.getLevel() == 5) {
-        return controller && controller.my && rc.getAllCreeps('upgrader').length < 2
+        return controller.my && rc.getAllCreeps('upgrader').length < 2
       }
       // High Level
       if (energyAround(controller) > 2000) {
@@ -129,8 +118,8 @@ module.exports = {
     behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
 
     canBuild: function (rc) {
-      var controller = rc.getController();
-      return (controller && controller.my && rc.getAllCreeps('upgrader8').length < 1);
+      var controller = rc.room.controller;
+      return (controller.my && rc.getAllCreeps('upgrader8').length < 1);
     }
   },
 
@@ -144,11 +133,7 @@ module.exports = {
     behaviors: ["renew", "build_structures", "repair"],
 
     canBuild: function (rc) {
-      var towers = rc.find(FIND_MY_STRUCTURES, {
-        filter: {
-          structureType: STRUCTURE_TOWER
-        }
-      });
+      var towers = rc.room.towers;
 
       var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
         return s.needsRepair();
