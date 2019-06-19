@@ -56,14 +56,20 @@ ControllerTerminal.prototype.sellOverflow = function () {
 };
 
 ControllerTerminal.prototype.buyEnergyOrder = function () {
-    if (Game.market.credits < global.getFixedValue('minCreditThreshold')) {
+    var minCreditThreshold = global.getFixedValue('minCreditThreshold');
+    if (Game.market.credits < minCreditThreshold) {
         Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
         return false
     }
+
+    if (this.terminal[0].store[RESOURCE_ENERGY] < 50000) {
+        Log.debug(`Less than 50000 energy in Terminal. We should check orders for room ${this.terminal[0].room.name}`, "buyEnergyOrder");
+    }
+
     for (let id in Game.market.orders) {
         var order = Game.market.orders[id]
-        if (order.type === "buy" && order.resourceType === "energy" && order.roomName == this.terminal.room) {
-            Log.info(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${remainingAmount}`, "buyEnergyOrder");
+        if (order.type === "buy" && order.resourceType === "energy" && order.roomName == this.terminal[0].room.name) {
+            Log.info(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount}`, "buyEnergyOrder");
         }
     }
     
