@@ -98,7 +98,8 @@ function initGlobal(g) {
     'repairLimit': 0.9,
     'noAnalyseLimit': 100,
     'minCreditThreshold': 50000,
-    'buyEnergyOrder': 20
+    'buyEnergyOrder': 20,
+    'minEnergyThreshold': 50000
   
   };
 
