@@ -45,7 +45,6 @@ ControllerTerminal.prototype.internalTrade = function () {
     }
 };
 
-
 ControllerTerminal.prototype.sellOverflow = function () {
     let minInStock = 20000;
     let [terminal] = this.terminal;

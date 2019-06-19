@@ -43,7 +43,9 @@ ControllerRoom.prototype.run = function () {
 	_.each(this._towers, function (tower) {
 		tower.fire();
 		if (Game.time % global.getFixedValue('repairTower') === 0) {
-			if (this.getLevel == 8 && (Math.random() >= 0.5)) { return }
+			if (this.getLevel == 8 && (Math.random() >= 0.5)) {
+				return
+			}
 			tower.repair();
 		}
 	})
@@ -87,7 +89,7 @@ ControllerRoom.prototype.populate = function () {
 
 	var roles = global.getCreepRoles();
 	var cfgCreeps = global.getCreepsConfig();
-	
+
 	if (spawn === null) spawn = this.getIdleSpawn();
 	if (spawn === null) return;
 
@@ -808,7 +810,7 @@ Room.prototype.getBestOrder = function (minInStock = 1000) {
 	});
 
 	if (orders.length === 0)
-		Log.warn(`Found no deal in BUY Orders for ${orders.resourceType}`, "getBestOrder");
+		Log.warn(`Found no deal in BUY Orders for ${mtype}`, "getBestOrder");
 	var bestOrder = _.max(orders, 'profit');
 	let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
 	if (result == OK) {
