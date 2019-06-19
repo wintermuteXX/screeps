@@ -96,7 +96,10 @@ function initGlobal(g) {
     'internalTrade': 300,
     'sellOverflow': 499,
     'repairLimit': 0.9,
-    'noAnalyseLimit': 100
+    'noAnalyseLimit': 100,
+    'minCreditThreshold': 50000,
+    'buyEnergyOrder': 20
+  
   };
 
   g.getFixedValue = function (key) {

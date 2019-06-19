@@ -55,4 +55,13 @@ ControllerTerminal.prototype.sellOverflow = function () {
     }
 };
 
+ControllerTerminal.prototype.buyEnergyOrder = function () {
+    if (Game.market.credits < global.getFixedValue('minCreditThreshold')) {
+        Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
+        return false
+    }
+    var orders = Game.market.orders;
+    console.log("Orders: " + orders);
+};
+
 module.exports = ControllerTerminal;

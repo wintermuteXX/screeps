@@ -59,6 +59,10 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.sellOverflow();
 	}
 
+	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0 && Game.cpu.tickLimit > 50) {
+		this.terminal.buyEnergyOrder();
+	}
+
 };
 
 /**
