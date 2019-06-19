@@ -60,7 +60,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     var minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
     var ter = this.terminal[0];
     var energyInTerminal = ter.store[RESOURCE_ENERGY];
-    
+
     if (Game.market.credits < minCreditThreshold) {
         Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
         return false
@@ -72,9 +72,17 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         for (let id in Game.market.orders) {
             var order = Game.market.orders[id]
             if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name && (order.remainingAmount + energyInTerminal) < minEnergyThreshold) {
-                Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount}`, "buyEnergyOrder");
+                Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
+                
                 var result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
-                Log.info(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
+                switch (result) {
+                    case OK:
+                        Log.success(`ExtendOrder in room ${ter.room.name} was successful`, "buyEnergyOrder");
+                        break;
+
+                    default:
+                        Log.warn(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
+                }
             }
         }
     }
