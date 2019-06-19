@@ -68,9 +68,8 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     if (energyInTerminal < (minEnergyThreshold - 5000)) {
         Log.debug(`Less than ${minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
-        //for (let id in Game.market.orders) {
-        for (let order of Game.market.orders) {
-            // let order = Game.market.orders[id];
+        for (let id in Game.market.orders) {
+            let order = Game.market.orders[id];
             if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name && (order.remainingAmount + energyInTerminal) < minEnergyThreshold) {
                 Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
 
