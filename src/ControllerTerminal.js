@@ -60,8 +60,13 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
         return false
     }
-    var orders = Game.market.orders;
-    console.log("Orders: " + orders);
+    for (let id in Game.market.orders) {
+        var order = Game.market.orders[id]
+        if (order.type === "buy" && order.resourceType === "energy" && order.roomName == this.terminal.room) {
+            Log.info(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${remainingAmount}`, "buyEnergyOrder");
+        }
+    }
+    
 };
 
 module.exports = ControllerTerminal;
