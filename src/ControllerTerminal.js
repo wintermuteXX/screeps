@@ -56,25 +56,26 @@ ControllerTerminal.prototype.sellOverflow = function () {
 };
 
 ControllerTerminal.prototype.buyEnergyOrder = function () {
-    var minCreditThreshold = global.getFixedValue('minCreditThreshold');
-    var minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-    var ter = this.terminal[0];
-    var energyInTerminal = ter.store[RESOURCE_ENERGY];
+    let minCreditThreshold = global.getFixedValue('minCreditThreshold');
+    let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
+    let ter = this.terminal[0];
+    let energyInTerminal = ter.store[RESOURCE_ENERGY];
 
     if (Game.market.credits < minCreditThreshold) {
         Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
-        return false
+        return false;
     }
     // TODO Create new order when no order is present
     if (energyInTerminal < minEnergyThreshold) {
         Log.debug(`Less than ${minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
-        for (let id in Game.market.orders) {
-            var order = Game.market.orders[id]
+        //for (let id in Game.market.orders) {
+        for (let order of Game.market.orders) {
+            // let order = Game.market.orders[id];
             if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name && (order.remainingAmount + energyInTerminal) < minEnergyThreshold) {
                 Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
 
-                var result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
+                let result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
                 switch (result) {
                     case OK:
                         Log.success(`ExtendOrder in room ${ter.room.name} was successful`, "buyEnergyOrder");
@@ -83,6 +84,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
                     default:
                         Log.warn(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
                 }
+                break;
             }
         }
     }
