@@ -65,7 +65,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         Log.warn(`There are less than ${minCreditThreshold} credits available. Skipping...`, "buyEnergyOrder");
         return false
     }
-
+    // TODO Create new order when no order is present
     if (energyInTerminal < minEnergyThreshold) {
         Log.debug(`Less than ${minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
