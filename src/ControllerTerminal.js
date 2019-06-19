@@ -65,7 +65,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         return false;
     }
     // TODO Create new order when no order is present
-    if (energyInTerminal < minEnergyThreshold) {
+    if (energyInTerminal < (minEnergyThreshold - 5000)) {
         Log.debug(`Less than ${minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
         //for (let id in Game.market.orders) {
