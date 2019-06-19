@@ -86,7 +86,15 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
             }
         }
         if (orderExists === false) {
-            Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.01, minEnergyThreshold, ter.room.name);
+            let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.01, minEnergyThreshold, ter.room.name);
+            switch (result2) {
+                case OK:
+                    Log.success(`Created order in room ${ter.room.name} for ${minEnergyThreshold} energy was successful`, "buyEnergyOrder");
+                    break;
+
+                default:
+                    Log.warn(`Result for createOrder in room ${ter.room.name}: ${result2}`, "buyEnergyOrder");
+            }
         }
     }
 };
