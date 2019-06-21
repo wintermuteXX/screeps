@@ -12,7 +12,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  
+
   let target = rc.getController();
   if (target && target.my) {
     let result = creep.upgradeController(target);

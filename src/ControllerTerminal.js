@@ -57,7 +57,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
 ControllerTerminal.prototype.buyEnergyOrder = function () {
     let minCreditThreshold = global.getFixedValue('minCreditThreshold');
     let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-    let ter = this.terminal[0];
+    let [ter] = this.terminal;
     let energyInTerminal = ter.store[RESOURCE_ENERGY];
     let orderExists = false
 
@@ -103,5 +103,55 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         }
     }
 };
+
+ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000) {
+    var _this = this;
+    var minAmount = 1000;
+    let mtype = _this.find(FIND_MINERALS)[0].mineralType;
+
+    var orders = Game.market.getAllOrders().filter(function (order) {
+        return order.type === ORDER_BUY // Only check sell orders		
+            // order.resourceType !== RESOURCE_ENERGY // Don't sell energy
+            &&
+            order.resourceType === mtype // Only Room Mineral
+            &&
+            order.remainingAmount > minAmount // Only look at orders with 1000+ units
+            &&
+            _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least 1k of this resource
+    });
+
+    var energyPrice = 0.01;
+    orders = orders.map(function (order) {
+        var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
+        var profit = 0;
+        if (_this.name && order.roomName) {
+            var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
+            profit = order.price + (fee * energyPrice / amount);
+        }
+
+        return _.merge(order, {
+            fee: fee,
+            profit: profit,
+            amount: amount
+        });
+    });
+
+    orders = orders.filter(function (order) {
+        return order.profit > 0.07;
+    });
+
+    if (orders.length === 0)
+        Log.warn(`Found no deal in BUY Orders for ${mtype}`, "getBestOrder");
+    var bestOrder = _.max(orders, 'profit');
+    let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
+    if (result == OK) {
+        Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "getBestOrder");
+    } else {
+        Log.info(`No deal because: ${result}`, "getBestOrder");
+
+    }
+    return result;
+};
+
 
 module.exports = ControllerTerminal;
