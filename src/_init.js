@@ -255,9 +255,8 @@ Object.defineProperty(Room.prototype, 'mineral', {
     if (this == Room.prototype || this == undefined)
       return undefined;
     if (!this.memory.mineralId) {
-      this.memory.mineralId = {};
+      this.memory.mineralId = "";
     }
-    this.memory.mineralId = {};
     if (!this._mineral) {
       if (this.memory.mineralId === undefined) {
         let [mineral] = this.find(FIND_MINERALS);
