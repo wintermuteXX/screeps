@@ -6,403 +6,405 @@ require("_initGlobal")(global);
 
 // if (Creep && Creep.prototype && !Creep.prototype.behavior) {
 
-  Object.defineProperty(Creep.prototype, "behavior", {
-    get: function () {
-      return this.memory.behavior || null;
-    },
-    set: function (newBehavior) {
-      if (newBehavior !== null) {
-        this.memory.behavior = newBehavior;
-      } else {
+Object.defineProperty(Creep.prototype, "behavior", {
+  get: function () {
+    return this.memory.behavior || null;
+  },
+  set: function (newBehavior) {
+    if (newBehavior !== null) {
+      this.memory.behavior = newBehavior;
+    } else {
 
-        delete this.memory.behavior;
-      }
-      this.target = null;
+      delete this.memory.behavior;
     }
-  });
+    this.target = null;
+  }
+});
 
-  Object.defineProperty(Creep.prototype, "energy", {
-    get: function () {
-      return _.sum(this.carry);
+Object.defineProperty(Creep.prototype, "energy", {
+  get: function () {
+    return _.sum(this.carry);
+  }
+});
+
+Object.defineProperty(Creep.prototype, "energyCapacity", {
+  get: function () {
+    return this.carryCapacity;
+  }
+});
+
+Object.defineProperty(Creep.prototype, "role", {
+  get: function () {
+    return this.memory.role || null;
+  },
+  set: function (newRole) {
+    if (newRole !== null) {
+      this.memory.role = newRole;
+    } else {
+      delete this.memory.role;
     }
-  });
+  }
+});
 
-  Object.defineProperty(Creep.prototype, "energyCapacity", {
-    get: function () {
-      return this.carryCapacity;
+Object.defineProperty(Creep.prototype, "target", {
+  get: function () {
+    return this.memory.target || null;
+  },
+  set: function (newTarget) {
+    if (newTarget !== null) {
+      this.memory.target = newTarget;
+    } else {
+      delete this.memory.target;
     }
-  });
+  }
+});
 
-  Object.defineProperty(Creep.prototype, "role", {
-    get: function () {
-      return this.memory.role || null;
-    },
-    set: function (newRole) {
-      if (newRole !== null) {
-        this.memory.role = newRole;
-      } else {
-        delete this.memory.role;
-      }
+Creep.prototype.transferAllResources = function (structure) {
+  let transferred = false;
+  for (let resource in this.carry) {
+    if (!resource) {
+      continue;
     }
-  });
-
-  Object.defineProperty(Creep.prototype, "target", {
-    get: function () {
-      return this.memory.target || null;
-    },
-    set: function (newTarget) {
-      if (newTarget !== null) {
-        this.memory.target = newTarget;
-      } else {
-        delete this.memory.target;
-      }
+    let returnCode = this.transfer(structure, resource);
+    if (returnCode === OK) {
+      // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+      transferred = true;
     }
-  });
+  }
+  return transferred;
+};
 
-  Creep.prototype.transferAllResources = function (structure) {
-    let transferred = false;
-    for (let resource in this.carry) {
-      if (!resource) {
-        continue;
-      }
-      let returnCode = this.transfer(structure, resource);
-      if (returnCode === OK) {
-        // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
-        transferred = true;
-      }
+Creep.prototype.withdrawAllResources = function (structure) {
+  let transferred = false;
+  for (let resource in structure.store) {
+    if (!resource) {
+      continue;
     }
-    return transferred;
-  };
 
-  Creep.prototype.withdrawAllResources = function (structure) {
-    let transferred = false;
-    for (let resource in structure.store) {
-      if (!resource) {
-        continue;
-      }
-
-      let returnCode = this.withdraw(structure, resource);
-      if (returnCode === OK) {
-        // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
-        transferred = true;
-      }
+    let returnCode = this.withdraw(structure, resource);
+    if (returnCode === OK) {
+      // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
+      transferred = true;
     }
-    return transferred;
-  };
+  }
+  return transferred;
+};
 
-  Creep.prototype.getTarget = function () {
-    return Game.getObjectById(this.target);
-  };
+Creep.prototype.getTarget = function () {
+  return Game.getObjectById(this.target);
+};
 
-  Object.defineProperty(Source.prototype, "defended", {
-    get: function () {
-      if (this.memory.defended) {
-        return this.memory.defended;
-      }
-      let RANGE = 5;
-      let targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
-      if (targets.length) {
-        this.memory.defended = true;
-        return true;
-      }
-      this.memory.defended = false;
-      return false;
+Object.defineProperty(Source.prototype, "defended", {
+  get: function () {
+    if (this.memory.defended) {
+      return this.memory.defended;
     }
-  });
+    let RANGE = 5;
+    let targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
+    if (targets.length) {
+      this.memory.defended = true;
+      return true;
+    }
+    this.memory.defended = false;
+    return false;
+  }
+});
 
-  Object.defineProperty(Source.prototype, 'container', {
-    get: function () {
-      if (this._container == undefined) {
-        if (this.memory.containerID == undefined) {
-          //TODO: Is calculated every time during container is build
-          // During construction containerID = null
-          Log.info(`No ContainerPos found in memory`, "Container");
-          let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+Object.defineProperty(Source.prototype, 'container', {
+  get: function () {
+    if (this._container == undefined) {
+      if (this.memory.containerID == undefined) {
+        //TODO: Is calculated every time during container is build
+        // During construction containerID = null
+        Log.info(`No ContainerPos found in memory`, "Container");
+        let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: {
+            structureType: STRUCTURE_CONTAINER
+          }
+        });
+        if (found) {
+          Log.info(`Container found -> Memory`, "Container");
+          this.memory.containerID = found.id;
+          this._container = Game.getObjectById(found.id);
+          return this._container;
+        }
+
+        if (found == undefined) {
+          let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
             filter: {
               structureType: STRUCTURE_CONTAINER
             }
           });
           if (found) {
-            Log.info(`Container found -> Memory`, "Container");
-            this.memory.containerID = found.id;
+            Log.info(`Container Construction Site is returned`, "Container");
             this._container = Game.getObjectById(found.id);
             return this._container;
           }
-
-          if (found == undefined) {
-            let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
-              filter: {
-                structureType: STRUCTURE_CONTAINER
-              }
-            });
-            if (found) {
-              Log.info(`Container Construction Site is returned`, "Container");
-              this._container = Game.getObjectById(found.id);
-              return this._container;
-            }
-          }
-
-          Log.info(`ContainerPos will be calculated`, "Container");
-          this.calculateContainerPos(1);
-          Log.info(`ContainerPos calculated and build order given`, "Container");
-          this._container = null;
-
         }
-        if (Game.getObjectById(this.memory.containerID)) {
-          this._container = Game.getObjectById(this.memory.containerID);
-        } else {
-          Log.info(`Container does not exist anymore. Delete from memory`, "Container");
-          this.memory.containerID = null;
-          this._container = null;
-        }
+
+        Log.info(`ContainerPos will be calculated`, "Container");
+        this.calculateContainerPos(1);
+        Log.info(`ContainerPos calculated and build order given`, "Container");
+        this._container = null;
+
       }
-      return this._container;
-    },
-    enumerable: false,
-    configurable: true
-  });
-
-  Object.defineProperty(Source.prototype, 'memory', {
-    get: function () {
-      if (!Memory.rooms[this.room.name].sources)
-        Memory.rooms[this.room.name].sources = {};
-      if (!Memory.rooms[this.room.name].sources[this.id])
-        Memory.rooms[this.room.name].sources[this.id] = {};
-      return Memory.rooms[this.room.name].sources[this.id];
-    },
-    set: function (v) {
-      if (!Memory.rooms[this.room.name].sources)
-        Memory.rooms[this.room.name].sources = {};
-      return Memory.rooms[this.room.name].sources[this.id] = v;
+      if (Game.getObjectById(this.memory.containerID)) {
+        this._container = Game.getObjectById(this.memory.containerID);
+      } else {
+        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
+        this.memory.containerID = null;
+        this._container = null;
+      }
     }
-  });
+    return this._container;
+  },
+  enumerable: false,
+  configurable: true
+});
 
-  Object.defineProperty(Structure.prototype, 'container', {
-    get: function () {
-      if (this._container == undefined) {
-        if (this.memory.containerID == undefined) {
-          Log.info(`No ContainerPos found in memory`, "Container");
-          let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+Object.defineProperty(Source.prototype, 'memory', {
+  get: function () {
+    if (!Memory.rooms[this.room.name].sources)
+      Memory.rooms[this.room.name].sources = {};
+    if (!Memory.rooms[this.room.name].sources[this.id])
+      Memory.rooms[this.room.name].sources[this.id] = {};
+    return Memory.rooms[this.room.name].sources[this.id];
+  },
+  set: function (v) {
+    if (!Memory.rooms[this.room.name].sources)
+      Memory.rooms[this.room.name].sources = {};
+    return Memory.rooms[this.room.name].sources[this.id] = v;
+  }
+});
+
+Object.defineProperty(Structure.prototype, 'container', {
+  get: function () {
+    if (this._container == undefined) {
+      if (this.memory.containerID == undefined) {
+        Log.info(`No ContainerPos found in memory`, "Container");
+        let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: {
+            structureType: STRUCTURE_CONTAINER
+          }
+        });
+
+        if (found == undefined) {
+          let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
             filter: {
               structureType: STRUCTURE_CONTAINER
             }
           });
-
-          if (found == undefined) {
-            let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
-              filter: {
-                structureType: STRUCTURE_CONTAINER
-              }
-            });
-          }
-
-          if (found !== undefined) {
-            Log.info(`Container found -> Memory`, "Container");
-            this.memory.containerID = found.id;
-          } else {
-            Log.info(`ContainerPos will be calculated`, "Container");
-            this.calculateContainerPos(1);
-            Log.info(`ContainerPos calculated and build order given`, "Container");
-            this._container = null;
-          }
         }
-        if (Game.getObjectById(this.memory.containerID)) {
-          this._container = Game.getObjectById(this.memory.containerID);
+
+        if (found !== undefined) {
+          Log.info(`Container found -> Memory`, "Container");
+          this.memory.containerID = found.id;
         } else {
-          Log.info(`Container does not exist anymore. Delete from memory`, "Container");
-          this.memory.containerID = null;
+          Log.info(`ContainerPos will be calculated`, "Container");
+          this.calculateContainerPos(1);
+          Log.info(`ContainerPos calculated and build order given`, "Container");
           this._container = null;
         }
       }
-      return this._container;
-    },
-    enumerable: false,
-    configurable: true
-  });
-
-  Object.defineProperty(Structure.prototype, 'memory', {
-    get: function () {
-      if (!Memory.rooms[this.room.name].structures)
-        Memory.rooms[this.room.name].structures = {};
-      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
-      return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
-    },
-    set: function (v) {
-      if (!Memory.rooms[this.room.name].structures)
-        Memory.rooms[this.room.name].structures = {};
-      if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-        Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-      return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v;
-    }
-  });
-
-  Structure.prototype.needsRepair = function () {
-    //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
-    if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
-      let max = global.getFixedValue('maxHitsDefense');
-      return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
-    }
-    // Repair remaining stuff if HP is under 90%
-    let repairLimit = global.getFixedValue('repairLimit');
-    return this.hits < (this.hitsMax * repairLimit);
-  };
-
-  Object.defineProperty(Room.prototype, 'mineral', {
-    get: function () {
-      if (this == Room.prototype || this == undefined)
-        return undefined;
-      // Mit if ?
-      this.memory._mineral = {};
-      if (!this._mineral) {
-        if (this.memory._mineral.mineralId === undefined) {
-          let [mineral] = this.find(FIND_MINERALS);
-          if (!mineral) {
-            return this.memory._mineral.mineralId = null;
-          }
-          this._mineral = mineral;
-          this.memory._mineral.mineralId = mineral.id;
-        } else {
-          this._mineral = Game.getObjectById(this.memory._mineral.mineralId);
-        }
+      if (Game.getObjectById(this.memory.containerID)) {
+        this._container = Game.getObjectById(this.memory.containerID);
+      } else {
+        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
+        this.memory.containerID = null;
+        this._container = null;
       }
-      return this._mineral;
-    },
-    enumerable: false,
-    configurable: true
-  });
+    }
+    return this._container;
+  },
+  enumerable: false,
+  configurable: true
+});
 
-  Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
-    get: function () {
-      var self = this;
+Object.defineProperty(Structure.prototype, 'memory', {
+  get: function () {
+    if (!Memory.rooms[this.room.name].structures)
+      Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+      Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id])
+      Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
+    return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
+  },
+  set: function (v) {
+    if (!Memory.rooms[this.room.name].structures)
+      Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
+      Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+    return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v;
+  }
+});
 
-      let freeSpaceCount = 0;
-      [this.x - 1, this.x, this.x + 1].forEach(x => {
-        [this.y - 1, this.y, this.y + 1].forEach(y => {
-          if (!(x == self.x && self.y == y)) {
-            let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
-            if (Game.map.getTerrainAt(x, y, this.roomName) != 'wall')
-              freeSpaceCount++;
-          }
-        }, this);
+Structure.prototype.needsRepair = function () {
+  //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
+  if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
+    let max = global.getFixedValue('maxHitsDefense');
+    return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
+  }
+  // Repair remaining stuff if HP is under 90%
+  let repairLimit = global.getFixedValue('repairLimit');
+  return this.hits < (this.hitsMax * repairLimit);
+};
+
+Object.defineProperty(Room.prototype, 'mineral', {
+  get: function () {
+    if (this == Room.prototype || this == undefined)
+      return undefined;
+    if (!this.memory.mineralId) {
+      this.memory.mineralId = {};
+    }
+    this.memory.mineralId = {};
+    if (!this._mineral) {
+      if (this.memory.mineralId === undefined) {
+        let [mineral] = this.find(FIND_MINERALS);
+        if (!mineral) {
+          return this.memory.mineralId = null;
+        }
+        this._mineral = mineral;
+        this.memory.mineralId = mineral.id;
+      } else {
+        this._mineral = Game.getObjectById(this.memory.mineralId);
+      }
+    }
+    return this._mineral;
+  },
+  enumerable: false,
+  configurable: true
+});
+
+Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
+  get: function () {
+    var self = this;
+
+    let freeSpaceCount = 0;
+    [this.x - 1, this.x, this.x + 1].forEach(x => {
+      [this.y - 1, this.y, this.y + 1].forEach(y => {
+        if (!(x == self.x && self.y == y)) {
+          let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
+          if (Game.map.getTerrainAt(x, y, this.roomName) != 'wall')
+            freeSpaceCount++;
+        }
       }, this);
-      return freeSpaceCount;
-    },
-    enumerable: false,
-    configurable: true
+    }, this);
+    return freeSpaceCount;
+  },
+  enumerable: false,
+  configurable: true
+});
+
+RoomObject.prototype.calculateContainerPos = function (range) {
+  // TODO set range for Sources=1, Controllers = 3 if no range given
+  if (this.room.controller.reservation &&
+    /* reserved and not mine */
+    this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
+    console.log(`Unable to place container in ${this.operation.name}, hostile reserved room`);
+    return;
+  }
+  var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
+  Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
+  if (!startingPosition) {
+    startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
+      filter: (function (s) {
+        return s.structureType === STRUCTURE_SPAWN;
+      })
+    })[0];
+  }
+  if (!startingPosition) {
+    Log.info(`No starting Position`, "Container");
+    return;
+  }
+  if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
+    return;
+  var ret = PathFinder.search(this.pos, startingPosition, {
+    maxOps: 4000,
+    swampCost: 2,
+    plainCost: 2,
   });
+  if (ret.incomplete || ret.path.length === 0) {
+    console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
+    return;
+  }
+  var position_1 = ret.path[range - 1];
+  Log.info(`New container Postition ${position_1}`, "Container");
 
-  RoomObject.prototype.calculateContainerPos = function (range) {
-    // TODO set range for Sources=1, Controllers = 3 if no range given
-    if (this.room.controller.reservation &&
-      /* reserved and not mine */
-      this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-      console.log(`Unable to place container in ${this.operation.name}, hostile reserved room`);
-      return;
-    }
-    var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
-    Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
-    if (!startingPosition) {
-      startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
-        filter: (function (s) {
-          return s.structureType === STRUCTURE_SPAWN;
-        })
-      })[0];
-    }
-    if (!startingPosition) {
-      Log.info(`No starting Position`, "Container");
-      return;
-    }
-    if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0)
-      return;
-    var ret = PathFinder.search(this.pos, startingPosition, {
-      maxOps: 4000,
-      swampCost: 2,
-      plainCost: 2,
+  position_1.createConstructionSite(STRUCTURE_CONTAINER);
+  Log.info(`Placed Container in ${this.room}`, "Container");
+  return position_1;
+};
+
+RoomObject.prototype.say = function (what) {
+  this.room.visual.line(this.pos.x, this.pos.y, this.pos.x + 1 - 0.2, this.pos.y - 1, {
+    // Line from object to message bubble
+    color: "#eeeeee",
+    opacity: 0.9,
+    width: 0.1
+  }).circle(this.pos, {
+    // Small dot marker at the top of object
+    fill: "#aaffaa",
+    opacity: 0.9
+  }).text(what, this.pos.x + 1, this.pos.y - 1, {
+    // Fake message, used to align background (to make black border)
+    color: "black",
+    opacity: 0.9,
+    align: "left",
+    font: "bold 0.6 Arial",
+    backgroundColor: "black",
+    backgroundPadding: 0.3
+  }).text(what, this.pos.x + 1, this.pos.y - 1, {
+    // Real message
+    color: "black",
+    opacity: 0.9,
+    align: "left",
+    font: "bold 0.6 Arial",
+    backgroundColor: "#eeeeee",
+    backgroundPadding: 0.2
+  });
+};
+
+Room.prototype.getContainers = function () {
+  if (!this._containers) {
+    this._containers = _.filter(this.find(FIND_STRUCTURES), {
+      structureType: STRUCTURE_CONTAINER
     });
-    if (ret.incomplete || ret.path.length === 0) {
-      console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
-      return;
-    }
-    var position_1 = ret.path[range - 1];
-    Log.info(`New container Postition ${position_1}`, "Container");
+  }
+  return this._containers;
+};
 
-    position_1.createConstructionSite(STRUCTURE_CONTAINER);
-    Log.info(`Placed Container in ${this.room}`, "Container");
-    return position_1;
-  };
+Room.prototype.getResourceAmount = function (res) {
+  var amount = 0;
+  if (this.storage && this.storage.store[res]) {
+    amount += this.storage.store[res];
+  }
+  if (this.terminal && this.terminal.store[res]) {
+    amount += this.terminal.store[res];
+  }
+  return amount;
+};
 
-  RoomObject.prototype.say = function (what) {
-    this.room.visual.line(this.pos.x, this.pos.y, this.pos.x + 1 - 0.2, this.pos.y - 1, {
-      // Line from object to message bubble
-      color: "#eeeeee",
-      opacity: 0.9,
-      width: 0.1
-    }).circle(this.pos, {
-      // Small dot marker at the top of object
-      fill: "#aaffaa",
-      opacity: 0.9
-    }).text(what, this.pos.x + 1, this.pos.y - 1, {
-      // Fake message, used to align background (to make black border)
-      color: "black",
-      opacity: 0.9,
-      align: "left",
-      font: "bold 0.6 Arial",
-      backgroundColor: "black",
-      backgroundPadding: 0.3
-    }).text(what, this.pos.x + 1, this.pos.y - 1, {
-      // Real message
-      color: "black",
-      opacity: 0.9,
-      align: "left",
-      font: "bold 0.6 Arial",
-      backgroundColor: "#eeeeee",
-      backgroundPadding: 0.2
-    });
-  };
+RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
+  if (htmlLink) {
+    var onClick = '';
+    if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +
+      `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${id}')[0]);`
+    return `<a href="#!/room/${Game.shard.name}/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
+  }
+  return `[${ this.roomName } ${ this.x },${ this.y }]`;
+};
 
-  Room.prototype.getContainers = function () {
-    if (!this._containers) {
-      this._containers = _.filter(this.find(FIND_STRUCTURES), {
-        structureType: STRUCTURE_CONTAINER
-      });
-    }
-    return this._containers;
-  };
+Creep.prototype.toString = function (htmlLink = true) {
+  return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
+};
 
-  Room.prototype.getResourceAmount = function (res) {
-    var amount = 0;
-    if (this.storage && this.storage.store[res]) {
-      amount += this.storage.store[res];
-    }
-    if (this.terminal && this.terminal.store[res]) {
-      amount += this.terminal.store[res];
-    }
-    return amount;
-  };
+Structure.prototype.toString = function (htmlLink = true) {
+  return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
+};
 
-  RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
-    if (htmlLink) {
-      var onClick = '';
-      if (id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +
-        `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${id}')[0]);`
-      return `<a href="#!/room/${Game.shard.name}/${this.roomName}" onClick="${onClick}">[${ this.roomName } ${ this.x },${ this.y }]</a>`;
-    }
-    return `[${ this.roomName } ${ this.x },${ this.y }]`;
-  };
-
-  Creep.prototype.toString = function (htmlLink = true) {
-    return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
-  };
-
-  Structure.prototype.toString = function (htmlLink = true) {
-    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
-  };
-
-  StructureSpawn.prototype.toString = function (htmlLink = true) {
-    return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
-  };
+StructureSpawn.prototype.toString = function (htmlLink = true) {
+  return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
+};
 
 // }
