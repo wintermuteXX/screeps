@@ -255,17 +255,17 @@ Object.defineProperty(Room.prototype, 'mineral', {
     if (this == Room.prototype || this == undefined)
       return undefined;
     // Mit if ?
-    this.memory._mineral = {};
+    this.memory.mineral = {};
     if (!this._mineral) {
-      if (this.memory._mineral.mineralId === undefined) {
-        let [mineral] = this.find(FIND_MINERALS);
-        if (!mineral) {
-          return this.memory._mineral.mineralId = null;
+      if (this.memory.mineral.mineralId === undefined) {
+        let [theMineral] = this.find(FIND_MINERALS);
+        if (!theMineral) {
+          return this.memory.mineral.mineralId = null;
         }
-        this._mineral = mineral;
-        this.memory._mineral.mineralId = mineral.id;
+        this._mineral = theMineral;
+        this.memory.mineral.mineralId = theMineral.id;
       } else {
-        this._mineral = Game.getObjectById(this.memory._mineral.mineralId);
+        this._mineral = Game.getObjectById(this.memory.mineral.mineralId);
       }
     }
     return this._mineral;
