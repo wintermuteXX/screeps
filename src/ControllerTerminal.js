@@ -70,19 +70,24 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 
         for (let id in Game.market.orders) {
             let order = Game.market.orders[id];
-            if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name && (order.remainingAmount + energyInTerminal) < minEnergyThreshold) {
-                Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
+            // TEST Split into two ifs - orderExists could create new order if not necessary
+            if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name) {
+                Log.debug(`Found an existing buy energy order for room ${order.roomName}`, "buyEnergyOrder");
                 orderExists = true;
-                let result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
-                switch (result) {
-                    case OK:
-                        Log.success(`ExtendOrder in room ${ter.room.name} was successful`, "buyEnergyOrder");
-                        break;
+                if ((order.remainingAmount + energyInTerminal) < minEnergyThreshold) {
+                    Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
 
-                    default:
-                        Log.warn(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
+                    let result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
+                    switch (result) {
+                        case OK:
+                            Log.success(`ExtendOrder in room ${ter.room.name} was successful`, "buyEnergyOrder");
+                            break;
+
+                        default:
+                            Log.warn(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
+                    }
+                    break;
                 }
-                break;
             }
         }
         if (orderExists === false) {
