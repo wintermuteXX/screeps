@@ -254,19 +254,18 @@ Object.defineProperty(Room.prototype, 'mineral', {
   get: function () {
     if (this == Room.prototype || this == undefined)
       return undefined;
-    if (!this.memory.mineralId) {
-      this.memory.mineralId = "";
-    }
+    // Mit if ?
+    this.memory._mineral = {};
     if (!this._mineral) {
-      if (this.memory.mineralId === undefined) {
+      if (this.memory._mineral.mineralId === undefined) {
         let [mineral] = this.find(FIND_MINERALS);
         if (!mineral) {
-          return this.memory.mineralId = null;
+          return this.memory._mineral.mineralId = null;
         }
         this._mineral = mineral;
-        this.memory.mineralId = mineral.id;
+        this.memory._mineral.mineralId = mineral.id;
       } else {
-        this._mineral = Game.getObjectById(this.memory.mineralId);
+        this._mineral = Game.getObjectById(this.memory._mineral.mineralId);
       }
     }
     return this._mineral;
