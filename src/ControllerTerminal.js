@@ -70,7 +70,6 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 
         for (let id in Game.market.orders) {
             let order = Game.market.orders[id];
-            // TEST Split into two ifs - orderExists could create new order if not necessary
             if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name) {
                 Log.debug(`Found an existing buy energy order for room ${order.roomName}`, "buyEnergyOrder");
                 orderExists = true;
