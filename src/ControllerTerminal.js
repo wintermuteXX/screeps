@@ -6,7 +6,7 @@ function ControllerTerminal(rc) {
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
-    if (!ter) {
+    if (!terminal) {
         return null;
     }
     let cancelOrders = false;
@@ -51,7 +51,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 ControllerTerminal.prototype.sellOverflow = function () {
     let minInStock = 20000;
     let [terminal] = this.terminal;
-    if (!ter) {
+    if (!terminal) {
         return null;
     }
     /*let theMineralType = terminal.room.mineral.mineralType
