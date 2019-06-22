@@ -6,6 +6,9 @@ function ControllerTerminal(rc) {
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
+    if (!ter) {
+        return null;
+    }
     let cancelOrders = false;
 
     if (terminal && terminal.cooldown === 0) {
@@ -48,6 +51,9 @@ ControllerTerminal.prototype.internalTrade = function () {
 ControllerTerminal.prototype.sellOverflow = function () {
     let minInStock = 20000;
     let [terminal] = this.terminal;
+    if (!ter) {
+        return null;
+    }
     /*let theMineralType = terminal.room.mineral.mineralType
     let energyPrice = 0.01;
     let theProfit = 0.07*/
@@ -63,8 +69,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
     let [ter] = this.terminal;
     if (!ter) {
-        console.log("Breakup: " + ter),
-            return null;
+        return null;
     }
     let energyInTerminal = ter.store[RESOURCE_ENERGY];
     let orderExists = false
@@ -110,7 +115,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         }
     }
 };
-/*
+
 ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMineralType, energyPrice, theProfit) {
     var _this = this;
     var minAmount = 1000;
@@ -157,6 +162,5 @@ ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMin
     }
     return result;
 };
-*/
 
 module.exports = ControllerTerminal;
