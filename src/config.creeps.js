@@ -138,7 +138,7 @@ module.exports = {
       var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
         return s.needsRepair();
       });
-      
+
       if (rc.getLevel() < 4) {
         return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 2);
       } else {
@@ -174,7 +174,7 @@ module.exports = {
     minParts: 8,
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ['goto_white_flag', "get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
+    behaviors: ['goto_white_flag', "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {
