@@ -48,9 +48,13 @@ ControllerTerminal.prototype.internalTrade = function () {
 ControllerTerminal.prototype.sellOverflow = function () {
     let minInStock = 20000;
     let [terminal] = this.terminal;
-
+    let theMineralType = terminal.room.mineral.mineralType
+    let energyPrice = 0.01;
+    let theProfit = 0.07
     if (terminal && terminal.cooldown === 0) {
-        terminal.room.getBestOrder(minInStock);
+        // terminal.room.getBestOrder(minInStock);
+
+        this.findBestOrder(minInStock, theMineralType, energyPrice, theProfit);
     }
 };
 
@@ -103,23 +107,21 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     }
 };
 
-ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000) {
+ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMineralType, energyPrice, theProfit) {
     var _this = this;
     var minAmount = 1000;
-    let mtype = _this.find(FIND_MINERALS)[0].mineralType;
 
     var orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY // Only check sell orders		
             // order.resourceType !== RESOURCE_ENERGY // Don't sell energy
             &&
-            order.resourceType === mtype // Only Room Mineral
+            order.resourceType === theMineralType // Only Room Mineral
             &&
             order.remainingAmount > minAmount // Only look at orders with 1000+ units
             &&
-            _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least 1k of this resource
+            _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least xxx of this resource
     });
 
-    var energyPrice = 0.01;
     orders = orders.map(function (order) {
         var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
         var profit = 0;
@@ -136,11 +138,11 @@ ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000) {
     });
 
     orders = orders.filter(function (order) {
-        return order.profit > 0.07;
+        return order.profit > theProfit;
     });
 
     if (orders.length === 0)
-        Log.warn(`Found no deal in BUY Orders for ${mtype}`, "getBestOrder");
+        Log.warn(`Found no deal in BUY Orders for ${theMineralType}`, "getBestOrder");
     var bestOrder = _.max(orders, 'profit');
     let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
     if (result == OK) {
