@@ -62,6 +62,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     let minCreditThreshold = global.getFixedValue('minCreditThreshold');
     let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
     let [ter] = this.terminal;
+    if (!ter) {
+        console.log("Breakup: " + ter),
+            return null;
+    }
     let energyInTerminal = ter.store[RESOURCE_ENERGY];
     let orderExists = false
 
