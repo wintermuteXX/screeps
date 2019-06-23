@@ -70,7 +70,7 @@ module.exports = {
 
   "upgrader": {
     priority: 4,
-    levelMin: 2,
+    levelMin: 1,
     levelMax: 7,
     minParts: 3,
     wait4maxEnergy: true,
