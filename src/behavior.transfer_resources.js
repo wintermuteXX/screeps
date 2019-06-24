@@ -21,11 +21,11 @@ b.work = function (creep, rc) {
   let target = creep.getTarget();
   let creepRes = _.findKey(creep.carry);
 
-  if (!target) {
+  if (!target || target === null) {
     var resources = creep.room.memory.QueueNeededResources;
     creep.target = null;
     for (var resource in resources) {
-      // TODO Needs optimization. Only check for resource the creep carries
+      // BUG Needs optimization. Only check for resource the creep carries // getCreeps(null...) not correct. Need better transport system in general (could be an updgrader for example)
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
