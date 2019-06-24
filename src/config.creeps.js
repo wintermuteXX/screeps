@@ -11,7 +11,7 @@ module.exports = {
       if (rc.getLevel() > 2) {
         return rc.getAllCreeps().length === 0;
       } else {
-        return (rc.getAllCreeps("builder").length - rc.getAllCreeps("scout").length) < 5;
+        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("scout").length) < 5;
       }
     }
   },
