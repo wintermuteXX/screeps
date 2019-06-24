@@ -26,7 +26,8 @@ b.work = function (creep, rc) {
     creep.target = null;
     for (var resource in resources) {
       // BUG Needs optimization. Only check for resource the creep carries // getCreeps(null...) not correct. Need better transport system in general (could be an updgrader for example)
-      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && rc.getCreeps(null, resources[resource].id).length == 0) {
+      // REMOVED  && rc.getCreeps(null, resources[resource].id).length == 0
+      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
         Log.debug(`${creep} will deliver ${resources[resource].resourceType} to ${target} `, "transfer_resources");
