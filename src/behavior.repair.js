@@ -1,7 +1,7 @@
 var Behavior = require("_behavior");
 
 function findStructures(rc) {
-  //FIXME First repair Ramparts! Not walls...
+  //TEST First repair Ramparts! Not walls...
   var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
     return s.needsRepair();
   });
