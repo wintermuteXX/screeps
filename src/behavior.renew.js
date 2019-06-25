@@ -1,7 +1,7 @@
 var Behavior = require("_behavior");
 
 var b = new Behavior("renew");
-// BUG check if this spawn is also target of another Creep who wants to renew
+
 b.when = function (creep, rc) {
   //  return (creep.ticksToLive < 50) && (creep.memory.renew == true) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && !creep.room.spawns[0].spawning;
   return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
@@ -40,6 +40,7 @@ b.work = function (creep, rc) {
         break;
       default:
         Log.warn(`unknown result from (creep ${creep}). renew (${target}): ${result}`, "Creep");
+        creep.memory.abort = true;
     }
   }
 };
