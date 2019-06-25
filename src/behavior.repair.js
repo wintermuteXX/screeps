@@ -6,11 +6,15 @@ function findStructures(rc) {
     return s.needsRepair();
   });
 
-  return _.sortBy(structures, function (s) {
+  let theStructure = _.sortBy(structures, function (s) {
     return s.hits;
   });
+  let theStructureTest = _.sortBy(structures, function (s) {
+    return [s.structureType, s.hits];
+  });
 
-  // _.sortBy(structures, function (s) { return [s.hits,s.structureType].join("_"); });
+  console.log("Repair Test: " + theStructure + " " + theStructureTest)
+  return theStructure
 }
 
 var b = new Behavior("repair");
@@ -38,8 +42,8 @@ b.work = function (creep, rc) {
   }
 
   if (target) {
-    if(creep.repair(target) == ERR_NOT_IN_RANGE) {
-        creep.travelTo(target);
+    if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+      creep.travelTo(target);
     }
   }
 };
