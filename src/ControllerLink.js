@@ -31,13 +31,9 @@ ControllerLink.prototype.transferEnergy = function () {
     return (s.energy > s.energyCapacity - 100);
   });
 
-  var receivers = _.filter(this.receivers, function (r) {
+  var receivers = _.shuffle(_.filter(this.receivers, function (r) {
     return (r.energy < r.energyCapacity - 200);
-  });
-
-  [receivers] = _.sortBy(receivers, function (s) {
-    return s.energy;
-  });
+  }));
 
   if (receivers.length == 0) return;
   for (var r in receivers) {
