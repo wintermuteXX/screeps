@@ -92,7 +92,7 @@ function initGlobal(g) {
     'checkLinks': 5,
     'checkResourcesQueue': 1,
     'repairTower': 8,
-    'maxHitsDefense': 6000000,
+    'maxHitsDefense': 1000000,
     'internalTrade': 300,
     'sellOverflow': 499,
     'repairLimit': 0.9,
@@ -100,7 +100,7 @@ function initGlobal(g) {
     'minCreditThreshold': 50000,
     'buyEnergyOrder': 20,
     'minEnergyThreshold': 50000
-  
+
   };
 
   g.getFixedValue = function (key) {
