@@ -10,7 +10,6 @@ function findStructures(rc) {
     return s.hits;
   });
 
-  console.log("Repair Test: " + theStructure + " " + theStructureTest)
   return theStructure
 }
 
