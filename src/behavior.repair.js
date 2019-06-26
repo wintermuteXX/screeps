@@ -1,16 +1,13 @@
 var Behavior = require("_behavior");
 
 function findStructures(rc) {
-  //TEST First repair Ramparts! Not walls...
+  // TODO First repair Ramparts! Not walls...
   var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
     return s.needsRepair();
   });
 
   let theStructure = _.sortBy(structures, function (s) {
     return s.hits;
-  });
-  let theStructureTest = _.sortBy(structures, function (s) {
-    return [s.structureType, s.hits];
   });
 
   console.log("Repair Test: " + theStructure + " " + theStructureTest)
