@@ -11,7 +11,7 @@ module.exports = {
       if (rc.getLevel() > 2) {
         return rc.getAllCreeps().length === 0;
       } else {
-        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("scout").length) < 5;
+        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length) < 5;
       }
     }
   },
@@ -47,7 +47,7 @@ module.exports = {
     }
   },
 
-  // FIXME recalculate needed transporters based on resources needed to transport (check queue)
+  // TODO recalculate needed transporters based on resources needed to transport (check queue)
   // BUG transporter skips a tick after completion of behaviour
   "transporter": {
     priority: 3,
@@ -165,9 +165,9 @@ module.exports = {
     }
   },
 
-  // TODO Redefine Scout to support unit who supports rooms with RCL <= 3. Build in the nearest poosible Spawn.
-  // TODO Scout could dismantle buildings in target room
-  'scout': {
+  // TODO Supporter help rooms with RCL <= 3. Build in the nearest poosible Spawn.
+  // TODO Supporter could dismantle buildings in target room
+  'supporter': {
     produceGlobal: false,
     priority: 6,
     minLevel: 3,
@@ -181,7 +181,7 @@ module.exports = {
         'color': COLOR_WHITE
       });
       if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role == 'scout').length < 3;
+      return _.filter(Game.creeps, (c) => c.memory.role == 'supporter').length < 3;
     }
   },
 
