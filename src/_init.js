@@ -295,7 +295,6 @@ Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
 });
 
 RoomObject.prototype.calculateContainerPos = function (range) {
-  // TEST set range for Sources=1, Controllers = 2 if no range given
   if (this.room.controller.reservation &&
     /* reserved and not mine */
     this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
