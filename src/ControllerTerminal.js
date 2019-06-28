@@ -25,7 +25,7 @@ ControllerTerminal.prototype.internalTrade = function () {
             for (var r in myRooms) {
                 var aroom = myRooms[r];
                 // Only check other rooms
-                // BUG internalTrade will send 20000 Resources from every terminal, even if there is enough already
+                // TEST internalTrade will send 20000 Resources from every terminal, even if there is enough already
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
