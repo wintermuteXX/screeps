@@ -1,13 +1,12 @@
 var Behavior = require("_behavior");
 var b = new Behavior("miner_harvest_mineral");
 
-// TEST Only work when minerals are available (when + completed needs addition)
 b.when = function (creep, rc) {
-  return creep.room.extractor && creep.room.mineral.amount > 0;
+  return creep.room.extractor && creep.room.mineral.mineralAmount > 0;
 };
 
-b.completed = function () {
-  return creep.room.mineral.amount === 0;
+b.completed = function (creep) {
+  return creep.room.mineral.mineralAmount === 0;
 };
 
 b.work = function (creep, rc) {
