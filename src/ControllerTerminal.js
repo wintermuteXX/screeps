@@ -117,25 +117,25 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 };
 
 ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMineralType, energyPrice, theProfit) {
-    var _this = this;
-    var minAmount = 1000;
+    let _this = this;
+    let minAmount = 1000;
 
-    var orders = Game.market.getAllOrders().filter(function (order) {
+    let orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY // Only check sell orders		
             // order.resourceType !== RESOURCE_ENERGY // Don't sell energy
             &&
             order.resourceType === theMineralType // Only Room Mineral
             &&
             order.remainingAmount > minAmount // Only look at orders with 1000+ units
-            &&
-            _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least xxx of this resource
+        // &&
+        // _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least xxx of this resource
     });
 
     orders = orders.map(function (order) {
-        var amount = Math.min(order.remainingAmount, _this.terminal.store[order.resourceType]);
-        var profit = 0;
+        let amount = order.remainingAmount;
+        let profit = 0;
         if (_this.name && order.roomName) {
-            var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
+            let fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
             profit = order.price + (fee * energyPrice / amount);
         }
 
@@ -150,9 +150,9 @@ ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMin
         return order.profit > theProfit;
     });
 
-    if (orders.length === 0) return null
-    var bestOrder = _.max(orders, 'profit');
-
+    if (orders.length === 0)
+        return null;
+    let bestOrder = _.max(orders, 'profit');
     return bestOrder;
 };
 
