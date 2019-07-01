@@ -135,7 +135,7 @@ ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMin
         let amount = order.remainingAmount;
         let profit = 0;
         if (_this.name && order.roomName) {
-            let fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
+            var fee = Game.market.calcTransactionCost(amount, _this.name, order.roomName);
             profit = order.price + (fee * energyPrice / amount);
         }
 
