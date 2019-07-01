@@ -150,17 +150,10 @@ ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMin
         return order.profit > theProfit;
     });
 
-    if (orders.length === 0)
-        Log.warn(`Found no deal in BUY Orders for ${theMineralType}`, "getBestOrder");
+    if (orders.length === 0) return null
     var bestOrder = _.max(orders, 'profit');
-    let result = Game.market.deal(bestOrder.id, bestOrder.amount, _this.name);
-    if (result == OK) {
-        Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "getBestOrder");
-    } else {
-        Log.info(`No deal because: ${result}`, "getBestOrder");
 
-    }
-    return result;
+    return bestOrder;
 };
 
 module.exports = ControllerTerminal;
