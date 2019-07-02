@@ -36,33 +36,33 @@ module.exports = {
         }
       }
     }) */
-    if (!Memory.stats.cpuLastHundred) {
-      Memory.stats.cpuLastHundred = []
+    if (!Memory.stats.cpu1Tick) {
+      Memory.stats.cpu1Tick = []
     }
-    if (!Memory.stats.cpuAvgHundred) {
-      Memory.stats.cpuAvgHundred = []
+    if (!Memory.stats.cpu100Tick) {
+      Memory.stats.cpu100Tick = []
     }
-    if (!Memory.stats.cpuAvgTenthousand) {
+    if (!Memory.stats.cpu10000Tick) {
       Memory.stats.cpuTenthousand = []
     }
 
-    if (Memory.stats.cpuLastHundred.length >= 100) {
-      let sum = Memory.stats.cpuLastHundred.reduce((previous, current) => current += previous);
-      let avg = sum / Memory.stats.cpuLastHundred.length;
-      Memory.stats.cpuAvgHundred.push(avg);
-      Memory.stats.cpuLastHundred = []
+    if (Memory.stats.cpu1Tick.length >= 100) {
+      let sum = Memory.stats.cpu1Tick.reduce((previous, current) => current += previous);
+      let avg = sum / Memory.stats.cpu1Tick.length;
+      Memory.stats.cpu100Tick.push(avg);
+      Memory.stats.cpu1Tick = []
     }
 
-    if (Memory.stats.cpuAvgHundred.length >= 100) {
-      let sum2 = Memory.stats.cpuAvgHundred.reduce((previous, current) => current += previous);
-      let avg2 = sum2 / Memory.stats.cpuAvgHundred.length;
-      Memory.stats.cpuAvgTenthousand.push(avg2);
-      Memory.stats.cpuAvgHundred = []
+    if (Memory.stats.cpu100Tick.length >= 100) {
+      let sum2 = Memory.stats.cpu100Tick.reduce((previous, current) => current += previous);
+      let avg2 = sum2 / Memory.stats.cpu100Tick.length;
+      Memory.stats.cpu10000Tick.push(avg2);
+      Memory.stats.cpu100Tick = []
     }
 
-    if (Memory.stats.cpuAvgTenthousand && Memory.stats.cpuAvgTenthousand.length > 100) {
-      Memory.stats.cpuAvgTenthousand.shift();
+    if (Memory.stats.cpu10000Tick && Memory.stats.cpu10000Tick.length > 100) {
+      Memory.stats.cpu10000Tick.shift();
     }
-    Memory.stats.cpuLastHundred.push(Math.round(Game.cpu.getUsed() * 10) / 10);
+    Memory.stats.cpu1Tick.push(Math.round(Game.cpu.getUsed() * 10) / 10)
   }
 }
