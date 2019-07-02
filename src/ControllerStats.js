@@ -43,7 +43,7 @@ module.exports = {
       Memory.stats.cpu100Tick = []
     }
     if (!Memory.stats.cpu10000Tick) {
-      Memory.stats.cpuTenthousand = []
+      Memory.stats.cpu10000Tick = []
     }
 
     if (Memory.stats.cpu1Tick.length >= 100) {
@@ -60,7 +60,7 @@ module.exports = {
       Memory.stats.cpu100Tick = []
     }
 
-    if (Memory.stats.cpu10000Tick && Memory.stats.cpu10000Tick.length > 100) {
+    if (Memory.stats.cpu10000Tick.length > 100) {
       Memory.stats.cpu10000Tick.shift();
     }
     Memory.stats.cpu1Tick.push(Math.round(Game.cpu.getUsed() * 10) / 10)
