@@ -50,6 +50,7 @@ module.exports = {
       let sum = Memory.stats.cpuLastHundred.reduce((previous, current) => current += previous);
       let avg = sum / Memory.stats.cpuLastHundred.length;
       Memory.stats.cpuAvgHundred.push(avg);
+      Memory.stats.cpuLastHundred = []
     }
     Memory.stats.cpuLastHundred.push(Game.cpu.getUsed());
   }
