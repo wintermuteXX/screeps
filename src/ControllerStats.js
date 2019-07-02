@@ -36,7 +36,21 @@ module.exports = {
         }
       }
     }) */
+    if (!Memory.stats.cpuLastHundred) {
+      Memory.stats.cpuLastHundred = []
+    }
+    if (!Memory.stats.cpuAvgHundred) {
+      Memory.stats.cpuAvgHundred = []
+    }
+    if (!Memory.stats.cpuAvgTenthousand) {
+      Memory.stats.cpuTenthousand = []
+    }
 
-    Memory.stats['cpu.used'] = Game.cpu.getUsed();
+    if (Memory.stats.cpuLastHundred.length >= 100) {
+      let sum = Memory.stats.cpuLastHundred.reduce((previous, current) => current += previous);
+      let avg = sum / Memory.stats.cpuLastHundred.length;
+      Memory.stats.cpuAvgHundred.push(avg);
+    }
+    Memory.stats.cpuLastHundred.push(Game.cpu.getUsed());
   }
 }
