@@ -52,6 +52,17 @@ module.exports = {
       Memory.stats.cpuAvgHundred.push(avg);
       Memory.stats.cpuLastHundred = []
     }
+
+    if (Memory.stats.cpuAvgHundred.length >= 100) {
+      let sum2 = Memory.stats.cpuAvgHundred.reduce((previous, current) => current += previous);
+      let avg3 = sum2 / Memory.stats.cpuAvgHundred.length;
+      Memory.stats.cpuAvgTenthousand.push(avg2);
+      Memory.stats.cpuAvgHundred = []
+    }
+
+    if (Memory.stats.cpuAvgTenthousand.length > 100) {
+      Memory.stats.cpuAvgTenthousand.shift();
+    }
     Memory.stats.cpuLastHundred.push(Math.round(Game.cpu.getUsed() * 10) / 10);
   }
 }
