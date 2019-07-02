@@ -49,6 +49,7 @@ module.exports = {
     if (Memory.stats.cpu1Tick.length >= 100) {
       let sum = Memory.stats.cpu1Tick.reduce((previous, current) => current += previous);
       let avg = sum / Memory.stats.cpu1Tick.length;
+      avg = Math.round((avg * 10) / 10)
       Memory.stats.cpu100Tick.push(avg);
       Memory.stats.cpu1Tick = []
     }
@@ -56,6 +57,7 @@ module.exports = {
     if (Memory.stats.cpu100Tick.length >= 100) {
       let sum2 = Memory.stats.cpu100Tick.reduce((previous, current) => current += previous);
       let avg2 = sum2 / Memory.stats.cpu100Tick.length;
+      avg2 = Math.round((avg2 * 10) / 10)
       Memory.stats.cpu10000Tick.push(avg2);
       Memory.stats.cpu100Tick = []
     }
