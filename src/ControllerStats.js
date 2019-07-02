@@ -52,6 +52,6 @@ module.exports = {
       Memory.stats.cpuAvgHundred.push(avg);
       Memory.stats.cpuLastHundred = []
     }
-    Memory.stats.cpuLastHundred.push(Game.cpu.getUsed());
+    Memory.stats.cpuLastHundred.push(Math.round(Game.cpu.getUsed() * 10) / 10);
   }
 }
