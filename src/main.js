@@ -32,7 +32,7 @@ todo-tree.tags
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log')
-// var stats = require('ControllerStats');
+var stats = require('ControllerStats');
 
 // profiler.enable();
 module.exports.loop = function () {
@@ -44,5 +44,5 @@ module.exports.loop = function () {
     //gc.garbageCollection();
     gc.processRooms();
   })
-  //stats.doStats();
+  stats.doStats();
 }
