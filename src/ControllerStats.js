@@ -1,6 +1,5 @@
 module.exports = {
 
-  //TODO Activate Logs and log the used CPU -> memory.stats.cpu.used (Array with history)
   doStats() {
     if (!Memory.stats) {
       Memory.stats = {}
