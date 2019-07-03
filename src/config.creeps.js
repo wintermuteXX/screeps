@@ -43,7 +43,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_mineral");
-      return (rc.room.extractor && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000);
+      return (rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000);
     }
   },
 
