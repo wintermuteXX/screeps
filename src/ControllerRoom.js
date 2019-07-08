@@ -231,6 +231,13 @@ ControllerRoom.prototype.findResources = function () {
 
 	// TODO Check for Tombstones (E>100, any mineral)
 
+	/* this.find(FIND_TOMBSTONES).forEach(tombstone => {
+		if(_.sum(tombstone.store) > 0) {
+			console.log(`My creep died with ID=${tombstone.creep.id} ` +
+				 `and role=${Memory.creeps[tombstone.creep.name].role}`);   
+		}    
+	}); */
+
 	// Links
 	for (var l of _.filter(this.links.receivers, function (l) {
 			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
