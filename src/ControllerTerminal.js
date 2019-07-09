@@ -62,8 +62,16 @@ ControllerTerminal.prototype.sellOverflow = function () {
         terminal.room.getBestOrder(minInStock);
 
         let bestOrder = this.findBestOrder(minInStock, theMineralType, energyPrice, theProfit);
-        if (bestOrder) {
-            console.log("The best Order: " + bestOrder);
+        if (bestOrder !== null) {
+            let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
+            if (result == OK) {
+                Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "getBestOrder");
+            } else {
+                Log.info(`No deal because: ${result}`, "getBestOrder");
+
+            }
+        } else {
+            Log.info(`No deals for overflow found for room ${terminal.room.name}`, "getBestOrder");
         }
     }
 };
