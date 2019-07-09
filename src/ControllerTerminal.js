@@ -59,7 +59,8 @@ ControllerTerminal.prototype.sellOverflow = function () {
     let theProfit = 0.07
 
     if (terminal && terminal.cooldown === 0) {
-        terminal.room.getBestOrder(minInStock);
+        // REMOVE
+        // terminal.room.getBestOrder(minInStock);
 
         let bestOrder = this.findBestOrder(minInStock, theMineralType, energyPrice, theProfit);
         if (bestOrder !== null) {
