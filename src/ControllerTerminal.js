@@ -49,7 +49,6 @@ ControllerTerminal.prototype.internalTrade = function () {
 };
 
 ControllerTerminal.prototype.sellOverflow = function () {
-    let minInStock = 20000;
     let [terminal] = this.terminal;
     if (!terminal) {
         return null;
@@ -62,7 +61,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
         // REMOVE
         // terminal.room.getBestOrder(minInStock);
 
-        let bestOrder = this.findBestOrder(minInStock, theMineralType, energyPrice, theProfit);
+        let bestOrder = this.findBestOrder(theMineralType, energyPrice, theProfit);
         if (bestOrder !== null) {
             let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
             if (result == OK) {
@@ -129,19 +128,13 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     }
 };
 
-ControllerTerminal.prototype.findBestOrder = function (minInStock = 1000, theMineralType, energyPrice, theProfit) {
+ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPrice, theProfit) {
     let _this = this;
-    let minAmount = 1000;
-
     let orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY // Only check sell orders		
             // order.resourceType !== RESOURCE_ENERGY // Don't sell energy
             &&
             order.resourceType === theMineralType // Only Room Mineral
-            &&
-            order.remainingAmount > minAmount // Only look at orders with 1000+ units
-        // &&
-        // _this.terminal.store[order.resourceType] >= minInStock // terminal must have at least xxx of this resource
     });
 
     orders = orders.map(function (order) {
