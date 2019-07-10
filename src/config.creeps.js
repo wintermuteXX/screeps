@@ -185,7 +185,7 @@ module.exports = {
     }
   },
 
-  //TODO Let claimer also build Spawn after Controller is claimed. Also: Remove White Flag
+  //TEST Let claimer also build Spawn after Controller is claimed. Also: Remove White Flag
   'claimer': {
     produceGlobal: false,
     priority: 6,
@@ -193,7 +193,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: true,
     body2: [MOVE, CLAIM, MOVE, CLAIM],
-    behaviors: ['goto_white_flag', "claim_controller"],
+    behaviors: ["goto_white_flag", "claim_controller", "place_spawn"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {

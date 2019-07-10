@@ -69,7 +69,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
 
             }
         } else {
-            Log.info(`No deals for overflow found for room ${terminal.room.name}`, "sellOverflow");
+            Log.info(`No deals for ${bestOrder.resourceType} overflow found for room ${terminal.room.name}`, "sellOverflow");
         }
     }
 };

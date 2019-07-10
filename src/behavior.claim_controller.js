@@ -13,9 +13,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   if (creep.pos.isNearTo(creep.room.controller)) {
     creep.claimController(creep.room.controller);
-  }
-  else {
-
+  } else {
     creep.travelTo(creep.room.controller);
   }
 };
