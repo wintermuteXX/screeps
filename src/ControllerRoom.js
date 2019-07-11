@@ -229,14 +229,19 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var existingResources = {};
 
-	// TODO Check for Tombstones (E>100, any mineral)
+	// TEST Check for Tombstones (E>100, any mineral)
 
-	/* this.find(FIND_TOMBSTONES).forEach(tombstone => {
-		if(_.sum(tombstone.store) > 0) {
-			console.log(`My creep died with ID=${tombstone.creep.id} ` +
-				 `and role=${Memory.creeps[tombstone.creep.name].role}`);   
-		}    
-	}); */
+	this.find(FIND_TOMBSTONES).forEach(tombstone => {
+		_.each(tombstone.store, function (amount, resourceType) {
+			if (amount > 100) {
+				existingResources[tombstone.id + "|" + resourceType] = {
+					'resourceType': resourceType,
+					'amount': amount,
+					'id': tombstone.id
+				};
+			};
+		});
+	});
 
 	// Links
 	for (var l of _.filter(this.links.receivers, function (l) {
