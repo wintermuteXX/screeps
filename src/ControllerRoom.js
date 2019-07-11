@@ -229,8 +229,6 @@ ControllerRoom.prototype.findResources = function () {
 	var memory = this.room.memory;
 	var existingResources = {};
 
-	// TEST Check for Tombstones (E>100, any mineral)
-
 	this.find(FIND_TOMBSTONES).forEach(tombstone => {
 		_.each(tombstone.store, function (amount, resourceType) {
 			if (amount > 100) {

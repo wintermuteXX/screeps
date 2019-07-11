@@ -1,6 +1,22 @@
 Code Snippets
+function checkIsStoreFull(store) {
+	switch(store.structureType) {
+		case STRUCTURE_TOWER:
+		case STRUCTURE_SPAWN:
+		case STRUCTURE_EXTENSION:
+			return store.energy == store.energyCapacity;
 
+		case STRUCTURE_CONTAINER:
+		case STRUCTURE_STORAGE:
+			return _.sum(store.store) == store.storeCapacity;
+
+		default:
+			throw new Error(`Unknown structureType ${structureType}`);
+	}
+}
+----------------------------------
 define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
+----------------------------------
 [
     StructureSpawn,
     StructureStorage,
