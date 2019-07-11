@@ -28,7 +28,7 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
-    if (target.structureType !== undefined) {
+    if (target.structureType !== undefined || target.deathTime !== 'undefined') {
       result = creep.withdraw(target, creep.memory.resourceType);
       Log.info(`creep${creep} tries to withdraw ${creep.memory.resourceType} ${target}): ${result}`, "get_resources");
     } else {
