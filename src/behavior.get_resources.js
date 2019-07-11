@@ -31,10 +31,10 @@ b.work = function (creep, rc) {
     // test if target is structure
     if (target.structureType === undefined) {
       result = creep.pickup(target, creep.memory.resourceType);
-      Log.debug(`creep${creep} tries to pickup ${creep.memory.resourceType}${target}): ${result}`, "get_resources");
+      Log.info(`creep${creep} tries to pickup ${creep.memory.resourceType}${target}): ${result}`, "get_resources");
     } else {
       result = creep.withdraw(target, creep.memory.resourceType);
-      Log.debug(`creep${creep} tries to withdraw ${creep.memory.resourceType}${target}): ${result}`, "get_resources");
+      Log.info(`creep${creep} tries to withdraw ${creep.memory.resourceType}${target}): ${result}`, "get_resources");
     }
     switch (result) {
       case OK:
