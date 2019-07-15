@@ -127,13 +127,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 };
 
 ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPrice, theProfit) {
-    // DELETE let _this = this;
     let [terminal] = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {
-        return order.type === ORDER_BUY // Only check sell orders		
-            // order.resourceType !== RESOURCE_ENERGY // Don't sell energy
-            &&
-            order.resourceType === theMineralType // Only Room Mineral
+        return order.type === ORDER_BUY &&
+            order.resourceType === theMineralType
     });
 
     orders = orders.map(function (order) {
