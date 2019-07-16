@@ -165,7 +165,7 @@ module.exports = {
     }
   },
 
-  // TODO Supporter help rooms with RCL <= 3. Build in the nearest poosible Spawn.
+  // TODO Supporter help rooms with RCL <= 3
   // TODO Supporter could dismantle buildings in target room
   'supporter': {
     produceGlobal: false,
