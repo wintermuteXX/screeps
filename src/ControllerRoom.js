@@ -207,7 +207,7 @@ ControllerRoom.prototype.roomResources = function () {
 		}
 	}
 
-	console.log(this.room.name + " " + roomResources);
+	//console.log(this.room.name + " " + JSON.stringify(roomResources, null, 4));};
 };
 
 ControllerRoom.prototype.needResources = function () {
