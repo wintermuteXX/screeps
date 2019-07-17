@@ -10,6 +10,11 @@ Log.LEVEL_DEBUG = 0; Log.LEVEL_INFO = 1; Log.LEVEL_WARN = 2; Log.LEVEL_ERROR = 3
 
 todo-tree.tags
 **  TODO,FIXME,TEST,BUG,REMOVE,LONGTERM
+
+Game.profiler.profile(ticks, [functionFilter]);
+Game.profiler.stream(ticks, [functionFilter]);
+Game.profiler.email(ticks, [functionFilter]);
+Game.profiler.background([functionFilter]);
 */
 
 // LONGTERM Remote Mining (there was a formula for calculation if RH makes sense)

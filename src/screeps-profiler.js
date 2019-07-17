@@ -83,7 +83,10 @@ const functionBlackList = [
 ];
 
 function wrapFunction(name, originalFunction) {
-  if (originalFunction.profilerWrapped) { throw new AlreadyWrappedError(); }
+  if (originalFunction.profilerWrapped) {
+    throw new AlreadyWrappedError();
+  }
+
   function wrappedFunction() {
     if (Profiler.isProfiling()) {
       const nameMatchesFilter = name === getFilter();
@@ -208,7 +211,7 @@ const Profiler = {
     let currentLength = header.length + 1 + footer.length;
     const allLines = Profiler.lines();
     let done = false;
-    while (!done) {
+    while (!done && allLines.length) {
       const line = allLines.shift();
       // each line added adds the line length plus a new line character.
       if (currentLength + line.length + 1 < outputLengthLimit) {
@@ -247,15 +250,38 @@ const Profiler = {
     return lines;
   },
 
-  prototypes: [
-    { name: 'Game', val: Game },
-    { name: 'Room', val: Room },
-    { name: 'Structure', val: Structure },
-    { name: 'Spawn', val: Spawn },
-    { name: 'Creep', val: Creep },
-    { name: 'RoomPosition', val: RoomPosition },
-    { name: 'Source', val: Source },
-    { name: 'Flag', val: Flag },
+  prototypes: [{
+      name: 'Game',
+      val: Game
+    },
+    {
+      name: 'Room',
+      val: Room
+    },
+    {
+      name: 'Structure',
+      val: Structure
+    },
+    {
+      name: 'Spawn',
+      val: Spawn
+    },
+    {
+      name: 'Creep',
+      val: Creep
+    },
+    {
+      name: 'RoomPosition',
+      val: RoomPosition
+    },
+    {
+      name: 'Source',
+      val: Source
+    },
+    {
+      name: 'Flag',
+      val: Flag
+    },
   ],
 
   record(functionName, time) {
