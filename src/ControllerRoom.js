@@ -106,6 +106,7 @@ ControllerRoom.prototype.populate = function () {
 	}
 };
 
+// LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.needResources = function () {
 	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
