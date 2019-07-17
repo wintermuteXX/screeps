@@ -107,6 +107,109 @@ ControllerRoom.prototype.populate = function () {
 };
 
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
+ControllerRoom.prototype.roomResources = function () {
+	var roomResources = {};
+
+	let ext = this.getExtensionsNotFull();
+	for (var l of ext) {
+		roomResources[l.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (l.energyCapacity - l.energy) * -1,
+			'id': l.id
+		};
+	}
+
+	let spa = this.getSpawnsNotFull();
+	for (var s of spa) {
+		roomResources[s.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (s.energyCapacity - s.energy) * -1,
+			'id': s.id
+		};
+	}
+
+	let tow = this.getTowersNotFull();
+	for (var t of tow) {
+		roomResources[t.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (t.energyCapacity - t.energy) * -1,
+			'id': t.id
+		};
+	}
+
+	let constructor = this.getCreeps('constructor')
+	for (var constr of constructor) {
+		roomResources[constr.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (constr.energyCapacity - constr.energy) * -1,
+			'id': constr.id
+		};
+	}
+
+	//	Fill Upgrader directly, if no container in position
+	if (!this.room.controller.container) {
+		let upgrader = this.getCreeps('upgrader')
+		for (var u of upgrader) {
+			roomResources[u.id + "|energy"] = {
+				'resourceType': "energy",
+				'amount': (u.energyCapacity - u.energy) * -1,
+				'id': u.id
+			};
+		}
+	}
+
+	let con = this.getControllerNotFull();
+	if (con && con != null) {
+		roomResources[con.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (con.storeCapacity - _.sum(con.store)) * -1,
+			'id': con.id
+		};
+	}
+
+	let lab = this.getLabsNotFull();
+	for (var l of lab) {
+		roomResources[l.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (l.energyCapacity - l.energy) * -1,
+			'id': l.id
+		};
+	}
+
+	let nuk = this.getNukerNotFull();
+	for (var n of nuk) {
+		roomResources[n.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (n.energyCapacity - n.energy) * -1,
+			'id': n.id
+		};
+	}
+
+	let pow = this.getPowerSpawnNotFull();
+	for (var p of pow) {
+		roomResources[p.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': (p.energyCapacity - p.energy) * -1,
+			'id': p.id
+		};
+	}
+
+	let [sto] = this.getStorageNotFull();
+	if (sto) {
+		for (var r of RESOURCES_ALL) {
+			if (sto.store[r] === undefined || sto.store[r] < 20000) {
+				roomResources[sto.id + "|" + r] = {
+					'resourceType': r,
+					'amount': (20000 - (sto.store[r] || 0)) * -1,
+					'id': sto.id
+				};
+			}
+		}
+	}
+
+	console.log(this.room.name + " " + roomResources);
+};
+
 ControllerRoom.prototype.needResources = function () {
 	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
