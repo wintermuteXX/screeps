@@ -26,6 +26,7 @@ function ControllerRoom(room, ControllerGame) {
 	}
 
 	this.terminal = new ControllerTerminal(this);
+	this.lab = new ControllerLab(this);
 }
 
 /**

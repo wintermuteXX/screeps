@@ -166,7 +166,6 @@ module.exports = {
   },
 
   // TODO Supporter help rooms with RCL <= 3
-  // TEST Supporter could dismantle buildings in target room
   'supporter': {
     produceGlobal: false,
     priority: 6,
@@ -185,7 +184,6 @@ module.exports = {
     }
   },
 
-  //TEST Let claimer also build Spawn after Controller is claimed. Also: Remove White Flag
   'claimer': {
     produceGlobal: false,
     priority: 6,
