@@ -4,9 +4,10 @@ function ControllerLab(rc) {
 }
 
 ControllerLab.prototype.findLabPartner = function () {
+    // TODO implement Lab Code
     for (let i in this.lab) {
         let theLab = this.lab[i];
-        console.log("Labs: " + theLab.id);
+        // console.log("Labs: " + theLab.id);
     }
 }
 
