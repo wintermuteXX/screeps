@@ -166,7 +166,7 @@ module.exports = {
   },
 
   // TODO Supporter help rooms with RCL <= 3
-  // TODO Supporter could dismantle buildings in target room
+  // TEST Supporter could dismantle buildings in target room
   'supporter': {
     produceGlobal: false,
     priority: 6,
@@ -174,7 +174,7 @@ module.exports = {
     minParts: 8,
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ['goto_white_flag', "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
+    behaviors: ['goto_white_flag', "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {
