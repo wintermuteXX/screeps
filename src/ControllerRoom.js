@@ -883,7 +883,7 @@ ControllerRoom.prototype.centerPoint = function () {
 			}
 		}
 	}
-	let thePosition = new RoomPosition(bestPos.x, besttPos.y, this.name);
+	let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.name);
 	return thePosition;
 	// this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };

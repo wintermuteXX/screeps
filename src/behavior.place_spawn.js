@@ -21,11 +21,11 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
     let position = rc.centerPoint();
-    let result = Creep.room.createConstructionSite(position);
+    let result = creep.room.createConstructionSite(position, STRUCTURE_SPAWN);
     if (result == OK) {
-        Log.success(`Build a new construction site for Spawn in ${Creep.room.name}`, "place_spawn")
+        Log.success(`Build a new construction site for Spawn in ${creep.room.name}`, "place_spawn")
     } else {
-        Log.error(`Could not build Spawn in ${Creep.room.name} Error: ${result}`, "place_spawn")
+        Log.error(`Could not build Spawn in ${creep.room.name} Error: ${result}`, "place_spawn")
     }
 };
 
