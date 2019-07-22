@@ -815,14 +815,14 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 	return cfg.canBuild(this);
 };
 
-Room.prototype.centerPoint = function () {
+ControllerRoom.prototype.centerPoint = function () {
 
 	const freeRange = 3;
 	var bestPos;
 
 	for (let x = 3; x < 46; x++) {
 		for (let y = 3; y < 46; y++) {
-			let pos = new RoomPosition(x, y, this.name);
+			let pos = new RoomPosition(x, y, this.room.name);
 
 			let exits = pos.findInRange(FIND_EXIT, freeRange);
 			if (exits.length > 0) continue;
@@ -835,23 +835,23 @@ Room.prototype.centerPoint = function () {
 			let flags = pos.findInRange(FIND_FLAGS, 4);
 			if (flags.length > 0) continue;
 
-			let terrain = _.filter(this.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == 'terrain' && p.terrain == 'wall');
+			let terrain = _.filter(this.room.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == 'terrain' && p.terrain == 'wall');
 			if (terrain.length > 0) continue;
 
-			let goodPos = new RoomPosition(x, y, this.name);
+			let goodPos = new RoomPosition(x, y, this.room.name);
 
 			let toSource = [];
 			let toController;
 
 			_.forEach(this.find(FIND_SOURCES), (s) => {
-				toSource.push(this.findPath(goodPos, s.pos, {
+				toSource.push(this.room.findPath(goodPos, s.pos, {
 					ignoreCreeps: true,
 					ignoreRoads: true,
 					maxRooms: 1
 				}).length);
 			});
 
-			toController = this.findPath(goodPos, this.controller.pos, {
+			toController = this.room.findPath(goodPos, this.room.controller.pos, {
 				ignoreCreeps: true,
 				ignoreRoads: true,
 				maxRooms: 1

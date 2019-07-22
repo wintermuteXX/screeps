@@ -10,7 +10,7 @@ function findFlag(rc) {
 b.when = function (creep, rc) {
     let flag = findFlag(rc);
     let spawns = rc.getSpawns();
-    return !!flag && flag.room == creep.room && !spawns;
+    return !!flag && flag.room == creep.room && !!spawns;
 };
 
 b.completed = function (creep, rc) {
@@ -20,7 +20,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-    let position = rc.getCenterPoint();
+    let position = rc.centerPoint();
     let result = Creep.room.createConstructionSite(position);
     if (result == OK) {
         Log.success(`Build a new construction site for Spawn in ${Creep.room.name}`, "place_spawn")
