@@ -3,6 +3,7 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
 var ControllerTerminal = require("ControllerTerminal");
+var ControllerLab = require("ControllerLab");
 
 function ControllerRoom(room, ControllerGame) {
 	this.room = room;
