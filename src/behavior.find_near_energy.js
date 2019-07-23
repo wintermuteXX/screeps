@@ -53,7 +53,7 @@ b.work = function (creep, rc) {
     } else {
       var dropped = findEnergy(controller, rc);
       if (dropped.length) {
-        Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Gound: ${dropped}`, "find_near_energy")
+        Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from ground: ${dropped}`, "find_near_energy")
         target = dropped[0];
         creep.target = target.id;
       } else {

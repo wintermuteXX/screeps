@@ -30,12 +30,12 @@ b.work = function (creep, rc) {
         creep.travelTo(target);
         break;
       case ERR_NO_BODYPART:
-      Log.warn(`No Bodypart, I'll kill myself (creep ${creep}). build (${target}): ${result}`, "Creep");
+        Log.error(`No Bodypart, I'll kill myself (creep ${creep}). build (${target}): ${result}`, "Creep");
         creep.suicide();
         break;
       default:
-      Log.warn(`unknown result from (creep ${creep}). build (${target}): ${result}`, "Creep");
-      creep.target = null
+        Log.warn(`unknown result from (creep ${creep}). build (${target}): ${result}`, "Creep");
+        creep.target = null
     }
   }
 };
