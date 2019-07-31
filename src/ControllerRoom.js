@@ -260,7 +260,8 @@ ControllerRoom.prototype.needResources = function () {
 	}
 
 	//	Fill Upgrader directly, if no container in position
-	if (!this.room.controller.container) {
+	// TEST Still getting error "Cannot read property 'container' of undefined"?
+	if (this.room.controller && !this.room.controller.container) {
 		let upgrader = this.getCreeps('upgrader')
 		for (var u of upgrader) {
 			if (u.energyCapacity - u.energy > 49) {
