@@ -59,6 +59,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
     let energyPrice = 0.01;
     let theProfit = 0.07
 
+    console.log("Mineral Minimum: " + terminal.store.theMineralType);
     if (terminal && terminal.cooldown === 0) {
 
         let bestOrder = this.findBestOrder(theMineralType, energyPrice, theProfit);
