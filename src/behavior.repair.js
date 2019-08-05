@@ -2,6 +2,7 @@ var Behavior = require("_behavior");
 
 function findStructures(rc) {
   // TODO First repair Ramparts! Not walls...
+  // TODO Do not repair walls/ramparts if RCL < 3?
   var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
     return s.needsRepair();
   });
