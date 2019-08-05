@@ -14,7 +14,6 @@ function getTarget(room) {
     for (var i in TARGETS) {
         var targets = _.filter(room.find(TARGETS[i]), filter);
         if (targets.length) {
-            // TEST Demolish random enemy object
             return targets[Math.floor(Math.random() * targets.length)];
             // return targets[0];
         }
