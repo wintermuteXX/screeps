@@ -91,7 +91,7 @@ module.exports = {
         }
         return amount;
       }
-
+      // TODO implemet modificator if dropped energy around Sources is rising/existent
       // Low Level
       if (rc.getLevel() < 4) {
         return controller.my && rc.getAllCreeps('upgrader').length < 4
