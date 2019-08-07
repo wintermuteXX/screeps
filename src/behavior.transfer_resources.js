@@ -26,8 +26,7 @@ b.work = function (creep, rc) {
     creep.target = null;
     for (var resource in resources) {
       // TEST Controller container still buggy?
-      // && rc.getCreeps(null, resources[resource].id).length == 0
-      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType) {
+      if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && (Game.getObjectById(resources[resource].id).structureType == STRUCTURE_CONTAINER || rc.getCreeps(null, resources[resource].id).length == 0)) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
         Log.debug(`${creep} will deliver ${resources[resource].resourceType} to ${target} `, "transfer_resources");
