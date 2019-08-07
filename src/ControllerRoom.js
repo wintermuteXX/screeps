@@ -515,6 +515,14 @@ ControllerRoom.prototype.getLevel = function () {
 	return 0;
 };
 
+ControllerRoom.prototype.getDroppedResourcesAmount = function () {
+	let amount = 0;
+	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+		amount += s.amount;
+	};
+	return amount;
+};
+
 ControllerRoom.prototype.getController = function () {
 	return this.room.controller || null;
 };

@@ -59,11 +59,16 @@ module.exports = {
 
     canBuild: function (rc) {
       var transporters = rc.getAllCreeps('transporter');
-
+      let modifier = 0;
+      if (rc.getDroppedResourcesAmount > 3000) {
+        modifier = 2;
+      } else if (rc.getDroppedResourcesAmount > 1000) {
+        modifier = 1;
+      }
       if (rc.getLevel() < 4) {
-        return (transporters.length < 4)
+        return (transporters.length < (4 + modifier));
       } else {
-        return (transporters.length < 2);
+        return (transporters.length < (2 + modifier));
       }
     }
   },
