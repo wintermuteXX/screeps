@@ -217,21 +217,21 @@ ControllerRoom.prototype.needResources = function () {
 	var memory = this.room.memory;
 	var needResources = {};
 
-	let ext = this.getExtensionsNotFull();
-	for (var l of ext) {
-		needResources[l.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': l.energyCapacity - l.energy,
-			'id': l.id
-		};
-	}
-
 	let spa = this.getSpawnsNotFull();
 	for (var s of spa) {
 		needResources[s.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': s.energyCapacity - s.energy,
 			'id': s.id
+		};
+	}
+
+	let ext = this.getExtensionsNotFull();
+	for (var l of ext) {
+		needResources[l.id + "|energy"] = {
+			'resourceType': "energy",
+			'amount': l.energyCapacity - l.energy,
+			'id': l.id
 		};
 	}
 
