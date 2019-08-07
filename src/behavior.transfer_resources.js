@@ -25,7 +25,7 @@ b.work = function (creep, rc) {
     var resources = creep.room.memory.QueueNeededResources;
     creep.target = null;
     for (var resource in resources) {
-      // TEST Controller container still buggy?
+      // every target is only used by 1 creep, expect containers (Controller container is important)
       if (resources[resource].amount > 0 && creepRes == resources[resource].resourceType && (Game.getObjectById(resources[resource].id).structureType == STRUCTURE_CONTAINER || rc.getCreeps(null, resources[resource].id).length == 0)) {
         creep.target = resources[resource].id;
         target = creep.getTarget();
