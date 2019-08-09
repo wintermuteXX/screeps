@@ -10,13 +10,13 @@ ControllerLab.prototype.findLabPartner = function () {
     for (let i in this.labs) {
         let theLab = this.labs[i];
         if (theLab.memory.status == undefined || theLab.memory.status == null) {
-            Log.warn(`${theLab} has no status. Calculate status...`, "ControllerLab");
+            Log.debug(`${theLab} has no status. Calculate status...`, "ControllerLab");
             noStatusLabs.push(theLab);
         }
     }
 
     if (noStatusLabs.length > 0) {
-        Log.warn(`${this.room.name} Calculate Status for ${noStatusLabs.length} labs`, "ControllerLab");
+        Log.debug(`${this.room.name} Calculate Status for ${noStatusLabs.length} labs`, "ControllerLab");
 
     }
 
