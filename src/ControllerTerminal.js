@@ -3,8 +3,6 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// BUG One Terminal (last) will sometimes fill up with energy
-
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
