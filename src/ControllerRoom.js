@@ -27,7 +27,7 @@ function ControllerRoom(room, ControllerGame) {
 	}
 
 	this.terminal = new ControllerTerminal(this);
-	this.lab = new ControllerLab(this);
+	this.labs = new ControllerLab(this);
 }
 
 /**
@@ -67,6 +67,7 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.buyEnergyOrder();
 	}
 
+	this.labs.findLabPartner();
 };
 
 /**
@@ -526,33 +527,6 @@ ControllerRoom.prototype.getDroppedResourcesAmount = function () {
 ControllerRoom.prototype.getController = function () {
 	return this.room.controller || null;
 };
-
-ControllerRoom.prototype.getControllerEnergyTarget = function () {
-	var controller = this.getController();
-
-	if (controller != null) {
-		var area = null; //...;
-
-
-		// container
-		var container = null;
-
-		if (container != null) {
-			return container;
-		}
-
-
-		// pile of energy
-		var energyPile = null;
-
-		if (energyPile) {
-			return energyPile;
-		}
-
-	}
-
-	return controller;
-}
 
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {

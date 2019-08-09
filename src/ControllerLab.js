@@ -1,14 +1,25 @@
 function ControllerLab(rc) {
     this.room = rc;
-    this.lab = this.room.getLabs();
+    this.labs = this.room.getLabs();
 }
 
 ControllerLab.prototype.findLabPartner = function () {
     // TODO implement Lab Code
-    for (let i in this.lab) {
-        let theLab = this.lab[i];
-        // console.log("Labs: " + theLab.id);
+    var noStatusLabs = []
+
+    for (let i in this.labs) {
+        let theLab = this.labs[i];
+        if (theLab.memory.status == undefined || theLab.memory.status == null) {
+            Log.warn(`${theLab} has no status. Calculate status...`, "ControllerLab");
+            noStatusLabs.push(theLab);
+        }
     }
-}
+
+    if (noStatusLabs.length > 0) {
+        Log.warn(`${this.room.name} Calculate Status for ${noStatusLabs.length} labs`, "ControllerLab");
+
+    }
+
+};
 
 module.exports = ControllerLab;
