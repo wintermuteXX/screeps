@@ -111,12 +111,12 @@ ControllerRoom.prototype.populate = function () {
 
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.roomResources = function () {
-	if (!roomResources) {
-		let roomResources = {};
+	if (!this._roomResources) {
+		this._roomResources = {};
 
 		let ext = this.getExtensionsNotFull();
 		for (var l of ext) {
-			roomResources[l.id + "|energy"] = {
+			this._roomResources[l.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
@@ -125,7 +125,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let spa = this.getSpawnsNotFull();
 		for (var s of spa) {
-			roomResources[s.id + "|energy"] = {
+			this._roomResources[s.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (s.energyCapacity - s.energy) * -1,
 				'id': s.id
@@ -134,7 +134,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let tow = this.getTowersNotFull();
 		for (var t of tow) {
-			roomResources[t.id + "|energy"] = {
+			this._roomResources[t.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (t.energyCapacity - t.energy) * -1,
 				'id': t.id
@@ -143,7 +143,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			roomResources[constr.id + "|energy"] = {
+			this._roomResources[constr.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (constr.energyCapacity - constr.energy) * -1,
 				'id': constr.id
@@ -154,7 +154,7 @@ ControllerRoom.prototype.roomResources = function () {
 		if (!this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
-				roomResources[u.id + "|energy"] = {
+				this._roomResources[u.id + "|energy"] = {
 					'resourceType': "energy",
 					'amount': (u.energyCapacity - u.energy) * -1,
 					'id': u.id
@@ -164,7 +164,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
-			roomResources[con.id + "|energy"] = {
+			this._roomResources[con.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (con.storeCapacity - _.sum(con.store)) * -1,
 				'id': con.id
@@ -173,7 +173,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
-			roomResources[l.id + "|energy"] = {
+			this._roomResources[l.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
@@ -182,7 +182,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
-			roomResources[n.id + "|energy"] = {
+			this._roomResources[n.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (n.energyCapacity - n.energy) * -1,
 				'id': n.id
@@ -191,7 +191,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
-			roomResources[p.id + "|energy"] = {
+			this._roomResources[p.id + "|energy"] = {
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy) * -1,
 				'id': p.id
@@ -202,7 +202,7 @@ ControllerRoom.prototype.roomResources = function () {
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
 				if (sto.store[r] === undefined || sto.store[r] < 20000) {
-					roomResources[sto.id + "|" + r] = {
+					this._roomResources[sto.id + "|" + r] = {
 						'resourceType': r,
 						'amount': (20000 - (sto.store[r] || 0)) * -1,
 						'id': sto.id
@@ -212,8 +212,8 @@ ControllerRoom.prototype.roomResources = function () {
 		}
 	}
 
-	console.log(this.room.name + " " + JSON.stringify(roomResources, null, 4));
-	return this.roomResources;
+	console.log(this.room.name + " " + JSON.stringify(this._roomResources, null, 4));
+	return this._roomResources;
 };
 
 ControllerRoom.prototype.needResources = function () {
