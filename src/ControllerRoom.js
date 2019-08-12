@@ -117,15 +117,18 @@ ControllerRoom.prototype.roomResources = function () {
 		let ext = this.getExtensionsNotFull();
 		for (var l of ext) {
 			this._roomResources[l.id + "|energy"] = {
+				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
+
 			};
 		}
 
 		let spa = this.getSpawnsNotFull();
 		for (var s of spa) {
 			this._roomResources[s.id + "|energy"] = {
+				'structureType': s.structureType,
 				'resourceType': "energy",
 				'amount': (s.energyCapacity - s.energy) * -1,
 				'id': s.id
@@ -135,6 +138,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let tow = this.getTowersNotFull();
 		for (var t of tow) {
 			this._roomResources[t.id + "|energy"] = {
+				'structureType': t.structureType,
 				'resourceType': "energy",
 				'amount': (t.energyCapacity - t.energy) * -1,
 				'id': t.id
@@ -144,6 +148,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
 			this._roomResources[constr.id + "|energy"] = {
+				'structureType': constr.structureType,
 				'resourceType': "energy",
 				'amount': (constr.energyCapacity - constr.energy) * -1,
 				'id': constr.id
@@ -165,6 +170,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
 			this._roomResources[con.id + "|energy"] = {
+				'structureType': con.structureType,
 				'resourceType': "energy",
 				'amount': (con.storeCapacity - _.sum(con.store)) * -1,
 				'id': con.id
@@ -174,6 +180,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
 			this._roomResources[l.id + "|energy"] = {
+				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
@@ -183,6 +190,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
 			this._roomResources[n.id + "|energy"] = {
+				'structureType': n.structureType,
 				'resourceType': "energy",
 				'amount': (n.energyCapacity - n.energy) * -1,
 				'id': n.id
@@ -192,6 +200,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			this._roomResources[p.id + "|energy"] = {
+				'structureType': p.structureType,
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy) * -1,
 				'id': p.id
@@ -203,6 +212,7 @@ ControllerRoom.prototype.roomResources = function () {
 			for (var r of RESOURCES_ALL) {
 				if (sto.store[r] === undefined || sto.store[r] < 20000) {
 					this._roomResources[sto.id + "|" + r] = {
+						'structureType': sto.structureType,
 						'resourceType': r,
 						'amount': (20000 - (sto.store[r] || 0)) * -1,
 						'id': sto.id
