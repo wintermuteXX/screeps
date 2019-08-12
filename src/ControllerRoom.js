@@ -114,52 +114,18 @@ ControllerRoom.prototype.roomResources = function () {
 	if (!this._roomResources) {
 		this._roomResources = {};
 
-		let ext = this.getExtensionsNotFull();
-		for (var l of ext) {
-			this._roomResources[l.id + "|energy"] = {
-				'structureType': l.structureType,
-				'resourceType': "energy",
-				'amount': (l.energyCapacity - l.energy) * -1,
-				'id': l.id
-
-			};
+		let prio = 50;
+		if (this.room.controller.ticksToDowngrade < 100) {
+			prio = 10;
+		} else if (this.room.controller.ticksToDowngrade < 1000) {
+			prio = 25;
 		}
-
-		let spa = this.getSpawnsNotFull();
-		for (var s of spa) {
-			this._roomResources[s.id + "|energy"] = {
-				'structureType': s.structureType,
-				'resourceType': "energy",
-				'amount': (s.energyCapacity - s.energy) * -1,
-				'id': s.id
-			};
-		}
-
-		let tow = this.getTowersNotFull();
-		for (var t of tow) {
-			this._roomResources[t.id + "|energy"] = {
-				'structureType': t.structureType,
-				'resourceType': "energy",
-				'amount': (t.energyCapacity - t.energy) * -1,
-				'id': t.id
-			};
-		}
-
-		let constructor = this.getCreeps('constructor')
-		for (var constr of constructor) {
-			this._roomResources[constr.id + "|energy"] = {
-				'structureType': constr.structureType,
-				'resourceType': "energy",
-				'amount': (constr.energyCapacity - constr.energy) * -1,
-				'id': constr.id
-			};
-		}
-
 		//	Fill Upgrader directly, if no container in position
 		if (!this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
 				this._roomResources[u.id + "|energy"] = {
+					'priority': prio,
 					'resourceType': "energy",
 					'amount': (u.energyCapacity - u.energy) * -1,
 					'id': u.id
@@ -170,6 +136,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
 			this._roomResources[con.id + "|energy"] = {
+				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
 				'amount': (con.storeCapacity - _.sum(con.store)) * -1,
@@ -177,9 +144,61 @@ ControllerRoom.prototype.roomResources = function () {
 			};
 		}
 
+		let spa = this.getSpawnsNotFull();
+		for (var s of spa) {
+			this._roomResources[s.id + "|energy"] = {
+				'priority': 15,
+				'structureType': s.structureType,
+				'resourceType': "energy",
+				'amount': (s.energyCapacity - s.energy) * -1,
+				'id': s.id
+			};
+		}
+
+		let ext = this.getExtensionsNotFull();
+		for (var l of ext) {
+			this._roomResources[l.id + "|energy"] = {
+				'priority': 20,
+				'structureType': l.structureType,
+				'resourceType': "energy",
+				'amount': (l.energyCapacity - l.energy) * -1,
+				'id': l.id
+
+			};
+		}
+
+		if (this.getEnemys().length > 0) {
+			prio = 30
+		} else {
+			prio = 65
+		}
+
+		let tow = this.getTowersNotFull();
+		for (var t of tow) {
+			this._roomResources[t.id + "|energy"] = {
+				'priority': prio,
+				'structureType': t.structureType,
+				'resourceType': "energy",
+				'amount': (t.energyCapacity - t.energy) * -1,
+				'id': t.id
+			};
+		}
+
+		let constructor = this.getCreeps('constructor')
+		for (var constr of constructor) {
+			this._roomResources[constr.id + "|energy"] = {
+				'priority': 45,
+				'structureType': constr.structureType,
+				'resourceType': "energy",
+				'amount': (constr.energyCapacity - constr.energy) * -1,
+				'id': constr.id
+			};
+		}
+
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
 			this._roomResources[l.id + "|energy"] = {
+				'priority': 70,
 				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
@@ -187,23 +206,25 @@ ControllerRoom.prototype.roomResources = function () {
 			};
 		}
 
-		let nuk = this.getNukerNotFull();
-		for (var n of nuk) {
-			this._roomResources[n.id + "|energy"] = {
-				'structureType': n.structureType,
-				'resourceType': "energy",
-				'amount': (n.energyCapacity - n.energy) * -1,
-				'id': n.id
-			};
-		}
-
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			this._roomResources[p.id + "|energy"] = {
+				'priority': 80,
 				'structureType': p.structureType,
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy) * -1,
 				'id': p.id
+			};
+		}
+
+		let nuk = this.getNukerNotFull();
+		for (var n of nuk) {
+			this._roomResources[n.id + "|energy"] = {
+				'priority': 85,
+				'structureType': n.structureType,
+				'resourceType': "energy",
+				'amount': (n.energyCapacity - n.energy) * -1,
+				'id': n.id
 			};
 		}
 
