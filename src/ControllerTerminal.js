@@ -3,6 +3,7 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
+// BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
@@ -37,6 +38,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                     var sendAmount = Math.min(availableAmount, needed);
 
                     var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
+                    // TODO Use switch statement
                     if (result == 0) {
                         cancelOrders = true;
                         Log.success(`${terminal.room.name} transfers ${sendAmount} of ${resourceType} to ${aroom.name}`, "internalTrade")
