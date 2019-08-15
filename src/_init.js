@@ -298,7 +298,7 @@ RoomObject.prototype.calculateContainerPos = function (range) {
   if (this.room.controller.reservation &&
     /* reserved and not mine */
     this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-    console.log(`Unable to place container in ${this.operation.name}, hostile reserved room`);
+    console.log(`Unable to place container in ${this.room}, hostile reserved room`);
     return;
   }
   if (this.structureType === STRUCTURE_CONTROLLER) {

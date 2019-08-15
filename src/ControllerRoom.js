@@ -30,9 +30,6 @@ function ControllerRoom(room, ControllerGame) {
 	this.labs = new ControllerLab(this);
 }
 
-/**
- * ControllerRoom.run()
- */
 ControllerRoom.prototype.run = function () {
 	this.analyse();
 
@@ -70,9 +67,6 @@ ControllerRoom.prototype.run = function () {
 	this.labs.findLabPartner();
 };
 
-/**
- * ControllerRoom.commandCreeps()
- */
 ControllerRoom.prototype.commandCreeps = function () {
 	var cc = new ControllerCreep(this);
 	var creeps = this.find(FIND_MY_CREEPS);
@@ -82,9 +76,6 @@ ControllerRoom.prototype.commandCreeps = function () {
 	}
 };
 
-/**
- * ControllerRoom.populate()
- */
 ControllerRoom.prototype.populate = function () {
 	if (Game.time % global.getFixedValue('checkPopulation') !== 0) return;
 
@@ -359,12 +350,6 @@ ControllerRoom.prototype.needResources = function () {
 	memory.QueueNeededResources = needResources;
 };
 
-/**
- * 
- * Check for Resources available in the room. Writes in Memory.
- *
- */
-
 ControllerRoom.prototype.findResources = function () {
 	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
 	var memory = this.room.memory;
@@ -516,8 +501,6 @@ ControllerRoom.prototype.getAllCreeps = function (role) {
 	}
 	return creeps;
 };
-
-
 
 ControllerRoom.prototype.findNearLink = function (obj) {
 	let allLinks = this.getLinks();
