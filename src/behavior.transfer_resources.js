@@ -26,6 +26,7 @@ b.work = function (creep, rc) {
     creep.target = null;
     for (var resource in resources) {
       // every target is only used by 1 creep, expect containers (Controller container is important)
+      // TODO must be removed with new logistic system
       let theObject = Game.getObjectById(resources[resource].id)
       if (theObject && resources[resource].amount > 0 && creepRes == resources[resource].resourceType && (theObject.structureType == STRUCTURE_CONTAINER || rc.getCreeps(null, resources[resource].id).length == 0)) {
         creep.target = resources[resource].id;

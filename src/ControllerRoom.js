@@ -106,6 +106,8 @@ ControllerRoom.prototype.roomResources = function () {
 		this._roomResources = {};
 
 		let prio = 50;
+
+		// Need Energy
 		if (this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller.ticksToDowngrade < 1000) {
