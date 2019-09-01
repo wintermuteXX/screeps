@@ -202,7 +202,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			this._roomResources[p.id + "|energy"] = {
-				'priority': 80,
+				'priority': 85,
 				'structureType': p.structureType,
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy) * -1,
@@ -213,7 +213,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
 			this._roomResources[n.id + "|energy"] = {
-				'priority': 85,
+				'priority': 90,
 				'structureType': n.structureType,
 				'resourceType': "energy",
 				'amount': (n.energyCapacity - n.energy) * -1,
