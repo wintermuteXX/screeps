@@ -224,7 +224,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let [sto] = this.getStorage();
 		if (sto) {
 			let amount = 0;
-			if (sto.store['energy'] === undefined || sto.store['energy'] < 20000) {
+			if (sto.store['energy'] === undefined || sto.store['energy'] <= 20000) {
 				prio = 55;
 				amount = 20000 - sto.store['energy'];
 			} else {
@@ -244,7 +244,7 @@ ControllerRoom.prototype.roomResources = function () {
 		let [ter] = this.getTerminal();
 		if (ter) {
 			let amount = 0;
-			if (ter.store['energy'] === undefined || ter.store['energy'] < 50000) {
+			if (ter.store['energy'] === undefined || ter.store['energy'] <= 50000) {
 				prio = 40;
 				amount = 50000 - ter.store['energy'];
 			} else {
