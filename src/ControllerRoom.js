@@ -221,18 +221,44 @@ ControllerRoom.prototype.roomResources = function () {
 			};
 		}
 
-		let [sto] = this.getStorageNotFull();
+		let [sto] = this.getStorage();
 		if (sto) {
-			for (var r of RESOURCES_ALL) {
-				if (sto.store[r] === undefined || sto.store[r] < 20000) {
-					this._roomResources[sto.id + "|" + r] = {
-						'structureType': sto.structureType,
-						'resourceType': r,
-						'amount': (20000 - (sto.store[r] || 0)) * -1,
-						'id': sto.id
-					};
-				}
+			let amount = 0;
+			if (sto.store['energy'] === undefined || sto.store['energy'] < 20000) {
+				prio = 55;
+				amount = 20000 - sto.store['energy'];
+			} else {
+				prio = 100;
+				amount = 100000 - sto.store['energy'];
 			}
+			this._roomResources[sto.id + "|energy"] = {
+				'priority': prio,
+				'structureType': sto.structureType,
+				'resourceType': "energy",
+				'amount': amount * -1,
+				'id': sto.id
+			};
+
+		}
+
+		let [ter] = this.getTerminal();
+		if (ter) {
+			let amount = 0;
+			if (ter.store['energy'] === undefined || ter.store['energy'] < 50000) {
+				prio = 40;
+				amount = 50000 - ter.store['energy'];
+			} else {
+				prio = 115;
+				amount = ter.storeCapacity - _.sum(ter.store);
+			}
+			this._roomResources[ter.id + "|energy"] = {
+				'priority': prio,
+				'structureType': ter.structureType,
+				'resourceType': "energy",
+				'amount': amount * -1,
+				'id': ter.id
+			};
+
 		}
 	}
 
