@@ -220,7 +220,7 @@ ControllerRoom.prototype.roomResources = function () {
 				'id': n.id
 			};
 		}
-
+		// TODO no static value for 20000
 		let [sto] = this.getStorage();
 		if (sto) {
 			let amount = 0;
@@ -240,7 +240,7 @@ ControllerRoom.prototype.roomResources = function () {
 			};
 
 		}
-
+		// TODO no static value for 50000
 		let [ter] = this.getTerminal();
 		if (ter) {
 			let amount = 0;
@@ -259,6 +259,38 @@ ControllerRoom.prototype.roomResources = function () {
 				'id': ter.id
 			};
 
+		}
+		// Need Resources
+
+		// TODO Add labs
+		let [sto] = this.getStorageNotFull();
+		if (sto) {
+			for (var r of RESOURCES_ALL) {
+				if (sto.store[r] === undefined || sto.store[r] < 20000) {
+					this._roomResources[sto.id + "|" + r] = {
+						'priority': 80,
+						'structureType': sto.structureType,
+						'resourceType': r,
+						'amount': 20000 - (sto.store[r] || 0),
+						'id': sto.id
+					};
+				}
+			}
+		}
+
+		let [ter] = this.getTerminal();
+		if (ter) {
+			for (var r of RESOURCES_ALL) {
+				if (_.sum(ter.store) < ter.storeCapacity) {
+					this._roomResources[ter.id + "|" + r] = {
+						'priority': 105,
+						'structureType': ter.structureType,
+						'resourceType': r,
+						'amount': ter.storeCapacity - _.sum(ter.store),
+						'id': ter.id
+					};
+				}
+			}
 		}
 	}
 
