@@ -263,6 +263,7 @@ ControllerRoom.prototype.roomResources = function () {
 		// Need Resources
 
 		// TODO Add labs
+		// TODO Here is also energy included. not good... 
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
 				if (sto.store[r] === undefined || sto.store[r] < 20000) {
