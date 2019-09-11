@@ -263,7 +263,6 @@ ControllerRoom.prototype.roomResources = function () {
 		// Need Resources
 
 		// TODO Add labs
-		let [sto] = this.getStorageNotFull();
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
 				if (sto.store[r] === undefined || sto.store[r] < 20000) {
@@ -278,7 +277,6 @@ ControllerRoom.prototype.roomResources = function () {
 			}
 		}
 
-		let [ter] = this.getTerminal();
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
 				if (_.sum(ter.store) < ter.storeCapacity) {
