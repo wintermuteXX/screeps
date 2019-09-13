@@ -291,6 +291,121 @@ ControllerRoom.prototype.roomResources = function () {
 				}
 			}
 		}
+		// Give Resources
+
+		this.find(FIND_TOMBSTONES).forEach(tombstone => {
+			_.each(tombstone.store, function (amount, resourceType) {
+				if (amount > 100) {
+					this._roomResources[tombstone.id + "|" + resourceType] = {
+						'priority': 130,
+						'resourceType': resourceType,
+						'structureType': tombstone.structureType,
+						'amount': amount,
+						'id': tombstone.id
+					};
+				};
+			});
+		});
+
+		// Links
+		for (var l of _.filter(this.links.receivers, function (l) {
+				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
+			})) {
+			this._roomResources[l.id + "|energy"] = {
+				'priority': 160,
+				'resourceType': "energy",
+				'structureType': l.structureType,
+				'amount': l.energy,
+				'id': l.id
+			};
+		}
+
+		// Dropped Resources
+		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
+				this._roomResources[s.id + "|" + s.resourceType] = {
+					'priority': 145,
+					'resourceType': s.resourceType,
+					'amount': s.amount,
+					'id': s.id
+				};
+			};
+		}
+
+		// Containers
+		var containers = []
+		var sources = this.getSources();
+		for (var s of sources) {
+			if (s) {
+				containers.push(s.container)
+			};
+		};
+
+		if (this.room.extractor && this.room.extractor.container) {
+			containers.push(this.room.extractor.container)
+		}
+
+		_.each(containers, function (c) {
+			if (c && c.store) {
+				if (c.store !== undefined) {
+					_.each(c.store, function (amount, resourceType) {
+						if (amount > 200) {
+							this._roomResources[c.id + "|" + resourceType] = {
+								'priority': 155,
+								'resourceType': resourceType,
+								'structureType': c.structureType,
+								'amount': amount,
+								'id': c.id
+							};
+						};
+					});
+				}
+			}
+		});
+
+		if (sto) {
+			for (var r of RESOURCES_ALL) {
+				let amount = 0;
+				if (r === "energy" && sto.store[r] <= 20000) {
+					prio = 35;
+					amount = sto.store[r]
+				} else if (r === "energy" && sto.store[r] > 20000) {
+					prio = 95;
+					amount = sto.store[r] - 20000;
+				} else {
+					prio = 77;
+					amount = sto.store[r];
+				} // Minerals
+
+				this._roomResources[sto.id + "|" + r] = {
+					'priority': prio,
+					'structureType': sto.structureType,
+					'resourceType': r,
+					'amount': amount,
+					'id': sto.id
+				};
+
+			}
+		}
+
+		if (ter) {
+			for (var r of RESOURCES_ALL) {
+				if (r === "energy" && ter.store[r].amount > 50000) {
+					prio = 110
+				} else {
+					prio = 102
+				}
+				this._roomResources[ter.id + "|" + r] = {
+					'priority': prio,
+					'structureType': ter.structureType,
+					'resourceType': r,
+					'amount': ter.store[r].amount,
+					'id': ter.id
+				};
+
+			}
+		}
+
 	}
 
 	console.log(this.room.name + " " + JSON.stringify(this._roomResources, null, 4));
