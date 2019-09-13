@@ -56,8 +56,8 @@ ControllerTerminal.prototype.sellOverflow = function () {
         return null;
     }
     let theMineralType = terminal.room.mineral.mineralType
-    let energyPrice = 0.01;
-    let theProfit = 0.07
+    let energyPrice = 0.005;
+    let theProfit = 0.05
 
     if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > 30000) {
 
