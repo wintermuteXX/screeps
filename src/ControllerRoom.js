@@ -395,6 +395,7 @@ ControllerRoom.prototype.roomResources = function () {
 				} else {
 					prio = 102
 				}
+				if (ter.store[r].amount !== undefined) {}
 				this._roomResources[ter.id + "|" + r] = {
 					'priority': prio,
 					'structureType': ter.structureType,
@@ -402,14 +403,14 @@ ControllerRoom.prototype.roomResources = function () {
 					'amount': ter.store[r].amount,
 					'id': ter.id
 				};
-
 			}
 		}
-
 	}
 
-	console.log(this.room.name + " " + JSON.stringify(this._roomResources, null, 4));
-	return this._roomResources;
+}
+
+console.log(this.room.name + " " + JSON.stringify(this._roomResources, null, 4));
+return this._roomResources;
 };
 
 ControllerRoom.prototype.needResources = function () {
