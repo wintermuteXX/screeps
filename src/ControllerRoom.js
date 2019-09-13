@@ -396,12 +396,12 @@ ControllerRoom.prototype.roomResources = function () {
 				} else {
 					prio = 102
 				}
-				if (ter.store[r].amount !== undefined) {
+				if (ter.store[r] !== undefined) {
 					this._roomResources[ter.id + "| " + r] = {
 						'priority': prio,
 						'structureType': ter.structureType,
 						'resourceType': r,
-						'amount': ter.store[r].amount,
+						'amount': ter.store[r],
 						'id': ter.id
 					};
 				}
