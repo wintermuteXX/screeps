@@ -378,14 +378,15 @@ ControllerRoom.prototype.roomResources = function () {
 					amount = sto.store[r];
 				} // Minerals
 
-				this._roomResources[sto.id + "| " + r] = {
-					'priority': prio,
-					'structureType': sto.structureType,
-					'resourceType': r,
-					'amount': amount,
-					'id': sto.id
-				};
-
+				if (sto.store[r] > 0) {
+					this._roomResources[sto.id + "| " + r] = {
+						'priority': prio,
+						'structureType': sto.structureType,
+						'resourceType': r,
+						'amount': amount,
+						'id': sto.id
+					};
+				}
 			}
 		}
 
