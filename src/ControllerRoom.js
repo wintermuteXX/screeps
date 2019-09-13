@@ -51,6 +51,7 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 	this.needResources();
+	// this.roomResources();
 
 	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
 		this.terminal.internalTrade();
@@ -350,7 +351,7 @@ ControllerRoom.prototype.roomResources = function () {
 				if (c.store !== undefined) {
 					_.each(c.store, function (amount, resourceType) {
 						if (amount > 200) {
-							this._roomResources[c.id + "|" + resourceType] = {
+							this._roomResources[c.id + "| " + resourceType] = {
 								'priority': 155,
 								'resourceType': resourceType,
 								'structureType': c.structureType,
@@ -377,7 +378,7 @@ ControllerRoom.prototype.roomResources = function () {
 					amount = sto.store[r];
 				} // Minerals
 
-				this._roomResources[sto.id + "|" + r] = {
+				this._roomResources[sto.id + "| " + r] = {
 					'priority': prio,
 					'structureType': sto.structureType,
 					'resourceType': r,
@@ -396,7 +397,7 @@ ControllerRoom.prototype.roomResources = function () {
 					prio = 102
 				}
 				if (ter.store[r].amount !== undefined) {
-					this._roomResources[ter.id + "|" + r] = {
+					this._roomResources[ter.id + "| " + r] = {
 						'priority': prio,
 						'structureType': ter.structureType,
 						'resourceType': r,
