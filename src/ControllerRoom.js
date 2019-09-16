@@ -221,33 +221,32 @@ ControllerRoom.prototype.roomResources = function () {
 				'id': n.id
 			};
 		}
-		// TODO no static value for 20000
-		let [sto] = this.getStorage();
-		if (sto) {
-			let amount = 0;
-			if (sto.store['energy'] === undefined || sto.store['energy'] <= 20000) {
-				prio = 55;
-				amount = 20000 - sto.store['energy'];
-			} else {
-				prio = 100;
-				amount = 100000 - sto.store['energy'];
-			}
-			this._roomResources[sto.id + "|energy"] = {
-				'priority': prio,
-				'structureType': sto.structureType,
-				'resourceType': "energy",
-				'amount': amount * -1,
-				'id': sto.id
-			};
 
-		}
-		// TODO no static value for 50000
-		let [ter] = this.getTerminal();
-		if (ter) {
+		/* 		if (sto) {
+					let amount = 0;
+					if (sto.store['energy'] === undefined || sto.store['energy'] <= minEnergyThreshold) {
+						prio = 55;
+						amount = minEnergyThreshold - sto.store['energy'];
+					} else {
+						prio = 100;
+						amount = 100000 - sto.store['energy'];
+					}
+					this._roomResources[sto.id + "|energy"] = {
+						'priority': prio,
+						'structureType': sto.structureType,
+						'resourceType': "energy",
+						'amount': amount * -1,
+						'id': sto.id
+					};
+
+				} */
+
+
+		/* if (ter) {
 			let amount = 0;
-			if (ter.store['energy'] === undefined || ter.store['energy'] <= 50000) {
+			if (ter.store['energy'] === undefined || ter.store['energy'] <= minResourceThreshold) {
 				prio = 40;
-				amount = 50000 - ter.store['energy'];
+				amount = minResourceThreshold - ter.store['energy'];
 			} else {
 				prio = 115;
 				amount = ter.storeCapacity - _.sum(ter.store);
@@ -260,36 +259,66 @@ ControllerRoom.prototype.roomResources = function () {
 				'id': ter.id
 			};
 
-		}
-		// Need Resources
+		} */
+
+		// Need Resources + Energy
 
 		// TODO Add labs
-		// TODO Here is also energy included. not good... 
-		if (sto) {
+		let minResourceThreshold = g.getFixedValue('minResourceThreshold');
+		let minEnergyThreshold = g.getFixedValue('minEnergyThreshold');
+
+		let [sto] = this.getStorage();
+		let [ter] = this.getTerminal();
+
+		if (sto && _.sum(sto.store) < sto.storeCapacity) {
 			for (var r of RESOURCES_ALL) {
-				if (sto.store[r] === undefined || sto.store[r] < 20000) {
-					this._roomResources[sto.id + "|" + r] = {
-						'priority': 80,
-						'structureType': sto.structureType,
-						'resourceType': r,
-						'amount': 20000 - (sto.store[r] || 0),
-						'id': sto.id
-					};
+				let amount = 0;
+				if (r === 'energy' && sto.store[r] === undefined || sto.store[r] < minEnergyThreshold) {
+					prio = 55;
+					amount = -1 * (minEnergyThreshold - (sto.store[r] || 0));
+				} else if (r === 'energy' && sto.store[r] === undefined || sto.store[r] < 100000) {
+					prio = 100;
+					amount = -1 * (100000 - (sto.store[r] || 0));
+				} else if (r !== 'energy' && sto.store[r] < minResourceThreshold) {
+					prio = 80;
+					amount = -1 * (minResourceThreshold - sto.store[r]);
+
+				} else {
+					continue;
 				}
+
+				this._roomResources[sto.id + "|" + r] = {
+					'priority': prio,
+					'structureType': sto.structureType,
+					'resourceType': r,
+					'amount': amount,
+					'id': sto.id
+				};
 			}
 		}
 
-		if (ter) {
+		if (ter && _.sum(ter.store) < ter.storeCapacity) {
 			for (var r of RESOURCES_ALL) {
-				if (_.sum(ter.store) < ter.storeCapacity) {
-					this._roomResources[ter.id + "|" + r] = {
-						'priority': 105,
-						'structureType': ter.structureType,
-						'resourceType': r,
-						'amount': ter.storeCapacity - _.sum(ter.store),
-						'id': ter.id
-					};
+				let amount = 0;
+				if (r === 'energy' && ter.store[r] === undefined || ter.store[r] < minEnergyThreshold) {
+					prio = 40;
+					amount = -1 * (minEnergyThreshold - (ter.store[r] || 0));
+				} else if (r === 'energy') {
+					prio = 115;
+					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
+				} else if (r !== 'energy') {
+					prio = 105;
+					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
+
 				}
+				this._roomResources[ter.id + "|" + r] = {
+					'priority': prio,
+					'structureType': ter.structureType,
+					'resourceType': r,
+					'amount': amount,
+					'id': ter.id
+				};
+
 			}
 		}
 		// Give Resources
@@ -367,12 +396,12 @@ ControllerRoom.prototype.roomResources = function () {
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === "energy" && sto.store[r] <= 20000) {
+				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
 					prio = 35;
 					amount = sto.store[r]
-				} else if (r === "energy" && sto.store[r] > 20000) {
+				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
 					prio = 95;
-					amount = sto.store[r] - 20000;
+					amount = sto.store[r] - minEnergyThreshold;
 				} else {
 					prio = 77;
 					amount = sto.store[r];
@@ -392,20 +421,25 @@ ControllerRoom.prototype.roomResources = function () {
 
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
-				if (r === "energy" && ter.store[r].amount > 50000) {
-					prio = 110
+				let amount = 0;
+				if (r === "energy" && ter.store[r].amount > minEnergyThreshold) {
+					prio = 110;
+					amount = _.sum(ter.store[r] - minEnergyThreshold);
+				} else if (r !== "energy" && ter.store[r] > 0) {
+					prio = 102;
+					amount = ter.store[r];
 				} else {
-					prio = 102
+					continue;
 				}
-				if (ter.store[r] !== undefined) {
-					this._roomResources[ter.id + "| " + r] = {
-						'priority': prio,
-						'structureType': ter.structureType,
-						'resourceType': r,
-						'amount': ter.store[r],
-						'id': ter.id
-					};
-				}
+
+				this._roomResources[ter.id + "| " + r] = {
+					'priority': prio,
+					'structureType': ter.structureType,
+					'resourceType': r,
+					'amount': amount,
+					'id': ter.id
+				};
+
 			}
 		}
 

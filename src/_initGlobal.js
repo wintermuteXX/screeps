@@ -99,8 +99,8 @@ function initGlobal(g) {
     'noAnalyseLimit': 100,
     'minCreditThreshold': 50000,
     'buyEnergyOrder': 20,
-    'minEnergyThreshold': 50000
-
+    'minEnergyThreshold': 50000,
+    'minResourceThreshold': 20000
   };
 
   g.getFixedValue = function (key) {
