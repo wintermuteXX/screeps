@@ -376,20 +376,18 @@ ControllerRoom.prototype.roomResources = function () {
 		}
 
 		_.each(containers, function (c) {
-			if (c && c.store) {
-				if (c.store !== undefined) {
-					_.each(c.store, function (amount, resourceType) {
-						if (amount > 200) {
-							this._roomResources[c.id + "| " + resourceType] = {
-								'priority': 155,
-								'resourceType': resourceType,
-								'structureType': c.structureType,
-								'amount': amount,
-								'id': c.id
-							};
+			if (c && c.store && c.store !== undefined) {
+				_.each(c.store, function (amount, resourceType) {
+					if (amount > 200) {
+						this._roomResources[c.id + "| " + resourceType] = {
+							'priority': 155,
+							'resourceType': resourceType,
+							'structureType': c.structureType,
+							'amount': amount,
+							'id': c.id
 						};
-					});
-				}
+					};
+				});
 			}
 		});
 
