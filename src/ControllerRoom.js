@@ -108,7 +108,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let prio = 50;
 
-		// Need Energy
+		// Need Resources
 		if (this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller.ticksToDowngrade < 1000) {
@@ -222,48 +222,8 @@ ControllerRoom.prototype.roomResources = function () {
 			};
 		}
 
-		/* 		if (sto) {
-					let amount = 0;
-					if (sto.store['energy'] === undefined || sto.store['energy'] <= minEnergyThreshold) {
-						prio = 55;
-						amount = minEnergyThreshold - sto.store['energy'];
-					} else {
-						prio = 100;
-						amount = 100000 - sto.store['energy'];
-					}
-					this._roomResources[sto.id + "|energy"] = {
-						'priority': prio,
-						'structureType': sto.structureType,
-						'resourceType': "energy",
-						'amount': amount * -1,
-						'id': sto.id
-					};
-
-				} */
-
-
-		/* if (ter) {
-			let amount = 0;
-			if (ter.store['energy'] === undefined || ter.store['energy'] <= minResourceThreshold) {
-				prio = 40;
-				amount = minResourceThreshold - ter.store['energy'];
-			} else {
-				prio = 115;
-				amount = ter.storeCapacity - _.sum(ter.store);
-			}
-			this._roomResources[ter.id + "|energy"] = {
-				'priority': prio,
-				'structureType': ter.structureType,
-				'resourceType': "energy",
-				'amount': amount * -1,
-				'id': ter.id
-			};
-
-		} */
-
-		// Need Resources + Energy
-
 		// TODO Add labs
+
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
 
@@ -321,6 +281,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 			}
 		}
+
 		// Give Resources
 
 		this.find(FIND_TOMBSTONES).forEach(tombstone => {
@@ -338,6 +299,7 @@ ControllerRoom.prototype.roomResources = function () {
 		});
 
 		// Links
+		// TEST does link work? () looks wrong
 		for (var l of _.filter(this.links.receivers, function (l) {
 				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 			})) {
@@ -420,9 +382,9 @@ ControllerRoom.prototype.roomResources = function () {
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === "energy" && ter.store[r].amount > minEnergyThreshold) {
+				if (r === "energy" && ter.store[r] > minEnergyThreshold) {
 					prio = 110;
-					amount = _.sum(ter.store[r] - minEnergyThreshold);
+					amount = ter.store[r] - minEnergyThreshold;
 				} else if (r !== "energy" && ter.store[r] > 0) {
 					prio = 102;
 					amount = ter.store[r];
