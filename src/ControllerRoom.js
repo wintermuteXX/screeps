@@ -264,8 +264,8 @@ ControllerRoom.prototype.roomResources = function () {
 		// Need Resources + Energy
 
 		// TODO Add labs
-		let minResourceThreshold = g.getFixedValue('minResourceThreshold');
-		let minEnergyThreshold = g.getFixedValue('minEnergyThreshold');
+		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
+		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
 
 		let [sto] = this.getStorage();
 		let [ter] = this.getTerminal();
