@@ -1,3 +1,5 @@
+// LONGTERM Sell + Buy at Market
+
 function ControllerTerminal(rc) {
     this.room = rc;
     this.terminal = this.room.getTerminal();

@@ -18,7 +18,6 @@ Game.profiler.background([functionFilter]);
 */
 
 // LONGTERM Remote Mining (there was a formula for calculation if RH makes sense)
-// LONGTERM Sell + Buy at Market
 // LONGTERM Harvest Power
 // LONGTERM test attack behavior
 // LONGTERM spawn defenders if attacked

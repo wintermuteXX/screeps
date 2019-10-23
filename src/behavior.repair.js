@@ -1,5 +1,6 @@
 var Behavior = require("_behavior");
 
+// TODO Move to RC and find better name
 function findStructures(rc) {
   // TODO First repair Ramparts! Not walls...
   // TODO Do not repair walls/ramparts if RCL < 3?
