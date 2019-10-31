@@ -21,6 +21,7 @@ ControllerLab.prototype.findLabPartner = function () {
         for (let i = 1; i < 2; i++) {
             _.shuffle(noStatusLabs)
             Log.debug(`calculates array ${noStatusLabs} labs`, "ControllerLab");
+            Log.debug(`${noStatusLabs[0].pos} is Position`, "ControllerLab");
             if (noStatusLabs[0].pos.inRangeTo(noStatusLabs[1].pos, 2)) {
                 Log.debug(`${noStatusLabs[0]} is in Range to ${noStatusLabs[1]}`, "ControllerLab");
 
