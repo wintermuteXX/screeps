@@ -10,14 +10,19 @@ ControllerLab.prototype.findLabPartner = function () {
     for (let i in this.labs) {
         let theLab = this.labs[i];
         if (theLab.memory.status == undefined || theLab.memory.status == null) {
-            Log.debug(`${theLab} has no status. Calculate status...`, "ControllerLab");
-            noStatusLabs.push(theLab);
+            Log.debug(`${this.room.name} has a lab ${theLab} with no status`, "ControllerLab");
+            noStatusLabs.push(noStatusLabs);
         }
     }
 
-    if (noStatusLabs.length > 0) {
-        Log.debug(`${this.room.name} Calculate Status for ${noStatusLabs.length} labs`, "ControllerLab");
+    if (noStatusLabs.length >= 3) {
+        Log.debug(`${this.room.name} calculate status for ${noStatusLabs.length} labs`, "ControllerLab");
 
+        for (let i = 1; i < 10; i++) {
+            _.shuffle(noStatusLabs)
+            Log.debug(`${this.room.name} calculates array ${noStatusLabs} labs`, "ControllerLab");
+
+        }
     }
 
 };
