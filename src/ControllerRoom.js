@@ -65,7 +65,7 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.buyEnergyOrder();
 	}
 
-	this.labs.findLabPartner();
+	// this.labs.findLabPartner();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
