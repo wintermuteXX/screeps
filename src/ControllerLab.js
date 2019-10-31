@@ -19,7 +19,7 @@ ControllerLab.prototype.findLabPartner = function () {
         _.shuffle(noStatusLabs)
         noStatusLabs.length = noStatusLabs.length - (noStatusLabs.length % 3)
         Log.debug(`calculate status for ${noStatusLabs.length} labs`, "ControllerLab");
-        for (let i = 0; i < noStatusLabs.length; i++) {
+        for (let i = 0; i < noStatusLabs.length; i += 3) {
 
             if (noStatusLabs[i].pos.inRangeTo(noStatusLabs[i + 1].pos, 2) && noStatusLabs[i].pos.inRangeTo(noStatusLabs[i + 2].pos, 2)) {
                 Log.debug(`${noStatusLabs[i]} is in Range to ${noStatusLabs[i+1]} and ${noStatusLabs[i+2]}`, "ControllerLab");
