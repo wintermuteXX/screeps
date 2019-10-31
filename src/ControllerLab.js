@@ -11,7 +11,7 @@ ControllerLab.prototype.findLabPartner = function () {
         let theLab = this.labs[i];
         if (theLab.memory.status == undefined || theLab.memory.status == null) {
             // Log.debug(`has a lab ${theLab} with no status`, "ControllerLab");
-            noStatusLabs.push(noStatusLabs);
+            noStatusLabs.push(theLab);
         }
     }
 
