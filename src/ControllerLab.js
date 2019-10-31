@@ -17,7 +17,7 @@ ControllerLab.prototype.findLabPartner = function () {
     // You need at least 3 labs for a reaction
     if (noStatusLabs.length >= 3) {
         _.shuffle(noStatusLabs)
-        let test = noStatusLabs.length %= 3
+        let test = noStatusLabs.length % 3
         Log.debug(`calculate status for ${noStatusLabs.length} labs which is modulo ${test}`, "ControllerLab");
         for (let i = 0; i < noStatusLabs.length; i++) {
 
