@@ -14,9 +14,9 @@ ControllerLab.prototype.findLabPartner = function () {
         }
     }
 
-    // You need at least 3 labs for a reaction
+    // You need at least 3 labs without status to find a partner
     if (noStatusLabs.length >= 3) {
-        _.shuffle(noStatusLabs)
+        noStatusLabs = _.shuffle(noStatusLabs)
         // Remove array items if array can not be divided by 3
         noStatusLabs.length = noStatusLabs.length - (noStatusLabs.length % 3)
         var error = 0;
@@ -33,8 +33,9 @@ ControllerLab.prototype.findLabPartner = function () {
             }
         }
 
-        // Set status + Labpartner in Memory
-        if (error = 0) {
+        // Set status + labpartner in memory
+        if (error == 0) {
+            Log.success(`Finding labpartners was successfull`, "ControllerLab");
             for (let j = 0; j < noStatusLabs.length; j += 3) {
                 noStatusLabs[j].memory.status = "empty"
                 noStatusLabs[j + 1].memory.status = "empty"
