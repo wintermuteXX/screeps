@@ -17,7 +17,7 @@ Game.profiler.email(ticks, [functionFilter]);
 Game.profiler.background([functionFilter]);
 */
 
-// LONGTERM Remote Mining (there was a formula for calculation if RH makes sense)
+// LONGTERM Remote Mining (there was a formula for calculation if RM makes sense)
 // LONGTERM Harvest Power
 // LONGTERM test attack behavior
 // LONGTERM spawn defenders if attacked
@@ -28,8 +28,9 @@ Game.profiler.background([functionFilter]);
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
-global.Log = require('Log')
+global.Log = require('Log');
 var stats = require('ControllerStats');
+// var visual = require('RoomVisual');
 
 // profiler.enable();
 module.exports.loop = function () {

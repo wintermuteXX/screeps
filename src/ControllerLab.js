@@ -2,9 +2,10 @@ function ControllerLab(rc) {
     this.room = rc;
     this.labs = this.room.getLabs();
 }
+// TODO implement Lab Code
 
 ControllerLab.prototype.findLabPartner = function () {
-    // TODO implement Lab Code
+
     var noStatusLabs = []
 
     for (let i in this.labs) {
