@@ -20,6 +20,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   var flag = findFlag(rc);
   if (flag) {
+    // TODO should prefer Highway Rooms
     creep.travelTo(flag);
   }
 };
