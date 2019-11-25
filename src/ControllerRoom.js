@@ -163,7 +163,7 @@ ControllerRoom.prototype.givesResources = function () {
 			containers.push(this.room.extractor.container)
 		}
 
-		containers.forEach(c => {
+		_.each(containers, function (c) {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
 					if (amount > 200) {
