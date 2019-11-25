@@ -232,7 +232,7 @@ ControllerRoom.prototype.givesResources = function () {
 			}
 		}
 	}
-	console.log(this.room.name + " " + JSON.stringify(this._givesResources, null, 4));
+	//console.log(this.room.name + " " + JSON.stringify(this._givesResources, null, 4));
 	return this._givesResources;
 }
 
@@ -418,7 +418,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 	}
 
-	console.log(this.room.name + " " + JSON.stringify(this._needsResources, null, 4));
+	//console.log(this.room.name + " " + JSON.stringify(this._needsResources, null, 4));
 	return this._needsResources;
 };
 
