@@ -101,10 +101,144 @@ ControllerRoom.prototype.populate = function () {
 	}
 };
 
+
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
-ControllerRoom.prototype.roomResources = function () {
-	if (!this._roomResources) {
-		this._roomResources = {};
+ControllerRoom.prototype.givesResources = function () {
+	if (!this._givesResources) {
+		this._givesResources = {};
+
+		let prio = 50;
+
+		this.find(FIND_TOMBSTONES).forEach(tombstone => {
+			_.each(tombstone.store, function (amount, resourceType) {
+				if (amount > 100) {
+					this._givesResources[tombstone.id + "|" + resourceType] = {
+						'priority': 130,
+						'resourceType': resourceType,
+						'structureType': tombstone.structureType,
+						'amount': amount,
+						'id': tombstone.id
+					};
+				};
+			});
+		});
+
+		// Links
+		// TEST does link work? () looks wrong
+		for (var l of _.filter(this.links.receivers, function (l) {
+				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
+			})) {
+			this._givesResources[l.id + "|energy"] = {
+				'priority': 160,
+				'resourceType': "energy",
+				'structureType': l.structureType,
+				'amount': l.energy,
+				'id': l.id
+			};
+		}
+
+		// Dropped Resources
+		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
+				this._givesResources[s.id + "|" + s.resourceType] = {
+					'priority': 145,
+					'resourceType': s.resourceType,
+					'amount': s.amount,
+					'id': s.id
+				};
+			};
+		}
+
+		// Containers
+		var containers = []
+		var sources = this.getSources();
+		for (var s of sources) {
+			if (s) {
+				containers.push(s.container)
+			};
+		};
+
+		if (this.room.extractor && this.room.extractor.container) {
+			containers.push(this.room.extractor.container)
+		}
+
+		containers.forEach(c => {
+			if (c && c.store && c.store !== undefined) {
+				_.each(c.store, function (amount, resourceType) {
+					if (amount > 200) {
+						this._givesResources[c.id + "| " + resourceType] = {
+							'priority': 155,
+							'resourceType': resourceType,
+							'structureType': c.structureType,
+							'amount': amount,
+							'id': c.id
+						};
+					};
+				});
+			}
+		});
+		let [sto] = this.getStorage();
+		let [ter] = this.getTerminal();
+
+		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
+
+		if (sto) {
+			for (var r of RESOURCES_ALL) {
+				let amount = 0;
+				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
+					prio = 35;
+					amount = sto.store[r]
+				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
+					prio = 95;
+					amount = sto.store[r] - minEnergyThreshold;
+				} else {
+					prio = 77;
+					amount = sto.store[r];
+				} // Minerals
+
+				if (sto.store[r] > 0) {
+					this._givesResources[sto.id + "| " + r] = {
+						'priority': prio,
+						'structureType': sto.structureType,
+						'resourceType': r,
+						'amount': amount,
+						'id': sto.id
+					};
+				}
+			}
+		}
+
+		if (ter) {
+			for (var r of RESOURCES_ALL) {
+				let amount = 0;
+				if (r === "energy" && ter.store[r] > minEnergyThreshold) {
+					prio = 110;
+					amount = ter.store[r] - minEnergyThreshold;
+				} else if (r !== "energy" && ter.store[r] > 0) {
+					prio = 102;
+					amount = ter.store[r];
+				} else {
+					continue;
+				}
+
+				this._givesResources[ter.id + "| " + r] = {
+					'priority': prio,
+					'structureType': ter.structureType,
+					'resourceType': r,
+					'amount': amount,
+					'id': ter.id
+				};
+
+			}
+		}
+	}
+	console.log(this.room.name + " " + JSON.stringify(this._givesResources, null, 4));
+	return this._givesResources;
+}
+
+ControllerRoom.prototype.needsResources = function () {
+	if (!this._needsResources) {
+		this._needsResources = {};
 
 		let prio = 50;
 
@@ -118,7 +252,7 @@ ControllerRoom.prototype.roomResources = function () {
 		if (!this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
-				this._roomResources[u.id + "|energy"] = {
+				this._needsResources[u.id + "|energy"] = {
 					'priority': prio,
 					'resourceType': "energy",
 					'amount': (u.energyCapacity - u.energy) * -1,
@@ -129,7 +263,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
-			this._roomResources[con.id + "|energy"] = {
+			this._needsResources[con.id + "|energy"] = {
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
@@ -140,7 +274,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let spa = this.getSpawnsNotFull();
 		for (var s of spa) {
-			this._roomResources[s.id + "|energy"] = {
+			this._needsResources[s.id + "|energy"] = {
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
@@ -151,7 +285,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let ext = this.getExtensionsNotFull();
 		for (var l of ext) {
-			this._roomResources[l.id + "|energy"] = {
+			this._needsResources[l.id + "|energy"] = {
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
@@ -169,7 +303,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let tow = this.getTowersNotFull();
 		for (var t of tow) {
-			this._roomResources[t.id + "|energy"] = {
+			this._needsResources[t.id + "|energy"] = {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
@@ -180,7 +314,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			this._roomResources[constr.id + "|energy"] = {
+			this._needsResources[constr.id + "|energy"] = {
 				'priority': 45,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
@@ -191,7 +325,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
-			this._roomResources[l.id + "|energy"] = {
+			this._needsResources[l.id + "|energy"] = {
 				'priority': 70,
 				'structureType': l.structureType,
 				'resourceType': "energy",
@@ -202,7 +336,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
-			this._roomResources[p.id + "|energy"] = {
+			this._needsResources[p.id + "|energy"] = {
 				'priority': 85,
 				'structureType': p.structureType,
 				'resourceType': "energy",
@@ -213,7 +347,7 @@ ControllerRoom.prototype.roomResources = function () {
 
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
-			this._roomResources[n.id + "|energy"] = {
+			this._needsResources[n.id + "|energy"] = {
 				'priority': 90,
 				'structureType': n.structureType,
 				'resourceType': "energy",
@@ -247,7 +381,7 @@ ControllerRoom.prototype.roomResources = function () {
 					continue;
 				}
 
-				this._roomResources[sto.id + "|" + r] = {
+				this._needsResources[sto.id + "|" + r] = {
 					'priority': prio,
 					'structureType': sto.structureType,
 					'resourceType': r,
@@ -271,128 +405,7 @@ ControllerRoom.prototype.roomResources = function () {
 					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
 
 				}
-				this._roomResources[ter.id + "|" + r] = {
-					'priority': prio,
-					'structureType': ter.structureType,
-					'resourceType': r,
-					'amount': amount,
-					'id': ter.id
-				};
-
-			}
-		}
-
-		// Give Resources
-
-		this.find(FIND_TOMBSTONES).forEach(tombstone => {
-			_.each(tombstone.store, function (amount, resourceType) {
-				if (amount > 100) {
-					this._roomResources[tombstone.id + "|" + resourceType] = {
-						'priority': 130,
-						'resourceType': resourceType,
-						'structureType': tombstone.structureType,
-						'amount': amount,
-						'id': tombstone.id
-					};
-				};
-			});
-		});
-
-		// Links
-		// TEST does link work? () looks wrong
-		for (var l of _.filter(this.links.receivers, function (l) {
-				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
-			})) {
-			this._roomResources[l.id + "|energy"] = {
-				'priority': 160,
-				'resourceType': "energy",
-				'structureType': l.structureType,
-				'amount': l.energy,
-				'id': l.id
-			};
-		}
-
-		// Dropped Resources
-		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-				this._roomResources[s.id + "|" + s.resourceType] = {
-					'priority': 145,
-					'resourceType': s.resourceType,
-					'amount': s.amount,
-					'id': s.id
-				};
-			};
-		}
-
-		// Containers
-		var containers = []
-		var sources = this.getSources();
-		for (var s of sources) {
-			if (s) {
-				containers.push(s.container)
-			};
-		};
-
-		if (this.room.extractor && this.room.extractor.container) {
-			containers.push(this.room.extractor.container)
-		}
-
-		containers.forEach(c => {
-			if (c && c.store && c.store !== undefined) {
-				_.each(c.store, function (amount, resourceType) {
-					if (amount > 200) {
-						this._roomResources[c.id + "| " + resourceType] = {
-							'priority': 155,
-							'resourceType': resourceType,
-							'structureType': c.structureType,
-							'amount': amount,
-							'id': c.id
-						};
-					};
-				});
-			}
-		});
-
-		if (sto) {
-			for (var r of RESOURCES_ALL) {
-				let amount = 0;
-				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
-					prio = 35;
-					amount = sto.store[r]
-				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
-					prio = 95;
-					amount = sto.store[r] - minEnergyThreshold;
-				} else {
-					prio = 77;
-					amount = sto.store[r];
-				} // Minerals
-
-				if (sto.store[r] > 0) {
-					this._roomResources[sto.id + "| " + r] = {
-						'priority': prio,
-						'structureType': sto.structureType,
-						'resourceType': r,
-						'amount': amount,
-						'id': sto.id
-					};
-				}
-			}
-		}
-
-		if (ter) {
-			for (var r of RESOURCES_ALL) {
-				let amount = 0;
-				if (r === "energy" && ter.store[r] > minEnergyThreshold) {
-					prio = 110;
-					amount = ter.store[r] - minEnergyThreshold;
-				} else if (r !== "energy" && ter.store[r] > 0) {
-					prio = 102;
-					amount = ter.store[r];
-				} else {
-					continue;
-				}
-
-				this._roomResources[ter.id + "| " + r] = {
+				this._needsResources[ter.id + "|" + r] = {
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
@@ -405,8 +418,8 @@ ControllerRoom.prototype.roomResources = function () {
 
 	}
 
-	console.log(this.room.name + " " + JSON.stringify(this._roomResources, null, 4));
-	return this._roomResources;
+	console.log(this.room.name + " " + JSON.stringify(this._needsResources, null, 4));
+	return this._needsResources;
 };
 
 ControllerRoom.prototype.needResources = function () {
