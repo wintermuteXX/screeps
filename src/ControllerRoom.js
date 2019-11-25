@@ -154,7 +154,7 @@ ControllerRoom.prototype.givesResources = function () {
 		var containers = []
 		var sources = this.getSources();
 		for (var s of sources) {
-			if (s) {
+			if (s && s.container) {
 				containers.push(s.container)
 			};
 		};
