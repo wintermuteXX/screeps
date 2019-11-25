@@ -167,7 +167,7 @@ ControllerRoom.prototype.givesResources = function () {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
 					if (amount > 200) {
-						this._givesResources[c.id + "| " + resourceType] = {
+						this._givesResources[c.id + "|" + resourceType] = {
 							'priority': 155,
 							'resourceType': resourceType,
 							'structureType': c.structureType,
@@ -198,7 +198,7 @@ ControllerRoom.prototype.givesResources = function () {
 				} // Minerals
 
 				if (sto.store[r] > 0) {
-					this._givesResources[sto.id + "| " + r] = {
+					this._givesResources[sto.id + "|" + r] = {
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
@@ -222,7 +222,7 @@ ControllerRoom.prototype.givesResources = function () {
 					continue;
 				}
 
-				this._givesResources[ter.id + "| " + r] = {
+				this._givesResources[ter.id + "|" + r] = {
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
