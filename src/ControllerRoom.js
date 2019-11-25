@@ -51,7 +51,8 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 	this.needResources();
-	// this.roomResources();
+	// this.givesResources();
+	// this.needsResources();
 
 	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
 		this.terminal.internalTrade();
