@@ -200,7 +200,7 @@ ControllerRoom.prototype.givesResources = function () {
 				} // Minerals
 
 				if (sto.store[r] > 0) {
-					this._givesResources[sto.id + "|" + r] = {
+					self._givesResources[sto.id + "|" + r] = {
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
@@ -224,7 +224,7 @@ ControllerRoom.prototype.givesResources = function () {
 					continue;
 				}
 
-				this._givesResources[ter.id + "|" + r] = {
+				self._givesResources[ter.id + "|" + r] = {
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
@@ -240,6 +240,7 @@ ControllerRoom.prototype.givesResources = function () {
 }
 
 ControllerRoom.prototype.needsResources = function () {
+	const self = this;
 	if (!this._needsResources) {
 		this._needsResources = {};
 
@@ -255,7 +256,7 @@ ControllerRoom.prototype.needsResources = function () {
 		if (!this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
-				this._needsResources[u.id + "|energy"] = {
+				self._needsResources[u.id + "|energy"] = {
 					'priority': prio,
 					'resourceType': "energy",
 					'amount': (u.energyCapacity - u.energy) * -1,
@@ -266,7 +267,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
-			this._needsResources[con.id + "|energy"] = {
+			self._needsResources[con.id + "|energy"] = {
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
@@ -277,7 +278,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let spa = this.getSpawnsNotFull();
 		for (var s of spa) {
-			this._needsResources[s.id + "|energy"] = {
+			self._needsResources[s.id + "|energy"] = {
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
@@ -288,7 +289,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let ext = this.getExtensionsNotFull();
 		for (var l of ext) {
-			this._needsResources[l.id + "|energy"] = {
+			self._needsResources[l.id + "|energy"] = {
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
@@ -306,7 +307,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let tow = this.getTowersNotFull();
 		for (var t of tow) {
-			this._needsResources[t.id + "|energy"] = {
+			self._needsResources[t.id + "|energy"] = {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
@@ -317,7 +318,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			this._needsResources[constr.id + "|energy"] = {
+			self._needsResources[constr.id + "|energy"] = {
 				'priority': 45,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
@@ -328,7 +329,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
-			this._needsResources[l.id + "|energy"] = {
+			self._needsResources[l.id + "|energy"] = {
 				'priority': 70,
 				'structureType': l.structureType,
 				'resourceType': "energy",
@@ -339,7 +340,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
-			this._needsResources[p.id + "|energy"] = {
+			self._needsResources[p.id + "|energy"] = {
 				'priority': 85,
 				'structureType': p.structureType,
 				'resourceType': "energy",
@@ -350,7 +351,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
-			this._needsResources[n.id + "|energy"] = {
+			self._needsResources[n.id + "|energy"] = {
 				'priority': 90,
 				'structureType': n.structureType,
 				'resourceType': "energy",
@@ -384,7 +385,7 @@ ControllerRoom.prototype.needsResources = function () {
 					continue;
 				}
 
-				this._needsResources[sto.id + "|" + r] = {
+				self._needsResources[sto.id + "|" + r] = {
 					'priority': prio,
 					'structureType': sto.structureType,
 					'resourceType': r,
@@ -408,7 +409,7 @@ ControllerRoom.prototype.needsResources = function () {
 					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
 
 				}
-				this._needsResources[ter.id + "|" + r] = {
+				self._needsResources[ter.id + "|" + r] = {
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
