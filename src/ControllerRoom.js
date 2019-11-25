@@ -105,6 +105,8 @@ ControllerRoom.prototype.populate = function () {
 
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.givesResources = function () {
+	const self = this;
+
 	if (!this._givesResources) {
 		this._givesResources = {};
 
@@ -113,7 +115,7 @@ ControllerRoom.prototype.givesResources = function () {
 		this.find(FIND_TOMBSTONES).forEach(tombstone => {
 			_.each(tombstone.store, function (amount, resourceType) {
 				if (amount > 100) {
-					this._givesResources[tombstone.id + "|" + resourceType] = {
+					self._givesResources[tombstone.id + "|" + resourceType] = {
 						'priority': 130,
 						'resourceType': resourceType,
 						'structureType': tombstone.structureType,
@@ -129,7 +131,7 @@ ControllerRoom.prototype.givesResources = function () {
 		for (var l of _.filter(this.links.receivers, function (l) {
 				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 			})) {
-			this._givesResources[l.id + "|energy"] = {
+			self._givesResources[l.id + "|energy"] = {
 				'priority': 160,
 				'resourceType': "energy",
 				'structureType': l.structureType,
@@ -141,7 +143,7 @@ ControllerRoom.prototype.givesResources = function () {
 		// Dropped Resources
 		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-				this._givesResources[s.id + "|" + s.resourceType] = {
+				self._givesResources[s.id + "|" + s.resourceType] = {
 					'priority': 145,
 					'resourceType': s.resourceType,
 					'amount': s.amount,
@@ -167,7 +169,7 @@ ControllerRoom.prototype.givesResources = function () {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
 					if (amount > 200) {
-						this._givesResources[c.id + "|" + resourceType] = {
+						self._givesResources[c.id + "|" + resourceType] = {
 							'priority': 155,
 							'resourceType': resourceType,
 							'structureType': c.structureType,
