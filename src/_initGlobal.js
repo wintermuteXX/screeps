@@ -178,6 +178,96 @@ function initGlobal(g) {
     console.log('Totals:', JSON.stringify(sums, null, 3));
   }
 
+  global.marketInfo = function () {
+
+    let amountSell
+    let amountBuy
+    let priceSell
+    let lastPriceSell
+    let priceBuy
+    let lastPriceBuy
+
+
+    result = [];
+    result.push("<table border=\"1\">");
+    result.push('<caption> MARKET\n</caption>');
+    result.push("<tr>");
+    result.push("<th></th>");
+    result.push("<th> MIN SELL PRICE </th>");
+    result.push("<th> AMOUNT ON SELL </th>");
+    result.push("<th> MAX SELL PRICE </th>");
+    result.push("<th> AMOUNT SELL ORDERS </th>");
+    result.push("<th></th>");
+    result.push("<th> MIN BUY PRICE </th>");
+    result.push("<th> AMOUNT ON BUY </th>");
+    result.push("<th> MAX BUY PRICE </th>");
+    result.push("<th> AMOUNT BUY ORDERS </th>");
+    result.push("</tr>");
+
+
+    const orders = Game.market.getAllOrders();
+
+    let test;
+
+    test = _.groupBy(orders, o => o.type);
+
+    for (i in RESOURCES_ALL) {
+
+      resources = RESOURCES_ALL[i]
+
+      orderMinerals = orders.filter(order => order.resourceType == resources)
+
+      ordersSell = orderMinerals.filter(order => order.type == "sell");
+      ordersBuy = orderMinerals.filter(order => order.type == "buy");
+
+      ordersSell.sort((a, b) => a.price - b.price);
+      ordersBuy.sort((a, b) => a.price - b.price);
+
+      if (ordersSell[0] && ordersSell[0].price) {
+        priceSell = ordersSell[0].price;
+        lastPriceSell = ordersSell[ordersSell.length - 1].price
+      } else {
+        priceSell = " - ";
+        lastPriceSell = " - ";
+      }
+
+      if (ordersBuy[0] && ordersBuy[0].price) {
+        priceBuy = ordersBuy[0].price;
+        lastPriceBuy = ordersBuy[ordersBuy.length - 1].price
+      } else {
+        priceBuy = " - ";
+        lastPriceBuy = " - ";
+      }
+
+      if (ordersSell[0] && ordersSell[0].amount) {
+        amountSell = ordersSell[0].amount;
+        if (amountSell > 1000) amountSell = amountSell / 1000 + "K"
+      } else amountSell = " - ";
+
+      if (ordersBuy[0] && ordersBuy[0].amount) {
+        amountBuy = ordersBuy[ordersBuy.length - 1].amount;
+        if (amountBuy > 1000) amountBuy = amountBuy / 1000 + "K"
+
+      } else amountBuy = " - ";
+
+      result.push("<tr>");
+      result.push("<td> " + resourceImg(resources) + " </td>");
+      result.push("<td> " + priceSell + " </td>");
+      result.push("<td> " + amountSell + " </td>");
+      result.push("<td> " + lastPriceSell + " </td>");
+      result.push("<td> " + ordersSell.length + " </td>");
+      result.push("<td> " + resourceImg(resources) + " </td>");
+      result.push("<td> " + priceBuy + " </td>");
+      result.push("<td> " + amountBuy + " </td>");
+      result.push("<td> " + lastPriceBuy + " </td>");
+      result.push("<td> " + ordersBuy.length + " </td>");
+      result.push("</tr>");
+    }
+
+    result = result.join("");
+    return result
+  }
+
   global.json = (x) => JSON.stringify(x, null, 2);
 
   // The function below was developed late last year by @stybbe, published in
