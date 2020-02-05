@@ -182,6 +182,29 @@ function initGlobal(g) {
     return '<a target="_blank" href="https://screeps.com/a/#!/market/all/' + Game.shard.name + '/' + resourceType + '"><img src ="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/' + resourceType + '.png" /></a>';
   };
 
+  global.amountResources = function (resource) {
+    let amount = 0
+    let allStr = []
+
+    for (i in Game.rooms) {
+      room = Game.rooms[i];
+
+      storeStr = room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return (structure.store);
+        }
+      });
+
+      allStr = allStr.concat(storeStr);
+    }
+
+    for (i in allStr) {
+      if (allStr[i].store[resource] > 0) amount += allStr[i].store[resource];
+    }
+
+    return amount
+  }
+
   global.myResources = function (hide = false) {
     let result = [];
     result.push("<table border=\"1\">");
