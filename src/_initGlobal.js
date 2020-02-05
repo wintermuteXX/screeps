@@ -182,6 +182,38 @@ function initGlobal(g) {
     return '<a target="_blank" href="https://screeps.com/a/#!/market/all/' + Game.shard.name + '/' + resourceType + '"><img src ="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/' + resourceType + '.png" /></a>';
   };
 
+  global.myResources = function (hide = false) {
+    let result = [];
+    result.push("<table border=\"1\">");
+    result.push('<caption> RESOURCE\n</caption>');
+    result.push("<tr>");
+    result.push("<th></th>");
+    result.push("<th> AMOUNT </th>");
+    result.push("</tr>");
+
+    for (i in RESOURCES_ALL) {
+
+      let resource = RESOURCES_ALL[i]
+
+      if (!hide) {
+        result.push("<tr>");
+        result.push("<td> " + resourceImg(resource) + " </td>");
+        result.push("<td> " + amountResources(resource) + " </td>");
+        result.push("</tr>");
+      } else {
+        if (amountResources(resource) > 0) {
+          result.push("<tr>");
+          result.push("<td> " + resourceImg(resource) + " </td>");
+          result.push("<td> " + amountResources(resource) + " </td>");
+          result.push("</tr>");
+        }
+      }
+    }
+
+    result = result.join("");
+    return result
+  }
+
   global.marketInfo = function () {
 
     let amountSell
