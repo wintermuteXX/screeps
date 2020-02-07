@@ -266,9 +266,9 @@ function initGlobal(g) {
 
     const orders = Game.market.getAllOrders();
 
-    let test;
+    // let test;
 
-    test = _.groupBy(orders, o => o.type);
+    // test = _.groupBy(orders, o => o.type);
 
     for (i in RESOURCES_ALL) {
 
