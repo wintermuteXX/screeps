@@ -74,7 +74,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
 
             }
         } else {
-            Log.info(`No deals for ${theMineralType} overflow found for room ${terminal.room.name}`, "sellOverflow");
+            Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room.name}`, "sellOverflow");
         }
     }
 };
