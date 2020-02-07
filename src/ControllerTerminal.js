@@ -44,7 +44,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                     // TODO Use switch statement
                     if (result == 0) {
                         cancelOrders = true;
-                        Log.success(`${terminal.room.name} transfers ${sendAmount} of ${resourceType} to ${aroom.name}`, "internalTrade")
+                        Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${aroom.name}`, "internalTrade")
                     }
 
                 }

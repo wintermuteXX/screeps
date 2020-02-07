@@ -221,13 +221,13 @@ function initGlobal(g) {
       if (!hide) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
-        result.push("<td> " + amountResources(resource) + " </td>");
+        result.push("<td align='right'> " + amountResources(resource) + " </td>");
         result.push("</tr>");
       } else {
         if (amountResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
-          result.push("<td> " + amountResources(resource) + " </td>");
+          result.push("<td align='right'> " + amountResources(resource) + " </td>");
           result.push("</tr>");
         }
       }
