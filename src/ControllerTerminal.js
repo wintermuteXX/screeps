@@ -68,7 +68,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
         if (bestOrder !== null) {
             let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
             if (result == OK) {
-                Log.success(`${bestOrder.amount} of ${bestOrder.resourceType} sold to market. Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "sellOverflow");
+                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. \u{1F911} Credits: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "sellOverflow");
             } else {
                 Log.info(`No deal because: ${result}`, "sellOverflow");
 
