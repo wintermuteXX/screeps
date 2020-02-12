@@ -51,6 +51,7 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 	this.needResources();
+	// this.getTransportOrder();
 	// this.givesResources();
 	// this.needsResources();
 
@@ -102,6 +103,16 @@ ControllerRoom.prototype.populate = function () {
 	}
 };
 
+ControllerRoom.prototype.getTransportOrder = function () {
+	let givesResources = this.givesResources();
+	let needsResources = this.needResources();
+
+	for (var g in givesResources) {
+		console.log(givesResources[g]);
+		break;
+	}
+
+};
 
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.givesResources = function () {
