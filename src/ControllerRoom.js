@@ -109,11 +109,10 @@ ControllerRoom.prototype.getTransportOrder = function () {
 	let hit = 0;
 
 	for (var g in givesResources) {
-		console.log(givesResources[g]);
 		for (var n in needsResources) {
 			if (givesResources[g].resourceType === needsResources[n].resourceType) {
-				hit = 1:
-					console.log("Its a match" + givesResources[g].resourceType);
+				hit = 1;
+				console.log("Its a match. Gives: " + givesResources[g].resourceType + "Needs: " + needsResources[n].resourceType);
 			}
 
 		}
