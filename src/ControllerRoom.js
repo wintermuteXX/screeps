@@ -106,13 +106,13 @@ ControllerRoom.prototype.populate = function () {
 ControllerRoom.prototype.getTransportOrder = function () {
 	let givesResources = this.givesResources();
 	let needsResources = this.needResources();
-	let hit = 0;
 
 	for (var g in givesResources) {
+		let give = givesResources[g];
 		for (var n in needsResources) {
-			if (givesResources[g].resourceType === needsResources[n].resourceType) {
-				hit = 1;
-				console.log("Its a match. Gives: " + givesResources[g].resourceType + "Needs: " + needsResources[n].resourceType);
+			let need = needsResources[n];
+			if (give.resourceType === need.resourceType && give.priority > need.priority) {
+				console.log("Its a match. ResourceType: " + need.resourceType + " | StructurType: " + need.structureType + " | Amount: " + need.amount);
 			}
 
 		}
