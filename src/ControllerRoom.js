@@ -112,7 +112,7 @@ ControllerRoom.prototype.getTransportOrder = function () {
 		for (var n in needsResources) {
 			let need = needsResources[n];
 			if (give.resourceType === need.resourceType && give.priority > need.priority) {
-				console.log("Its a match. ResourceType: " + need.resourceType + " | StructurType: " + need.structureType + " | Amount: " + need.amount);
+				Log.debug(`${this.room.name} ${need.structureType} needs ${need.amount} ${need.resourceType} from ${give.structureType} which has ${give.amount}`, "getTransportOrder")
 			}
 
 		}
