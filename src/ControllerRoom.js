@@ -111,7 +111,7 @@ ControllerRoom.prototype.getTransportOrder = function () {
 		let give = givesResources[g];
 		for (var n in needsResources) {
 			let need = needsResources[n];
-			if (give.resourceType === need.resourceType && give.priority > need.priority) {
+			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${need.amount} ${need.resourceType} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
 			}
 
