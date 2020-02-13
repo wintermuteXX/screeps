@@ -105,7 +105,7 @@ ControllerRoom.prototype.populate = function () {
 
 ControllerRoom.prototype.getTransportOrder = function () {
 	let givesResources = this.givesResources();
-	let needsResources = this.needResources();
+	let needsResources = this.needsResources();
 
 	for (var g in givesResources) {
 		let give = givesResources[g];
