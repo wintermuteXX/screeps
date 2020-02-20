@@ -112,7 +112,7 @@ ControllerRoom.prototype.getTransportOrder = function () {
 		for (var n in needsResources) {
 			let need = needsResources[n];
 			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
-				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${need.amount} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
+				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
 			}
 
 		}
@@ -204,6 +204,7 @@ ControllerRoom.prototype.givesResources = function () {
 
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
+				// Energy
 				let amount = 0;
 				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
 					prio = 35;
@@ -212,9 +213,10 @@ ControllerRoom.prototype.givesResources = function () {
 					prio = 95;
 					amount = sto.store[r] - minEnergyThreshold;
 				} else {
+					// Minerals
 					prio = 77;
 					amount = sto.store[r];
-				} // Minerals
+				}
 
 				if (sto.store[r] > 0) {
 					self._givesResources.push({
@@ -279,7 +281,7 @@ ControllerRoom.prototype.needsResources = function () {
 				self._needsResources.push({
 					'priority': prio,
 					'resourceType': "energy",
-					'amount': (u.energyCapacity - u.energy) * -1,
+					'amount': (u.energyCapacity - u.energy),
 					'id': u.id
 				})
 			}
@@ -291,7 +293,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
-				'amount': (con.storeCapacity - _.sum(con.store)) * -1,
+				'amount': (con.storeCapacity - _.sum(con.store)),
 				'id': con.id
 			})
 		}
@@ -302,7 +304,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
-				'amount': (s.energyCapacity - s.energy) * -1,
+				'amount': (s.energyCapacity - s.energy),
 				'id': s.id
 			})
 		}
@@ -313,7 +315,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.energyCapacity - l.energy) * -1,
+				'amount': (l.energyCapacity - l.energy),
 				'id': l.id
 			})
 		}
@@ -330,7 +332,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
-				'amount': (t.energyCapacity - t.energy) * -1,
+				'amount': (t.energyCapacity - t.energy),
 				'id': t.id
 			})
 		}
@@ -341,7 +343,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 45,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
-				'amount': (constr.energyCapacity - constr.energy) * -1,
+				'amount': (constr.energyCapacity - constr.energy),
 				'id': constr.id
 			})
 		}
@@ -352,7 +354,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 70,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.energyCapacity - l.energy) * -1,
+				'amount': (l.energyCapacity - l.energy),
 				'id': l.id
 			})
 		}
@@ -363,7 +365,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 85,
 				'structureType': p.structureType,
 				'resourceType': "energy",
-				'amount': (p.energyCapacity - p.energy) * -1,
+				'amount': (p.energyCapacity - p.energy),
 				'id': p.id
 			})
 		}
@@ -374,7 +376,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 90,
 				'structureType': n.structureType,
 				'resourceType': "energy",
-				'amount': (n.energyCapacity - n.energy) * -1,
+				'amount': (n.energyCapacity - n.energy),
 				'id': n.id
 			})
 		}
@@ -392,13 +394,13 @@ ControllerRoom.prototype.needsResources = function () {
 				let amount = 0;
 				if (r === 'energy' && sto.store[r] === undefined || sto.store[r] < minEnergyThreshold) {
 					prio = 55;
-					amount = -1 * (minEnergyThreshold - (sto.store[r] || 0));
+					amount = minEnergyThreshold - (sto.store[r] || 0);
 				} else if (r === 'energy' && sto.store[r] === undefined || sto.store[r] < 100000) {
 					prio = 100;
-					amount = -1 * (100000 - (sto.store[r] || 0));
+					amount = 100000 - (sto.store[r] || 0);
 				} else if (r !== 'energy' && sto.store[r] < minResourceThreshold) {
 					prio = 80;
-					amount = -1 * (minResourceThreshold - sto.store[r]);
+					amount = minResourceThreshold - sto.store[r];
 
 				} else {
 					continue;
@@ -419,13 +421,13 @@ ControllerRoom.prototype.needsResources = function () {
 				let amount = 0;
 				if (r === 'energy' && ter.store[r] === undefined || ter.store[r] < minEnergyThreshold) {
 					prio = 40;
-					amount = -1 * (minEnergyThreshold - (ter.store[r] || 0));
+					amount = minEnergyThreshold - (ter.store[r] || 0);
 				} else if (r === 'energy') {
 					prio = 115;
-					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
+					amount = ter.storeCapacity - (_.sum(ter.store));
 				} else if (r !== 'energy') {
 					prio = 105;
-					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
+					amount = ter.storeCapacity - (_.sum(ter.store));
 
 				}
 				self._needsResources.push({
