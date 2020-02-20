@@ -436,7 +436,7 @@ ControllerRoom.prototype.needsResources = function () {
 		}
 		// Sortieren nach Prio
 		this._needsResources.sort((a, b) => {
-			return a.priority.localeCompare(b.priority);
+			return a.priority - b.priority;
 		});
 	}
 
