@@ -125,20 +125,20 @@ ControllerRoom.prototype.givesResources = function () {
 	const self = this;
 
 	if (!this._givesResources) {
-		this._givesResources = {};
+		this._givesResources = [];
 
 		let prio = 50;
 
 		this.find(FIND_TOMBSTONES).forEach(tombstone => {
 			_.each(tombstone.store, function (amount, resourceType) {
 				if (amount > 100) {
-					self._givesResources[tombstone.id + "|" + resourceType] = {
+					self._givesResources.push({
 						'priority': 130,
 						'resourceType': resourceType,
 						'structureType': tombstone.structureType,
 						'amount': amount,
 						'id': tombstone.id
-					};
+					})
 				};
 			});
 		});
@@ -148,24 +148,24 @@ ControllerRoom.prototype.givesResources = function () {
 		for (var l of _.filter(this.links.receivers, function (l) {
 				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 			})) {
-			self._givesResources[l.id + "|energy"] = {
+			self._givesResources.push({
 				'priority': 160,
 				'resourceType': "energy",
 				'structureType': l.structureType,
 				'amount': l.energy,
 				'id': l.id
-			};
+			})
 		}
 
 		// Dropped Resources
 		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-				self._givesResources[s.id + "|" + s.resourceType] = {
+				self._givesResources.push({
 					'priority': 145,
 					'resourceType': s.resourceType,
 					'amount': s.amount,
 					'id': s.id
-				};
+				})
 			};
 		}
 
@@ -186,13 +186,13 @@ ControllerRoom.prototype.givesResources = function () {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
 					if (amount > 200) {
-						self._givesResources[c.id + "|" + resourceType] = {
+						self._givesResources.push({
 							'priority': 155,
 							'resourceType': resourceType,
 							'structureType': c.structureType,
 							'amount': amount,
 							'id': c.id
-						};
+						})
 					};
 				});
 			}
@@ -217,13 +217,13 @@ ControllerRoom.prototype.givesResources = function () {
 				} // Minerals
 
 				if (sto.store[r] > 0) {
-					self._givesResources[sto.id + "|" + r] = {
+					self._givesResources.push({
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
 						'amount': amount,
 						'id': sto.id
-					};
+					})
 				}
 			}
 		}
@@ -241,16 +241,19 @@ ControllerRoom.prototype.givesResources = function () {
 					continue;
 				}
 
-				self._givesResources[ter.id + "|" + r] = {
+				self._givesResources.push({
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
 					'amount': amount,
 					'id': ter.id
-				};
+				})
 
 			}
 		}
+		this._givesResources.sort((a, b) => {
+			return b.priority - a.priority;
+		});
 	}
 	//console.log(this.room.name + " " + JSON.stringify(this._givesResources, null, 4));
 	return this._givesResources;
