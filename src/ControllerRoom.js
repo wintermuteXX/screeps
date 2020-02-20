@@ -51,8 +51,8 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 	this.needResources();
-	let test = this.getTransportOrder();
-	console.log(this.room.name + " " + JSON.stringify(test, null, 4));
+	// let test = this.getTransportOrder();
+	// console.log(this.room.name + " " + JSON.stringify(test, null, 4));
 	// this.givesResources();
 	// this.needsResources();
 
