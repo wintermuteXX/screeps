@@ -51,7 +51,8 @@ ControllerRoom.prototype.run = function () {
 
 	this.findResources();
 	this.needResources();
-	// this.getTransportOrder();
+	let test = this.getTransportOrder();
+	console.log(this.room.name + " " + JSON.stringify(test, null, 4));
 	// this.givesResources();
 	// this.needsResources();
 
@@ -113,6 +114,7 @@ ControllerRoom.prototype.getTransportOrder = function () {
 			let need = needsResources[n];
 			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
+				return need;
 			}
 
 		}
