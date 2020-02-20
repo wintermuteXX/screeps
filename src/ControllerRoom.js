@@ -259,11 +259,11 @@ ControllerRoom.prototype.givesResources = function () {
 ControllerRoom.prototype.needsResources = function () {
 	const self = this;
 	if (!this._needsResources) {
-		this._needsResources = {};
+		this._needsResources = [];
+
+		//	this._needsResources.push({ name: '1'});
 
 		let prio = 50;
-
-		// Need Resources
 		if (this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller.ticksToDowngrade < 1000) {
@@ -273,47 +273,46 @@ ControllerRoom.prototype.needsResources = function () {
 		if (!this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
-				self._needsResources[u.id + "|energy"] = {
+				self._needsResources.push({
 					'priority': prio,
 					'resourceType': "energy",
 					'amount': (u.energyCapacity - u.energy) * -1,
 					'id': u.id
-				};
+				})
 			}
 		}
 
 		let con = this.getControllerNotFull();
 		if (con && con != null) {
-			self._needsResources[con.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
 				'amount': (con.storeCapacity - _.sum(con.store)) * -1,
 				'id': con.id
-			};
+			})
 		}
 
 		let spa = this.getSpawnsNotFull();
 		for (var s of spa) {
-			self._needsResources[s.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
 				'amount': (s.energyCapacity - s.energy) * -1,
 				'id': s.id
-			};
+			})
 		}
 
 		let ext = this.getExtensionsNotFull();
 		for (var l of ext) {
-			self._needsResources[l.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
-
-			};
+			})
 		}
 
 		if (this.getEnemys().length > 0) {
@@ -324,57 +323,57 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let tow = this.getTowersNotFull();
 		for (var t of tow) {
-			self._needsResources[t.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
 				'amount': (t.energyCapacity - t.energy) * -1,
 				'id': t.id
-			};
+			})
 		}
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			self._needsResources[constr.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 45,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
 				'amount': (constr.energyCapacity - constr.energy) * -1,
 				'id': constr.id
-			};
+			})
 		}
 
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
-			self._needsResources[l.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 70,
 				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy) * -1,
 				'id': l.id
-			};
+			})
 		}
 
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
-			self._needsResources[p.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 85,
 				'structureType': p.structureType,
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy) * -1,
 				'id': p.id
-			};
+			})
 		}
 
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
-			self._needsResources[n.id + "|energy"] = {
+			self._needsResources.push({
 				'priority': 90,
 				'structureType': n.structureType,
 				'resourceType': "energy",
 				'amount': (n.energyCapacity - n.energy) * -1,
 				'id': n.id
-			};
+			})
 		}
 
 		// TODO Add labs
@@ -402,13 +401,13 @@ ControllerRoom.prototype.needsResources = function () {
 					continue;
 				}
 
-				self._needsResources[sto.id + "|" + r] = {
+				self._needsResources.push({
 					'priority': prio,
 					'structureType': sto.structureType,
 					'resourceType': r,
 					'amount': amount,
 					'id': sto.id
-				};
+				})
 			}
 		}
 
@@ -426,17 +425,19 @@ ControllerRoom.prototype.needsResources = function () {
 					amount = -1 * (ter.storeCapacity - (_.sum(ter.store)));
 
 				}
-				self._needsResources[ter.id + "|" + r] = {
+				self._needsResources.push({
 					'priority': prio,
 					'structureType': ter.structureType,
 					'resourceType': r,
 					'amount': amount,
 					'id': ter.id
-				};
-
+				})
 			}
 		}
-
+		// Sortieren nach Prio
+		this._needsResources.sort((a, b) => {
+			return a.priority.localeCompare(b.priority);
+		});
 	}
 
 	//console.log(this.room.name + " " + JSON.stringify(this._needsResources, null, 4));
