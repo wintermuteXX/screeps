@@ -264,7 +264,6 @@ ControllerRoom.prototype.givesResources = function () {
 			return b.priority - a.priority;
 		});
 	}
-	//console.log(this.room.name + " " + JSON.stringify(this._givesResources, null, 4));
 	return this._givesResources;
 }
 
@@ -273,7 +272,6 @@ ControllerRoom.prototype.needsResources = function () {
 	if (!this._needsResources) {
 		this._needsResources = [];
 
-		//	this._needsResources.push({ name: '1'});
 
 		let prio = 50;
 		if (this.room.controller.ticksToDowngrade < 100) {
@@ -452,8 +450,6 @@ ControllerRoom.prototype.needsResources = function () {
 			return a.priority - b.priority;
 		});
 	}
-
-	//console.log(this.room.name + " " + JSON.stringify(this._needsResources, null, 4));
 	return this._needsResources;
 };
 
