@@ -355,6 +355,7 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
+		// TODO Add labs resources
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
 			self._needsResources.push({
@@ -366,6 +367,7 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
+		// TODO Add power
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			self._needsResources.push({
@@ -377,6 +379,7 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
+		// TODO Add ghodium
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
 			self._needsResources.push({
@@ -387,8 +390,6 @@ ControllerRoom.prototype.needsResources = function () {
 				'id': n.id
 			})
 		}
-
-		// TODO Add labs
 
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
