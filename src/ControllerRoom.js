@@ -135,7 +135,7 @@ ControllerRoom.prototype.givesResources = function () {
 			_.each(tombstone.store, function (amount, resourceType) {
 				if (amount > 100) {
 					self._givesResources.push({
-						'priority': 130,
+						'priority': 165,
 						'resourceType': resourceType,
 						'structureType': tombstone.structureType,
 						'amount': amount,
@@ -151,7 +151,7 @@ ControllerRoom.prototype.givesResources = function () {
 				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 			})) {
 			self._givesResources.push({
-				'priority': 160,
+				'priority': 200,
 				'resourceType': "energy",
 				'structureType': l.structureType,
 				'amount': l.energy,
@@ -160,10 +160,11 @@ ControllerRoom.prototype.givesResources = function () {
 		}
 
 		// Dropped Resources
+		// TODO Do not get every energy pile (maybe > 100?)
 		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
 				self._givesResources.push({
-					'priority': 145,
+					'priority': 170,
 					'resourceType': s.resourceType,
 					'amount': s.amount,
 					'id': s.id
@@ -184,12 +185,13 @@ ControllerRoom.prototype.givesResources = function () {
 			containers.push(this.room.extractor.container)
 		}
 
+		// TODO Do not get from container if energy + link is near
 		_.each(containers, function (c) {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
 					if (amount > 200) {
 						self._givesResources.push({
-							'priority': 155,
+							'priority': 195,
 							'resourceType': resourceType,
 							'structureType': c.structureType,
 							'amount': amount,
@@ -209,14 +211,14 @@ ControllerRoom.prototype.givesResources = function () {
 				// Energy
 				let amount = 0;
 				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
-					prio = 35;
+					prio = 40;
 					amount = sto.store[r]
 				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
-					prio = 95;
+					prio = 120;
 					amount = sto.store[r] - minEnergyThreshold;
 				} else {
 					// Minerals
-					prio = 77;
+					prio = 100;
 					amount = sto.store[r];
 				}
 
@@ -235,11 +237,14 @@ ControllerRoom.prototype.givesResources = function () {
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === "energy" && ter.store[r] > minEnergyThreshold) {
-					prio = 110;
+				if (r === "energy" && ter.store[r] <= minEnergyThreshold) {
+					prio = 35;
+					amount = ter.store[r];
+				} else if (r === "energy" && ter.store[r] > minEnergyThreshold) {
+					prio = 140;
 					amount = ter.store[r] - minEnergyThreshold;
 				} else if (r !== "energy" && ter.store[r] > 0) {
-					prio = 102;
+					prio = 130;
 					amount = ter.store[r];
 				} else {
 					continue;
@@ -342,7 +347,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
 			self._needsResources.push({
-				'priority': 45,
+				'priority': 50,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
 				'amount': (constr.energyCapacity - constr.energy),
@@ -353,7 +358,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
 			self._needsResources.push({
-				'priority': 70,
+				'priority': 75,
 				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.energyCapacity - l.energy),
@@ -364,7 +369,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			self._needsResources.push({
-				'priority': 85,
+				'priority': 110,
 				'structureType': p.structureType,
 				'resourceType': "energy",
 				'amount': (p.energyCapacity - p.energy),
@@ -375,7 +380,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
 			self._needsResources.push({
-				'priority': 90,
+				'priority': 115,
 				'structureType': n.structureType,
 				'resourceType': "energy",
 				'amount': (n.energyCapacity - n.energy),
@@ -395,13 +400,14 @@ ControllerRoom.prototype.needsResources = function () {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
-					prio = 55;
+					prio = 60;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
-				} else if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] >= minEnergyThreshold)) {
-					prio = 100;
+					// TODO Make 100000 configurable
+				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= 100000))) {
+					prio = 125;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
 				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
-					prio = 80;
+					prio = 105;
 					amount = minResourceThreshold - sto.store[r];
 				} else {
 					continue;
@@ -420,14 +426,14 @@ ControllerRoom.prototype.needsResources = function () {
 		if (ter && _.sum(ter.store) < ter.storeCapacity) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && ter.store[r] === undefined || ter.store[r] < minEnergyThreshold) {
-					prio = 40;
+				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < minEnergyThreshold)) {
+					prio = 45;
 					amount = minEnergyThreshold - (ter.store[r] || 0);
 				} else if (r === 'energy') {
-					prio = 115;
+					prio = 145;
 					amount = ter.storeCapacity - (_.sum(ter.store));
 				} else if (r !== 'energy') {
-					prio = 105;
+					prio = 135;
 					amount = ter.storeCapacity - (_.sum(ter.store));
 
 				}
