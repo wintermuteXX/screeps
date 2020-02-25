@@ -394,16 +394,15 @@ ControllerRoom.prototype.needsResources = function () {
 		if (sto && _.sum(sto.store) < sto.storeCapacity) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && sto.store[r] === undefined || sto.store[r] < minEnergyThreshold) {
+				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
 					prio = 55;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
-				} else if (r === 'energy' && sto.store[r] === undefined || sto.store[r] >= minEnergyThreshold) {
+				} else if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] >= minEnergyThreshold)) {
 					prio = 100;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
-				} else if (r !== 'energy' && sto.store[r] < minResourceThreshold) {
+				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
 					prio = 80;
 					amount = minResourceThreshold - sto.store[r];
-
 				} else {
 					continue;
 				}
