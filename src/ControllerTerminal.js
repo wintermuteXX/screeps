@@ -21,6 +21,9 @@ ControllerTerminal.prototype.internalTrade = function () {
                 return;
             // How much can Terminal give away?
             var availableAmount = amount - MIN_AMOUNT;
+            if (availableAmount === 0) {
+                return;
+            }
 
             let myRooms = _.filter(Game.rooms, r => {
                 return r.terminal && r.terminal.my;
