@@ -8,7 +8,7 @@ function ControllerTerminal(rc) {
 // BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 // BUG min_amount should not be needed for source (terminal) -> more for source (room)
 ControllerTerminal.prototype.internalTrade = function () {
-    let MIN_AMOUNT = 20000;
+    let MIN_AMOUNT = 10000;
     let [terminal] = this.terminal;
     if (!terminal) {
         return null;
