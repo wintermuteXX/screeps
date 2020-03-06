@@ -17,13 +17,8 @@ ControllerTerminal.prototype.internalTrade = function () {
 
     if (terminal && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
-            if (cancelOrders || (amount < MIN_AMOUNT))
+            if (cancelOrders || (amount === 0))
                 return;
-            // How much can Terminal give away?
-            var availableAmount = amount - MIN_AMOUNT;
-            if (availableAmount === 0) {
-                return;
-            }
 
             let myRooms = _.filter(Game.rooms, r => {
                 return r.terminal && r.terminal.my;
@@ -32,7 +27,7 @@ ControllerTerminal.prototype.internalTrade = function () {
             for (var r in myRooms) {
                 var aroom = myRooms[r];
                 // Only check other rooms
-                // TEST internalTrade will send 20000 Resources from every terminal, even if there is enough already
+                // TEST internalTrade will send 10000 Resources from every terminal, even if there is enough already
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
@@ -41,7 +36,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 var needed = MIN_AMOUNT - e;
                 if (needed > 0) {
                     // How much will the terminal send?
-                    var sendAmount = Math.min(availableAmount, needed);
+                    var sendAmount = Math.min(amount, needed);
 
                     var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
                     // TODO Use switch statement
