@@ -103,7 +103,7 @@ ControllerRoom.prototype.populate = function () {
 	}
 };
 
-ControllerRoom.prototype.getTransportOrder = function () {
+ControllerRoom.prototype.getTransportOrder = function (Creep) {
 	let givesResources = this.givesResources();
 	let needsResources = this.needsResources();
 
@@ -113,15 +113,24 @@ ControllerRoom.prototype.getTransportOrder = function () {
 			let need = needsResources[n];
 			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
-				const toCreepMemory = Object.assign(give, need);
-				console.log("toCreepMemory: " + toCreepMemory)
-				return toCreepMemory;
+				return give;
 			}
-
 		}
 	}
-
 };
+
+ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
+	let needsResources = this.needsResources();
+
+	for (var n in needsResources) {
+		let need = needsResources[n];
+		if (need.resourceType === Creep.memory.resourceType) {
+			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,give.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getTransportOrder");
+			return need;
+		}
+	}
+};
+
 
 // LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.givesResources = function () {
