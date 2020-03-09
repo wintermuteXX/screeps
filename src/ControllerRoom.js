@@ -56,16 +56,15 @@ ControllerRoom.prototype.run = function () {
 	// this.givesResources();
 	// this.needsResources();
 
-	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 50) {
+	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0 && Game.cpu.tickLimit > 5) {
+		this.terminal.buyEnergyOrder();
+	}
+	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 5) {
 		this.terminal.internalTrade();
 	}
 
-	if (Game.time % global.getFixedValue('sellOverflow') === 0 && Game.cpu.tickLimit > 50) {
+	if (Game.time % global.getFixedValue('sellOverflow') === 0 && Game.cpu.tickLimit > 5) {
 		this.terminal.sellOverflow();
-	}
-
-	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0 && Game.cpu.tickLimit > 50) {
-		this.terminal.buyEnergyOrder();
 	}
 
 	// this.labs.findLabPartner();
@@ -114,7 +113,9 @@ ControllerRoom.prototype.getTransportOrder = function () {
 			let need = needsResources[n];
 			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
-				return need;
+				const toCreepMemory = Object.assign(give, need);
+				console.log("toCreepMemory: " + toCreepMemory)
+				return toCreepMemory;
 			}
 
 		}
