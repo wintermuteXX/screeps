@@ -125,7 +125,7 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 	for (var n in needsResources) {
 		let need = needsResources[n];
 		if (need.resourceType === Creep.memory.resourceType) {
-			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,give.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getTransportOrder");
+			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getTransportOrder");
 			return need;
 		}
 	}
