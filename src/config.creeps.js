@@ -73,6 +73,32 @@ module.exports = {
     }
   },
 
+  "transporter2": {
+    priority: 3,
+    levelMin: 2,
+    minParts: 6,
+    wait4maxEnergy: false,
+    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
+    behaviors: ["get_resources2", "transfer_resources2", "transfer_energy_storage"],
+
+    canBuild: function (rc) {
+      /* var transporters = rc.getAllCreeps('transporter2');
+      let modifier = 0;
+      if (rc.getDroppedResourcesAmount() > 3000) {
+        modifier = 2;
+      } else if (rc.getDroppedResourcesAmount() > 1000) {
+        modifier = 1;
+      }
+      if (rc.getLevel() < 4) {
+        return (transporters.length < (4 + modifier));
+      } else {
+        return (transporters.length < (2 + modifier));
+      } */
+      return false;
+    }
+  },
+
+
   "upgrader": {
     priority: 4,
     levelMin: 1,
