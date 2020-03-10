@@ -32,7 +32,6 @@ b.work = function (creep, rc) {
         creep.amount = job.amount;
         target = creep.getTarget();
         Log.debug(`${creep} will deliver ${job.resourceType} to ${target} `, "transfer_resources2");
-        break;
       }
     }
   };
