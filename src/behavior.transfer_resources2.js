@@ -35,7 +35,7 @@ b.work = function (creep, rc) {
         break;
       }
     }
-  }
+  };
 
   if (target) {
     let result = creep.transfer(target, creepRes);
