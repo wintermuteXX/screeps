@@ -2,14 +2,14 @@ var Behavior = require("_behavior");
 var b = new Behavior("transfer_resources2");
 
 b.when = function (creep, rc) {
-  Log.info(`${creep} is checking "when" in transfer_resources`, "transfer_resources2")
+  Log.debug(`${creep} is checking "when" in transfer_resources`, "transfer_resources2")
   if (rc.getDeliveryOrder(creep) == (null || undefined)) return false;
   if (creep.energy === 0) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
-  Log.info(`${creep} is checking "completed" in transfer_resources`, "transfer_resources2")
+  Log.debug(`${creep} is checking "completed" in transfer_resources`, "transfer_resources2")
   if (creep.energy === 0) return true;
   let tar = creep.getTarget();
   if (!tar) return true;
@@ -17,7 +17,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  Log.info(`${creep} is performing "work" in transfer_resources`, "transfer_resources2")
+  Log.debug(`${creep} is performing "work" in transfer_resources`, "transfer_resources2")
   let target = creep.getTarget();
   let creepRes = _.findKey(creep.carry);
 
