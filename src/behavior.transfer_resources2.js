@@ -23,15 +23,15 @@ b.work = function (creep, rc) {
 
   if (!target || target === null) {
     creep.target = null;
-    let resource = rc.getDeliveryOrder(creep);
-    if (resource !== (null || undefined)) {
+    let job = rc.getDeliveryOrder(creep);
+    if (job !== (null || undefined)) {
 
-      let theObject = Game.getObjectById(resource.id)
-      if (theObject && resource.amount > 0) {
-        creep.target = resource.id;
-        creep.amount = resource.amount;
+      let theObject = Game.getObjectById(job.id)
+      if (theObject && job.amount > 0) {
+        creep.target = job.id;
+        creep.amount = job.amount;
         target = creep.getTarget();
-        Log.debug(`${creep} will deliver ${resource.resourceType} to ${target} `, "transfer_resources2");
+        Log.debug(`${creep} will deliver ${job.resourceType} to ${target} `, "transfer_resources2");
         break;
       }
     }
