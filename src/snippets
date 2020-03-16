@@ -1,5 +1,7 @@
 Code Snippets
 ----------------------------------
+for (var i in RESOURCES_ALL) { Game.market.createOrder({type: ORDER_BUY, resourceType: RESOURCES_ALL[i], price: 0.003, totalAmount: 50000, roomName: "E29S22"});}
+----------------------------------
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedPct', ({ storedTotal, storeCapacity }) => storedTotal / storeCapacity);
 DEFINE_CACHED_GETTER(Structure.prototype, 'storageCapacityAvailable', ({ storedTotal, storeCapacity }) => storeCapacity - storedTotal);
