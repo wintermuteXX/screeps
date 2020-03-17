@@ -387,7 +387,7 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		// TODO Add ghodium
+		/* // TODO Add ghodium
 		let nuk = this.getNukerNotFull();
 		for (var n of nuk) {
 			self._needsResources.push({
@@ -397,7 +397,30 @@ ControllerRoom.prototype.needsResources = function () {
 				'amount': (n.energyCapacity - n.energy),
 				'id': n.id
 			})
+		} */
+
+		let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
+		if (n && n > 0) {
+			self._needsResources.push({
+				'priority': 115,
+				'structureType': this.room.nuker.structureType,
+				'resourceType': "energy",
+				'amount': n,
+				'id': this.room.nuker.id
+			})
 		}
+
+		let n2 = this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM);
+		if (n2 && n2 > 0) {
+			self._needsResources.push({
+				'priority': 115,
+				'structureType': this.room.nuker.structureType,
+				'resourceType': "ghodium",
+				'amount': n2,
+				'id': this.room.nuker.id
+			})
+		}
+
 
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
