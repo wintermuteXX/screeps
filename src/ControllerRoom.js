@@ -415,7 +415,7 @@ ControllerRoom.prototype.needsResources = function () {
 			self._needsResources.push({
 				'priority': 115,
 				'structureType': this.room.nuker.structureType,
-				'resourceType': "ghodium",
+				'resourceType': "G",
 				'amount': n2,
 				'id': this.room.nuker.id
 			})
@@ -982,9 +982,6 @@ ControllerRoom.prototype.getNukerNotFull = function () {
 			return e.getFreeCapacity > 0;
 		});
 	}
-	console.log("Nuker classic: " + this._myNuker);
-	console.log("Nuker new energy: " + this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY));
-	console.log("Nuker new ghodium: " + this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM));
 	return this._myNukerNF;
 };
 
