@@ -938,6 +938,9 @@ ControllerRoom.prototype.getNuker = function () {
 			structureType: STRUCTURE_NUKER
 		});
 	}
+	console.log("Nuker classic: " + this._myNuker);
+	console.log("Nuker new: " + this.room.nuker);
+
 	return this._myNuker;
 };
 
