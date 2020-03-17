@@ -758,6 +758,14 @@ ControllerRoom.prototype.getLevel = function () {
 	return 0;
 };
 
+ControllerRoom.prototype.structureNeedResource = function (structure, resource) {
+	if (structure) {
+		return structure.store.getFreeCapacity(resource);
+	} else {
+		return null;
+	}
+};
+
 ControllerRoom.prototype.getDroppedResourcesAmount = function () {
 	let amount = 0;
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
@@ -951,6 +959,9 @@ ControllerRoom.prototype.getNukerNotFull = function () {
 			return e.getFreeCapacity > 0;
 		});
 	}
+	console.log("Nuker classic: " + this._myNuker);
+	console.log("Nuker new energy: " + this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY));
+	console.log("Nuker new ghodium: " + this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM));
 	return this._myNukerNF;
 };
 
