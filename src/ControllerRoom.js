@@ -932,7 +932,7 @@ ControllerRoom.prototype.getPowerSpawnNotFull = function () {
 	return this._myPowerSpawnNF;
 };
 
-ControllerRoom.prototype.getNuker = function () {
+/* ControllerRoom.prototype.getNuker = function () {
 	if (!this._myNuker) {
 		this._myNuker = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_NUKER
@@ -942,13 +942,13 @@ ControllerRoom.prototype.getNuker = function () {
 	console.log("Nuker new: " + this.room.nuker);
 
 	return this._myNuker;
-};
+}; */
 
 ControllerRoom.prototype.getNukerNotFull = function () {
 	if (!this._myNukerNF) {
-		let nuker = this.getNuker();
+		let nuker = this.room.nuker;
 		this._myNukerNF = _.filter(nuker, function (e) {
-			return e.energy < e.energyCapacity;
+			return e.getFreeCapacity > 0;
 		});
 	}
 	return this._myNukerNF;
