@@ -565,7 +565,8 @@ ControllerRoom.prototype.needResources = function () {
 		};
 	}
 
-	let nuk = this.getNukerNotFull();
+	// REMOVE let nuk = this.getNukerNotFull();
+	let nuk = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
 	for (var n of nuk) {
 		needResources[n.id + "|energy"] = {
 			'resourceType': "energy",
@@ -963,6 +964,7 @@ ControllerRoom.prototype.getPowerSpawnNotFull = function () {
 	return this._myPowerSpawnNF;
 };
 
+// REMOVE 
 /* ControllerRoom.prototype.getNuker = function () {
 	if (!this._myNuker) {
 		this._myNuker = _.filter(this.find(FIND_MY_STRUCTURES), {
