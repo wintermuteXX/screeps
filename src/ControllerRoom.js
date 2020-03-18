@@ -275,7 +275,7 @@ ControllerRoom.prototype.givesResources = function () {
 		});
 	}
 	return this._givesResources;
-}
+};
 
 ControllerRoom.prototype.needsResources = function () {
 	const self = this;

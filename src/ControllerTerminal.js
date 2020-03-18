@@ -117,7 +117,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
             }
         }
         if (orderExists === false) {
-            let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.015, minEnergyThreshold, ter.room.name);
+            let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.025, minEnergyThreshold, ter.room.name);
             switch (result2) {
                 case OK:
                     Log.success(`Created order in room ${ter.room.name} for ${minEnergyThreshold} energy was successful`, "buyEnergyOrder");
