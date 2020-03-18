@@ -567,7 +567,7 @@ ControllerRoom.prototype.needResources = function () {
 
 	// REMOVE let nuk = this.getNukerNotFull();
 	let nuk = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
-	for (var n of nuk) {
+	if (nuk) {
 		needResources[n.id + "|energy"] = {
 			'resourceType': "energy",
 			'amount': n.energyCapacity - n.energy,
