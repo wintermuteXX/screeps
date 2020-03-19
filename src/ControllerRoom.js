@@ -375,7 +375,7 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		// TODO Add power
+		/* // REMOVE TODO Add power
 		let pow = this.getPowerSpawnNotFull();
 		for (var p of pow) {
 			self._needsResources.push({
@@ -385,19 +385,30 @@ ControllerRoom.prototype.needsResources = function () {
 				'amount': (p.energyCapacity - p.energy),
 				'id': p.id
 			})
+		} */
+
+		let p = this.structureNeedResource(this.room.powerspawn, RESOURCE_ENERGY);
+		if (p && p > 0) {
+			self._needsResources.push({
+				'priority': 110,
+				'structureType': this.room.powerspawn.structureType,
+				'resourceType': "energy",
+				'amount': p,
+				'id': this.room.powerspawn.id
+			})
 		}
 
-		/* // TODO Add ghodium
-		let nuk = this.getNukerNotFull();
-		for (var n of nuk) {
+		let p2 = this.structureNeedResource(this.room.powerspawn, RESOURCE_POWER);
+		if (p2 && p2 > 0) {
 			self._needsResources.push({
-				'priority': 115,
-				'structureType': n.structureType,
-				'resourceType': "energy",
-				'amount': (n.energyCapacity - n.energy),
-				'id': n.id
+				'priority': 110,
+				'structureType': this.room.powerspawn.structureType,
+				'resourceType': "power",
+				'amount': p2,
+				'id': this.room.powerspawn.id
 			})
-		} */
+		}
+
 
 		let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
 		if (n && n > 0) {
@@ -574,7 +585,7 @@ ControllerRoom.prototype.needResources = function () {
 			'amount': n.energyCapacity - n.energy,
 			'id': n.id
 		};
-	}*/
+	}
 
 	let pow = this.getPowerSpawnNotFull();
 	for (var p of pow) {
@@ -583,7 +594,7 @@ ControllerRoom.prototype.needResources = function () {
 			'amount': p.energyCapacity - p.energy,
 			'id': p.id
 		};
-	}
+	}*/
 
 	let [sto] = this.getStorageNotFull();
 	if (sto) {
@@ -946,7 +957,7 @@ ControllerRoom.prototype.getLabsNotFull = function () {
 	return this._myLabsNF;
 };
 
-ControllerRoom.prototype.getPowerSpawn = function () {
+/* REMOVE ControllerRoom.prototype.getPowerSpawn = function () {
 	if (!this._myPowerSpawn) {
 		this._myPowerSpawn = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_POWER_SPAWN
@@ -963,19 +974,6 @@ ControllerRoom.prototype.getPowerSpawnNotFull = function () {
 		});
 	}
 	return this._myPowerSpawnNF;
-};
-
-// REMOVE 
-/* ControllerRoom.prototype.getNuker = function () {
-	if (!this._myNuker) {
-		this._myNuker = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_NUKER
-		});
-	}
-	console.log("Nuker classic: " + this._myNuker);
-	console.log("Nuker new: " + this.room.nuker);
-
-	return this._myNuker;
 }; */
 
 ControllerRoom.prototype.getNukerNotFull = function () {
