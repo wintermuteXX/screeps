@@ -3,8 +3,8 @@ var b = new Behavior("transfer_resources2");
 
 b.when = function (creep, rc) {
   Log.debug(`${creep} is checking "when" in transfer_resources`, "transfer_resources2")
-  if (rc.getDeliveryOrder(creep) == (null || undefined)) return false;
   if (creep.energy === 0) return false;
+  if (rc.getDeliveryOrder(creep) == (null || undefined)) return false;
   return true;
 };
 
