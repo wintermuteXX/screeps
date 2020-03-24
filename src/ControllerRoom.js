@@ -111,7 +111,8 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 		let give = givesResources[g];
 		for (var n in needsResources) {
 			let need = needsResources[n];
-			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
+			// TODO getCreeps needs to be better. Should calculate if more amount is needed...
+			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && this.getCreeps(null, give.id).length == 0) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
 				return give;
 			}
@@ -124,8 +125,9 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 
 	for (var n in needsResources) {
 		let need = needsResources[n];
-		if (need.resourceType === Creep.memory.resourceType) {
-			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getTransportOrder");
+		// TODO getCreeps needs to be better. Should calculate if more amount is needed...
+		if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
+			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
 			return need;
 		}
 	}
@@ -351,14 +353,14 @@ ControllerRoom.prototype.needsResources = function () {
 				'id': t.id
 			})
 		}
-
+		// TODO Do not feed full constructors? Will not happen too often
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
 			self._needsResources.push({
 				'priority': 50,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
-				'amount': (constr.energyCapacity - constr.energy),
+				'amount': constr.store.getFreeCapacity(),
 				'id': constr.id
 			})
 		}
@@ -405,7 +407,8 @@ ControllerRoom.prototype.needsResources = function () {
 				'structureType': this.room.powerspawn.structureType,
 				'resourceType': "power",
 				'amount': p2,
-				'id': this.room.powerspawn.id
+				'id': this.room.powerspawn.id,
+				'exact': true
 			})
 		}
 
@@ -428,7 +431,8 @@ ControllerRoom.prototype.needsResources = function () {
 				'structureType': this.room.nuker.structureType,
 				'resourceType': "G",
 				'amount': n2,
-				'id': this.room.nuker.id
+				'id': this.room.nuker.id,
+				'exact': true
 			})
 		}
 
@@ -461,7 +465,8 @@ ControllerRoom.prototype.needsResources = function () {
 					'structureType': sto.structureType,
 					'resourceType': r,
 					'amount': amount,
-					'id': sto.id
+					'id': sto.id,
+					'exact': true
 				})
 			}
 		}
@@ -485,7 +490,8 @@ ControllerRoom.prototype.needsResources = function () {
 					'structureType': ter.structureType,
 					'resourceType': r,
 					'amount': amount,
-					'id': ter.id
+					'id': ter.id,
+					'exact': true
 				})
 			}
 		}
