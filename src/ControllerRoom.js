@@ -118,6 +118,7 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 			}
 		}
 	}
+	return null;
 };
 
 ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
@@ -131,6 +132,7 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 			return need;
 		}
 	}
+	return null;
 };
 
 
