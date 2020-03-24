@@ -58,31 +58,7 @@ module.exports = {
     behaviors: ["renew", "get_resources", "transfer_resources", "transfer_energy_storage"],
 
     canBuild: function (rc) {
-      var transporters = rc.getAllCreeps('transporter');
-      let modifier = 0;
-      if (rc.getDroppedResourcesAmount() > 3000) {
-        modifier = 2;
-      } else if (rc.getDroppedResourcesAmount() > 1000) {
-        modifier = 1;
-      }
-      if (rc.getLevel() < 4) {
-        return (transporters.length < (4 + modifier));
-      } else {
-        return (transporters.length < (2 + modifier));
-      }
-    }
-  },
-
-  "transporter2": {
-    priority: 3,
-    levelMin: 2,
-    minParts: 6,
-    wait4maxEnergy: false,
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["get_resources2", "transfer_resources2"],
-
-    canBuild: function (rc) {
-      /* var transporters = rc.getAllCreeps('transporter2');
+      /* var transporters = rc.getAllCreeps('transporter');
       let modifier = 0;
       if (rc.getDroppedResourcesAmount() > 3000) {
         modifier = 2;
@@ -95,6 +71,30 @@ module.exports = {
         return (transporters.length < (2 + modifier));
       } */
       return false;
+    }
+  },
+
+  "transporter2": {
+    priority: 3,
+    levelMin: 2,
+    minParts: 6,
+    wait4maxEnergy: false,
+    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
+    behaviors: ["renew", "get_resources2", "transfer_resources2"],
+
+    canBuild: function (rc) {
+      var transporters = rc.getAllCreeps('transporter2');
+      let modifier = 0;
+      if (rc.getDroppedResourcesAmount() > 3000) {
+        modifier = 2;
+      } else if (rc.getDroppedResourcesAmount() > 1000) {
+        modifier = 1;
+      }
+      if (rc.getLevel() < 4) {
+        return (transporters.length < (4 + modifier));
+      } else {
+        return (transporters.length < (2 + modifier));
+      }
     }
   },
 
