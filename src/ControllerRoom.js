@@ -288,9 +288,9 @@ ControllerRoom.prototype.needsResources = function () {
 
 
 		let prio = 60;
-		if (this.room.controller.ticksToDowngrade < 100) {
+		if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
-		} else if (this.room.controller.ticksToDowngrade < 1000) {
+		} else if (this.room.controller && this.room.controller.ticksToDowngrade < 1000) {
 			prio = 25;
 		}
 		//	Fill Upgrader directly, if no container in position
