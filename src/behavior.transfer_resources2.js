@@ -41,7 +41,7 @@ b.work = function (creep, rc) {
 
     switch (result) {
       case OK:
-        Log.info(`${creep} successfully gets ${creep.memory.resourceType} from ${target}`, "transfer_resources2");
+        Log.info(`${creep} successfully transfers ${creep.memory.resourceType} to ${target}`, "transfer_resources2");
         creep.target = null;
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
