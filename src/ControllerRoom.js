@@ -454,7 +454,7 @@ ControllerRoom.prototype.needsResources = function () {
 					// TODO Make 100000 configurable
 				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= 100000))) {
 					prio = 125;
-					amount = minEnergyThreshold - (sto.store[r] || 0);
+					amount = 100000 - (sto.store[r] || 0);
 				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
 					prio = 105;
 					amount = minResourceThreshold - sto.store[r];
