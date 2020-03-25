@@ -165,7 +165,6 @@ ControllerRoom.prototype.givesResources = function () {
 		}
 
 		// Dropped Resources
-		// TODO Do not get every energy pile (maybe > 100?)
 		for (var s of this.find(FIND_DROPPED_RESOURCES)) {
 			if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
 				self._givesResources.push({
