@@ -256,7 +256,7 @@ ControllerRoom.prototype.givesResources = function () {
 					amount = ter.store[r];
 				} else if (r === "energy" && ter.store[r] > 50000) {
 					prio = 140;
-					amount = ter.store[r] - minEnergyThreshold;
+					amount = ter.store[r] - 50000;
 				} else if (r !== "energy" && ter.store[r] > 0) {
 					prio = 130;
 					amount = ter.store[r];
