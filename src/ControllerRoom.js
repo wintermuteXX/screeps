@@ -287,7 +287,7 @@ ControllerRoom.prototype.needsResources = function () {
 		this._needsResources = [];
 
 
-		let prio = 50;
+		let prio = 60;
 		if (this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller.ticksToDowngrade < 1000) {
@@ -449,7 +449,7 @@ ControllerRoom.prototype.needsResources = function () {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
-					prio = 60;
+					prio = 55;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
 					// TODO Make 100000 configurable
 				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= 100000))) {
