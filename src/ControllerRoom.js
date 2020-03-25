@@ -287,7 +287,7 @@ ControllerRoom.prototype.needsResources = function () {
 		this._needsResources = [];
 
 
-		let prio = 60;
+		let prio = 65;
 		if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller && this.room.controller.ticksToDowngrade < 1000) {
@@ -342,7 +342,7 @@ ControllerRoom.prototype.needsResources = function () {
 		if (this.getEnemys().length > 0) {
 			prio = 30
 		} else {
-			prio = 65
+			prio = 60
 		}
 
 		let tow = this.getTowersNotFull();
