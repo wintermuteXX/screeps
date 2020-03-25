@@ -230,7 +230,7 @@ ControllerRoom.prototype.givesResources = function () {
 				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
 					prio = 120;
 					amount = sto.store[r] - minEnergyThreshold;
-				} else {
+				} else { // TODO 2 different options needed (prio 100 + 150)
 					// Minerals
 					prio = 100;
 					amount = sto.store[r];
@@ -251,10 +251,10 @@ ControllerRoom.prototype.givesResources = function () {
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === "energy" && ter.store[r] <= minEnergyThreshold) {
+				if (r === "energy" && ter.store[r] <= 50000) {
 					prio = 35;
 					amount = ter.store[r];
-				} else if (r === "energy" && ter.store[r] > minEnergyThreshold) {
+				} else if (r === "energy" && ter.store[r] > 50000) {
 					prio = 140;
 					amount = ter.store[r] - minEnergyThreshold;
 				} else if (r !== "energy" && ter.store[r] > 0) {
