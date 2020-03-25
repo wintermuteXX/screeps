@@ -5,7 +5,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: false,
     body2: [MOVE, WORK, CARRY, MOVE],
-    behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
+    behaviors: ["get_resources2", "harvest", "transfer_resources2", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
@@ -47,33 +47,6 @@ module.exports = {
     }
   },
 
-  // TODO recalculate needed transporters based on resources needed to transport (check queue)
-  // BUG transporter skips a tick after completion of behaviour
-  "transporter": {
-    priority: 3,
-    levelMin: 2,
-    minParts: 6,
-    wait4maxEnergy: false,
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["renew", "get_resources", "transfer_resources", "transfer_energy_storage"],
-
-    canBuild: function (rc) {
-      /* var transporters = rc.getAllCreeps('transporter');
-      let modifier = 0;
-      if (rc.getDroppedResourcesAmount() > 3000) {
-        modifier = 2;
-      } else if (rc.getDroppedResourcesAmount() > 1000) {
-        modifier = 1;
-      }
-      if (rc.getLevel() < 4) {
-        return (transporters.length < (4 + modifier));
-      } else {
-        return (transporters.length < (2 + modifier));
-      } */
-      return false;
-    }
-  },
-
   "transporter2": {
     priority: 3,
     levelMin: 2,
@@ -97,7 +70,6 @@ module.exports = {
       }
     }
   },
-
 
   "upgrader": {
     priority: 4,
@@ -204,7 +176,7 @@ module.exports = {
     minParts: 8,
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ['goto_white_flag', "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
+    behaviors: ['goto_white_flag', "clear_enemy_buildings", "get_resources2", "harvest", "build_structures", "transfer_resources2", "upgrade_controller"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {

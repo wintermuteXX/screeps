@@ -49,13 +49,6 @@ ControllerRoom.prototype.run = function () {
 		}
 	})
 
-	this.findResources();
-	this.needResources();
-	// let test = this.getTransportOrder();
-	// console.log(this.room.name + " " + JSON.stringify(test, null, 4));
-	// this.givesResources();
-	// this.needsResources();
-
 	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0 && Game.cpu.tickLimit > 5) {
 		this.terminal.buyEnergyOrder();
 	}
@@ -135,8 +128,6 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 	return null;
 };
 
-
-// LONGTERM Rework needRessources (not in Memory + calculate creeps who already transport stuff)
 ControllerRoom.prototype.givesResources = function () {
 	const self = this;
 
@@ -230,7 +221,8 @@ ControllerRoom.prototype.givesResources = function () {
 				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
 					prio = 120;
 					amount = sto.store[r] - minEnergyThreshold;
-				} else { // TODO 2 different options needed (prio 100 + 150)
+				} else {
+					// TODO 2 different options needed (prio 100 + 150)
 					// Minerals
 					prio = 100;
 					amount = sto.store[r];
@@ -379,18 +371,6 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		/* // REMOVE TODO Add power
-		let pow = this.getPowerSpawnNotFull();
-		for (var p of pow) {
-			self._needsResources.push({
-				'priority': 110,
-				'structureType': p.structureType,
-				'resourceType': "energy",
-				'amount': (p.energyCapacity - p.energy),
-				'id': p.id
-			})
-		} */
-
 		let p = this.structureNeedResource(this.room.powerspawn, RESOURCE_ENERGY);
 		if (p && p > 0) {
 			self._needsResources.push({
@@ -503,225 +483,6 @@ ControllerRoom.prototype.needsResources = function () {
 		});
 	}
 	return this._needsResources;
-};
-
-ControllerRoom.prototype.needResources = function () {
-	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
-	var memory = this.room.memory;
-	var needResources = {};
-
-	let spa = this.getSpawnsNotFull();
-	for (var s of spa) {
-		needResources[s.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': s.energyCapacity - s.energy,
-			'id': s.id
-		};
-	}
-
-	let ext = this.getExtensionsNotFull();
-	for (var l of ext) {
-		needResources[l.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': l.energyCapacity - l.energy,
-			'id': l.id
-		};
-	}
-
-	let tow = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
-		if (s.structureType === STRUCTURE_TOWER) {
-			return s.energy < (s.energyCapacity - 100);
-		}
-	});
-	for (var t of tow) {
-		needResources[t.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': t.energyCapacity - t.energy,
-			'id': t.id
-		};
-	}
-
-	let constructor = this.getCreeps('constructor')
-	for (var constr of constructor) {
-		if (constr.energyCapacity - constr.energy > 49) {
-			needResources[constr.id + "|energy"] = {
-				'resourceType': "energy",
-				'amount': constr.energyCapacity - constr.energy,
-				'id': constr.id
-			};
-		}
-	}
-
-	//	Fill Upgrader directly, if no container in position
-	if (this.room.controller && !this.room.controller.container) {
-		let upgrader = this.getCreeps('upgrader')
-		for (var u of upgrader) {
-			if (u.energyCapacity - u.energy > 49) {
-				needResources[u.id + "|energy"] = {
-					'resourceType': "energy",
-					'amount': u.energyCapacity - u.energy,
-					'id': u.id
-				};
-			}
-		}
-	}
-
-	let con = this.getControllerNotFull();
-	if (con && con != null) {
-		needResources[con.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': con.storeCapacity - _.sum(con.store),
-			'id': con.id
-		};
-	}
-
-	let lab = this.getLabsNotFull();
-	for (var l of lab) {
-		needResources[l.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': l.energyCapacity - l.energy,
-			'id': l.id
-		};
-	}
-
-	/*
-	// REMOVE let nuk = this.getNukerNotFull();
-	let nuk = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
-	if (nuk) {
-		needResources[n.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': n.energyCapacity - n.energy,
-			'id': n.id
-		};
-	}
-
-	let pow = this.getPowerSpawnNotFull();
-	for (var p of pow) {
-		needResources[p.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': p.energyCapacity - p.energy,
-			'id': p.id
-		};
-	}*/
-
-	let [sto] = this.getStorageNotFull();
-	if (sto) {
-		for (var r of RESOURCES_ALL) {
-			if (sto.store[r] === undefined || sto.store[r] < 20000) {
-				needResources[sto.id + "|" + r] = {
-					'resourceType': r,
-					'amount': 20000 - (sto.store[r] || 0),
-					'id': sto.id
-				};
-			}
-		}
-	}
-	memory.QueueNeededResources = needResources;
-};
-
-ControllerRoom.prototype.findResources = function () {
-	if (Game.time % global.getFixedValue('checkResourcesQueue') !== 0) return;
-	var memory = this.room.memory;
-	var existingResources = {};
-
-	this.find(FIND_TOMBSTONES).forEach(tombstone => {
-		_.each(tombstone.store, function (amount, resourceType) {
-			if (amount > 100) {
-				existingResources[tombstone.id + "|" + resourceType] = {
-					'resourceType': resourceType,
-					'amount': amount,
-					'id': tombstone.id
-				};
-			};
-		});
-	});
-
-	// Links
-	for (var l of _.filter(this.links.receivers, function (l) {
-			return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
-		})) {
-		existingResources[l.id + "|energy"] = {
-			'resourceType': "energy",
-			'amount': l.energy,
-			'id': l.id
-		};
-	}
-
-	// Dropped Resources
-	for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-		if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
-			existingResources[s.id + "|" + s.resourceType] = {
-				'resourceType': s.resourceType,
-				'amount': s.amount,
-				'id': s.id
-			};
-		};
-	}
-
-
-	// Containers
-	var containers = []
-	var sources = this.getSources();
-	for (var s of sources) {
-		if (s) {
-			containers.push(s.container)
-		};
-	};
-
-	if (this.room.extractor && this.room.extractor.container) {
-		containers.push(this.room.extractor.container)
-	}
-
-	_.each(containers, function (c) {
-		if (c && c.store) {
-			if (c.store !== undefined) {
-				_.each(c.store, function (amount, resourceType) {
-					if (amount > 200) {
-						existingResources[c.id + "|" + resourceType] = {
-							'resourceType': resourceType,
-							'amount': amount,
-							'id': c.id
-						};
-					};
-				});
-			}
-		}
-	});
-
-	var ter = this.getTerminal();
-	var sto = this.getStorage();
-
-	// Terminal
-	if (ter && sto) {
-		_.each(ter, function (t) {
-			_.each(t.store, function (amount, resourceType) {
-				if (sto[0].store[resourceType] === undefined || ((sto[0].store[resourceType] < 20000) && (resourceType !== 'energy')) || (resourceType == 'energy' && amount > 50000)) {
-					existingResources[t.id + "|" + resourceType] = {
-						'resourceType': resourceType,
-						'amount': amount,
-						'id': t.id
-					};
-				};
-			});
-		});
-	};
-
-	// Storage
-	if (sto) {
-		_.each(sto, function (s) {
-			_.each(s.store, function (amount, resourceType) {
-				if ((amount > 20000) || (resourceType == 'energy' && amount > 0)) {
-					existingResources[s.id + "|" + resourceType] = {
-						'resourceType': resourceType,
-						'amount': amount,
-						'id': s.id
-					};
-				};
-			});
-		});
-	};
-
-	memory.QueueAvailableResources = existingResources;
 };
 
 ControllerRoom.prototype.find = function (type) {
@@ -964,25 +725,6 @@ ControllerRoom.prototype.getLabsNotFull = function () {
 	}
 	return this._myLabsNF;
 };
-
-/* REMOVE ControllerRoom.prototype.getPowerSpawn = function () {
-	if (!this._myPowerSpawn) {
-		this._myPowerSpawn = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_POWER_SPAWN
-		});
-	}
-	return this._myPowerSpawn;
-};
-
-ControllerRoom.prototype.getPowerSpawnNotFull = function () {
-	if (!this._myPowerSpawnNF) {
-		let powerSpawn = this.getPowerSpawn();
-		this._myPowerSpawnNF = _.filter(powerSpawn, function (e) {
-			return e.energy < e.energyCapacity;
-		});
-	}
-	return this._myPowerSpawnNF;
-}; */
 
 ControllerRoom.prototype.getNukerNotFull = function () {
 	if (!this._myNukerNF) {
