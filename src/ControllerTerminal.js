@@ -24,27 +24,32 @@ ControllerTerminal.prototype.internalTrade = function () {
                 return r.terminal && r.terminal.my;
             });
 
-            for (var r in myRooms) {
-                var aroom = myRooms[r];
+            for (let r in myRooms) {
+                let aroom = myRooms[r];
                 // Only check other rooms
                 // TEST internalTrade will send 10000 Resources from every terminal, even if there is enough already
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
-                var e = aroom.getResourceAmount(resourceType);
+                let e = aroom.getResourceAmount(resourceType);
                 // How much does room need to get MIN_AMOUNT
-                var needed = MIN_AMOUNT - e;
+                let needed = MIN_AMOUNT - e;
                 if (needed > 0) {
                     // How much will the terminal send?
-                    var sendAmount = Math.min(amount, needed);
+                    let sendAmount = Math.min(amount, needed);
 
-                    var result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
+                    let result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
                     // TODO Use switch statement
-                    if (result == 0) {
-                        cancelOrders = true;
-                        Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${aroom.name}`, "internalTrade")
-                    }
 
+                    switch (result) {
+                        case OK:
+                            cancelOrders = true;
+                            Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${aroom.name}`, "internalTrade")
+                            break;
+
+                        default:
+                            Log.warn(`unknown result from terminal in ${terminal.room.name} tries to ransfer to (${aroom.name}): ${result}`, "internalTrade");
+                    }
                 }
             }
         })
@@ -57,7 +62,7 @@ ControllerTerminal.prototype.sellOverflow = function () {
         return null;
     }
     let theMineralType = terminal.room.mineral.mineralType
-    let energyPrice = 0.005;
+    let energyPrice = 0.02;
     let theProfit = 0.05;
     let minimumResource = 50000;
 

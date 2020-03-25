@@ -902,16 +902,6 @@ ControllerRoom.prototype.centerPoint = function () {
 	// this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
-ControllerRoom.prototype.getOneAvailableResource = function () {
-	let resources = this.room.memory.QueueAvailableResources
-	for (var resource in resources) {
-		if (resources[resource].amount > 0 && this.getCreeps(null, resources[resource].id).length == 0) {
-			return resources[resource]
-		}
-	}
-	return null;
-}
-
 ControllerRoom.prototype.analyse = function () {
 
 	if (Game.cpu.tickLimit <= global.getFixedValue('noAnalyseLimit')) return;
