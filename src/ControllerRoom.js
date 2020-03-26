@@ -303,7 +303,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
-				'amount': (con.storeCapacity - _.sum(con.store)),
+				'amount': (con.store.getFreeCapacity()),
 				'id': con.id
 			})
 		}
@@ -342,7 +342,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
-				'amount': (t.store.getCapacity() - t.energy),
+				'amount': (t.store.getFreeCapacity()),
 				'id': t.id
 			})
 		}
@@ -424,7 +424,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let [sto] = this.getStorage();
 		let [ter] = this.getTerminal();
 
-		if (sto && _.sum(sto.store) < sto.storeCapacity) {
+		if (sto && _.sum(sto.store) < sto.store.getCapacity()) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
@@ -452,7 +452,7 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 		}
 
-		if (ter && _.sum(ter.store) < ter.storeCapacity) {
+		if (ter && _.sum(ter.store) < ter.store.getCapacity()) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < minEnergyThreshold)) {
@@ -460,10 +460,10 @@ ControllerRoom.prototype.needsResources = function () {
 					amount = minEnergyThreshold - (ter.store[r] || 0);
 				} else if (r === 'energy') {
 					prio = 145;
-					amount = ter.storeCapacity - (_.sum(ter.store));
+					amount = ter.store.getFreeCapacity();
 				} else if (r !== 'energy') {
 					prio = 135;
-					amount = ter.storeCapacity - (_.sum(ter.store));
+					amount = ter.store.getFreeCapacity();
 
 				}
 				self._needsResources.push({
@@ -592,7 +592,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 			if (containerId != null) {
 				var container = Game.getObjectById(containerId);
 				if (container != null) {
-					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.storeCapacity) {
+					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.store.getCapacity()) {
 						this._controllerNF = container
 					}
 				}
@@ -614,7 +614,7 @@ ControllerRoom.prototype.getStorage = function () {
 ControllerRoom.prototype.getStorageNotFull = function () {
 	if (!this._storage) {
 		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), function (e) {
-			return e.structureType === STRUCTURE_STORAGE && _.sum(e.store) < e.storeCapacity
+			return e.structureType === STRUCTURE_STORAGE && e.store.getFreeCapacity()
 		});
 	}
 	return this._storage;
