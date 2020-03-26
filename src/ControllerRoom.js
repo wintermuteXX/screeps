@@ -611,6 +611,24 @@ ControllerRoom.prototype.getStorage = function () {
 	return this._storage;
 };
 
+ControllerRoom.prototype.getLinkReceivers = function () {
+	if (!this._linkReceivers) {
+		this._linkReceivers = _.filter(this.room.links, function (link) {
+			return link.pos.findInRange(this.room.sources, 4).length === 0;
+		});
+	}
+	return this._linkReceivers;
+};
+
+ControllerRoom.prototype.getLinkReceivers = function () {
+	if (!this._linkSenders) {
+		this._linkSenders = _.filter(this.room.links, function (link) {
+			return link.pos.findInRange(this.room.sources, 4).length > 0;
+		});
+	}
+	return this._linkSenders;
+};
+
 ControllerRoom.prototype.getStorageNotFull = function () {
 	if (!this._storage) {
 		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), function (e) {
