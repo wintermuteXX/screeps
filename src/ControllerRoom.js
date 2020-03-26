@@ -285,7 +285,7 @@ ControllerRoom.prototype.needsResources = function () {
 			prio = 25;
 		}
 		//	Fill Upgrader directly, if no container in position
-		if (!this.room.controller.container) {
+		if (this.room.controller && !this.room.controller.container) {
 			let upgrader = this.getCreeps('upgrader')
 			for (var u of upgrader) {
 				self._needsResources.push({
