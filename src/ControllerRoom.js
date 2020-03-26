@@ -291,7 +291,7 @@ ControllerRoom.prototype.needsResources = function () {
 				self._needsResources.push({
 					'priority': prio,
 					'resourceType': "energy",
-					'amount': (u.store.getFreeCapacity()),
+					'amount': (u.store.getFreeCapacity(RESOURCE_ENERGY)),
 					'id': u.id
 				})
 			}
@@ -303,7 +303,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': con.structureType,
 				'resourceType': "energy",
-				'amount': (con.store.getFreeCapacity()),
+				'amount': (con.store.getFreeCapacity(RESOURCE_ENERGY)),
 				'id': con.id
 			})
 		}
@@ -314,7 +314,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
-				'amount': (s.store.getFreeCapacity()),
+				'amount': (s.store.getFreeCapacity(RESOURCE_ENERGY)),
 				'id': s.id
 			})
 		}
@@ -325,7 +325,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.store.getFreeCapacity()),
+				'amount': (l.store.getFreeCapacity(RESOURCE_ENERGY)),
 				'id': l.id
 			})
 		}
@@ -342,7 +342,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
-				'amount': (t.store.getFreeCapacity()),
+				'amount': (t.store.getFreeCapacity(RESOURCE_ENERGY)),
 				'id': t.id
 			})
 		}
@@ -353,7 +353,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 50,
 				'structureType': constr.structureType,
 				'resourceType': "energy",
-				'amount': constr.store.getFreeCapacity(),
+				'amount': constr.store.getFreeCapacity(RESOURCE_ENERGY),
 				'id': constr.id
 			})
 		}
@@ -365,7 +365,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 75,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.store.getFreeCapacity()),
+				'amount': (l.store.getFreeCapacity(RESOURCE_ENERGY)),
 				'id': l.id
 			})
 		}
