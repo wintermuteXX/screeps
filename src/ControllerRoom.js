@@ -620,7 +620,7 @@ ControllerRoom.prototype.getLinkReceivers = function () {
 	return this._linkReceivers;
 };
 
-ControllerRoom.prototype.getLinkReceivers = function () {
+ControllerRoom.prototype.getLinkSenders = function () {
 	if (!this._linkSenders) {
 		this._linkSenders = _.filter(this.room.links, function (link) {
 			return link.pos.findInRange(this.room.sources, 4).length > 0;
