@@ -28,11 +28,11 @@ ControllerLink.prototype.transferEnergy = function () {
   if (Game.time % global.getFixedValue("checkLinks") !== 0) return;
 
   var senders = _.filter(this.senders, function (s) {
-    return (s.energy > s.energyCapacity - 100);
+    return (s.energy > s.store.getCapacity() - 100);
   });
 
   var receivers = _.shuffle(_.filter(this.receivers, function (r) {
-    return (r.energy < r.energyCapacity - 200);
+    return (r.energy < r.store.getCapacity() - 200);
   }));
 
   if (receivers.length == 0) return;

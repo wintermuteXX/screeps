@@ -4,7 +4,7 @@ function ControllerTower(tower, ControllerRoom) {
 }
 
 ControllerTower.prototype.fire = function () {
- 
+
     /* var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
     var targetList = this.tower.room.find(FIND_HOSTILE_CREEPS, {
         filter: function(foundCreep) { 
@@ -16,29 +16,29 @@ ControllerTower.prototype.fire = function () {
     });
      */
     var targetList = this.ControllerRoom.getEnemys();
-    if (targetList.length !== 0) Log.warn(`Die Scum ${targetList}`, "getEnemys")
+    // REMOVE if (targetList.length !== 0) Log.warn(`Die Scum ${targetList}`, "getEnemys")
 
     var closestHostile = this.tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
-       this.tower.attack(closestHostile);
-     }
+        this.tower.attack(closestHostile);
+    }
 };
 
 ControllerTower.prototype.repair = function () {
-  
+
     var targetList = this.ControllerRoom.getEnemys();
     if (targetList.length === 0) {
 
         var structures = _.filter(this.tower.room.find(FIND_STRUCTURES), function (s) {
-        return s.needsRepair();
-        }); 
-  
+            return s.needsRepair();
+        });
+
         structures = _.sortBy(structures, function (s) {
-        return s.hits;
-  });
+            return s.hits;
+        });
 
         if (structures.length && this.tower.energy > 500) {
-        this.tower.repair(structures[0]);
+            this.tower.repair(structures[0]);
         };
     };
 }

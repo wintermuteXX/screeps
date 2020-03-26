@@ -291,7 +291,7 @@ ControllerRoom.prototype.needsResources = function () {
 				self._needsResources.push({
 					'priority': prio,
 					'resourceType': "energy",
-					'amount': (u.energyCapacity - u.energy),
+					'amount': (u.store.getFreeCapacity()),
 					'id': u.id
 				})
 			}
@@ -314,7 +314,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 15,
 				'structureType': s.structureType,
 				'resourceType': "energy",
-				'amount': (s.energyCapacity - s.energy),
+				'amount': (s.store.getFreeCapacity()),
 				'id': s.id
 			})
 		}
@@ -325,7 +325,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 20,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.energyCapacity - l.energy),
+				'amount': (l.store.getFreeCapacity()),
 				'id': l.id
 			})
 		}
@@ -342,7 +342,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': prio,
 				'structureType': t.structureType,
 				'resourceType': "energy",
-				'amount': (t.energyCapacity - t.energy),
+				'amount': (t.store.getCapacity() - t.energy),
 				'id': t.id
 			})
 		}
@@ -365,7 +365,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'priority': 75,
 				'structureType': l.structureType,
 				'resourceType': "energy",
-				'amount': (l.energyCapacity - l.energy),
+				'amount': (l.store.getFreeCapacity()),
 				'id': l.id
 			})
 		}
@@ -654,7 +654,7 @@ ControllerRoom.prototype.getSpawnsNotFull = function () {
 	if (!this._spawnsNF) {
 		let spawnz = this.getSpawns();
 		this._spawnsNF = _.filter(spawnz, function (e) {
-			return e.energy < e.energyCapacity;
+			return e.energy < e.store.getCapacity();
 		});
 	}
 	return this._spawnsNF;
@@ -697,7 +697,7 @@ ControllerRoom.prototype.getExtensionsNotFull = function () {
 		let extensions = this.getExtensions();
 		if (extensions) {
 			this._extensionsNF = _.filter(extensions, function (e) {
-				return e.energy < e.energyCapacity;
+				return e.energy < e.store.getCapacity();
 			});
 		} else {
 			return null;
@@ -719,7 +719,7 @@ ControllerRoom.prototype.getLabsNotFull = function () {
 	if (!this._myLabsNF) {
 		let labs = this.getLabs();
 		this._myLabsNF = _.filter(labs, function (e) {
-			return e.energy < e.energyCapacity;
+			return e.energy < e.store.getCapacity();
 		});
 	}
 	return this._myLabsNF;
@@ -749,7 +749,7 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 		let towers = this.getTowers();
 		this._myTowersNF = _.filter(towers, function (s) {
 			if (s.structureType === STRUCTURE_TOWER) {
-				return s.energy < (s.energyCapacity - 100);
+				return s.energy < (s.store.getCapacity() - 100);
 			}
 		});
 	}

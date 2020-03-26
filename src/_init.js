@@ -27,12 +27,13 @@ Object.defineProperty(Creep.prototype, "energy", {
   }
 });
 
-Object.defineProperty(Creep.prototype, "energyCapacity", {
+// REMOVE
+/* Object.defineProperty(Creep.prototype, "energyCapacity", {
   get: function () {
     return this.carryCapacity;
   }
 });
-
+ */
 Object.defineProperty(Creep.prototype, "role", {
   get: function () {
     return this.memory.role || null;
@@ -58,37 +59,6 @@ Object.defineProperty(Creep.prototype, "target", {
     }
   }
 });
-
-Creep.prototype.transferAllResources = function (structure) {
-  let transferred = false;
-  for (let resource in this.carry) {
-    if (!resource) {
-      continue;
-    }
-    let returnCode = this.transfer(structure, resource);
-    if (returnCode === OK) {
-      // let  allResources = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
-      transferred = true;
-    }
-  }
-  return transferred;
-};
-
-Creep.prototype.withdrawAllResources = function (structure) {
-  let transferred = false;
-  for (let resource in structure.store) {
-    if (!resource) {
-      continue;
-    }
-
-    let returnCode = this.withdraw(structure, resource);
-    if (returnCode === OK) {
-      // transferred = Math.min(this.carry[resource], structure.energyCapacity - structure.energy);
-      transferred = true;
-    }
-  }
-  return transferred;
-};
 
 Creep.prototype.getTarget = function () {
   return Game.getObjectById(this.target);
@@ -365,6 +335,7 @@ RoomObject.prototype.say = function (what) {
   });
 };
 
+// TODO Must be in RC
 Room.prototype.getContainers = function () {
   if (!this._containers) {
     this._containers = _.filter(this.find(FIND_STRUCTURES), {
@@ -374,6 +345,7 @@ Room.prototype.getContainers = function () {
   return this._containers;
 };
 
+// TODO Must be in RC
 Room.prototype.getResourceAmount = function (res) {
   var amount = 0;
   if (this.storage && this.storage.store[res]) {
