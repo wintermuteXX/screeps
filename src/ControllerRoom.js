@@ -729,7 +729,7 @@ ControllerRoom.prototype.getNukerNotFull = function () {
 	if (!this._myNukerNF) {
 		let nuker = this.room.nuker;
 		this._myNukerNF = _.filter(nuker, function (e) {
-			return e.getFreeCapacity > 0;
+			return e.getFreeCapacity(RESOURCE_ENERGY) > 0;
 		});
 	}
 	return this._myNukerNF;

@@ -10,7 +10,7 @@ b.when = function (creep, rc) {
 b.completed = function (creep, rc) {
   if (!creep.getTarget()) return false;
   if (creep.getTarget().energy == 0) return true;
-  return (creep.energy === creep.store.getCapacity());
+  return (creep.energy === creep.store.getCapacity(RESOURCE_ENERGY));
 };
 
 b.work = function (creep, rc) {
