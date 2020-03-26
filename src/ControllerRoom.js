@@ -592,7 +592,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 			if (containerId != null) {
 				var container = Game.getObjectById(containerId);
 				if (container != null) {
-					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.store.getCapacity()) {
+					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.store.getCapacity(RESOURCE_ENERGY)) {
 						this._controllerNF = container
 					}
 				}
@@ -654,7 +654,7 @@ ControllerRoom.prototype.getSpawnsNotFull = function () {
 	if (!this._spawnsNF) {
 		let spawnz = this.getSpawns();
 		this._spawnsNF = _.filter(spawnz, function (e) {
-			return e.energy < e.store.getCapacity();
+			return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
 		});
 	}
 	return this._spawnsNF;
@@ -697,7 +697,7 @@ ControllerRoom.prototype.getExtensionsNotFull = function () {
 		let extensions = this.getExtensions();
 		if (extensions) {
 			this._extensionsNF = _.filter(extensions, function (e) {
-				return e.energy < e.store.getCapacity();
+				return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
 			});
 		} else {
 			return null;
@@ -719,7 +719,7 @@ ControllerRoom.prototype.getLabsNotFull = function () {
 	if (!this._myLabsNF) {
 		let labs = this.getLabs();
 		this._myLabsNF = _.filter(labs, function (e) {
-			return e.energy < e.store.getCapacity();
+			return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
 		});
 	}
 	return this._myLabsNF;
@@ -749,7 +749,7 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 		let towers = this.getTowers();
 		this._myTowersNF = _.filter(towers, function (s) {
 			if (s.structureType === STRUCTURE_TOWER) {
-				return s.energy < (s.store.getCapacity() - 100);
+				return s.energy < (s.store.getCapacity(RESOURCE_ENERGY) - 100);
 			}
 		});
 	}
