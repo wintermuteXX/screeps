@@ -455,9 +455,9 @@ ControllerRoom.prototype.needsResources = function () {
 		if (ter && ter.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < minEnergyThreshold)) {
+				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < 50000)) {
 					prio = 45;
-					amount = minEnergyThreshold - (ter.store[r] || 0);
+					amount = 50000 - (ter.store[r] || 0);
 				} else if (r === 'energy') {
 					prio = 145;
 					amount = ter.store.getFreeCapacity();
