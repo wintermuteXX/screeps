@@ -890,10 +890,6 @@ ControllerRoom.prototype.centerPoint = function () {
 			}
 		}
 	}
-	// BUG TypeError: Cannot read property 'substr' of undefined
-	// at Object.exports.roomNameToXY (<runtime>:453:28)
-	// at new RoomPosition (<runtime>:14852:82)
-	// at ControllerRoom.centerPoint (ControllerRoom:889:20)
 
 	Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "internalTrade")
 	let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.room.name);

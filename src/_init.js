@@ -27,13 +27,6 @@ Object.defineProperty(Creep.prototype, "energy", {
   }
 });
 
-// REMOVE
-/* Object.defineProperty(Creep.prototype, "energyCapacity", {
-  get: function () {
-    return this.carryCapacity;
-  }
-});
- */
 Object.defineProperty(Creep.prototype, "role", {
   get: function () {
     return this.memory.role || null;
