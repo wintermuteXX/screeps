@@ -5,7 +5,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: false,
     body2: [MOVE, WORK, CARRY, MOVE],
-    behaviors: ["get_resources2", "harvest", "transfer_resources2", "build_structures", "upgrade_controller"],
+    behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
@@ -53,7 +53,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["renew", "get_resources2", "transfer_resources2"],
+    behaviors: ["renew", "get_resources", "transfer_resources"],
 
     canBuild: function (rc) {
       var transporters = rc.getAllCreeps('transporter2');
@@ -176,7 +176,7 @@ module.exports = {
     minParts: 8,
     wait4maxEnergy: true,
     body2: [MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, WORK],
-    behaviors: ['goto_white_flag', "clear_enemy_buildings", "get_resources2", "harvest", "build_structures", "transfer_resources2", "upgrade_controller"],
+    behaviors: ['goto_white_flag', "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
       var flags = _.filter(Game.flags, {
