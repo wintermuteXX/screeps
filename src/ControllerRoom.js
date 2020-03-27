@@ -452,7 +452,7 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 		}
 
-		if (ter && _.sum(ter.store) < ter.store.getCapacity()) {
+		if (ter && ter.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < minEnergyThreshold)) {
