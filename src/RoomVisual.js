@@ -422,11 +422,15 @@ RoomVisual.prototype.structure = function (x, y, type, opts = {}) {
             break;
         case STRUCTURE_CONTAINER:
             this.rect(x - 0.225, y - 0.3, 0.45, 0.6, {
-                fill: "yellow",
+                fill: colors.gray,
                 opacity: opts.opacity,
                 stroke: colors.dark,
-                strokeWidth: 0.10,
-            });
+                strokeWidth: 0.09,
+            })
+            this.rect(x - 0.17, y + 0.07, 0.34, 0.2, {
+                fill: colors.energy,
+                opacity: opts.opacity,
+            })
             break;
         default:
             this.circle(x, y, {
@@ -457,14 +461,11 @@ const dirs = [
 RoomVisual.prototype.connectRoads = function (opts = {}) {
     let color = opts.color || colors.road || 'white'
     if (!this.roads) return
-    // this.text(this.roads.map(r=>r.join(',')).join(' '),25,23)
     this.roads.forEach(r => {
-        // this.text(`${r[0]},${r[1]}`,r[0],r[1],{ size: 0.2 })
         for (let i = 1; i <= 4; i++) {
             let d = dirs[i]
             let c = [r[0] + d[0], r[1] + d[1]]
             let rd = _.some(this.roads, r => r[0] == c[0] && r[1] == c[1])
-            // this.text(`${c[0]},${c[1]}`,c[0],c[1],{ size: 0.2, color: rd?'green':'red' })
             if (rd) {
                 this.line(r[0], r[1], c[0], c[1], {
                     color: color,
@@ -644,12 +645,20 @@ const ResourceColors = {
     [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: ColorSets.white,
 };
 
+const MINERALS = [
+    RESOURCE_CATALYST,
+    RESOURCE_HYDROGEN,
+    RESOURCE_OXYGEN,
+    RESOURCE_LEMERGIUM,
+    RESOURCE_UTRIUM,
+    RESOURCE_ZYNTHIUM,
+    RESOURCE_KEANIUM
+]
 
 RoomVisual.prototype.resource = function (type, x, y, size = 0.25) {
     if (type == RESOURCE_ENERGY || type == RESOURCE_POWER)
         this._fluid(type, x, y, size);
-    else if ([RESOURCE_CATALYST, RESOURCE_HYDROGEN, RESOURCE_OXYGEN, RESOURCE_LEMERGIUM, RESOURCE_UTRIUM, RESOURCE_ZYNTHIUM, RESOURCE_KEANIUM]
-        .includes(type))
+    else if (MINERALS.includes(type))
         this._mineral(type, x, y, size);
     else if (ResourceColors[type] != undefined)
         this._compound(type, x, y, size);
