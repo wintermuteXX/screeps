@@ -6,6 +6,7 @@ module.exports = {
     }
 
     Memory.stats['cpu.limit'] = Game.cpu.limit
+    Memory.stats['cpu.tickLimit'] = Game.cpu.tickLimit
     Memory.stats['cpu.bucket'] = Game.cpu.bucket
     Memory.stats['gcl.controllerProgress'] = Game.gcl.progress
     Memory.stats['gcl.controllerProgressTotal'] = Game.gcl.progressTotal
@@ -35,10 +36,5 @@ module.exports = {
         }
       }
     })
-
-
-
-
-
   }
 }
