@@ -100,6 +100,7 @@ function initGlobal(g) {
     'minCreditThreshold': 50000,
     'buyEnergyOrder': 20,
     'minEnergyThreshold': 30000,
+    'storageMaxEnergyAmount': 100000,
     'minResourceThreshold': 20000
   };
 

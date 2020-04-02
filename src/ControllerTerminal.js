@@ -39,7 +39,6 @@ ControllerTerminal.prototype.internalTrade = function () {
                     let sendAmount = Math.min(amount, needed);
 
                     let result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
-                    // TODO Use switch statement
 
                     switch (result) {
                         case OK:

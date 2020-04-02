@@ -420,6 +420,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
+		let storageMaxEnergyAmount = global.getFixedValue('storageMaxEnergyAmount');
 
 		let [sto] = this.getStorage();
 		let [ter] = this.getTerminal();
@@ -430,10 +431,10 @@ ControllerRoom.prototype.needsResources = function () {
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
 					prio = 55;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
-					// TODO Make 100000 configurable
-				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= 100000))) {
+
+				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= storageMaxEnergyAmount))) {
 					prio = 125;
-					amount = 100000 - (sto.store[r] || 0);
+					amount = storageMaxEnergyAmount - (sto.store[r] || 0);
 				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
 					prio = 105;
 					amount = minResourceThreshold - sto.store[r];

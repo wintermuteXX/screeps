@@ -328,15 +328,6 @@ RoomObject.prototype.say = function (what) {
   });
 };
 
-/* REMOVE Room.prototype.getContainers = function () {
-  if (!this._containers) {
-    this._containers = _.filter(this.find(FIND_STRUCTURES), {
-      structureType: STRUCTURE_CONTAINER
-    });
-  }
-  return this._containers;
-}; */
-
 // TODO Must be in RC
 Room.prototype.getResourceAmount = function (res) {
   var amount = 0;
