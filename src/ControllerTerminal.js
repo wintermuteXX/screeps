@@ -5,8 +5,11 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
+// TODO Write prototype to get recommended selling price of resources (use markte.history)
+// TODO Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
 // BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 // BUG min_amount should not be needed for source (terminal) -> more for source (room)
+
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 0; // TEST if 0 is OK
     let [terminal] = this.terminal;
