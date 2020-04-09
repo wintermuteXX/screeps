@@ -59,6 +59,10 @@ ControllerRoom.prototype.run = function () {
 	if (Game.time % global.getFixedValue('sellRoomMineralOverflow') === 0 && Game.cpu.tickLimit > 5) {
 		this.terminal.sellRoomMineralOverflow();
 	}
+
+	if (Game.time % global.getFixedValue('sellRoomMineral') === 0 && Game.cpu.tickLimit > 5) {
+		this.terminal.sellRoomMineral();
+	}
 	// console.log(this.terminal.getRecommendedSellingPrice(RESOURCE_ENERGY));
 	// this.labs.findLabPartner();
 };

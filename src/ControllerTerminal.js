@@ -43,6 +43,18 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
                 switch (result) {
                     case OK:
                         Log.success(`ExtendOrder for ${global.resourceImg(theMineralType)} in room ${terminal.room.name} was successful`, "sellRoomMineral");
+                        let thePrice = this.getHighestSellingPrice(theMineralType)
+                        let modify = 0
+                        if (terminal.store[theMineralType] < 50000) {
+                            modify = 1.2
+                        } else if (terminal.store[theMineralType] < 100000) {
+                            modify = 1.05
+                        } else if (terminal.store[theMineralType] < 150000) {
+                            modify = 0.9
+                        }
+                        if (order.price !== thePrice * modify) {
+                            Game.market.changeOrderPrice(order.id, _.max((thePrice * modify), 0.04))
+                        }
                         break;
 
                     default:

@@ -95,6 +95,7 @@ function initGlobal(g) {
     'maxHitsDefense': 1000000,
     'internalTrade': 300,
     'sellRoomMineralOverflow': 499,
+    'sellRoomMineral': 1000,
     'repairLimit': 0.9,
     'noAnalyseLimit': 100,
     'minCreditThreshold': 50000,
