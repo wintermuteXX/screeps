@@ -56,8 +56,8 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.internalTrade();
 	}
 
-	if (Game.time % global.getFixedValue('sellOverflow') === 0 && Game.cpu.tickLimit > 5) {
-		this.terminal.sellOverflow();
+	if (Game.time % global.getFixedValue('sellRoomMineralOverflow') === 0 && Game.cpu.tickLimit > 5) {
+		this.terminal.sellRoomMineralOverflow();
 	}
 	// console.log(this.terminal.getRecommendedSellingPrice(RESOURCE_ENERGY));
 	// this.labs.findLabPartner();

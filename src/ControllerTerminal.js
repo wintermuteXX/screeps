@@ -5,7 +5,6 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// TODO Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
 // BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 // BUG min_amount should not be needed for source (terminal) -> more for source (room)
 
@@ -22,7 +21,76 @@ ControllerTerminal.prototype.getHighestSellingPrice = function (theResourceType)
     return maxSellPrice;
 }
 
-ControllerTerminal.prototype.sellRoomMineral = function () {};
+// TEST Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
+ControllerTerminal.prototype.sellRoomMineral = function () {
+    let [terminal] = this.terminal;
+    if (!terminal) {
+        return null;
+    }
+    let theMineralType = terminal.room.mineral.mineralType
+    let orderExists = false
+    let minOrderAmount = 50000
+    let maxOrderAmount = 100000
+
+    for (let id in Game.market.orders) {
+        let order = Game.market.orders[id];
+        if (order.type === "sell" && order.resourceType === theMineralType && order.roomName == terminal.room.name) {
+            Log.debug(`Found an existing sell ${global.resourceImg(theMineralType)} order for room ${order.roomName}`, "sellRoomMineral");
+            orderExists = true;
+            if (order.remainingAmount < minOrderAmount) {
+
+                let result = Game.market.extendOrder(order.id, maxOrderAmount - order.remainingAmount);
+                switch (result) {
+                    case OK:
+                        Log.success(`ExtendOrder for ${global.resourceImg(theMineralType)} in room ${terminal.room.name} was successful`, "sellRoomMineral");
+                        break;
+
+                    default:
+                        Log.warn(`Result for extendOrder ${global.resourceImg(theMineralType)} in room ${terminal.room.name}: ${result}`, "sellRoomMineral");
+                }
+                break;
+            }
+        }
+    }
+    if (orderExists === false) {
+        let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.getHighestSellingPrice(theMineralType), maxOrderAmount, terminal.room.name);
+        switch (result2) {
+            case OK:
+                Log.success(`Created sell order in room ${terminal.room.name} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
+                break;
+
+            default:
+                Log.warn(`Result for create sell Order for ${global.resourceImg(theMineralType)} in room ${terminal.room.name}: ${result2}`, "sellRoomMineral");
+        }
+    }
+};
+
+ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
+    let [terminal] = this.terminal;
+    if (!terminal) {
+        return null;
+    }
+    let theMineralType = terminal.room.mineral.mineralType
+    let energyPrice = 0.02;
+    let theProfit = 0.05;
+    let minimumResource = 150000;
+
+    if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > minimumResource) {
+
+        let bestOrder = this.findBestOrder(theMineralType, energyPrice, theProfit);
+        if (bestOrder !== null) {
+            let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
+            if (result == OK) {
+                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "sellRoomMineralOverflow");
+            } else {
+                Log.info(`No deal because: ${result}`, "sellRoomMineralOverflow");
+
+            }
+        } else {
+            Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room.name}`, "sellRoomMineralOverflow");
+        }
+    }
+};
 
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 0; // TEST if 0 is OK
@@ -69,33 +137,6 @@ ControllerTerminal.prototype.internalTrade = function () {
                 }
             }
         })
-    }
-};
-
-ControllerTerminal.prototype.sellOverflow = function () {
-    let [terminal] = this.terminal;
-    if (!terminal) {
-        return null;
-    }
-    let theMineralType = terminal.room.mineral.mineralType
-    let energyPrice = 0.02;
-    let theProfit = 0.05;
-    let minimumResource = 50000;
-
-    if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > minimumResource) {
-
-        let bestOrder = this.findBestOrder(theMineralType, energyPrice, theProfit);
-        if (bestOrder !== null) {
-            let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
-            if (result == OK) {
-                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "sellOverflow");
-            } else {
-                Log.info(`No deal because: ${result}`, "sellOverflow");
-
-            }
-        } else {
-            Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room.name}`, "sellOverflow");
-        }
     }
 };
 
