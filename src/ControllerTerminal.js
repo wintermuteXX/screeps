@@ -5,10 +5,24 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// TODO Write prototype to get recommended selling price of resources (use markte.history)
 // TODO Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
 // BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 // BUG min_amount should not be needed for source (terminal) -> more for source (room)
+
+ControllerTerminal.prototype.getRecommendedSellingPrice = function (theResourceType) {
+
+    if (theResourceType == undefined || theResourceType == null) {
+        return null
+    }
+
+    const minimumSellingPrice = 0.04;
+
+    let history = Game.market.getHistory(theResourceType)
+    let maxPrice = Math.max.apply(Math, history.map(function (o) {
+        return o.avgPrice;
+    }))
+    return Math.max(maxPrice, minimumSellingPrice);
+}
 
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 0; // TEST if 0 is OK
