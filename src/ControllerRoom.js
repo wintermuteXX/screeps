@@ -59,7 +59,7 @@ ControllerRoom.prototype.run = function () {
 	if (Game.time % global.getFixedValue('sellOverflow') === 0 && Game.cpu.tickLimit > 5) {
 		this.terminal.sellOverflow();
 	}
-
+	// console.log(this.terminal.getRecommendedSellingPrice(RESOURCE_ENERGY));
 	// this.labs.findLabPartner();
 };
 

@@ -9,20 +9,20 @@ function ControllerTerminal(rc) {
 // BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
 // BUG min_amount should not be needed for source (terminal) -> more for source (room)
 
-ControllerTerminal.prototype.getRecommendedSellingPrice = function (theResourceType) {
+ControllerTerminal.prototype.getHighestSellingPrice = function (theResourceType) {
 
     if (theResourceType == undefined || theResourceType == null) {
         return null
     }
 
-    const minimumSellingPrice = 0.04;
-
     let history = Game.market.getHistory(theResourceType)
-    let maxPrice = Math.max.apply(Math, history.map(function (o) {
+    let maxSellPrice = Math.max.apply(Math, history.map(function (o) {
         return o.avgPrice;
     }))
-    return Math.max(maxPrice, minimumSellingPrice);
+    return maxSellPrice;
 }
+
+ControllerTerminal.prototype.sellRoomMineral = function () {};
 
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 0; // TEST if 0 is OK
