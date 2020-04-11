@@ -37,7 +37,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     }))
     Log.info(`${this.room.name} returns ${maxSellPrice} * ${modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
 
-    return _.max(maxSellPrice, minSellPrice)
+    return Math.max(maxSellPrice, minSellPrice)
 }
 
 // TEST Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
