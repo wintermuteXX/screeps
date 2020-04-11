@@ -51,13 +51,17 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     let minOrderAmount = 50000
     let maxOrderAmount = 100000
 
+    if (terminal.store[theMineralType] === (0 || undefined)) {
+        return null;
+    }
+
     for (let id in Game.market.orders) {
         let order = Game.market.orders[id];
         if (order.type === "sell" && order.resourceType === theMineralType && order.roomName == terminal.room.name) {
             Log.debug(`${order.roomName} found an existing sell order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
             orderExists = true;
             // Adjust Price
-            let thePrice = this.calcHighestSellingPrice(theMineralType, order.remainingAmount);
+            let thePrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
 
             if (order.price !== thePrice) {
                 Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
@@ -79,7 +83,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     }
     // Create new order
     if (orderExists === false) {
-        let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType), maxOrderAmount, terminal.room.name);
+        let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), maxOrderAmount, terminal.room.name);
         switch (result2) {
             case OK:
                 Log.success(`Created sell order in room ${terminal.room.name} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
