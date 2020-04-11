@@ -102,7 +102,14 @@ function initGlobal(g) {
     'buyEnergyOrder': 20,
     'minEnergyThreshold': 30000,
     'storageMaxEnergyAmount': 100000,
-    'minResourceThreshold': 20000
+    'minResourceThreshold': 20000,
+    // Terminal Controller
+    'modSellAmount1': 50000,
+    'modSellMultiplier1': 1.2,
+    'modSellAmount2': 90000,
+    'modSellMultiplier2': 1.1,
+    'modSellAmount3': 150000,
+    'modSellMultiplier3': 0.9
   };
 
   g.getFixedValue = function (key) {
