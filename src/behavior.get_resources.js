@@ -4,7 +4,7 @@ var b = new Behavior("get_resources");
 b.when = function (creep, rc) {
   Log.debug(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
   if (creep.energy > 0) return false;
-  // if (rc.getTransportOrder(creep) == (null || undefined)) return false;
+  if (rc.getTransportOrder(creep) == (null || undefined)) return false;
   return true;
 };
 
