@@ -14,7 +14,6 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         return null
     }
 
-    let modify = 1;
     let minSellPrice = global.getFixedValue('minSellPrice'); // 0.04
     let modSellAmount1 = global.getFixedValue('modSellAmount1'); // 1.2
     let modSellMultiplier1 = global.getFixedValue('modSellMultiplier1'); // 50000
@@ -22,6 +21,8 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     let modSellMultiplier2 = global.getFixedValue('modSellMultiplier2'); // 90000
     let modSellAmount3 = global.getFixedValue('modSellAmount3'); // 0.9
     let modSellMultiplier3 = global.getFixedValue('modSellMultiplier3'); // 150000
+    // make shure that the beginning price is high
+    let modify = modSellAmount1;
 
     if (theAmount < modSellAmount1) {
         modify = modSellMultiplier1
@@ -36,6 +37,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         return o.avgPrice;
     }))
     Log.info(`${this.room.name} returns ${maxSellPrice} * ${modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
+    maxSellPrice = maxSellPrice * modify
 
     return Math.max(maxSellPrice, minSellPrice)
 }
