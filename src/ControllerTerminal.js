@@ -33,6 +33,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     }
 
     let history = Game.market.getHistory(theResourceType)
+    // Get the highest selling price from market.getHistory()
     let maxSellPrice = Math.max.apply(Math, history.map(function (o) {
         return o.avgPrice;
     }))
@@ -42,7 +43,6 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     return Math.max(maxSellPrice, minSellPrice)
 }
 
-// TEST Write prototype which sells resources and checks if order exists and updates or creates new one (with recommendet price)
 ControllerTerminal.prototype.sellRoomMineral = function () {
     let [terminal] = this.terminal;
     if (!terminal) {
