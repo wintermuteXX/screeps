@@ -827,6 +827,20 @@ ControllerRoom.prototype.getResourceAmount = function (res) {
 	return amount;
 };
 
+// TEST Move to RC and find better name // was in behavior.repair
+ControllerRoom.prototype.findStructuresToRepair = function () {
+	// TODO First repair Ramparts! Not walls...
+	var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {
+		return s.needsRepair();
+	});
+
+	let theStructure = _.sortBy(structures, function (s) {
+		return s.hits;
+	});
+
+	return theStructure
+}
+
 ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 	var level = this.getLevel();
 	var lReq = cfg.levelMin || 1;

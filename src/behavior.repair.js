@@ -1,24 +1,9 @@
 var Behavior = require("_behavior");
 
-// TODO Move to RC and find better name
-function findStructures(rc) {
-  // TODO First repair Ramparts! Not walls...
-  // TODO Do not repair walls/ramparts if RCL < 3?
-  var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
-    return s.needsRepair();
-  });
-
-  let theStructure = _.sortBy(structures, function (s) {
-    return s.hits;
-  });
-
-  return theStructure
-}
-
 var b = new Behavior("repair");
 b.when = function (creep, rc) {
   if (creep.energy > 0) {
-    return (findStructures(rc).length);
+    return (rc.findStructurestoRepair().length);
   }
   return false;
 };
@@ -32,7 +17,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    var structures = findStructures(rc);
+    var structures = rc.findStructures();
     if (structures.length) {
       target = structures[0];
       creep.target = target.id;
