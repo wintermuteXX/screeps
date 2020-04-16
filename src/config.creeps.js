@@ -19,6 +19,7 @@ module.exports = {
   "miner": {
     // TODO miner - if idle - repair container
     // TODO miner - if link empty + container filled -> transfer to link.
+    // TODO miner - create moving miner, maybe even for mineral (= 1 Miner per Room)
     priority: 2,
     levelMin: 2,
     minParts: 3,
@@ -94,7 +95,7 @@ module.exports = {
         }
         return amount;
       }
-      // TODO implemet modificator if dropped energy around Sources is rising/existent
+      // TODO implemet modificator if dropped energy around Sources is rising/existent OR make a better distribution system (consider link targets)
       // Low Level
       if (rc.getLevel() <= 4) {
         return controller.my && rc.getAllCreeps('upgrader').length < 4
