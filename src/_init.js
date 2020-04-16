@@ -78,7 +78,7 @@ Object.defineProperty(Source.prototype, 'container', {
   get: function () {
     if (this._container == undefined) {
       if (this.memory.containerID == undefined) {
-        //TODO: Is calculated every time during container is build
+        //TODO: Is calculated every time during container is build // Split to 2 functions/prototypes
         // During construction containerID = null
         Log.info(`No ContainerPos found in memory`, "Container");
         let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
@@ -327,18 +327,6 @@ RoomObject.prototype.say = function (what) {
     backgroundColor: "#eeeeee",
     backgroundPadding: 0.2
   });
-};
-
-// TODO Must be in RC
-Room.prototype.getResourceAmount = function (res) {
-  var amount = 0;
-  if (this.storage && this.storage.store[res]) {
-    amount += this.storage.store[res];
-  }
-  if (this.terminal && this.terminal.store[res]) {
-    amount += this.terminal.store[res];
-  }
-  return amount;
 };
 
 RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
