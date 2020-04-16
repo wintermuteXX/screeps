@@ -815,18 +815,6 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	return this._sourcesUD;
 };
 
-// TEST Does it work? // was in _init.js
-ControllerRoom.prototype.getResourceAmount = function (res) {
-	var amount = 0;
-	if (this.storage && this.storage.store[res]) {
-		amount += this.storage.store[res];
-	}
-	if (this.terminal && this.terminal.store[res]) {
-		amount += this.terminal.store[res];
-	}
-	return amount;
-};
-
 // TEST Move to RC and find better name // was in behavior.repair
 ControllerRoom.prototype.findStructuresToRepair = function () {
 	// TODO First repair Ramparts! Not walls...

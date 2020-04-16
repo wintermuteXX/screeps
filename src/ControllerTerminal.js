@@ -148,8 +148,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
                     continue;
                 }
-                // let e = aroom.getResourceAmount(resourceType);
-                let e = this.room.getResourceAmount(resourceType);
+                let e = aroom.getResourceAmount(resourceType);
                 // How much does room need to get MIN_AMOUNT
                 let needed = MIN_AMOUNT - e;
                 if (needed > 0) {
