@@ -23,7 +23,8 @@ Object.defineProperty(Creep.prototype, "behavior", {
 
 Object.defineProperty(Creep.prototype, "energy", {
   get: function () {
-    return _.sum(this.carry);
+    // REMOVE return _.sum(this.carry);
+    return this.store.getUsedCapacity();
   }
 });
 
@@ -246,7 +247,7 @@ Object.defineProperty(RoomPosition.prototype, 'freeFieldsCount', {
       [this.y - 1, this.y, this.y + 1].forEach(y => {
         if (!(x == self.x && self.y == y)) {
           let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
-          if (Game.map.getTerrainAt(x, y, this.roomName) != 'wall')
+          if (Game.map.getRoomTerrain(x, y, this.roomName) != 'wall')
             freeSpaceCount++;
         }
       }, this);
