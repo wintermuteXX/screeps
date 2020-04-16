@@ -94,15 +94,23 @@ function initGlobal(g) {
     'repairTower': 8,
     'maxHitsDefense': 1000000,
     'internalTrade': 300,
-    'sellRoomMineralOverflow': 499,
-    'sellRoomMineral': 1000,
     'repairLimit': 0.9,
     'noAnalyseLimit': 100,
-    'minCreditThreshold': 50000,
-    'buyEnergyOrder': 20,
     'minEnergyThreshold': 30000,
     'storageMaxEnergyAmount': 100000,
-    'minResourceThreshold': 20000
+    'minResourceThreshold': 20000,
+    // Terminal Controller
+    'minCreditThreshold': 50000,
+    'buyEnergyOrder': 20,
+    'sellRoomMineralOverflow': 499,
+    'sellRoomMineral': 1000,
+    'minSellPrice': 0.04,
+    'modSellAmount1': 50000,
+    'modSellMultiplier1': 1.2,
+    'modSellAmount2': 90000,
+    'modSellMultiplier2': 1.1,
+    'modSellAmount3': 150000,
+    'modSellMultiplier3': 0.9
   };
 
   g.getFixedValue = function (key) {

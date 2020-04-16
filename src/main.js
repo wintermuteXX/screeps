@@ -37,6 +37,8 @@ module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
     require("_init");
+    Log.success(`------------------ ${Game.time} is running ------------------`, "Main")
+
     var ControllerGame = require('ControllerGame');
     var gc = new ControllerGame();
     //gc.garbageCollection();

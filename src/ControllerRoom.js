@@ -49,18 +49,18 @@ ControllerRoom.prototype.run = function () {
 		}
 	})
 
-	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0 && Game.cpu.tickLimit > 5) {
+	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0) {
 		this.terminal.buyEnergyOrder();
 	}
-	if (Game.time % global.getFixedValue('internalTrade') === 0 && Game.cpu.tickLimit > 5) {
+	if (Game.time % global.getFixedValue('internalTrade') === 0) {
 		this.terminal.internalTrade();
 	}
 
-	if (Game.time % global.getFixedValue('sellRoomMineralOverflow') === 0 && Game.cpu.tickLimit > 5) {
+	if (Game.time % global.getFixedValue('sellRoomMineralOverflow') === 0) {
 		this.terminal.sellRoomMineralOverflow();
 	}
 
-	if (Game.time % global.getFixedValue('sellRoomMineral') === 0 && Game.cpu.tickLimit > 5) {
+	if (Game.time % global.getFixedValue('sellRoomMineral') === 0) {
 		this.terminal.sellRoomMineral();
 	}
 	// console.log(this.terminal.getRecommendedSellingPrice(RESOURCE_ENERGY));
