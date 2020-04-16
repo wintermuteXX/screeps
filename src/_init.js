@@ -339,8 +339,19 @@ RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
   return `[${ this.roomName } ${ this.x },${ this.y }]`;
 };
 
-Creep.prototype.toString = function (htmlLink = true) {
+/* Creep.prototype.toString = function (htmlLink = true) {
   return `[${(this.name ? this.name : this.id)} ${this.pos.toString(htmlLink, this.id)}]`;
+};
+ */
+
+Creep.prototype.toString = function (htmlLink = true) {
+  if (htmlLink) {
+    var onClick = '';
+    if (this.id) onClick += `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
+      `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`
+    return `<a href="#!/room/${Game.shard.name}/${this.roomName}" onClick="${onClick}">[${(this.name ? this.name : this.id)}]</a>`;
+  }
+  return `[${(this.name ? this.name : this.id)}]`;
 };
 
 Structure.prototype.toString = function (htmlLink = true) {
