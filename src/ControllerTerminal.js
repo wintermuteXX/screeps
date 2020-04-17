@@ -37,7 +37,8 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     let maxSellPrice = Math.max.apply(Math, history.map(function (o) {
         return o.avgPrice;
     }))
-    Log.info(`${this.room.name} returns ${maxSellPrice} * ${modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
+    maxSellPrice = maxSellPrice.toFixed(3);
+    Log.info(`${this.terminal.room.name} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = maxSellPrice * modify
 
     return Math.max(maxSellPrice, minSellPrice)
