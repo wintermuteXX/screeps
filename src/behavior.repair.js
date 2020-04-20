@@ -17,7 +17,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
 
   if (!target) {
-    var structures = rc.findStructures();
+    var structures = rc.findStructuresToRepair();
     if (structures.length) {
       target = structures[0];
       creep.target = target.id;
