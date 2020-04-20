@@ -3,7 +3,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("repair");
 b.when = function (creep, rc) {
   if (creep.energy > 0) {
-    return (rc.findStructurestoRepair().length);
+    return (rc.findStructuresToRepair().length);
   }
   return false;
 };

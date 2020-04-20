@@ -1,5 +1,21 @@
 Code Snippets
 ----------------------------------
+function sorter(structure)
+{
+	switch (structure.structureType)
+	{
+		case STRUCTURE_SPAWN:
+			return 1;
+		case STRUCTURE_EXTENSION:
+			return 2;
+		case STRUCTURE_TOWER:
+			return 3;
+		default:
+			return 4;
+	}
+}
+let sortedThings = _.sortBy(unsortedThings, sorter);
+----------------------------------
 for (var i in RESOURCES_ALL) { Game.market.createOrder({type: ORDER_BUY, resourceType: RESOURCES_ALL[i], price: 0.003, totalAmount: 50000, roomName: "E29S22"});}
 ----------------------------------
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
