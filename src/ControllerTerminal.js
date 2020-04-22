@@ -74,6 +74,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
                 let result = Game.market.extendOrder(order.id, maxOrderAmount - order.remainingAmount);
                 switch (result) {
                     case OK:
+                        // TODO change terminal.room.name to terminal and test log
                         Log.success(`${terminal.room.name} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
                         break;
                     default:
