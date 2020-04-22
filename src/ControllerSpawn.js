@@ -5,10 +5,10 @@ function ControllerSpawn(spawn, ControllerRoom) {
 
 ControllerSpawn.prototype.isIdle = function () {
 
-		if (!this.spawn.spawning) {
-			return this.spawn;
-	}
-	return null;
+  if (!this.spawn.spawning) {
+    return this.spawn;
+  }
+  return null;
 };
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
@@ -28,16 +28,16 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
 
   switch (result) {
     case OK:
-      Log.success(`${this.spawn.pos} Build creep: ${role}`, "createCreep")
+      Log.success(`${this.spawn} Build creep: ${role}`, "createCreep")
       return true;
       break;
     case null:
-    Log.debug(`createCreep returns: ${result}`, "createCreep");
-    return false;
-    break;
+      Log.debug(`createCreep returns: ${result}`, "createCreep");
+      return false;
+      break;
     default:
-    Log.warn(`unknown result in createCreep: ${result}`, "createCreep");
-    return false;
+      Log.warn(`unknown result in createCreep: ${result}`, "createCreep");
+      return false;
   }
 };
 
