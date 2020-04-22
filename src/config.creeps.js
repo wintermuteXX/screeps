@@ -47,19 +47,6 @@ module.exports = {
       return (rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000);
     }
   },
-  // REMOVE
-  "transporter2": {
-    priority: 3,
-    levelMin: 2,
-    minParts: 6,
-    wait4maxEnergy: false,
-    body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["renew", "get_resources", "transfer_resources"],
-
-    canBuild: function (rc) {
-      return false
-    }
-  },
 
   "transporter": {
     priority: 3,

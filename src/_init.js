@@ -23,7 +23,6 @@ Object.defineProperty(Creep.prototype, "behavior", {
 
 Object.defineProperty(Creep.prototype, "energy", {
   get: function () {
-    // REMOVE return _.sum(this.carry);
     return this.store.getUsedCapacity();
   }
 });
@@ -381,14 +380,3 @@ StructureSpawn.prototype.toString = function (htmlLink = true) {
   }
   return `[(${this.structureType}) #${this.id}]`;
 };
-
-// REMOVE
-/* Structure.prototype.toString = function (htmlLink = true) {
-  return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
-};
-
-StructureSpawn.prototype.toString = function (htmlLink = true) {
-  return `[structure (${this.structureType}) #${this.id} ${this.pos.toString(htmlLink, this.id)}]`;
-}; */
-
-// }

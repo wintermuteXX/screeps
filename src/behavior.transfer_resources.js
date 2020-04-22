@@ -19,7 +19,6 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   Log.debug(`${creep} is performing "work" in transfer_resources`, "transfer_resources")
   let target = creep.getTarget();
-  // REMOVE let creepRes = _.findKey(creep.carry);
   let creepRes = _.findKey(creep.store);
   if (!target || target === null) {
     creep.target = null;
