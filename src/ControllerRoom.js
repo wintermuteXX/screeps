@@ -155,7 +155,6 @@ ControllerRoom.prototype.givesResources = function () {
 		});
 
 		// Links
-		// TEST does link work? () looks wrong
 		for (var l of _.filter(this.links.receivers, function (l) {
 				return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
 			})) {

@@ -230,7 +230,6 @@ Object.defineProperty(Room.prototype, 'mineral', {
   get: function () {
     if (this == Room.prototype || this == undefined)
       return undefined;
-    // Mit if ?
     this.memory.mineral = {};
     if (!this._mineral) {
       if (this.memory.mineral.mineralId === undefined) {
