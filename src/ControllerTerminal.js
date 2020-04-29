@@ -49,7 +49,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     let theMineralType = terminal.room.mineral.mineralType
     let orderExists = false
     let minOrderAmount = 50000
-    let maxOrderAmount = 100000
+    let maxOrderAmount = 150000
 
     if (terminal.store[theMineralType] === (0 || undefined)) {
         return null;
