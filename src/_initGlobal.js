@@ -93,13 +93,14 @@ function initGlobal(g) {
     'checkResourcesQueue': 1,
     'repairTower': 8,
     'maxHitsDefense': 1000000,
-    'internalTrade': 300,
-    'repairLimit': 0.9,
+    'repairLimit': 0.95,
     'noAnalyseLimit': 100,
+    // Storage
     'minEnergyThreshold': 30000,
-    'storageMaxEnergyAmount': 100000,
     'minResourceThreshold': 20000,
-    // Terminal Controller
+    'storageMaxEnergyAmount': 100000,
+    // Terminal
+    'internalTrade': 300,
     'minCreditThreshold': 50000,
     'buyEnergyOrder': 20,
     'sellRoomMineralOverflow': 499,
