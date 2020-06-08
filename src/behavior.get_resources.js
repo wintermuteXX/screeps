@@ -19,7 +19,7 @@ b.work = function (creep, rc) {
 
   if (!target) {
     var resource = rc.getTransportOrder(creep)
-    if (resource !== null) {
+    if (resource !== null && resource !== undefined) {
       creep.target = resource.id;
       target = creep.getTarget();
       creep.memory.resourceType = resource.resourceType;
