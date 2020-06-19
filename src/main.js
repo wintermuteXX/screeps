@@ -44,5 +44,8 @@ module.exports.loop = function () {
     //gc.garbageCollection();
     gc.processRooms();
   })
+  if (Game.cpu.bucket > 9000) {
+    Game.cpu.generatePixel();
+  }
   stats.doStats();
 }
