@@ -28,6 +28,8 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         modify = modSellMultiplier2
     } else if (theAmount < modSellAmount3) {
         modify = modSellMultiplier3
+    } else {
+        modify = 0.75
     }
 
     let history = Game.market.getHistory(theResourceType)
