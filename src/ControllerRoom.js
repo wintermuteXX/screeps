@@ -814,7 +814,6 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	return this._sourcesUD;
 };
 
-// TEST Move to RC and find better name // was in behavior.repair
 ControllerRoom.prototype.findStructuresToRepair = function () {
 	// TODO First repair Ramparts! Not walls...
 	var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {

@@ -3,9 +3,6 @@ function ControllerTerminal(rc) {
     this.terminal = this.room.getTerminal();
 }
 
-// BUG internalTrade checks for >50000 Energy / Maybe fix with new logistic system...
-// BUG min_amount should not be needed for source (terminal) -> more for source (room)
-
 ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType, theAmount = 0) {
 
     if (theResourceType == undefined || theResourceType == null) {
