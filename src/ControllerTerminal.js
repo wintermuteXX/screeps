@@ -114,7 +114,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
         if (bestOrder !== null) {
             let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
             if (result == OK) {
-                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${bestOrder.amount * bestOrder.price} - EnergyCost: ${bestOrder.fee * energyPrice} `, "sellRoomMineralOverflow");
+                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${(bestOrder.amount * bestOrder.price).toFixed(2)} - EnergyCost: ${(bestOrder.fee * energyPrice).toFixed(2)} `, "sellRoomMineralOverflow");
             } else {
                 Log.info(`No deal because: ${result}`, "sellRoomMineralOverflow");
 
