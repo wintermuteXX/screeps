@@ -10,12 +10,12 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     }
 
     let minSellPrice = global.getFixedValue('minSellPrice'); // 0.04
-    let modSellAmount1 = global.getFixedValue('modSellAmount1'); // 1.2
-    let modSellMultiplier1 = global.getFixedValue('modSellMultiplier1'); // 50000
-    let modSellAmount2 = global.getFixedValue('modSellAmount2'); // 1.1
-    let modSellMultiplier2 = global.getFixedValue('modSellMultiplier2'); // 90000
-    let modSellAmount3 = global.getFixedValue('modSellAmount3'); // 0.9
-    let modSellMultiplier3 = global.getFixedValue('modSellMultiplier3'); // 150000
+    let modSellAmount1 = global.getFixedValue('modSellAmount1'); // 50000
+    let modSellMultiplier1 = global.getFixedValue('modSellMultiplier1'); // 1.2
+    let modSellAmount2 = global.getFixedValue('modSellAmount2'); // 90000
+    let modSellMultiplier2 = global.getFixedValue('modSellMultiplier2'); // 1.1
+    let modSellAmount3 = global.getFixedValue('modSellAmount3'); // 150000
+    let modSellMultiplier3 = global.getFixedValue('modSellMultiplier3'); // 0.9
     // make shure that the beginning price is high
     let modify = modSellAmount1;
 
