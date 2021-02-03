@@ -29,7 +29,11 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     }
 
     // Get selling history for specified Resource
-    let history = Game.market.getHistory(theResourceType)
+    let history = Game.market.getHistory(theResourceType);
+    // list only the Average Prices of the array
+    history = history.map(function (o) {
+        return o.avgPrice;
+    });
     // Get the SECOND highest selling price for "history"
     let maxSellPrice = history.sort(function (a, b) {
         return b - a
