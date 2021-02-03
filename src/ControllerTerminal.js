@@ -16,8 +16,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     let modSellMultiplier2 = global.getFixedValue('modSellMultiplier2'); // 1.1
     let modSellAmount3 = global.getFixedValue('modSellAmount3'); // 150000
     let modSellMultiplier3 = global.getFixedValue('modSellMultiplier3'); // 0.9
-    // make shure that the beginning price is high
-    let modify = modSellAmount1;
+    let modify
 
     if (theAmount < modSellAmount1) {
         modify = modSellMultiplier1
