@@ -28,11 +28,13 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         modify = 0.75
     }
 
+    // Get selling history for specified Resource
     let history = Game.market.getHistory(theResourceType)
-    // Get the highest selling price from market.getHistory()
-    let maxSellPrice = Math.max.apply(Math, history.map(function (o) {
-        return o.avgPrice;
-    }))
+    // Get the SECOND highest selling price for "history"
+    let maxSellPrice = history.sort(function (a, b) {
+        return b - a
+    })[1];
+
     Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
