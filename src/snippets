@@ -16,7 +16,7 @@ function sorter(structure)
 }
 let sortedThings = _.sortBy(unsortedThings, sorter);
 ----------------------------------
-for (var i in RESOURCES_ALL) { Game.market.createOrder({type: ORDER_BUY, resourceType: RESOURCES_ALL[i], price: 0.003, totalAmount: 50000, roomName: "E29S22"});}
+for (var i in RESOURCES_ALL) { Game.market.createOrder({type: ORDER_BUY, resourceType: RESOURCES_ALL[i], price: 0.003, totalAmount: 50000, roomName: "E29S21"});}
 ----------------------------------
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedPct', ({ storedTotal, storeCapacity }) => storedTotal / storeCapacity);
@@ -43,22 +43,7 @@ Room.describe = function(name) {
 		return 'ROOM'
 	}
 }
-----------------------------------
-function checkIsStoreFull(store) {
-	switch(store.structureType) {
-		case STRUCTURE_TOWER:
-		case STRUCTURE_SPAWN:
-		case STRUCTURE_EXTENSION:
-			return store.energy == store.energyCapacity;
 
-		case STRUCTURE_CONTAINER:
-		case STRUCTURE_STORAGE:
-			return _.sum(store.store) == store.storeCapacity;
-
-		default:
-			throw new Error(`Unknown structureType ${structureType}`);
-	}
-}
 ----------------------------------
 define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 ----------------------------------
@@ -226,11 +211,6 @@ function displayCostMatrix(costMatrix, color = '#ff0000') {
 }
 
 -------------------------------
-const extensions = room.find(...);
-room.memory.extensions = extensions.map(i=>i.id);
-//
-const extensions = room.memory.extensions.map(i=>Game.getObjectById(i));
--------------------------------
 global.BUCKET_MAX = 10000;
 global.clamp = function clamp(min, val, max){
     if(val < min) return min;
@@ -275,12 +255,9 @@ global.adjustedCPULimit = function adjustedCPULimit(limit, bucket, target = BUCK
  return clamp(Math.round(limit*0.2), Math.round(limit*multiplier), maxCpuPerTick);
 }
 -------------------------------
-//The apply() is part of the function object/class and feeds a array as the parameters.
-body.push.apply(basicBodyParts);
--------------------------------
 /**
 
-Module: prototype.Room.structures v1.5
+Module: prototype.Room.structures v1.6
 Author: SemperRabbit
 Date:   20180309-13,0411
 Usage:  require('prototype.Room.structures');
@@ -400,174 +377,6 @@ singleList.forEach(function(type){
     });
 });
 ----------------------------------
-/**
-
- * Author:  Mototroller
-
- * Usage:   copy-paste
-
- * Licence: MIT
-
- * Version: 1.0
-
- *
-
- * Description:
-
- *  Simple prototype extention which allows every room object to use
-
- *  creep.say() method analogue: popup bubble with given text will be shown.
-
- *  Uses RoomVisual, so is should be enabled in GUI (enabled by default).
-
- */
-
-​
-
-/// @param {String} what - message will be displayed
-
-RoomObject.prototype.say = function(what) {
-
-    this.room.visual.line(this.pos.x, this.pos.y, this.pos.x + 1 - 0.2, this.pos.y - 1, {
-
-        // Line from object to message bubble
-
-        color: "#eeeeee",
-
-        opacity: 0.9,
-
-        width: 0.1
-
-    }).circle(this.pos, {
-
-        // Small dot marker at the top of object
-
-        fill: "#aaffaa",
-
-        opacity: 0.9
-
-    }).text(what, this.pos.x + 1, this.pos.y - 1, {
-
-        // Fake message, used to align background (to make black border)
-
-        color: "black",
-
-        opacity: 0.9,
-
-        align: "left",
-
-        font: "bold 0.6 Arial",
-
-        backgroundColor: "black",
-
-        backgroundPadding: 0.3
-
-    }).text(what, this.pos.x + 1, this.pos.y - 1, {
-
-        // Real message
-
-        color: "black",
-
-        opacity: 0.9,
-
-        align: "left",
-
-        font: "bold 0.6 Arial",
-
-        backgroundColor: "#eeeeee",
-
-        backgroundPadding: 0.2
-
-    });
-}
------------------------------
-/***
-
-Two simple functions that accept either an object that possesses a .pos or a pos directly, and remove matching structures in range.  The range defaults to 1.
-
-​
-
-removeRoadsNear(input,range) removes roads.
-
-removeEnemyNear(input,range) removes enemy Ramparts, Extensions, and Towers.
-
-​
-
-v1.0 Initial release, credit to warInternal for the inlining of forEach 20181012
-
-​
-
-*/
-
-/*
-
-	* @param {object} input - a RoomPosition object or another object containing a RoomPosition object
-
-	* @param {number} range - a numeric range to check, defaults to 0
-
-	*/
-
-global.removeRoadsNear= function(input,range=1){
-
-    //	sanitize the input for RoomPosition
-
-	if (!(input instanceof RoomPosition)) {
-
-            var inputpos =input.pos;
-
-        } else {
-
-            var inputpos = input
-
-        }
-
-	// create an array of matching structures
-
-    let array= inputpos.findInRange(FIND_STRUCTURES, range, {filter: s => s.structureType ===  STRUCTURE_ROAD})
-
-    // destroy the structures found above
-
-	array.forEach(s => s.destroy())
-
-}
-
-/*
-
-	* @param {object} input - a RoomPosition object or another object containing a RoomPosition object
-
-	* @param {number} range - a numeric range to check, defaults to 0
-
-	*/
-
-global.removeEnemyNear= function(input,range=1){
-
-        if (!(input instanceof RoomPosition)) {
-
-            var inputpos = input.pos;
-
-        } else {
-
-            var inputpos = input;
-
-        }
-
-    let array= inputpos.findInRange(FIND_STRUCTURES, range, {filter: s => (
-
-        !s.my && (
-
-            ((s.structureType ===  STRUCTURE_EXTENSION || s.structureType ===  STRUCTURE_TOWER)
-
-        && s.energy === 0)
-
-        ||s.structureType === STRUCTURE_RAMPART
-
-        )
-
-        )})
-
-    array.forEach(s => s.destroy())
-
-}
 -------------------------------
 //ScreepsLiquidator
 let prices = {
@@ -622,11 +431,6 @@ for (let roomName in Game.rooms) {
 }
 ------------------------------
 creep.withdraw(creep.room.storage, _.findKey(creep.room.storage.store));
----------------------------
-Game.market.getAllOrders({resourceType: RESOURCE_UTRIUM}); // fast
-Game.market.getAllOrders({resourceType: RESOURCE_UTRIUM, type: ORDER_SELL}); // fast
-Game.market.getAllOrders(); // slow
-Game.market.getAllOrders(i => i.resourceType == RESOURCE_UTRIUM); //slow
 ---------------------------
 placeContainer();
 {
@@ -863,45 +667,7 @@ Room.prototype.printRoomCosts = function(matrix, proportional = false,  aroundPo
 		console.log(line);
 	}
 }
-----------------------------------------
-	doStats: {
-        run: function () {
-            Memory.stats = {
-                tick: Game.time,
-                cpu: _.cloneDeep(Game.cpu),
-                gcl: Game.gcl,
-                constructionSites: _.size(Game.constructionSites),
-                tokens: Game.resources.token,
-
-                memory: {
-                    used: RawMemory.get().length
-                },
-
-                market: {
-                    credits: Game.market.credits,
-                    num_orders: Game.market.orders ? Object.keys(Game.market.orders).length : 0,
-                }
-
-            }
-        }
-    }
 -----------------------------------------------
-	function mayReserveController(theController) {
-    if (theController.owner) {
-        return false;
-    }
-    if (!theController.reservation) {
-        return true;
-    }
-    if (theController.reservation.username != 'Dissi') {
-        return false;
-    }
-    if (theController.reservation.ticksToEnd < 2500) {
-        return true;
-    }
-    return false;
-}
--------------------------------------
 global.spiralOut = function(n){
     let m=n+1;
     let result = [];
