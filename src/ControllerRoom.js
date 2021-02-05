@@ -123,7 +123,9 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 	for (var n in needsResources) {
 		let need = needsResources[n];
 		// TODO getCreeps needs to be better. Should calculate if more amount is needed...
-		if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
+		//if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
+		// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
+		if (need.resourceType === Creep.memory.resourceType) {
 			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
 			return need;
 		}
