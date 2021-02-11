@@ -108,9 +108,9 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 		for (var n in needsResources) {
 			let need = needsResources[n];
 			// TODO getCreeps needs to be better. Should calculate if more amount is needed...
-			// if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && this.getCreeps(null, give.id).length == 0) {
-			// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
-			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
+			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && this.getCreeps(null, give.id).length == 0) {
+				// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
+				// if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
 				return give;
 			}
@@ -125,9 +125,9 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 	for (var n in needsResources) {
 		let need = needsResources[n];
 		// TODO getCreeps needs to be better. Should calculate if more amount is needed...
-		//if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
-		// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
-		if (need.resourceType === Creep.memory.resourceType) {
+		if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
+			// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
+			// if (need.resourceType === Creep.memory.resourceType) {
 			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
 			return need;
 		}
