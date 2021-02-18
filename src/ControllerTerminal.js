@@ -128,7 +128,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 };
 
 ControllerTerminal.prototype.internalTrade = function () {
-    let MIN_AMOUNT = 0; // TEST if 0 is OK
+    let MIN_AMOUNT = 20000;
     let [terminal] = this.terminal;
     if (!terminal) {
         return null;
@@ -145,29 +145,29 @@ ControllerTerminal.prototype.internalTrade = function () {
             });
 
             for (let r in myRooms) {
-                let aroom = myRooms[r];
+                let targetroom = myRooms[r];
                 // Only check other rooms
                 // TEST internalTrade will send 10000 Resources from every terminal, even if there is enough already
-                if (aroom.terminal && (cancelOrders || terminal.room.name == aroom.name)) {
+                if (targetroom.terminal && (cancelOrders || terminal.room.name == targetroom.name)) {
                     continue;
                 }
-                let e = aroom.getResourceAmount(resourceType);
+                let resourceAmountInRoom = targetroom.getResourceAmount(resourceType);
                 // How much does room need to get MIN_AMOUNT
-                let needed = MIN_AMOUNT - e;
+                let needed = MIN_AMOUNT - resourceAmountInRoom;
                 if (needed > 0) {
                     // How much will the terminal send?
                     let sendAmount = Math.min(amount, needed);
 
-                    let result = terminal.send(resourceType, sendAmount, aroom.name, 'internal');
+                    let result = terminal.send(resourceType, sendAmount, targetroom.name, 'internal');
 
                     switch (result) {
                         case OK:
                             cancelOrders = true;
-                            Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${aroom.name}`, "internalTrade")
+                            Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetroom.name}`, "internalTrade")
                             break;
 
                         default:
-                            Log.warn(`unknown result from terminal in ${terminal.room.name} tries to ransfer to (${aroom.name}): ${result}`, "internalTrade");
+                            Log.warn(`unknown result from terminal in ${terminal.room.name} tries to ransfer to (${targetroom.name}): ${result}`, "internalTrade");
                     }
                 }
             }
