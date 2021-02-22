@@ -18,7 +18,7 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    if (creep.room.extractor.container !== undefined) {
+    if (creep.room.extractor && creep.room.extractor.container) {
       let container = creep.room.extractor.container;
       creep.travelTo(container);
     } else if (!creep.pos.isNearTo(target)) {
