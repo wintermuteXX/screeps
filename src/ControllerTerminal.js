@@ -68,6 +68,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
             let thePrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
 
             if (order.price !== thePrice) {
+                console.log("Test Terminal Prices / Order Price: " + order.price + " calculated Price: " + thePrice + " is a difference of %: " + ((order.price / thePrice) * 100));
                 Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
                 Game.market.changeOrderPrice(order.id, thePrice)
             }
