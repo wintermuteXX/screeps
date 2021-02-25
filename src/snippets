@@ -21,6 +21,7 @@ for (var i in RESOURCES_ALL) { Game.market.createOrder({type: ORDER_BUY, resourc
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
 DEFINE_CACHED_GETTER(Structure.prototype, 'storedPct', ({ storedTotal, storeCapacity }) => storedTotal / storeCapacity);
 DEFINE_CACHED_GETTER(Structure.prototype, 'storageCapacityAvailable', ({ storedTotal, storeCapacity }) => storeCapacity - storedTotal);
+define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 ----------------------------------
 /*
  * Get type of room from name
@@ -43,9 +44,6 @@ Room.describe = function(name) {
 		return 'ROOM'
 	}
 }
-
-----------------------------------
-define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 ----------------------------------
 [
     StructureSpawn,
@@ -376,7 +374,6 @@ singleList.forEach(function(type){
         configurable: true,
     });
 });
-----------------------------------
 -------------------------------
 //ScreepsLiquidator
 let prices = {
