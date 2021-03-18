@@ -1,4 +1,11 @@
 Code Snippets
+
+global.RECIPES = {};
+for (const a in REACTIONS) {
+	for (const b in REACTIONS[a]) {
+		RECIPES[REACTIONS[a][b]] = [a, b];
+	}
+}
 ----------------------------------
 for (var key in REACTIONS) {
     if (REACTIONS.hasOwnProperty(key)) {
