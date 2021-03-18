@@ -1,5 +1,17 @@
 Code Snippets
 ----------------------------------
+for (var key in REACTIONS) {
+    if (REACTIONS.hasOwnProperty(key)) {
+        var obj = REACTIONS[key];
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                console.log(key + " " + prop + " " + obj[prop]);
+            }
+        }
+    }
+}
+// [17:43:29][shard3]H O OH
+----------------------------------
 function sorter(structure)
 {
 	switch (structure.structureType)
