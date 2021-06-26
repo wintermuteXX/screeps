@@ -1,6 +1,6 @@
 function ControllerTerminal(rc) {
     this.room = rc;
-    this.terminal = this.room.getTerminal();
+    this.terminal = this.room.terminal;
 }
 
 ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType, theAmount = 0) {

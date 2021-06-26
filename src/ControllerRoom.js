@@ -212,7 +212,7 @@ ControllerRoom.prototype.givesResources = function () {
 			}
 		});
 		let [sto] = this.getStorage();
-		let [ter] = this.getTerminal();
+		let [ter] = this.room.terminal;
 
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
 
@@ -429,7 +429,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let storageMaxEnergyAmount = global.getFixedValue('storageMaxEnergyAmount');
 
 		let [sto] = this.getStorage();
-		let [ter] = this.getTerminal();
+		let [ter] = this.room.terminal;
 
 		if (sto && _.sum(sto.store) < sto.store.getCapacity()) {
 			for (var r of RESOURCES_ALL) {
@@ -763,14 +763,14 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 	return this._myTowersNF;
 };
 
-ControllerRoom.prototype.getTerminal = function () {
+/* ControllerRoom.prototype.getTerminal = function () {
 	if (!this._myTerminal) {
 		this._myTerminal = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TERMINAL
 		});
 	}
 	return this._myTerminal;
-};
+}; */
 
 ControllerRoom.prototype.getLinks = function () {
 	if (!this._myLinks) {
