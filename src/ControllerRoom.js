@@ -211,7 +211,7 @@ ControllerRoom.prototype.givesResources = function () {
 				});
 			}
 		});
-		let [sto] = this.getStorage();
+		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
@@ -428,7 +428,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
 		let storageMaxEnergyAmount = global.getFixedValue('storageMaxEnergyAmount');
 
-		let [sto] = this.getStorage();
+		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
 		if (sto && _.sum(sto.store) < sto.store.getCapacity()) {
@@ -609,14 +609,14 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 	}
 };
 
-ControllerRoom.prototype.getStorage = function () {
+/* ControllerRoom.prototype.getStorage = function () {
 	if (!this._storage) {
 		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_STORAGE
 		});
 	}
 	return this._storage;
-};
+}; */
 
 ControllerRoom.prototype.getStorageNotFull = function () {
 	if (!this._storage) {
