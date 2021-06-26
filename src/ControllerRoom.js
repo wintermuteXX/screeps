@@ -650,16 +650,16 @@ ControllerRoom.prototype.getIdleSpawnObject = function () {
 	return null;
 };
 
-ControllerRoom.prototype.getSpawns = function () {
+/* ControllerRoom.prototype.getSpawns = function () {
 	if (!this._spawns2) {
 		this._spawns2 = this.find(FIND_MY_SPAWNS);
 	}
 	return this._spawns2;
-};
+}; */
 
 ControllerRoom.prototype.getSpawnsNotFull = function () {
 	if (!this._spawnsNF) {
-		let spawnz = this.getSpawns();
+		let spawnz = this.room.spawns;
 		this._spawnsNF = _.filter(spawnz, function (e) {
 			return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
 		});
@@ -680,14 +680,14 @@ ControllerRoom.prototype.getMineralType = function () {
 	return null;
 };
 
-ControllerRoom.prototype.getContainers = function () {
+/* ControllerRoom.prototype.getContainers = function () {
 	if (!this._containers) {
 		this._containers = _.filter(this.find(FIND_STRUCTURES), {
 			structureType: STRUCTURE_CONTAINER
 		});
 	}
 	return this._containers;
-};
+}; */
 
 /* ControllerRoom.prototype.getExtensions = function () {
 	if (!this._extensions) {

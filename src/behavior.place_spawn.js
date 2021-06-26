@@ -9,13 +9,13 @@ function findFlag(rc) {
 
 b.when = function (creep, rc) {
     let flag = findFlag(rc);
-    let spawns = rc.getSpawns();
+    let spawns = rc.spawns;
     return !!flag && flag.room == creep.room && !!spawns;
 };
 
 b.completed = function (creep, rc) {
     let flag = findFlag(rc);
-    let spawns = rc.getSpawns();
+    let spawns = rc.spawns;
     return !flag || (flag.room !== creep.room) || !spawns;
 };
 
