@@ -2,7 +2,7 @@ var RANGE_TO_SOURCE = 4;
 
 function ControllerLink(rc) {
   this.room = rc;
-  this.links = this.room.getLinks();
+  this.links = this.room.links;
 }
 
 Object.defineProperty(ControllerLink.prototype, "senders", {

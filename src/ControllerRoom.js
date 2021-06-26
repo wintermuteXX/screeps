@@ -539,7 +539,7 @@ ControllerRoom.prototype.getAllCreeps = function (role) {
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
-	let allLinks = this.getLinks();
+	let allLinks = this.room.links;
 	let thelink = obj.pos.findInRange(allLinks, 3);
 	if (thelink.length > 0) {
 		let link = thelink[0];
@@ -713,18 +713,18 @@ ControllerRoom.prototype.getExtensionsNotFull = function () {
 	return this._extensionsNF;
 };
 
-ControllerRoom.prototype.getLabs = function () {
+/* ControllerRoom.prototype.getLabs = function () {
 	if (!this._myLabs) {
 		this._myLabs = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_LAB
 		});
 	}
 	return this._myLabs;
-};
+}; */
 
 ControllerRoom.prototype.getLabsNotFull = function () {
 	if (!this._myLabsNF) {
-		let labs = this.getLabs();
+		let labs = this.room.labs;
 		this._myLabsNF = _.filter(labs, function (e) {
 			return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
 		});
@@ -772,7 +772,7 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 	return this._myTerminal;
 };  */
 
-ControllerRoom.prototype.getLinks = function () {
+/* ControllerRoom.prototype.getLinks = function () {
 	if (!this._myLinks) {
 		this._myLinks = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
 			return (s.structureType === STRUCTURE_LINK);
@@ -780,7 +780,7 @@ ControllerRoom.prototype.getLinks = function () {
 
 	}
 	return this._myLinks;
-};
+}; */
 
 ControllerRoom.prototype.getSources = function () {
 	if (!this._sources) {
