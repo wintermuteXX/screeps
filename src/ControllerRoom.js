@@ -585,10 +585,6 @@ ControllerRoom.prototype.getDroppedResourcesAmount = function () {
 	return amount;
 };
 
-/* ControllerRoom.prototype.getController = function () {
-	return this.room.controller || null;
-}; */
-
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {
 		this._controllerNF = null;
@@ -608,15 +604,6 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 		return this._controllerNF;
 	}
 };
-
-/* ControllerRoom.prototype.getStorage = function () {
-	if (!this._storage) {
-		this._storage = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_STORAGE
-		});
-	}
-	return this._storage;
-}; */
 
 ControllerRoom.prototype.getStorageNotFull = function () {
 	if (!this._storage) {
@@ -650,13 +637,6 @@ ControllerRoom.prototype.getIdleSpawnObject = function () {
 	return null;
 };
 
-/* ControllerRoom.prototype.getSpawns = function () {
-	if (!this._spawns2) {
-		this._spawns2 = this.find(FIND_MY_SPAWNS);
-	}
-	return this._spawns2;
-}; */
-
 ControllerRoom.prototype.getSpawnsNotFull = function () {
 	if (!this._spawnsNF) {
 		let spawnz = this.room.spawns;
@@ -680,24 +660,6 @@ ControllerRoom.prototype.getMineralType = function () {
 	return null;
 };
 
-/* ControllerRoom.prototype.getContainers = function () {
-	if (!this._containers) {
-		this._containers = _.filter(this.find(FIND_STRUCTURES), {
-			structureType: STRUCTURE_CONTAINER
-		});
-	}
-	return this._containers;
-}; */
-
-/* ControllerRoom.prototype.getExtensions = function () {
-	if (!this._extensions) {
-		this._extensions = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_EXTENSION
-		});
-	}
-	return this._extensions;
-}; */
-
 // TODO  Cleanup ControllerRoom (getController, getControllerFull etc.)
 ControllerRoom.prototype.getExtensionsNotFull = function () {
 	if (!this._extensionsNF) {
@@ -712,15 +674,6 @@ ControllerRoom.prototype.getExtensionsNotFull = function () {
 	}
 	return this._extensionsNF;
 };
-
-/* ControllerRoom.prototype.getLabs = function () {
-	if (!this._myLabs) {
-		this._myLabs = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_LAB
-		});
-	}
-	return this._myLabs;
-}; */
 
 ControllerRoom.prototype.getLabsNotFull = function () {
 	if (!this._myLabsNF) {
@@ -742,15 +695,6 @@ ControllerRoom.prototype.getNukerNotFull = function () {
 	return this._myNukerNF;
 };
 
-/* ControllerRoom.prototype.getTowers = function () {
-	if (!this._myTowers) {
-		this._myTowers = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_TOWER
-		});
-	}
-	return this._myTowers;
-}; */
-
 ControllerRoom.prototype.getTowersNotFull = function () {
 	if (!this._myTowersNF) {
 		let towers = this.room.towers;
@@ -762,25 +706,6 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 	}
 	return this._myTowersNF;
 };
-
-/*  ControllerRoom.prototype.getTerminal = function () {
-	if (!this._myTerminal) {
-		this._myTerminal = _.filter(this.find(FIND_MY_STRUCTURES), {
-			structureType: STRUCTURE_TERMINAL
-		});
-	}
-	return this._myTerminal;
-};  */
-
-/* ControllerRoom.prototype.getLinks = function () {
-	if (!this._myLinks) {
-		this._myLinks = _.filter(this.find(FIND_MY_STRUCTURES), function (s) {
-			return (s.structureType === STRUCTURE_LINK);
-		});
-
-	}
-	return this._myLinks;
-}; */
 
 ControllerRoom.prototype.getSources = function () {
 	if (!this._sources) {
