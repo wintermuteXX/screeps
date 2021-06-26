@@ -1,6 +1,6 @@
 function ControllerLab(rc) {
     this.room = rc;
-    this.labs = this.room.getLabs();
+    this.labs = this.room.labs;
 }
 // TODO implement Lab Code
 
