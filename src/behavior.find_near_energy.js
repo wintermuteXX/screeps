@@ -39,7 +39,7 @@ b.work = function (creep, rc) {
   var target = creep.getTarget();
   var controller = rc.controller;
 
-  if (!target) {
+  if (!target && controller) {
 
     let link = findNearLink(controller, rc);
     if (link && link.energy > 0) {
@@ -63,7 +63,7 @@ b.work = function (creep, rc) {
     }
   }
 
-  if (target) {
+  if (target && controller) {
     if (!creep.pos.isNearTo(target)) {
       Log.debug(`${creep.room.name} ${creep.name} is moving to target: ${target}`, "find_near_energy")
       creep.travelTo(target);

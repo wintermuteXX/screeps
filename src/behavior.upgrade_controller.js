@@ -7,8 +7,8 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  let controller = rc.controller
-  return (creep.energy === 0 || controller === null || controller.my == false);
+  let controller = rc.controller;
+  return (creep.energy === 0 || controller === null || controller === undefined || controller.my == false);
 };
 
 b.work = function (creep, rc) {
