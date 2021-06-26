@@ -341,8 +341,8 @@ ControllerRoom.prototype.needsResources = function () {
 		} else {
 			prio = 60
 		}
-
-		let tow = this.getTowersNotFull();
+		let tow = this.structureNeedResource(this.room.towers, RESOURCE_ENERGY);
+		//let tow = this.getTowersNotFull();
 		for (var t of tow) {
 			self._needsResources.push({
 				'priority': prio,
