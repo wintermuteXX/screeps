@@ -46,7 +46,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
 }
 
 ControllerTerminal.prototype.sellRoomMineral = function () {
-    let [terminal] = this.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -102,7 +102,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
 };
 
 ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
-    let [terminal] = this.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -130,7 +130,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
-    let [terminal] = this.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -179,7 +179,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 ControllerTerminal.prototype.buyEnergyOrder = function () {
     let minCreditThreshold = global.getFixedValue('minCreditThreshold');
     let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-    let [ter] = this.terminal;
+    let ter = this.terminal;
     if (!ter) {
         return null;
     }
@@ -229,7 +229,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 };
 
 ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPrice, theProfit) {
-    let [terminal] = this.terminal;
+    let terminal = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY &&
             order.resourceType === theMineralType
