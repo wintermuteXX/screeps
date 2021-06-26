@@ -19,7 +19,7 @@ function ControllerRoom(room, ControllerGame) {
 
 	this.links = new ControllerLink(this);
 
-	var towers = this.getTowers();
+	var towers = this.room.towers;
 
 	for (var t in towers) {
 		var tower = towers[t];
@@ -689,19 +689,19 @@ ControllerRoom.prototype.getContainers = function () {
 	return this._containers;
 };
 
-ControllerRoom.prototype.getExtensions = function () {
+/* ControllerRoom.prototype.getExtensions = function () {
 	if (!this._extensions) {
 		this._extensions = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_EXTENSION
 		});
 	}
 	return this._extensions;
-};
+}; */
 
 // TODO  Cleanup ControllerRoom (getController, getControllerFull etc.)
 ControllerRoom.prototype.getExtensionsNotFull = function () {
 	if (!this._extensionsNF) {
-		let extensions = this.getExtensions();
+		let extensions = this.room.extensions;
 		if (extensions) {
 			this._extensionsNF = _.filter(extensions, function (e) {
 				return e.energy < e.store.getCapacity(RESOURCE_ENERGY);
@@ -742,18 +742,18 @@ ControllerRoom.prototype.getNukerNotFull = function () {
 	return this._myNukerNF;
 };
 
-ControllerRoom.prototype.getTowers = function () {
+/* ControllerRoom.prototype.getTowers = function () {
 	if (!this._myTowers) {
 		this._myTowers = _.filter(this.find(FIND_MY_STRUCTURES), {
 			structureType: STRUCTURE_TOWER
 		});
 	}
 	return this._myTowers;
-};
+}; */
 
 ControllerRoom.prototype.getTowersNotFull = function () {
 	if (!this._myTowersNF) {
-		let towers = this.getTowers();
+		let towers = this.room.towers;
 		this._myTowersNF = _.filter(towers, function (s) {
 			if (s.structureType === STRUCTURE_TOWER) {
 				return s.energy < (s.store.getCapacity(RESOURCE_ENERGY) - 100);
