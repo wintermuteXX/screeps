@@ -562,7 +562,7 @@ ControllerRoom.prototype.getEnemys = function () {
 };
 
 ControllerRoom.prototype.getLevel = function () {
-	var controller = this..room.controller;
+	var controller = this.room.controller;
 	if (controller !== null && controller.my) {
 		return controller.level;
 	}
