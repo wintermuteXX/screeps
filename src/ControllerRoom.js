@@ -562,7 +562,7 @@ ControllerRoom.prototype.getEnemys = function () {
 };
 
 ControllerRoom.prototype.getLevel = function () {
-	var controller = this.getController();
+	var controller = this..room.controller;
 	if (controller !== null && controller.my) {
 		return controller.level;
 	}
@@ -585,15 +585,15 @@ ControllerRoom.prototype.getDroppedResourcesAmount = function () {
 	return amount;
 };
 
-ControllerRoom.prototype.getController = function () {
+/* ControllerRoom.prototype.getController = function () {
 	return this.room.controller || null;
-};
+}; */
 
 ControllerRoom.prototype.getControllerNotFull = function () {
 	if (!this._controllerNF) {
 		this._controllerNF = null;
 
-		let controllerz = this.getController();
+		let controllerz = this.room.controller;
 		if (controllerz) {
 			let containerId = controllerz.memory.containerID || null;
 			if (containerId != null) {
