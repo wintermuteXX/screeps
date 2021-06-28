@@ -390,7 +390,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let p2 = this.structureNeedResource(this.room.powerspawn, RESOURCE_POWER);
 		if (p2 && p2 > 0) {
 			self._needsResources.push({
-				'priority': 110,
+				'priority': 90,
 				'structureType': this.room.powerspawn.structureType,
 				'resourceType': "power",
 				'amount': p2,
