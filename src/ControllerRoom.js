@@ -376,25 +376,25 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		let p = this.structureNeedResource(this.room.powerspawn, RESOURCE_ENERGY);
+		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 0) {
 			self._needsResources.push({
 				'priority': 110,
-				'structureType': this.room.powerspawn.structureType,
+				'structureType': this.room.powerSpawn.structureType,
 				'resourceType': "energy",
 				'amount': p,
-				'id': this.room.powerspawn.id
+				'id': this.room.powerSpawn.id
 			})
 		}
 
-		let p2 = this.structureNeedResource(this.room.powerspawn, RESOURCE_POWER);
+		let p2 = this.structureNeedResource(this.room.powerSpawn, RESOURCE_POWER);
 		if (p2 && p2 > 0) {
 			self._needsResources.push({
 				'priority': 90,
-				'structureType': this.room.powerspawn.structureType,
+				'structureType': this.room.powerSpawn.structureType,
 				'resourceType': "power",
 				'amount': p2,
-				'id': this.room.powerspawn.id,
+				'id': this.room.powerSpawn.id,
 				'exact': true
 			})
 		}
