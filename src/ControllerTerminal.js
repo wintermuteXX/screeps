@@ -1,6 +1,6 @@
 function ControllerTerminal(rc) {
     this.room = rc;
-    this.room.terminal = this.room.terminal;
+    this.terminal = rc.room.terminal;
 }
 
 ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType, theAmount = 0) {
@@ -39,14 +39,14 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         return b - a
     })[1];
 
-    Log.info(`${this.room.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
+    Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
     return Math.max(maxSellPrice, minSellPrice)
 }
 
 ControllerTerminal.prototype.sellRoomMineral = function () {
-    let terminal = this.room.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -102,7 +102,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
 };
 
 ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
-    let terminal = this.room.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -130,7 +130,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
 ControllerTerminal.prototype.internalTrade = function () {
     let MIN_AMOUNT = 20000;
-    let terminal = this.room.terminal;
+    let terminal = this.terminal;
     if (!terminal) {
         return null;
     }
@@ -179,7 +179,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 ControllerTerminal.prototype.buyEnergyOrder = function () {
     let minCreditThreshold = global.getFixedValue('minCreditThreshold');
     let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-    let ter = this.room.terminal;
+    let ter = this.terminal;
     if (!ter) {
         return null;
     }
@@ -229,7 +229,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 };
 
 ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPrice, theProfit) {
-    let terminal = this.room.terminal;
+    let terminal = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY &&
             order.resourceType === theMineralType
