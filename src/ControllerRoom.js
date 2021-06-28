@@ -63,6 +63,10 @@ ControllerRoom.prototype.run = function () {
 	if (Game.time % global.getFixedValue('sellRoomMineral') === 0) {
 		this.terminal.sellRoomMineral();
 	}
+
+	if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
+		this.room.powerSpawn.processPower();
+	}
 	// this.labs.findLabPartner();
 };
 
