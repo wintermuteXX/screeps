@@ -37,7 +37,7 @@ b.completed = function (creep) {
 b.work = function (creep, rc) {
   Log.info(`${creep.room.name} ${creep.name} is is performing "work" condition`, "find_near_energy")
   var target = creep.getTarget();
-  var controller = rc.controller;
+  var controller = rc.room.controller;
 
   if (!target && controller) {
 
