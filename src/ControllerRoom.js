@@ -418,7 +418,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let n2 = this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM);
 		if (n2 && n2 > 0) {
 			self._needsResources.push({
-				'priority': 115,
+				'priority': 95,
 				'structureType': this.room.nuker.structureType,
 				'resourceType': "G",
 				'amount': n2,
