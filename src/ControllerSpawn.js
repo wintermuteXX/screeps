@@ -12,7 +12,7 @@ ControllerSpawn.prototype.isIdle = function () {
 };
 
 ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
-  // TODO createCreep. Calculate Move parts dynamically (body2) (difficult)
+  // TODO createCreep. Calculate Move parts dynamically
   var theName = role + "_" + Math.round(Math.random() * 999);
   var bodyConfig = this.evalCreepBody(creepConfig.body2, creepConfig.minParts, theName);
   var result = null;

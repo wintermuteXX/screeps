@@ -3,6 +3,7 @@ function ControllerLab(rc) {
     this.labs = this.room.labs;
 }
 // TODO implement Lab Code
+// LabStatus: empty, fill, operate, clear
 
 ControllerLab.prototype.findLabPartner = function () {
 
@@ -49,5 +50,19 @@ ControllerLab.prototype.findLabPartner = function () {
         }
     }
 };
+
+ControllerLab.prototype.createNewJob = function () {
+
+    for (let i in this.labs) {
+        let theLab = this.labs[i];
+        if (theLab.memory.partnerA && theLab.memory.partnerB) {
+            let labA = Game.getObjectById(theLab.memory.partnerA);
+            let labB = Game.getObjectById(theLab.memory.partnerB);
+            if (labA.memory.status == "empty" && labB.memory.status == "empty") {
+                console.log("Labs need job");
+            }
+        }
+    }
+}
 
 module.exports = ControllerLab;
