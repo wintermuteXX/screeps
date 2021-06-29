@@ -1,6 +1,6 @@
 function ControllerLab(rc) {
     this.room = rc;
-    this.labs = this.room.labs;
+    this.labs = rc.room.labs;
 }
 // TODO implement Lab Code
 // LabStatus: empty, fill, operate, clear
@@ -51,10 +51,10 @@ ControllerLab.prototype.findLabPartner = function () {
     }
 };
 
-ControllerLab.prototype.createNewJob = function () {
-
+/* ControllerLab.prototype.createNewJob = function () {
     for (let i in this.labs) {
         let theLab = this.labs[i];
+        console.log("The lab: " + theLab + " " + theLab.memory.partnerA);
         if (theLab.memory.partnerA && theLab.memory.partnerB) {
             let labA = Game.getObjectById(theLab.memory.partnerA);
             let labB = Game.getObjectById(theLab.memory.partnerB);
@@ -63,6 +63,6 @@ ControllerLab.prototype.createNewJob = function () {
             }
         }
     }
-}
+} */
 
 module.exports = ControllerLab;
