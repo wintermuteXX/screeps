@@ -381,7 +381,7 @@ ControllerRoom.prototype.needsResources = function () {
 		}
 
 		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
-		if (p && p > 0) {
+		if (p && p > 400) {
 			self._needsResources.push({
 				'priority': 110,
 				'structureType': this.room.powerSpawn.structureType,
@@ -392,7 +392,7 @@ ControllerRoom.prototype.needsResources = function () {
 		}
 
 		let p2 = this.structureNeedResource(this.room.powerSpawn, RESOURCE_POWER);
-		if (p2 && p2 > 0) {
+		if (p2 && p2 > 20) {
 			self._needsResources.push({
 				'priority': 90,
 				'structureType': this.room.powerSpawn.structureType,
@@ -599,7 +599,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 			if (containerId != null) {
 				var container = Game.getObjectById(containerId);
 				if (container != null) {
-					if (container.store && container.store[RESOURCE_ENERGY] + 200 < container.store.getCapacity(RESOURCE_ENERGY)) {
+					if (container.store && container.store[RESOURCE_ENERGY] + 800 < container.store.getCapacity(RESOURCE_ENERGY)) {
 						this._controllerNF = container
 					}
 				}
