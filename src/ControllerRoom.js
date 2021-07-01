@@ -203,7 +203,7 @@ ControllerRoom.prototype.givesResources = function () {
 		_.each(containers, function (c) {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {
-					if (amount > 200) {
+					if (amount > 600) {
 						self._givesResources.push({
 							'priority': 195,
 							'resourceType': resourceType,
