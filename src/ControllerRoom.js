@@ -704,7 +704,7 @@ ControllerRoom.prototype.getTowersNotFull = function () {
 		let towers = this.room.towers;
 		this._myTowersNF = _.filter(towers, function (s) {
 			if (s.structureType === STRUCTURE_TOWER) {
-				return s.energy < (s.store.getCapacity(RESOURCE_ENERGY) - 100);
+				return s.energy < (s.store.getCapacity(RESOURCE_ENERGY) - 400);
 			}
 		});
 	}
