@@ -288,10 +288,10 @@ ControllerRoom.prototype.needsResources = function () {
 		this._needsResources = [];
 
 
-		let prio = 65;
+		let prio = 115;
 		if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
-		} else if (this.room.controller && this.room.controller.ticksToDowngrade < 1000) {
+		} else if (this.room.controller && this.room.controller.ticksToDowngrade < 5000) {
 			prio = 25;
 		}
 		//	Fill Upgrader directly, if no container in position
@@ -372,7 +372,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let lab = this.getLabsNotFull();
 		for (var l of lab) {
 			self._needsResources.push({
-				'priority': 75,
+				'priority': 65,
 				'structureType': l.structureType,
 				'resourceType': "energy",
 				'amount': (l.store.getFreeCapacity(RESOURCE_ENERGY)),
@@ -383,7 +383,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
 			self._needsResources.push({
-				'priority': 110,
+				'priority': 80,
 				'structureType': this.room.powerSpawn.structureType,
 				'resourceType': "energy",
 				'amount': p,
@@ -407,7 +407,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
 		if (n && n > 0) {
 			self._needsResources.push({
-				'priority': 115,
+				'priority': 110,
 				'structureType': this.room.nuker.structureType,
 				'resourceType': "energy",
 				'amount': n,
