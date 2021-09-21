@@ -13,6 +13,7 @@ for (var key in REACTIONS) {
         for (var prop in obj) {
             if (obj.hasOwnProperty(prop)) {
                 console.log(key + " " + prop + " " + obj[prop]);
+                if () {break 2}
             }
         }
     }
