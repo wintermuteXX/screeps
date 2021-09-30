@@ -67,7 +67,7 @@ ControllerLab.prototype.checkStatus = function () {
                                 console.log(key + " " + prop + " " + obj[prop]);
                                 if (true) {
                                     console.log("Das sollte nur ein Eintrag werden für " + this.room.name)
-                                    break 2
+                                    break 2;
                                 }
                             }
                         }
