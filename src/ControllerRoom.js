@@ -67,7 +67,7 @@ ControllerRoom.prototype.run = function () {
 	if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
 		this.room.powerSpawn.processPower();
 	}
-	// this.labs.findLabPartner();
+	// this.labs.checkStatus();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {

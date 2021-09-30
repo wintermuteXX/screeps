@@ -51,18 +51,31 @@ ControllerLab.prototype.findLabPartner = function () {
     }
 };
 
-/* ControllerLab.prototype.checkStatus = function () {
+ControllerLab.prototype.checkStatus = function () {
     for (let i in this.labs) {
         let theLab = this.labs[i];
-        console.log("The lab: " + theLab + " " + theLab.memory.partnerA);
         if (theLab.memory.partnerA && theLab.memory.partnerB) {
             let labA = Game.getObjectById(theLab.memory.partnerA);
             let labB = Game.getObjectById(theLab.memory.partnerB);
             if (labA.memory.status == "empty" && labB.memory.status == "empty" && theLap.memory.status == "empty") {
                 console.log("Labs need job");
+                for (var key in REACTIONS) {
+                    if (REACTIONS.hasOwnProperty(key)) {
+                        var obj = REACTIONS[key];
+                        for (var prop in obj) {
+                            if (obj.hasOwnProperty(prop)) {
+                                console.log(key + " " + prop + " " + obj[prop]);
+                                if (true) {
+                                    console.log("Das sollte nur ein Eintrag werden für " + this.room.name)
+                                    break 2
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-} */
+}
 
 module.exports = ControllerLab;
