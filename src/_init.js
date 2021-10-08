@@ -213,7 +213,6 @@ Structure.prototype.needsRepair = function () {
   return this.hits < (this.hitsMax * repairLimit);
 };
 
-
 Room.prototype.getResourceAmount = function (res) {
   var amount = 0;
   if (this.storage && this.storage.store[res]) {
@@ -224,7 +223,6 @@ Room.prototype.getResourceAmount = function (res) {
   }
   return amount;
 };
-
 
 Object.defineProperty(Room.prototype, 'mineral', {
   get: function () {

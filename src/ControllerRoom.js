@@ -68,6 +68,7 @@ ControllerRoom.prototype.run = function () {
 		this.room.powerSpawn.processPower();
 	}
 	// this.labs.checkStatus();
+	// this.labs.checkStatus();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
@@ -744,6 +745,37 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 		}
 	}
 	return this._sourcesUD;
+};
+
+ControllerRoom.prototype.getPossibleLabReaction = function () {
+	for (var key in REACTIONS) {
+		if (REACTIONS.hasOwnProperty(key)) {
+			var obj = REACTIONS[key];
+			for (var prop in obj) {
+				if (obj.hasOwnProperty(prop)) {
+					if (this.getResourceAmount(key) > 2000 && this.getResourceAmount(prop) > 2000 && this.getResourceAmount(obj[prop]) < 18000) {
+						console.log(key + " " + prop + " " + obj[prop]);
+						return {
+							resourceA: key,
+							resourceB: prop,
+							result: obj[prop]
+						}
+					}
+				}
+			}
+		}
+	}
+};
+
+ControllerRoom.prototype.getResourceAmount = function (res) {
+	var amount = 0;
+	if (this.storage && this.storage.store[res]) {
+		amount += this.storage.store[res];
+	}
+	if (this.terminal && this.terminal.store[res]) {
+		amount += this.terminal.store[res];
+	}
+	return amount;
 };
 
 ControllerRoom.prototype.findStructuresToRepair = function () {
