@@ -57,8 +57,7 @@ ControllerLab.prototype.checkStatus = function () {
         if (theLab.memory.partnerA && theLab.memory.partnerB) {
             let labA = Game.getObjectById(theLab.memory.partnerA);
             let labB = Game.getObjectById(theLab.memory.partnerB);
-            if (labA.memory.status == "empty" && labB.memory.status == "empty" && theLab.memory.status == "empty") {
-                console.log("Labs need job");
+            if (labA && labA.memory && labA.memory.status == "empty" && labB && labB.memory && labB.memory.status == "empty" && theLab && theLab.memory && theLab.memory.status == "empty") {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
                     console.log("Reaction: " + reaction);

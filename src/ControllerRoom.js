@@ -769,11 +769,11 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 
 ControllerRoom.prototype.getResourceAmount = function (res) {
 	var amount = 0;
-	if (this.storage && this.storage.store[res]) {
-		amount += this.storage.store[res];
+	if (this.room.storage && this.room.storage.store[res]) {
+		amount += this.room.storage.store[res];
 	}
-	if (this.terminal && this.terminal.store[res]) {
-		amount += this.terminal.store[res];
+	if (this.room.terminal && this.room.terminal.store[res]) {
+		amount += this.room.terminal.store[res];
 	}
 	return amount;
 };
