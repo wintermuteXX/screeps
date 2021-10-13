@@ -582,6 +582,13 @@ ControllerRoom.prototype.structureNeedResource = function (structure, resource) 
 	}
 };
 
+ControllerRoom.prototype.structuresNeedResource = function (structures, resource) {
+	this._structures = _.filter(structures, function (e) {
+		return e.store.getFreeCapacity(resource) > 0;
+	});
+	return this._structures;
+};
+
 ControllerRoom.prototype.getDroppedResourcesAmount = function () {
 	let amount = 0;
 	for (var s of this.find(FIND_DROPPED_RESOURCES)) {

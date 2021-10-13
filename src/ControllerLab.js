@@ -60,7 +60,14 @@ ControllerLab.prototype.checkStatus = function () {
             if (labA && labA.memory && labA.memory.status == "empty" && labB && labB.memory && labB.memory.status == "empty" && theLab && theLab.memory && theLab.memory.status == "empty") {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
-                    console.log("Reaction: " + reaction);
+                    //    console.log("Reaction: " + reaction["resourceA"] + " " + reaction["resourceB"] + " " + reaction["result"]);
+                    Log.success(`Room ${labA.room.name} will produce ${reaction["result"]} in labs`, "checkStatus");
+                    labA.memory.status = "fill";
+                    labA.memory.resource = reaction["resourceA"];
+                    labB.memory.status = "fill";
+                    labB.memory.resource = reaction["resourceB"];
+                    theLab.memory.status = "fill";
+                    theLab.memory.resource = reaction["result"];
 
                 }
             }
