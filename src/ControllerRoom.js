@@ -319,44 +319,17 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		let spa = this.getSpawnsNotFull();
-		for (var s of spa) {
-			self._needsResources.push({
-				'priority': 15,
-				'structureType': s.structureType,
-				'resourceType': "energy",
-				'amount': (s.store.getFreeCapacity(RESOURCE_ENERGY)),
-				'id': s.id
-			})
-		}
-
-		let ext = this.getExtensionsNotFull();
-		for (var l of ext) {
-			self._needsResources.push({
-				'priority': 20,
-				'structureType': l.structureType,
-				'resourceType': "energy",
-				'amount': (l.store.getFreeCapacity(RESOURCE_ENERGY)),
-				'id': l.id
-			})
-		}
+		_.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
 
 		if (this.getEnemys().length > 0) {
 			prio = 30
 		} else {
 			prio = 60
 		}
-		// let tow = this.structureNeedResource(this.room.towers, RESOURCE_ENERGY);
-		let tow = this.getTowersNotFull();
-		for (var t of tow) {
-			self._needsResources.push({
-				'priority': prio,
-				'structureType': t.structureType,
-				'resourceType': "energy",
-				'amount': (t.store.getFreeCapacity(RESOURCE_ENERGY)),
-				'id': t.id
-			})
-		}
+
+		_.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), e => self._needsResources.push(e));
+
 		// TODO Do not feed full constructors? Will not happen too often
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
@@ -370,16 +343,7 @@ ControllerRoom.prototype.needsResources = function () {
 		}
 
 		// TODO Add labs resources
-		let lab = this.getLabsNotFull();
-		for (var l of lab) {
-			self._needsResources.push({
-				'priority': 65,
-				'structureType': l.structureType,
-				'resourceType': "energy",
-				'amount': (l.store.getFreeCapacity(RESOURCE_ENERGY)),
-				'id': l.id
-			})
-		}
+		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
 		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
@@ -582,11 +546,30 @@ ControllerRoom.prototype.structureNeedResource = function (structure, resource) 
 	}
 };
 
-ControllerRoom.prototype.structuresNeedResource = function (structures, resource) {
-	this._structures = _.filter(structures, function (e) {
-		return e.store.getFreeCapacity(resource) > 0;
+ControllerRoom.prototype.structureNeedResourcex = function (structure, resource, prio, threshold) {
+
+	var result = _.filter(structure, e => e.store.getFreeCapacity(resource) > (threshold || 0));
+	return {
+		'priority': prio,
+		'structureType': e.structureType,
+		'resourceType': resource,
+		'amount': (e.store.getFreeCapacity(resource)),
+		'id': e.id
+	}
+};
+
+ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
+	var structures = _.filter(structures, s => s.store.getFreeCapacity(resource) > (threshold || 0));
+
+	return _.map(structures, s => {
+		return {
+			'priority': prio,
+			'structureType': s.structureType,
+			'resourceType': resource,
+			'amount': (s.store.getFreeCapacity(resource)),
+			'id': s.id
+		}
 	});
-	return this._structures;
 };
 
 ControllerRoom.prototype.getDroppedResourcesAmount = function () {
