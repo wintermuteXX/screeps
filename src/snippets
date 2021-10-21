@@ -1,4 +1,4 @@
-Code Snippets
+Code Snippetss
 
 global.RECIPES = {};
 for (const a in REACTIONS) {
