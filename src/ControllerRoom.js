@@ -68,7 +68,6 @@ ControllerRoom.prototype.run = function () {
 		this.room.powerSpawn.processPower();
 	}
 	// this.labs.checkStatus();
-	// this.labs.checkStatus();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
