@@ -344,6 +344,18 @@ ControllerRoom.prototype.needsResources = function () {
 		// TODO Add labs resources
 		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
+		_.forEach(this.room.labs, function (c) {
+			if (c && c.memory.resource && c.memory.status == "fill" && c.store.getFreeCapacity(c.memory.resource) > 0 && c.memory.usedBy) {
+				self._needsResources.push({
+					'priority': 70,
+					'resourceType': c.memory.resource,
+					'structureType': c.structureType,
+					'amount': c.store.getFreeCapacity(c.memory.resource),
+					'id': c.id
+				})
+			}
+		});
+
 		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
 			self._needsResources.push({
