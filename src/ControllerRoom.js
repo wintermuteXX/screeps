@@ -341,7 +341,6 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		// TODO Add labs resources
 		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
 		_.forEach(this.room.labs, function (c) {
@@ -355,6 +354,10 @@ ControllerRoom.prototype.needsResources = function () {
 				})
 			}
 		});
+
+
+		// TEST with Powerspawn
+		// _.forEach(this.structuresNeedResource(this.room.powerSpawn, RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
 
 		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
@@ -557,18 +560,6 @@ ControllerRoom.prototype.structureNeedResource = function (structure, resource) 
 	}
 };
 
-ControllerRoom.prototype.structureNeedResourcex = function (structure, resource, prio, threshold) {
-
-	var result = _.filter(structure, e => e.store.getFreeCapacity(resource) > (threshold || 0));
-	return {
-		'priority': prio,
-		'structureType': e.structureType,
-		'resourceType': resource,
-		'amount': (e.store.getFreeCapacity(resource)),
-		'id': e.id
-	}
-};
-
 ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
 	var structures = _.filter(structures, s => s.store.getFreeCapacity(resource) > (threshold || 0));
 
@@ -706,7 +697,6 @@ ControllerRoom.prototype.getResourceAmount = function (res) {
 };
 
 ControllerRoom.prototype.findStructuresToRepair = function () {
-	// TODO First repair Ramparts! Not walls...
 	var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {
 		return s.needsRepair();
 	});

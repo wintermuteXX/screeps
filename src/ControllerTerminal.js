@@ -67,9 +67,9 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
             // Adjust Price
             let thePrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
 
-            if (order.price !== thePrice) {
+            if (order.price !== thePrice && Math.abs(order.price - thePrice) > 0.01) {
                 Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-                // TODO Don't change price when the change is less than 0,01
+                // TEST Don't change price when the change is less than 0,01
                 Game.market.changeOrderPrice(order.id, thePrice)
             }
             // Extend Order
