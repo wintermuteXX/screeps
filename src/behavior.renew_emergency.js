@@ -1,13 +1,16 @@
 var Behavior = require("_behavior");
 
-var b = new Behavior("renew");
-// BUG if creep is renewing, other creeps can not fill spawn up with energy :-( who should win?
+var b = new Behavior("renew_emergency");
 b.when = function (creep, rc) {
   return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
 };
 
 b.completed = function (creep, rc) {
-  return true
+  if (creep.memory.abort) {
+    creep.memory.abort = false;
+    return true
+  }
+  return creep.ticksToLive > 500;
 };
 
 b.work = function (creep, rc) {
@@ -25,14 +28,17 @@ b.work = function (creep, rc) {
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
         Log.warn(`not enough resources for (creep ${creep}). renew (${target}): ${result}`, "Creep");
+        creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
         break;
       case ERR_BUSY:
+        creep.memory.abort = true;
         break;
       default:
         Log.warn(`unknown result from (creep ${creep}). renew (${target}): ${result}`, "Creep");
+        creep.memory.abort = true;
     }
   }
 };

@@ -54,7 +54,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body2: [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY],
-    behaviors: ["renew", "get_resources", "transfer_resources"],
+    behaviors: ["renew_emergency", "get_resources", "transfer_resources", "renew"],
 
     canBuild: function (rc) {
       var transporters = rc.getAllCreeps('transporter');
