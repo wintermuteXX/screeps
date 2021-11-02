@@ -60,14 +60,14 @@ module.exports = {
       var transporters = rc.getAllCreeps('transporter');
       let modifier = 0;
       if (rc.getDroppedResourcesAmount() > 5000) {
-        modifier = 2;
-      } else if (rc.getDroppedResourcesAmount() > 2000) {
         modifier = 1;
       }
       if (rc.getLevel() < 4) {
         return (transporters.length < (4 + modifier));
-      } else {
+      } else if (rc.getLevel() < 7) {
         return (transporters.length < (2 + modifier));
+      } else {
+        return (transporters.length < (1 + modifier));
       }
     }
   },

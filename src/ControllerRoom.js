@@ -233,8 +233,11 @@ ControllerRoom.prototype.givesResources = function () {
 				} else {
 					// TODO 2 different options needed (prio 100 + 150)
 					// Minerals
-					prio = 100;
-					amount = sto.store[r];
+					if (sto.store[r] > 20000) {
+						prio = 100; // TODO should bei 150 when transport can accept exact values.
+					} else {
+						prio = 100;
+					}
 				}
 
 				if (sto.store[r] > 0) {
@@ -242,7 +245,7 @@ ControllerRoom.prototype.givesResources = function () {
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
-						'amount': amount,
+						'amount': sto.store[r],
 						'id': sto.id
 					})
 				}
@@ -355,7 +358,6 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 		});
 
-
 		// TEST with Powerspawn
 		// _.forEach(this.structuresNeedResource(this.room.powerSpawn, RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
 
@@ -414,7 +416,7 @@ ControllerRoom.prototype.needsResources = function () {
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
-		if (sto && _.sum(sto.store) < sto.store.getCapacity()) {
+		if (sto && sto.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
