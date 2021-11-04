@@ -321,17 +321,6 @@ ControllerRoom.prototype.needsResources = function () {
 			})
 		}
 
-		_.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
-
-		if (this.getEnemys().length > 0) {
-			prio = 30
-		} else {
-			prio = 60
-		}
-
-		_.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), e => self._needsResources.push(e));
-
 		// TODO Do not feed full constructors? Will not happen too often
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
@@ -343,8 +332,6 @@ ControllerRoom.prototype.needsResources = function () {
 				'id': constr.id
 			})
 		}
-
-		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
 		_.forEach(this.room.labs, function (c) {
 			if (c && c.memory.resource && c.memory.status == "fill" && c.store.getFreeCapacity(c.memory.resource) > 0 && c.memory.usedBy) {
@@ -358,10 +345,23 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 		});
 
-		// TEST with Powerspawn
-		// _.forEach(this.structuresNeedResource(this.room.powerSpawn, RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
+		if (this.getEnemys().length > 0) {
+			prio = 30
+		} else {
+			prio = 60
+		}
 
-		let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
+		_.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
+
+		_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
+		_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+
+		/* let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
 			self._needsResources.push({
 				'priority': 80,
@@ -370,9 +370,9 @@ ControllerRoom.prototype.needsResources = function () {
 				'amount': p,
 				'id': this.room.powerSpawn.id
 			})
-		}
+		} */
 
-		let p2 = this.structureNeedResource(this.room.powerSpawn, RESOURCE_POWER);
+		/* let p2 = this.structureNeedResource(this.room.powerSpawn, RESOURCE_POWER);
 		if (p2 && p2 > 20) {
 			self._needsResources.push({
 				'priority': 90,
@@ -382,10 +382,9 @@ ControllerRoom.prototype.needsResources = function () {
 				'id': this.room.powerSpawn.id,
 				'exact': true
 			})
-		}
+		} */
 
-
-		let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
+		/* let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
 		if (n && n > 0) {
 			self._needsResources.push({
 				'priority': 110,
@@ -394,9 +393,9 @@ ControllerRoom.prototype.needsResources = function () {
 				'amount': n,
 				'id': this.room.nuker.id
 			})
-		}
+		} */
 
-		let n2 = this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM);
+		/* let n2 = this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM);
 		if (n2 && n2 > 0) {
 			self._needsResources.push({
 				'priority': 95,
@@ -406,8 +405,7 @@ ControllerRoom.prototype.needsResources = function () {
 				'id': this.room.nuker.id,
 				'exact': true
 			})
-		}
-
+		} */
 
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
