@@ -3,7 +3,7 @@ function ControllerLab(rc) {
     this.labs = rc.room.labs;
 }
 // TODO implement Lab Code
-// LabStatus: empty, fill, operate, clear
+// LabStatus: empty, fill, produce
 
 ControllerLab.prototype.findLabPartner = function () {
 
@@ -57,7 +57,10 @@ ControllerLab.prototype.checkStatus = function () {
         if (theLab.memory.partnerA && theLab.memory.partnerB) {
             let labA = Game.getObjectById(theLab.memory.partnerA);
             let labB = Game.getObjectById(theLab.memory.partnerB);
-            if (labA && labA.memory && labA.memory.status == "empty" && labB && labB.memory && labB.memory.status == "empty" && theLab && theLab.memory && theLab.memory.status == "empty") {
+            // Empty -> Fill
+            if (labA && labA.memory && labA.memory.status == "empty" && labA.store.getUsedCapacity(labA.memory.resource) == 0 &&
+                labB && labB.memory && labB.memory.status == "empty" && labB.store.getUsedCapacity(labB.memory.resource) == 0 &&
+                theLab && theLab.memory && theLab.memory.status == "empty" && theLab.store.getUsedCapacity(theLab.memory.resource) == 0) {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
                     //    console.log("Reaction: " + reaction["resourceA"] + " " + reaction["resourceB"] + " " + reaction["result"]);
@@ -71,8 +74,28 @@ ControllerLab.prototype.checkStatus = function () {
 
                 }
             }
+            // Fill -> Produce
+            if (labA && labA.memory && labA.memory.status == "fill" && labA.store.getFreeCapacity(labA.memory.resource) == 0 &&
+                labB && labB.memory && labB.memory.status == "fill" && labB.store.getFreeCapacity(labB.memory.resource) == 0) {
+                labA.memory.status = "produce";
+                labB.memory.status = "produce";
+                theLab.memory.status = "produce";
+            }
+            // Produce -> Empty
+            if ((labA && labA.memory && labA.memory.status == "produce" && labA.store.getUsedCapacity(labA.memory.resource) == 0) ||
+                (labB && labB.memory && labB.memory.status == "produce" && labB.store.getUsedCapacity(labB.memory.resource) == 0) ||
+                (theLab && theLab.memory && theLab.memory.status == "produce" && theLab.store.getFreeCapacity(labB.memory.resource) == 0)) {
+                labA.memory.status = "empty";
+                labB.memory.status = "empty";
+                theLab.memory.status = "empty";
+            }
+
         }
     }
+}
+
+ControllerLab.prototype.produce = function () {
+
 }
 
 module.exports = ControllerLab;

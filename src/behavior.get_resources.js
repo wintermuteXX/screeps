@@ -47,7 +47,9 @@ b.work = function (creep, rc) {
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
-        creep.travelTo(target);
+        creep.travelTo(target, {
+          maxRooms: 1
+        });
         break;
 
       default:
