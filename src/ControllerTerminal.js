@@ -69,7 +69,6 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
 
             if (order.price !== thePrice && Math.abs(order.price - thePrice) > 0.01) {
                 Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-                // TEST Don't change price when the change is less than 0,01
                 Game.market.changeOrderPrice(order.id, thePrice)
             }
             // Extend Order

@@ -29,6 +29,7 @@ b.work = function (creep, rc) {
       if (theObject && job.amount > 0) {
         creep.target = job.id;
         creep.amount = job.amount;
+        creep.exact = job.exact;
         target = creep.getTarget();
         Log.debug(`${creep} will deliver ${job.resourceType} to ${target} `, "transfer_resources");
       }
@@ -36,12 +37,19 @@ b.work = function (creep, rc) {
   };
 
   if (target) {
-    let result = creep.transfer(target, creepRes);
+    if (creep.exact === true) {
+      // TODO fix exact transfer
+      var result = creep.transfer(target, creepRes, Math.min(creep.amount, creep.store[creepRes]));
+    } else {
+      var result = creep.transfer(target, creepRes);
+    }
 
     switch (result) {
       case OK:
         Log.info(`${creep} successfully transfers ${creep.memory.resourceType} to ${target}`, "transfer_resources");
         creep.target = null;
+        creep.exact = false;
+        creep.amount = 0;
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
         Log.warn(`${creep} had not enough resources. Why is this happening? Investigate!`, "transfer_resources");
@@ -52,7 +60,9 @@ b.work = function (creep, rc) {
         creep.target = null;
         break;
       case ERR_NOT_IN_RANGE:
-        creep.travelTo(target);
+        creep.travelTo(target, {
+          maxRooms: 1
+        });
         break;
 
       default:
