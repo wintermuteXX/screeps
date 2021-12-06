@@ -353,16 +353,17 @@ ControllerRoom.prototype.needsResources = function () {
 			prio = 60
 		}
 
-		_.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
+		if (this.room.controller && this.room.controller.my) {
+			_.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
-		_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
-		_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
-
+			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
+			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+		}
 		/* let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
 		if (p && p > 400) {
 			self._needsResources.push({
