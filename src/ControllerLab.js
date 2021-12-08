@@ -63,7 +63,7 @@ ControllerLab.prototype.checkStatus = function () {
                 theLab && theLab.memory && theLab.memory.status == "empty" && theLab.store.getUsedCapacity(theLab.memory.resource) == 0) {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
-                    Log.success(`Room ${theLab.room.name} will fill ${global.resourceImg(reaction["result"])} in labs`, "checkStatus");
+                    Log.success(`Room ${theLab.room.name} will fill labs to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
                     labA.memory.status = "fill";
                     labA.memory.resource = reaction["resourceA"];
                     labB.memory.status = "fill";

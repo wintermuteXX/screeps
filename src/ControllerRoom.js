@@ -217,6 +217,20 @@ ControllerRoom.prototype.givesResources = function () {
 				});
 			}
 		});
+
+		// Labs
+		_.forEach(this.room.labs, function (c) {
+			if (c && c.memory.resource && c.memory.status == "empty" && c.store.getUsedCapacity(c.memory.resource) > 0) {
+				self._givesResources.push({
+					'priority': 185,
+					'resourceType': c.memory.resource,
+					'structureType': c.structureType,
+					'amount': c.store.getFreeCapacity(c.memory.resource),
+					'id': c.id
+				})
+			}
+		});
+
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
@@ -364,51 +378,6 @@ ControllerRoom.prototype.needsResources = function () {
 			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
 			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
 		}
-		/* let p = this.structureNeedResource(this.room.powerSpawn, RESOURCE_ENERGY);
-		if (p && p > 400) {
-			self._needsResources.push({
-				'priority': 80,
-				'structureType': this.room.powerSpawn.structureType,
-				'resourceType': "energy",
-				'amount': p,
-				'id': this.room.powerSpawn.id
-			})
-		} */
-
-		/* let p2 = this.structureNeedResource(this.room.powerSpawn, RESOURCE_POWER);
-		if (p2 && p2 > 20) {
-			self._needsResources.push({
-				'priority': 90,
-				'structureType': this.room.powerSpawn.structureType,
-				'resourceType': "power",
-				'amount': p2,
-				'id': this.room.powerSpawn.id,
-				'exact': true
-			})
-		} */
-
-		/* let n = this.structureNeedResource(this.room.nuker, RESOURCE_ENERGY);
-		if (n && n > 0) {
-			self._needsResources.push({
-				'priority': 110,
-				'structureType': this.room.nuker.structureType,
-				'resourceType': "energy",
-				'amount': n,
-				'id': this.room.nuker.id
-			})
-		} */
-
-		/* let n2 = this.structureNeedResource(this.room.nuker, RESOURCE_GHODIUM);
-		if (n2 && n2 > 0) {
-			self._needsResources.push({
-				'priority': 95,
-				'structureType': this.room.nuker.structureType,
-				'resourceType': "G",
-				'amount': n2,
-				'id': this.room.nuker.id,
-				'exact': true
-			})
-		} */
 
 		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
@@ -675,7 +644,7 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
 					if (this.getResourceAmount(key) > 2000 && this.getResourceAmount(prop) > 2000 && this.getResourceAmount(obj[prop]) < 18000) {
-						console.log(key + " " + prop + " " + obj[prop]);
+						// console.log(key + " " + prop + " " + obj[prop]);
 						return {
 							resourceA: key,
 							resourceB: prop,
