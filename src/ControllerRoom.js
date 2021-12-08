@@ -307,7 +307,7 @@ ControllerRoom.prototype.needsResources = function () {
 		this._needsResources = [];
 
 
-		let prio = 115;
+		let prio = 127;
 		if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
 			prio = 10;
 		} else if (this.room.controller && this.room.controller.ticksToDowngrade < 5000) {

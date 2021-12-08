@@ -63,7 +63,7 @@ ControllerLab.prototype.checkStatus = function () {
                 theLab && theLab.memory && theLab.memory.status == "empty" && theLab.store.getUsedCapacity(theLab.memory.resource) == 0) {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
-                    Log.success(`Room ${theLab.room.name} will fill labs to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
+                    Log.success(`Room ${theLab.room.name} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
                     labA.memory.status = "fill";
                     labA.memory.resource = reaction["resourceA"];
                     labB.memory.status = "fill";
@@ -81,7 +81,7 @@ ControllerLab.prototype.checkStatus = function () {
                 labB.memory.status = "produce";
                 theLab.memory.status = "produce";
             }
-            /* // Produce -> Empty
+            /*// Produce -> Empty
             if ((labA && labA.memory && labA.memory.status == "produce" && labA.store.getUsedCapacity(labA.memory.resource) == 0) ||
                 (labB && labB.memory && labB.memory.status == "produce" && labB.store.getUsedCapacity(labB.memory.resource) == 0) ||
                 (theLab && theLab.memory && theLab.memory.status == "produce" && theLab.store.getFreeCapacity(labB.memory.resource) == 0)) {
@@ -89,7 +89,7 @@ ControllerLab.prototype.checkStatus = function () {
                 labA.memory.status = "empty";
                 labB.memory.status = "empty";
                 theLab.memory.status = "empty";
-            } */
+            }*/
 
         }
     }
