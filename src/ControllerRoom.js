@@ -225,7 +225,7 @@ ControllerRoom.prototype.givesResources = function () {
 					'priority': 185,
 					'resourceType': c.memory.resource,
 					'structureType': c.structureType,
-					'amount': c.store.getFreeCapacity(c.memory.resource),
+					'amount': c.store.getUsedCapacity(c.memory.resource),
 					'id': c.id
 				})
 			}

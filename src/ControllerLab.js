@@ -129,7 +129,6 @@ ControllerLab.prototype.produce = function () {
 
                 default:
                     Log.warn(`unknown result from ${theLab}: ${result}`, "lab produce");
-                    creep.target = null
             }
         }
     }
