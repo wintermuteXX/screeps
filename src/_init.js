@@ -377,3 +377,10 @@ StructureSpawn.prototype.toString = function (htmlLink = true) {
   }
   return `[(${this.structureType}) #${this.id}]`;
 };
+
+Room.prototype.toString = function (htmlLink = true) {
+  if (htmlLink) {
+    return `<a href="#!/room/${Game.shard.name}/${this.name}">${this.name}</a>`;
+  }
+  return `[(${this.name}) #${this.name}]`;
+}

@@ -281,7 +281,7 @@ function initGlobal(g) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
         result.push("<td align='right'> " + amountResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * minResouceThreshold) - amountResources(resource)) + " </td>");
+        result.push("<td align='right'> " + ((numberOfRooms * minResourceThreshold) - amountResources(resource)) + " </td>");
         result.push("</tr>");
       } else {
         if (amountResources(resource) > 0) {
