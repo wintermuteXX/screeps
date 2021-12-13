@@ -19,7 +19,6 @@ module.exports = {
   "miner": {
     // TODO miner - if idle - repair container
     // TODO miner - if link empty + container filled -> transfer to link.
-    // TODO miner - create moving miner
     priority: 2,
     levelMin: 2,
     minParts: 3,
@@ -33,6 +32,7 @@ module.exports = {
       return (miners.length < sources.length);
     }
   },
+  // LONGTERM miner - create moving miner
 
   "miner_mineral": {
     priority: 5,
