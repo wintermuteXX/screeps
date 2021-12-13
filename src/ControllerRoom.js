@@ -39,16 +39,24 @@ ControllerRoom.prototype.run = function () {
 
 	this.commandCreeps();
 
-	_.each(this._towers, function (tower) {
-		tower.fire();
-		if (Game.time % global.getFixedValue('repairTower') === 0) {
-			if (this.getLevel == 8 && (Math.random() >= 0.5)) {
-				return
-			}
+	if (this.getResourceAmount(RESOURCE_ENERGY) > 150000) {
+		_.each(this._towers, function (tower) {
+			tower.fire();
 			tower.repair();
-		}
-	})
 
+		})
+	} else {
+		_.each(this._towers, function (tower) {
+			tower.fire();
+			if ((Game.time % global.getFixedValue('repairTower') === 0)) {
+				if (this.getLevel == 8 && (Math.random() >= 0.5)) {
+					return
+				}
+				tower.repair();
+			}
+		});
+
+	}
 	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0) {
 		this.terminal.buyEnergyOrder();
 	}
@@ -393,7 +401,7 @@ ControllerRoom.prototype.needsResources = function () {
 					prio = 55;
 					amount = minEnergyThreshold - (sto.store[r] || 0);
 
-				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] <= storageMaxEnergyAmount))) {
+				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] < storageMaxEnergyAmount))) {
 					prio = 125;
 					amount = storageMaxEnergyAmount - (sto.store[r] || 0);
 				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
@@ -643,7 +651,7 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 			var obj = REACTIONS[key];
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					if (this.getResourceAmount(key) > 2000 && this.getResourceAmount(prop) > 2000 && this.getResourceAmount(obj[prop]) < 18000) {
+					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < 18000) {
 						// console.log(key + " " + prop + " " + obj[prop]);
 						return {
 							resourceA: key,

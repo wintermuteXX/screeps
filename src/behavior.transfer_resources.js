@@ -24,8 +24,8 @@ b.work = function (creep, rc) {
     creep.target = null;
     let job = rc.getDeliveryOrder(creep);
     if (job !== (null || undefined)) {
-
       let theObject = Game.getObjectById(job.id)
+
       if (theObject && job.amount > 0) {
         creep.target = job.id;
         creep.amount = job.amount;
@@ -54,6 +54,8 @@ b.work = function (creep, rc) {
       case ERR_NOT_ENOUGH_RESOURCES:
         Log.warn(`${creep} had not enough resources. Why is this happening? Investigate!`, "transfer_resources");
         creep.target = null;
+        creep.exact = false;
+        creep.amount = 0;
         break;
       case ERR_FULL:
         Log.info(`${creep} ${target} is full. This shouldn't happen anymore`, "transfer_resources");

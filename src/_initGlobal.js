@@ -92,7 +92,7 @@ function initGlobal(g) {
     'checkLinks': 5,
     'checkResourcesQueue': 1,
     'repairTower': 8,
-    'maxHitsDefense': 1000000,
+    'maxHitsDefense': 2000000,
     'repairLimit': 0.95,
     'noAnalyseLimit': 100,
     // Storage
