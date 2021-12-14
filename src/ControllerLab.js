@@ -63,7 +63,7 @@ ControllerLab.prototype.checkStatus = function () {
                 theLab && theLab.memory && theLab.memory.status == "empty" && theLab.store.getUsedCapacity(theLab.memory.resource) == 0) {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
-                    Log.success(`Room ${theLab.room.name} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
+                    Log.success(`Room ${theLab.room} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
                     labA.memory.status = "fill";
                     labA.memory.resource = reaction["resourceA"];
                     labB.memory.status = "fill";
@@ -76,7 +76,7 @@ ControllerLab.prototype.checkStatus = function () {
             // Fill -> Produce
             if (labA && labA.memory && labA.memory.status == "fill" && labA.store.getFreeCapacity(labA.memory.resource) == 0 &&
                 labB && labB.memory && labB.memory.status == "fill" && labB.store.getFreeCapacity(labB.memory.resource) == 0) {
-                Log.success(`Room ${theLab.room.name} will produce ${global.resourceImg(theLab.memory.resource)} in labs`, "checkStatus");
+                Log.success(`Room ${theLab.room} will produce ${global.resourceImg(theLab.memory.resource)} in labs`, "checkStatus");
                 labA.memory.status = "produce";
                 labB.memory.status = "produce";
                 theLab.memory.status = "produce";
@@ -108,7 +108,7 @@ ControllerLab.prototype.produce = function () {
                 case ERR_FULL:
                 case ERR_INVALID_ARGS:
                 case ERR_NOT_ENOUGH_RESOURCES:
-                    Log.success(`Resource exhausted. Set lab status to empty. ${theLab.room.name} ${theLab}`, "lab produce");
+                    Log.success(`Resource exhausted. Set lab status to empty. ${theLab.room} ${theLab}`, "lab produce");
                     labA.memory.status = "empty";
                     labB.memory.status = "empty";
                     theLab.memory.status = "empty";

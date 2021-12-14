@@ -209,7 +209,6 @@ ControllerRoom.prototype.givesResources = function () {
 			containers.push(this.room.extractor.container)
 		}
 
-		// TODO Do not get from container if energy + link is near
 		_.each(containers, function (c) {
 			if (c && c.store && c.store !== undefined) {
 				_.each(c.store, function (amount, resourceType) {

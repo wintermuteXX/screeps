@@ -38,7 +38,6 @@ b.work = function (creep, rc) {
 
   if (target) {
     if (creep.exact === true) {
-      // TODO fix exact transfer
       var result = creep.transfer(target, creepRes, Math.min(creep.amount, creep.store[creepRes]));
     } else {
       var result = creep.transfer(target, creepRes);

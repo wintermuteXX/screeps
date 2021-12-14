@@ -46,7 +46,9 @@ b.work = function (creep, rc) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Link: ${link}`, "find_near_energy")
       creep.target = link.id;
       target = creep.getTarget();
-    } else if (creep.room.controller.container && _.sum(creep.room.controller.container.store) > 0) {
+    } else if (
+      //BUG Does not work when minerals are in container (and not energy)
+      creep.room.controller.container && creep.room.controller.container.store[RESOURCE_ENERGY] > 0) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${creep.room.controller.container}`, "find_near_energy")
       creep.target = creep.room.controller.container.id
       target = creep.getTarget();

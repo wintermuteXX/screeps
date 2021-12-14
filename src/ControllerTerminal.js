@@ -76,10 +76,10 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
                 let result = Game.market.extendOrder(order.id, maxOrderAmount - order.remainingAmount);
                 switch (result) {
                     case OK:
-                        Log.success(`${terminal.room.name} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
+                        Log.success(`${terminal.room} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
                         break;
                     default:
-                        Log.warn(`Result for extendOrder ${global.resourceImg(theMineralType)} in room ${terminal.room.name}: ${result}`, "sellRoomMineral");
+                        Log.warn(`Result for extendOrder ${global.resourceImg(theMineralType)} in room ${terminal.room}: ${result}`, "sellRoomMineral");
                 }
                 break;
             }
@@ -90,11 +90,11 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), maxOrderAmount, terminal.room.name);
         switch (result2) {
             case OK:
-                Log.success(`Created sell order in room ${terminal.room.name} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
+                Log.success(`Created sell order in room ${terminal.room} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
                 break;
 
             default:
-                Log.warn(`Result for create sell Order for ${global.resourceImg(theMineralType)} in room ${terminal.room.name}: ${result2}`, "sellRoomMineral");
+                Log.warn(`Result for create sell Order for ${global.resourceImg(theMineralType)} in room ${terminal.room}: ${result2}`, "sellRoomMineral");
         }
     }
 };
@@ -121,7 +121,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
             }
         } else {
-            Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room.name}`, "sellRoomMineralOverflow");
+            Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room}`, "sellRoomMineralOverflow");
         }
     }
 };
@@ -162,11 +162,11 @@ ControllerTerminal.prototype.internalTrade = function () {
                     switch (result) {
                         case OK:
                             cancelOrders = true;
-                            Log.success(`${terminal.room.name} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetroom.name}`, "internalTrade")
+                            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetroom}`, "internalTrade")
                             break;
 
                         default:
-                            Log.warn(`unknown result from terminal in ${terminal.room.name} tries to ransfer to (${targetroom.name}): ${result}`, "internalTrade");
+                            Log.warn(`unknown result from terminal in ${terminal.room} tries to ransfer to (${targetroom}): ${result}`, "internalTrade");
                     }
                 }
             }
@@ -202,11 +202,11 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
                     let result = Game.market.extendOrder(order.id, minEnergyThreshold - order.remainingAmount - energyInTerminal);
                     switch (result) {
                         case OK:
-                            Log.success(`ExtendOrder in room ${ter.room.name} was successful`, "buyEnergyOrder");
+                            Log.success(`ExtendOrder in room ${ter.room} was successful`, "buyEnergyOrder");
                             break;
 
                         default:
-                            Log.warn(`Result for extendOrder in room ${ter.room.name}: ${result}`, "buyEnergyOrder");
+                            Log.warn(`Result for extendOrder in room ${ter.room}: ${result}`, "buyEnergyOrder");
                     }
                     break;
                 }
@@ -216,11 +216,11 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
             let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.025, minEnergyThreshold, ter.room.name);
             switch (result2) {
                 case OK:
-                    Log.success(`Created order in room ${ter.room.name} for ${minEnergyThreshold} energy was successful`, "buyEnergyOrder");
+                    Log.success(`Created order in room ${ter.room} for ${minEnergyThreshold} energy was successful`, "buyEnergyOrder");
                     break;
 
                 default:
-                    Log.warn(`Result for createOrder in room ${ter.room.name}: ${result2}`, "buyEnergyOrder");
+                    Log.warn(`Result for createOrder in room ${ter.room}: ${result2}`, "buyEnergyOrder");
             }
         }
     }
