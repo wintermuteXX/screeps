@@ -271,7 +271,7 @@ RoomObject.prototype.calculateContainerPos = function (range) {
   if (this.room.controller.reservation &&
     /* reserved and not mine */
     this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username) {
-    console.log(`Unable to place container in ${this.room}, hostile reserved room`);
+    Log.warn(`Unable to place container in ${this.room}, hostile reserved room`, "calculateContainerPos");
     return;
   }
   if (this.structureType === STRUCTURE_CONTROLLER) {
@@ -298,7 +298,7 @@ RoomObject.prototype.calculateContainerPos = function (range) {
     plainCost: 2,
   });
   if (ret.incomplete || ret.path.length === 0) {
-    console.log("path used for container placement in calculateContainerPos incomplete, please investigate");
+    Log.error('Path used for container placement in calculateContainerPos incomplete, please investigate', "calculateContainerPos");
     return;
   }
   var position_1 = ret.path[range - 1];
@@ -380,7 +380,7 @@ StructureSpawn.prototype.toString = function (htmlLink = true) {
 
 Room.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    return `<a href="#!/room/${Game.shard.name}/${this.name}">${this.name}</a>`;
+    return `<a href="#!/room/${Game.shard.name}/${this.name}">[${this.name}]</a>`;
   }
   return `[(${this.name}) #${this.name}]`;
 }

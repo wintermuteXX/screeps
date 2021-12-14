@@ -47,7 +47,6 @@ b.work = function (creep, rc) {
       creep.target = link.id;
       target = creep.getTarget();
     } else if (
-      //BUG Does not work when minerals are in container (and not energy)
       creep.room.controller.container && creep.room.controller.container.store[RESOURCE_ENERGY] > 0) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${creep.room.controller.container}`, "find_near_energy")
       creep.target = creep.room.controller.container.id
@@ -66,6 +65,7 @@ b.work = function (creep, rc) {
   }
 
   if (target && controller) {
+    // TODO Add a check if withdraw/pickup is successful (and delete target if not)
     if (!creep.pos.isNearTo(target)) {
       Log.debug(`${creep.room.name} ${creep.name} is moving to target: ${target}`, "find_near_energy")
       creep.travelTo(target);
