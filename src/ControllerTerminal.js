@@ -54,8 +54,13 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     let orderExists = false
     let minOrderAmount = 50000
     let maxOrderAmount = 150000
+    let minResourceThreshold = global.getFixedValue('minResourceThreshold');
 
     if (terminal.store[theMineralType] === (0 || undefined)) {
+        return null;
+    }
+
+    if (global.amountResources(theMineralType) < (global.numberOfTerminals() * minResourceThreshold)) {
         return null;
     }
 

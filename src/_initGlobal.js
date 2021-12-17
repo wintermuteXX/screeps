@@ -193,6 +193,16 @@ function initGlobal(g) {
     return '<a target="_blank" href="https://screeps.com/a/#!/market/all/' + Game.shard.name + '/' + resourceType + '"><img src ="https://s3.amazonaws.com/static.screeps.com/upload/mineral-icons/' + resourceType + '.png" /></a>';
   };
 
+  g.numberOfTerminals = function () {
+    let numberOfTerminals = 0;
+    for (i in Game.rooms) {
+      if (Game.rooms[i].terminal) {
+        numberOfTerminals += 1
+      }
+    }
+    return numberOfTerminals;
+  }
+
   global.amountResources = function (resource) {
     let amount = 0
     let allStr = []

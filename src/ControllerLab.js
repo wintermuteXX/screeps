@@ -2,7 +2,6 @@ function ControllerLab(rc) {
     this.room = rc;
     this.labs = rc.room.labs;
 }
-// TODO implement Lab Code
 // LabStatus: empty, fill, produce
 
 ControllerLab.prototype.findLabPartner = function () {

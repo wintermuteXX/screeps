@@ -254,10 +254,10 @@ ControllerRoom.prototype.givesResources = function () {
 					prio = 120;
 					amount = sto.store[r] - minEnergyThreshold;
 				} else {
-					// TODO 2 different options needed (prio 100 + 150)
 					// Minerals
 					if (sto.store[r] > 20000) {
-						prio = 100; // TODO should bei 150 when transport can accept exact values.
+						// TEST should bei 150 when transport can accept exact values.
+						prio = 150;
 					} else {
 						prio = 100;
 					}

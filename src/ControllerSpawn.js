@@ -28,15 +28,15 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
 
   switch (result) {
     case OK:
-      Log.success(`${this.room} ${this.spawn} spawns creep: ${role}`, "createCreep")
+      Log.info(`${this.spawn} spawns creep: ${role}`, "createCreep")
       return true;
       break;
     case null:
-      Log.debug(`${this.room} createCreep returns: ${result}`, "createCreep");
+      Log.debug(`${this.spawn} createCreep returns: ${result}`, "createCreep");
       return false;
       break;
     default:
-      Log.warn(`${this.room} unknown result in createCreep: ${result}`, "createCreep");
+      Log.warn(`${this.spawn} unknown result in createCreep: ${result}`, "createCreep");
       return false;
   }
 };
