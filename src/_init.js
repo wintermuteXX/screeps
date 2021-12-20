@@ -213,6 +213,23 @@ Structure.prototype.needsRepair = function () {
   return this.hits < (this.hitsMax * repairLimit);
 };
 
+Structure.prototype.getFirstMineral = function () {
+  let result = {
+    amount: 0
+  }
+  if (this.store) {
+    _.each(this.store, function (amount, resourceType) {
+      if (resourceType !== RESOURCE_ENERGY) {
+        result = {
+          resource: resourceType,
+          amount: amount
+        }
+      }
+    });
+  }
+  return result;
+}
+
 Room.prototype.getResourceAmount = function (res) {
   var amount = 0;
   if (this.storage && this.storage.store[res]) {

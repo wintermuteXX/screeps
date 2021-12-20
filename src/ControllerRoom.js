@@ -227,12 +227,13 @@ ControllerRoom.prototype.givesResources = function () {
 
 		// Labs
 		_.forEach(this.room.labs, function (c) {
-			if (c && c.memory.resource && c.memory.status == "empty" && c.store.getUsedCapacity(c.memory.resource) > 0) {
+			let result = c.getFirstMineral();
+			if (c && c.memory.resource && c.memory.status == "empty" && result && result["amount"] > 0) {
 				self._givesResources.push({
 					'priority': 185,
-					'resourceType': c.memory.resource,
+					'resourceType': result["resource"],
 					'structureType': c.structureType,
-					'amount': c.store.getUsedCapacity(c.memory.resource),
+					'amount': result["amount"],
 					'id': c.id
 				})
 			}
@@ -651,7 +652,6 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
 					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < 18000) {
-						// console.log(key + " " + prop + " " + obj[prop]);
 						return {
 							resourceA: key,
 							resourceB: prop,

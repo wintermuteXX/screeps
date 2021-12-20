@@ -57,9 +57,9 @@ ControllerLab.prototype.checkStatus = function () {
             let labA = Game.getObjectById(theLab.memory.partnerA);
             let labB = Game.getObjectById(theLab.memory.partnerB);
             // Empty -> Fill
-            if (labA && labA.memory && labA.memory.status == "empty" && labA.store.getUsedCapacity(labA.memory.resource) == 0 &&
-                labB && labB.memory && labB.memory.status == "empty" && labB.store.getUsedCapacity(labB.memory.resource) == 0 &&
-                theLab && theLab.memory && theLab.memory.status == "empty" && theLab.store.getUsedCapacity(theLab.memory.resource) == 0) {
+            if (labA && labA.memory && labA.memory.status == "empty" && labA.getFirstMineral()["amount"] == 0 &&
+                labB && labB.memory && labB.memory.status == "empty" && labB.getFirstMineral()["amount"] == 0 &&
+                theLab && theLab.memory && theLab.memory.status == "empty" && theLab.getFirstMineral()["amount"] == 0) {
                 let reaction = this.room.getPossibleLabReaction();
                 if (reaction) {
                     Log.success(`${theLab.room} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
@@ -80,19 +80,10 @@ ControllerLab.prototype.checkStatus = function () {
                 labB.memory.status = "produce";
                 theLab.memory.status = "produce";
             }
-            /*// Produce -> Empty
-            if ((labA && labA.memory && labA.memory.status == "produce" && labA.store.getUsedCapacity(labA.memory.resource) == 0) ||
-                (labB && labB.memory && labB.memory.status == "produce" && labB.store.getUsedCapacity(labB.memory.resource) == 0) ||
-                (theLab && theLab.memory && theLab.memory.status == "produce" && theLab.store.getFreeCapacity(labB.memory.resource) == 0)) {
-                Log.success(`Room ${theLab.room.name} will empty ${theLab.memory.resource} in labs`, "checkStatus");
-                labA.memory.status = "empty";
-                labB.memory.status = "empty";
-                theLab.memory.status = "empty";
-            }*/
-
         }
     }
 }
+
 
 ControllerLab.prototype.produce = function () {
     for (let i in this.labs) {
