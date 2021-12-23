@@ -257,7 +257,6 @@ ControllerRoom.prototype.givesResources = function () {
 				} else {
 					// Minerals
 					if (sto.store[r] > 20000) {
-						// TEST should bei 150 when transport can accept exact values.
 						prio = 150;
 					} else {
 						prio = 100;

@@ -22,9 +22,9 @@ Game.profiler.background([functionFilter]);
 // LONGTERM test attack behavior
 // LONGTERM spawn defenders if attacked
 // LONGTERM Boost creeps
-// LONGTERM Build Terminal before extractor
 // LONGTERM Allow creeps to transport more then 1 resource 
 // LONGTERM New Task "recycle" for e.g. mineral miner
+// LONGTERM Renew creep if idle
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');

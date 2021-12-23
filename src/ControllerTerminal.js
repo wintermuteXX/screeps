@@ -141,7 +141,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 
     if (terminal && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
-            if (cancelOrders || (amount === 0))
+            if (cancelOrders || (amount === 0) || terminal.room.getResourceAmount(resourceType) < 20000)
                 return;
 
             let myRooms = _.filter(Game.rooms, r => {
