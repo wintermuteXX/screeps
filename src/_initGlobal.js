@@ -86,40 +86,31 @@ function initGlobal(g) {
    * Intervals
    */
 
-  g._fixedValue = {
-    'checkPopulation': 10,
-    'checkConstructions': 100,
-    'checkLinks': 5,
-    'checkResourcesQueue': 1,
-    'repairTower': 8,
-    'maxHitsDefense': 2000000,
-    'repairLimit': 0.95,
-    'noAnalyseLimit': 100,
-    // Storage
-    'minEnergyThreshold': 30000,
-    'minResourceThreshold': 20000,
-    'storageMaxEnergyAmount': 100000,
-    // Terminal
-    'internalTrade': 100,
-    'minCreditThreshold': 50000,
-    'buyEnergyOrder': 20,
-    'sellRoomMineralOverflow': 499,
-    'sellRoomMineral': 1000,
-    'minSellPrice': 0.04,
-    'modSellAmount1': 50000,
-    'modSellMultiplier1': 1.2,
-    'modSellAmount2': 90000,
-    'modSellMultiplier2': 1.1,
-    'modSellAmount3': 150000,
-    'modSellMultiplier3': 0.9
-  };
-
-  g.getFixedValue = function (key) {
-    if (key && this._fixedValue[key]) {
-      return this._fixedValue[key];
-    }
-    return 0;
-  };
+  global.checkPopulation = 10
+  global.checkConstructions = 100
+  global.checkLinks = 5
+  global.checkResourcesQueue = 1
+  global.repairTower = 8
+  global.maxHitsDefense = 2000000
+  global.repairLimit = 0.95
+  global.noAnalyseLimit = 100
+  // Storage
+  global.minEnergyThreshold = 30000
+  global.maxEnergyThreshold = 100000
+  global.minResourceThreshold = 18000
+  // Terminal
+  global.internalTrade = 50
+  global.minEnergyThresholdTerminal = 50000
+  global.buyEnergyOrder = 20
+  global.sellRoomMineralOverflow = 499
+  global.sellRoomMineral = 1000
+  global.minSellPrice = 0.04
+  global.modSellAmount1 = 50000
+  global.modSellMultiplier1 = 1.2
+  global.modSellAmount2 = 90000
+  global.modSellMultiplier2 = 1.1
+  global.modSellAmount3 = 150000
+  global.modSellMultiplier3 = 0.9
 
   /**
    * Behaviors
@@ -231,15 +222,13 @@ function initGlobal(g) {
     result.push("<table border=\"1\">");
     result.push('<caption> LABS\n</caption>');
     result.push("<tr>");
-    result.push("<th> A </th>");
     result.push("<th> STATUS </th>");
-    result.push("<th> RES </th>");
-    result.push("<th> B </th>");
-    result.push("<th> STATUS </th>");
-    result.push("<th> RES </th>");
     result.push("<th> C </th>");
-    result.push("<th> STATUS </th>");
-    result.push("<th> RES </th>");
+    result.push("<th> B </th>");
+    result.push("<th> A </th>");
+    result.push("<th> C </th>");
+    result.push("<th> B </th>");
+    result.push("<th> A </th>");
     result.push("</tr>");
 
     for (i in Game.rooms) {
@@ -254,15 +243,13 @@ function initGlobal(g) {
         let lab = labs[i];
         if (lab.memory.partnerA) {
           result.push("<tr>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerA) + " </td>");
           result.push("<td> " + Game.getObjectById(lab.memory.partnerA).memory.status + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerA).memory.resource) + " </td>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerB) + " </td>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerB).memory.status + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerB).memory.resource) + " </td>");
-          result.push("<td> " + lab + " </td>");
-          result.push("<td> " + lab.memory.status + " </td>");
           result.push("<td> " + resourceImg(lab.memory.resource) + " </td>");
+          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerA).memory.resource) + " </td>");
+          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerB).memory.resource) + " </td>");
+          result.push("<td> " + Game.getObjectById(lab.memory.partnerA) + " </td>");
+          result.push("<td> " + Game.getObjectById(lab.memory.partnerB) + " </td>");
+          result.push("<td> " + lab + " </td>");
           result.push("</tr>");
         }
       }
@@ -281,7 +268,6 @@ function initGlobal(g) {
     result.push("<th> Offset to perfect </th>");
     result.push("</tr>");
 
-    let minResourceThreshold = global.getFixedValue('minResourceThreshold');
     let numberOfRooms = rooms
     for (i in RESOURCES_ALL) {
 
@@ -291,14 +277,14 @@ function initGlobal(g) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
         result.push("<td align='right'> " + amountResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * minResourceThreshold) - amountResources(resource)) + " </td>");
+        result.push("<td align='right'> " + ((numberOfRooms * global.minResourceThreshold) - amountResources(resource)) + " </td>");
         result.push("</tr>");
       } else {
         if (amountResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
           result.push("<td align='right'> " + amountResources(resource) + " </td>");
-          result.push("<td align='right'> " + ((numberOfRooms * minResourceThreshold) - amountResources(resource)) + " </td>");
+          result.push("<td align='right'> " + ((numberOfRooms * global.minResourceThreshold) - amountResources(resource)) + " </td>");
           result.push("</tr>");
         }
       }

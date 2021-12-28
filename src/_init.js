@@ -205,12 +205,11 @@ Object.defineProperty(Structure.prototype, 'memory', {
 Structure.prototype.needsRepair = function () {
   //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
   if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
-    let max = global.getFixedValue('maxHitsDefense');
-    return (this.hits < max) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
+    return (this.hits < global.maxHitsDefense) && (this.hits < this.hitsMax) && (this.hitsMax > 1);
   }
   // Repair remaining stuff if HP is under 90%
-  let repairLimit = global.getFixedValue('repairLimit');
-  return this.hits < (this.hitsMax * repairLimit);
+  //return this.hits < (this.hitsMax * global.repairLimit);
+  return this.hits < (global.maxHitsDefense * global.repairLimit);
 };
 
 Structure.prototype.getFirstMineral = function () {

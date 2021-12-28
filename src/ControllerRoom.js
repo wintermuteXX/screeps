@@ -48,7 +48,7 @@ ControllerRoom.prototype.run = function () {
 	} else {
 		_.each(this._towers, function (tower) {
 			tower.fire();
-			if ((Game.time % global.getFixedValue('repairTower') === 0)) {
+			if (Game.time % global.repairTower === 0) {
 				if (this.getLevel == 8 && (Math.random() >= 0.5)) {
 					return
 				}
@@ -57,18 +57,18 @@ ControllerRoom.prototype.run = function () {
 		});
 
 	}
-	if (Game.time % global.getFixedValue('buyEnergyOrder') === 0) {
+	if (Game.time % global.buyEnergyOrder === 0) {
 		this.terminal.buyEnergyOrder();
 	}
-	if (Game.time % global.getFixedValue('internalTrade') === 0) {
+	if (Game.time % global.internalTrade === 0) {
 		this.terminal.internalTrade();
 	}
 
-	if (Game.time % global.getFixedValue('sellRoomMineralOverflow') === 0) {
+	if (Game.time % global.sellRoomMineralOverflow === 0) {
 		this.terminal.sellRoomMineralOverflow();
 	}
 
-	if (Game.time % global.getFixedValue('sellRoomMineral') === 0) {
+	if (Game.time % global.sellRoomMineral === 0) {
 		this.terminal.sellRoomMineral();
 	}
 
@@ -90,7 +90,7 @@ ControllerRoom.prototype.commandCreeps = function () {
 };
 
 ControllerRoom.prototype.populate = function () {
-	if (Game.time % global.getFixedValue('checkPopulation') !== 0) return;
+	if (Game.time % global.checkPopulation !== 0) return;
 
 	var spawn = null;
 
@@ -242,21 +242,19 @@ ControllerRoom.prototype.givesResources = function () {
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
-		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-
 		if (sto) {
 			for (var r of RESOURCES_ALL) {
 				// Energy
 				let amount = 0;
-				if (r === "energy" && sto.store[r] <= minEnergyThreshold) {
+				if (r === "energy" && sto.store[r] <= global.minEnergyThreshold) {
 					prio = 40;
 					amount = sto.store[r]
-				} else if (r === "energy" && sto.store[r] > minEnergyThreshold) {
+				} else if (r === "energy" && sto.store[r] > global.minEnergyThreshold) {
 					prio = 120;
-					amount = sto.store[r] - minEnergyThreshold;
+					amount = sto.store[r] - global.minEnergyThreshold;
 				} else {
 					// Minerals
-					if (sto.store[r] > 20000) {
+					if (sto.store[r] > global.minResourceThreshold) {
 						prio = 150;
 					} else {
 						prio = 100;
@@ -278,12 +276,12 @@ ControllerRoom.prototype.givesResources = function () {
 		if (ter) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === "energy" && ter.store[r] <= 50000) {
+				if (r === "energy" && ter.store[r] <= global.minEnergyThresholdTerminal) {
 					prio = 35;
 					amount = ter.store[r];
-				} else if (r === "energy" && ter.store[r] > 50000) {
+				} else if (r === "energy" && ter.store[r] > global.minEnergyThresholdTerminal) {
 					prio = 140;
-					amount = ter.store[r] - 50000;
+					amount = ter.store[r] - global.minEnergyThresholdTerminal;
 				} else if (r !== "energy" && ter.store[r] > 0) {
 					prio = 130;
 					amount = ter.store[r];
@@ -386,26 +384,22 @@ ControllerRoom.prototype.needsResources = function () {
 			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
 		}
 
-		let minResourceThreshold = global.getFixedValue('minResourceThreshold');
-		let minEnergyThreshold = global.getFixedValue('minEnergyThreshold');
-		let storageMaxEnergyAmount = global.getFixedValue('storageMaxEnergyAmount');
-
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
 		if (sto && sto.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < minEnergyThreshold)) {
+				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < global.minEnergyThreshold)) {
 					prio = 55;
-					amount = minEnergyThreshold - (sto.store[r] || 0);
+					amount = global.minEnergyThreshold - (sto.store[r] || 0);
 
-				} else if (r === 'energy' && ((sto.store[r] >= minEnergyThreshold) && (sto.store[r] < storageMaxEnergyAmount))) {
+				} else if (r === 'energy' && ((sto.store[r] >= global.minEnergyThreshold) && (sto.store[r] < global.maxEnergyThreshold))) {
 					prio = 125;
-					amount = storageMaxEnergyAmount - (sto.store[r] || 0);
-				} else if (r !== 'energy' && (sto.store[r] < minResourceThreshold)) {
+					amount = global.maxEnergyThreshold - (sto.store[r] || 0);
+				} else if (r !== 'energy' && (sto.store[r] < global.minResourceThreshold)) {
 					prio = 105;
-					amount = minResourceThreshold - sto.store[r];
+					amount = global.minResourceThreshold - sto.store[r];
 				} else {
 					continue;
 				}
@@ -424,9 +418,9 @@ ControllerRoom.prototype.needsResources = function () {
 		if (ter && ter.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < 50000)) {
+				if (r === 'energy' && (ter.store[r] === undefined || ter.store[r] < global.minEnergyThresholdTerminal)) {
 					prio = 45;
-					amount = 50000 - (ter.store[r] || 0);
+					amount = global.minEnergyThresholdTerminal - (ter.store[r] || 0);
 				} else if (r === 'energy') {
 					prio = 145;
 					amount = ter.store.getFreeCapacity();
@@ -650,7 +644,7 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 			var obj = REACTIONS[key];
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < 18000) {
+					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < global.minResourceThreshold2) {
 						return {
 							resourceA: key,
 							resourceB: prop,
@@ -775,7 +769,7 @@ ControllerRoom.prototype.centerPoint = function () {
 
 ControllerRoom.prototype.analyse = function () {
 
-	if (Game.cpu.tickLimit <= global.getFixedValue('noAnalyseLimit')) return;
+	if (Game.cpu.tickLimit <= global.noAnalyseLimit) return;
 	var memory = this.room.memory;
 
 	try {
