@@ -209,7 +209,7 @@ Structure.prototype.needsRepair = function () {
   }
   // Repair remaining stuff if HP is under 90%
   //return this.hits < (this.hitsMax * global.repairLimit);
-  return this.hits < (global.maxHitsDefense * global.repairLimit);
+  return this.hits < (this.hitsMax * global.repairLimit);
 };
 
 Structure.prototype.getFirstMineral = function () {

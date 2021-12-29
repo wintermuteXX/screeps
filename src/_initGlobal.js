@@ -111,6 +111,11 @@ function initGlobal(g) {
   global.modSellMultiplier2 = 1.1
   global.modSellAmount3 = 150000
   global.modSellMultiplier3 = 0.9
+  global.modSellMultiplier4 = 0.75
+  global.minOrderAmount = 50000
+  global.maxOrderAmount = 150000
+  global.energyPrice = 0.02
+  global.theProfit = 0.05
 
   /**
    * Behaviors

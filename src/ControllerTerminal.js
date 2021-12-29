@@ -18,7 +18,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     } else if (theAmount < global.modSellAmount3) {
         modify = global.modSellMultiplier3
     } else {
-        modify = 0.75
+        modify = global.modSellMultiplier4
     }
 
     // Get selling history for specified Resource
@@ -45,8 +45,6 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     }
     let theMineralType = terminal.room.mineral.mineralType
     let orderExists = false
-    let minOrderAmount = 50000
-    let maxOrderAmount = 150000
 
     if (terminal.store[theMineralType] === (0 || undefined)) {
         return null;
@@ -69,8 +67,8 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
                 Game.market.changeOrderPrice(order.id, thePrice)
             }
             // Extend Order
-            if (order.remainingAmount < minOrderAmount) {
-                let result = Game.market.extendOrder(order.id, maxOrderAmount - order.remainingAmount);
+            if (order.remainingAmount < global.minOrderAmount) {
+                let result = Game.market.extendOrder(order.id, global.maxOrderAmount - order.remainingAmount);
                 switch (result) {
                     case OK:
                         Log.success(`${terminal.room} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
@@ -84,7 +82,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     }
     // Create new order
     if (orderExists === false) {
-        let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), maxOrderAmount, terminal.room.name);
+        let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), global.maxOrderAmount, terminal.room.name);
         switch (result2) {
             case OK:
                 Log.success(`Created sell order in room ${terminal.room} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
@@ -102,17 +100,14 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
         return null;
     }
     let theMineralType = terminal.room.mineral.mineralType
-    let energyPrice = 0.02;
-    let theProfit = 0.05;
-    let minimumResource = 150000;
 
-    if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > minimumResource) {
+    if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > global.maxOrderAmount) {
 
-        let bestOrder = this.findBestOrder(theMineralType, energyPrice, theProfit);
+        let bestOrder = this.findBestOrder(theMineralType, global.energyPrice, global.theProfit);
         if (bestOrder !== null) {
             let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
             if (result == OK) {
-                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${(bestOrder.amount * bestOrder.price).toFixed(2)} - EnergyCost: ${(bestOrder.fee * energyPrice).toFixed(2)} `, "sellRoomMineralOverflow");
+                Log.success(`${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${(bestOrder.amount * bestOrder.price).toFixed(2)} - EnergyCost: ${(bestOrder.fee * global.energyPrice).toFixed(2)} `, "sellRoomMineralOverflow");
             } else {
                 Log.info(`No deal because: ${result}`, "sellRoomMineralOverflow");
 
@@ -207,7 +202,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
             }
         }
         if (orderExists === false) {
-            let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.025, global.minEnergyThreshold, ter.room.name);
+            let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, global.energyPrice, global.minEnergyThreshold, ter.room.name);
             switch (result2) {
                 case OK:
                     Log.success(`Created order in room ${ter.room} for ${global.minEnergyThreshold} energy was successful`, "buyEnergyOrder");
@@ -247,6 +242,7 @@ ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPri
     });
     if (orders.length === 0)
         return null;
+    // TEST this looks wrong 'profit'
     let bestOrder = _.max(orders, 'profit');
     return bestOrder;
 };

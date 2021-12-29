@@ -76,7 +76,10 @@ ControllerRoom.prototype.run = function () {
 		this.room.powerSpawn.processPower();
 	}
 	// this.labs.findLabPartner();
-	this.labs.checkStatus();
+
+	if (Game.time % 10 === 0) {
+		this.labs.checkStatus();
+	}
 	this.labs.produce();
 };
 
@@ -644,7 +647,7 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 			var obj = REACTIONS[key];
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < global.minResourceThreshold2) {
+					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < global.minResourceThreshold) {
 						return {
 							resourceA: key,
 							resourceB: prop,
