@@ -257,11 +257,11 @@ g.resourceReorder = setInterval(() => {
     result.push("<tr>");
     result.push("<th> STATUS </th>");
     result.push("<th> C </th>");
-    result.push("<th> B </th>");
-    result.push("<th> A </th>");
     result.push("<th> C </th>");
+    result.push("<th> A </th>");
     result.push("<th> B </th>");
     result.push("<th> A </th>");
+    result.push("<th> B </th>");
     result.push("</tr>");
 
     for (i in Game.rooms) {
@@ -273,16 +273,16 @@ g.resourceReorder = setInterval(() => {
 
 
       for (i in labs) {
-        let lab = labs[i];
-        if (lab.memory.partnerA) {
+        let labC = labs[i];
+        if (labC.memory.partnerA) {
           result.push("<tr>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerA).memory.status + " </td>");
-          result.push("<td> " + resourceImg(lab.memory.resource) + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerA).memory.resource) + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(lab.memory.partnerB).memory.resource) + " </td>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerA) + " </td>");
-          result.push("<td> " + Game.getObjectById(lab.memory.partnerB) + " </td>");
-          result.push("<td> " + lab + " </td>");
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerA).memory.status + " </td>");
+          result.push("<td> " + resourceImg(labC.memory.resource) + " </td>");
+          result.push("<td> " + labC + " </td>");
+          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerA).memory.resource) + " </td>");
+          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerB).memory.resource) + " </td>");
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerA) + " </td>");
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerB) + " </td>");
           result.push("</tr>");
         }
       }
