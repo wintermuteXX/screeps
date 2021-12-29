@@ -222,6 +222,34 @@ function initGlobal(g) {
     return amount
   }
 
+  const reorderResources = () => {
+    const scriptInject = `
+<script>
+const g = window || global;
+clearInterval(g.resourceReorder);
+g.resourceReorder = setInterval(() => {
+    /* Resources are are grouped by functionality. Color is sorted by Hue within a category */
+    const resourceOrder = ["energy","H","O","Z","L","U","K","X","G","OH","ZK","UL","ZH","ZH2O","XZH2O","ZO","ZHO2","XZHO2","LH","LH2O","XLH2O","LO","LHO2","XLHO2","UH","UH2O","XUH2O","UO","UHO2","XUHO2","KH","KH2O","XKH2O","KO","KHO2","XKHO2","GH","GH2O","XGH2O","GO","GHO2","XGHO2","ops","battery","reductant","oxidant","zynthium_bar","lemergium_bar","utrium_bar","keanium_bar","purifier","ghodium_melt","composite","crystal","liquid","metal","alloy","tube","wire","fixtures","frame","hydraulics","machine","biomass","cell","phlegm","tissue","muscle","organoid","organism","silicon","wire","switch","transistor","microchip","circuit","device","mist","condensate","concentrate","extract","spirit","emanation","essence"];;
+    const $scope = angular.element(document.getElementsByClassName('carry-resource')[0]).scope();
+    if(!$scope){ return; }
+    const orderedStore = {};
+    const curStore = $scope.Room.selectedObject.store;
+    for (const resource of resourceOrder) {
+        if (resource in curStore) {
+            orderedStore[resource] = curStore[resource];
+        }
+    }
+    /* Need to append a random element to force an angular update */
+    orderedStore['dummy_' + Math.random()] = 0;
+    $scope.Room.selectedObject.store = orderedStore;
+}, 1000);
+</script>`.replace(/\r?\n|\r/g, ``);
+    console.log(scriptInject);
+  };
+
+  // Adding it to the global object
+  global.reorderResources = reorderResources;
+
   global.showLabs = function () {
     let result = [];
     result.push("<table border=\"1\">");
