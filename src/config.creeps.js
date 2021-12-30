@@ -168,6 +168,28 @@ module.exports = {
     }
   },
 
+  'defender': {
+    produceGlobal: false,
+    priority: 3,
+    minLevel: 2,
+    minParts: 6,
+    wait4maxEnergy: true,
+    body2: [MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE, RANGED_ATTACK],
+    // TODO Implement recycling
+    behaviors: ['attack_enemy'],
+
+    // TODO only build if no tower or boosted creeps enter room
+    canBuild: function (rc) {
+      /* var flags = _.filter(Game.flags, {
+        'color': COLOR_RED
+      });
+      if (flags.length === 0) return false;
+      return _.filter(Game.creeps, (c) => c.memory.role == 'attacker').length < 1; */
+      return false
+    }
+
+  },
+
   // TODO Supporter help rooms with RCL <= 3
   'supporter': {
     produceGlobal: false,

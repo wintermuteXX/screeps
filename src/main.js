@@ -24,7 +24,6 @@ Game.profiler.background([functionFilter]);
 // LONGTERM Boost creeps
 // LONGTERM Allow creeps to transport more then 1 resource 
 // LONGTERM New Task "recycle" for e.g. mineral miner
-// TODO create constants for values / replace current system
 
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
