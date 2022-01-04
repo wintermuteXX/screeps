@@ -39,7 +39,7 @@ ControllerRoom.prototype.run = function () {
 
 	this.commandCreeps();
 
-	if (this.getResourceAmount(RESOURCE_ENERGY) > 150000) {
+	if (this.getRoomResourceAmount(RESOURCE_ENERGY) > 150000) {
 		_.each(this._towers, function (tower) {
 			tower.fire();
 			tower.repair();
@@ -625,7 +625,7 @@ ControllerRoom.prototype.getSourcesNotEmpty = function () {
 	return this._sourcesNE;
 };
 
-ControllerRoom.prototype.getSourcesUndefended = function (defended) {
+/* ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 	if (!this._sourcesUD) {
 		let sources = this.getSources();
 		if (sources) {
@@ -637,15 +637,16 @@ ControllerRoom.prototype.getSourcesUndefended = function (defended) {
 		}
 	}
 	return this._sourcesUD;
-};
+}; */
 
-ControllerRoom.prototype.getPossibleLabReaction = function () {
+ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
 	for (var key in REACTIONS) {
 		if (REACTIONS.hasOwnProperty(key)) {
 			var obj = REACTIONS[key];
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
-					if (this.getResourceAmount(key) > 9000 && this.getResourceAmount(prop) > 9000 && this.getResourceAmount(obj[prop]) < global.minResourceThreshold) {
+					// TODO 9000 should be dynamic based on number of labs, or complete new system
+					if (this.getRoomResourceAmount(key) >= 9000 && this.getRoomResourceAmount(prop) >= 9000 && this.getRoomResourceAmount(obj[prop]) < global.minResourceThreshold) {
 						return {
 							resourceA: key,
 							resourceB: prop,
@@ -658,7 +659,7 @@ ControllerRoom.prototype.getPossibleLabReaction = function () {
 	}
 };
 
-ControllerRoom.prototype.getResourceAmount = function (res) {
+ControllerRoom.prototype.getRoomResourceAmount = function (res) {
 	var amount = 0;
 	if (this.room.storage && this.room.storage.store[res]) {
 		amount += this.room.storage.store[res];

@@ -229,7 +229,7 @@ Structure.prototype.getFirstMineral = function () {
   return result;
 }
 
-Room.prototype.getResourceAmount = function (res) {
+Room.prototype.getRoomResourceAmount = function (res) {
   var amount = 0;
   if (this.storage && this.storage.store[res]) {
     amount += this.storage.store[res];

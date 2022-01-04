@@ -60,7 +60,7 @@ ControllerLab.prototype.checkStatus = function () {
             if (labA && labA.memory && labA.memory.status == "empty" && labA.getFirstMineral()["amount"] == 0 &&
                 labB && labB.memory && labB.memory.status == "empty" && labB.getFirstMineral()["amount"] == 0 &&
                 theLab && theLab.memory && theLab.memory.status == "empty" && theLab.getFirstMineral()["amount"] == 0) {
-                let reaction = this.room.getPossibleLabReaction();
+                let reaction = this.room.getFirstPossibleLabReaction();
                 if (reaction) {
                     Log.success(`${theLab.room} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
                     labA.memory.status = "fill";
