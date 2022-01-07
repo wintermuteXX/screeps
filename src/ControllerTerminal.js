@@ -50,6 +50,10 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         return null;
     }
 
+    if (terminal.store[theMineralType] < 10000) {
+        return null;
+    }
+
     if (global.amountResources(theMineralType) < (global.numberOfTerminals() * global.minResourceThreshold)) {
         return null;
     }

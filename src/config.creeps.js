@@ -60,6 +60,7 @@ module.exports = {
       var transporters = rc.getAllCreeps('transporter');
       let modifier = 0;
       if (rc.getDroppedResourcesAmount() > 5000) {
+        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()} `, "transporter")
         modifier = 1;
       }
       if (rc.getLevel() < 4) {
