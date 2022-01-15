@@ -45,3 +45,4 @@ Temporary Items
 # Grunt
 node_modules/
 gruntfile.js
+.screeps.json
