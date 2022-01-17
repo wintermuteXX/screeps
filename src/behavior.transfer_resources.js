@@ -67,7 +67,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        Log.warn(`unknown result from ${creep}. Transfer to (${target}): ${result}`, "transfer_resources");
+        Log.warn(`${creep} has unknown result from transfer to (${target}): ${result}`, "transfer_resources");
     }
   }
 };

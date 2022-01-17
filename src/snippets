@@ -40,7 +40,7 @@ for (var i in RESOURCES_ALL) {
         resourceType: RESOURCES_ALL[i],
         price: 0.003,
         totalAmount: 50000,
-        roomName: "E28S23"
+        roomName: "E29S22"
     });
 }
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

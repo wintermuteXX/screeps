@@ -161,7 +161,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                             break;
 
                         default:
-                            Log.warn(`unknown result from terminal in ${terminal.room} tries to ransfer to (${targetroom}): ${result}`, "internalTrade");
+                            Log.warn(`${terminal} has unknown result in ${terminal.room} tries to transfer to (${targetroom}): ${result}`, "internalTrade");
                     }
                 }
             }

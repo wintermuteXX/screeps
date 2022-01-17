@@ -25,7 +25,7 @@ b.work = function (creep, rc) {
         break;
 
       default:
-        console.log(`unknown result from (creep ${creep}).upgradeController(${target}): ${result}`);
+        console.log(`${creep} has unknown result from upgradeController(${target}): ${result}`);
     }
   }
 };
