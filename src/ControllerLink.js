@@ -1,4 +1,4 @@
-var RANGE_TO_SOURCE = 4;
+var RANGE_TO_SOURCE = 3;
 
 function ControllerLink(rc) {
   this.room = rc;

@@ -763,7 +763,7 @@ ControllerRoom.prototype.centerPoint = function () {
 		}
 	}
 
-	Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "internalTrade")
+	Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "centerPoint")
 	let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.room.name);
 	return thePosition;
 	// this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);

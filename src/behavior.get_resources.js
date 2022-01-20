@@ -3,14 +3,14 @@ var b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
   Log.debug(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
-  if (creep.energy > 0) return false;
+  if (creep.store.getUsedCapacity() > 0) return false;
   if (rc.getTransportOrder(creep) == (null || undefined)) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
   Log.debug(`${creep} is running "completed" in Tick ${Game.time}`, "get_resources");
-  return (creep.energy > 0 || creep.target === null);
+  return (creep.store.getUsedCapacity() > 0 || creep.target === null);
 };
 
 b.work = function (creep, rc) {

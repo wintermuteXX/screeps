@@ -3,12 +3,12 @@ var Behavior = require("_behavior");
 var b = new Behavior("upgrade_controller");
 
 b.when = function (creep, rc) {
-  return (rc.room.controller !== null && creep.energy > 0);
+  return (rc.room.controller !== null && creep.store[RESOURCE_ENERGY] > 0);
 };
 
 b.completed = function (creep, rc) {
   let controller = rc.room.controller;
-  return (creep.energy === 0 || controller === null || controller === undefined || controller.my == false);
+  return (creep.store[RESOURCE_ENERGY] === 0 || controller === null || controller === undefined || controller.my == false);
 };
 
 b.work = function (creep, rc) {

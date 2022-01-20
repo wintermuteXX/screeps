@@ -4,13 +4,13 @@ var b = new Behavior("harvest");
 
 b.when = function (creep, rc) {
   var sources = rc.getSourcesNotEmpty();
-  return (creep.energy === 0 && sources.length > 0);
+  return (creep.store.getUsedCapacity() === 0 && sources.length > 0);
 };
 
 b.completed = function (creep, rc) {
   if (!creep.getTarget()) return false;
   if (creep.getTarget().energy == 0) return true;
-  return (creep.energy === creep.store.getCapacity(RESOURCE_ENERGY));
+  return (creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY));
 };
 
 b.work = function (creep, rc) {

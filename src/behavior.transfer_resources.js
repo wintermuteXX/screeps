@@ -3,14 +3,14 @@ var b = new Behavior("transfer_resources");
 
 b.when = function (creep, rc) {
   Log.debug(`${creep} is checking "when" in transfer_resources`, "transfer_resources")
-  if (creep.energy === 0) return false;
+  if (creep.store.getUsedCapacity() === 0) return false;
   if (rc.getDeliveryOrder(creep) == (null || undefined)) return false;
   return true;
 };
 
 b.completed = function (creep, rc) {
   Log.debug(`${creep} is checking "completed" in transfer_resources`, "transfer_resources")
-  if (creep.energy === 0) return true;
+  if (creep.store.getUsedCapacity() === 0) return true;
   let tar = creep.getTarget();
   if (!tar) return true;
   return false;

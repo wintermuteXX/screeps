@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 
 var b = new Behavior("repair");
 b.when = function (creep, rc) {
-  if (creep.energy > 0) {
+  if (creep.store.getUsedCapacity() > 0) {
     return (rc.findStructuresToRepair().length);
   }
   return false;
@@ -10,7 +10,7 @@ b.when = function (creep, rc) {
 
 b.completed = function (creep, rc) {
   var target = creep.getTarget();
-  return (creep.energy === 0 || !target || target.hits === target.hitsMax);
+  return (creep.store.getUsedCapacity() === 0 || !target || target.hits === target.hitsMax);
 };
 
 b.work = function (creep, rc) {

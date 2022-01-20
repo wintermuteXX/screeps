@@ -3,12 +3,12 @@ var Behavior = require("_behavior");
 var b = new Behavior("build_structures");
 
 b.when = function (creep, rc) {
-  return (creep.energy > 0 && rc.find(FIND_CONSTRUCTION_SITES).length);
+  return (creep.store.getUsedCapacity() > 0 && rc.find(FIND_CONSTRUCTION_SITES).length);
 };
 
 b.completed = function (creep, rc) {
   var target = creep.getTarget();
-  return (creep.energy === 0 || target === null);
+  return (creep.store.getUsedCapacity() === 0 || target === null);
 };
 
 b.work = function (creep, rc) {

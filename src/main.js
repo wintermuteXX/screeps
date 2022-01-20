@@ -1,4 +1,5 @@
 /* 
+
 Game.spawns.Southtown.spawnCreep([WORK, CARRY, MOVE, CARRY, MOVE], 'Builder_666', {memory: {role: 'builder'}});
 Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.01, 30000, "E68S47");
 Game.market.deal('59d1e4719b0a8a64bbfdd5dc', 30000, "E68S47");
