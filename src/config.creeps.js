@@ -48,6 +48,22 @@ module.exports = {
     }
   },
 
+  "miner_commodity": {
+    priority: 6,
+    levelMin: 5,
+    minParts: 15,
+    wait4maxEnergy: true,
+    body2: [MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY],
+    behaviors: ["goto_green_flag", "miner_harvest_commodities"],
+
+    canBuild: function (rc) {
+      var miners = rc.getAllCreeps("miner_commodity");
+      return (_.find(Game.flags, {
+        'color': COLOR_GREEN
+      }) && miners < 3);
+    }
+  },
+
   "transporter": {
     priority: 3,
     levelMin: 2,
