@@ -49,12 +49,13 @@ module.exports = {
   },
 
   "miner_commodity": {
+    produceGlobal: false,
     priority: 6,
     levelMin: 5,
-    minParts: 15,
+    minParts: 16,
     wait4maxEnergy: true,
-    body2: [MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, CARRY],
-    behaviors: ["goto_green_flag", "miner_harvest_commodities"],
+    body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY],
+    behaviors: ["goto_green_flag", "miner_harvest_commodities", "transfer_resources"],
 
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_commodity");

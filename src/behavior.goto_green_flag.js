@@ -9,7 +9,7 @@ function findFlag(rc) {
 
 b.when = function (creep, rc) {
     var flag = findFlag(rc);
-    return !!flag && flag.room !== creep.room;
+    return !!flag && flag.room !== creep.room && creep.store.getUsedCapacity() == 0;
 };
 
 b.completed = function (creep, rc) {
