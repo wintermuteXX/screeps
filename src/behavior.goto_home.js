@@ -9,7 +9,6 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-    console.log("Home " + creep.memory.home)
     if (creep.memory.home) {
         creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
             preferHighway: true

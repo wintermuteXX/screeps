@@ -1,6 +1,6 @@
 function initGlobal(g) {
 
-  // Prototpyes für Room Structures
+  // Prototypes für Room Structures
   var roomStructures = {};
   var roomStructuresExpiration = {};
   const CACHE_TIMEOUT = 50;

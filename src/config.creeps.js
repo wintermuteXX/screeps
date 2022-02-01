@@ -11,7 +11,8 @@ module.exports = {
       if (rc.getLevel() > 2) {
         return rc.getAllCreeps().length === 0;
       } else {
-        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length) < 5;
+        // TODO This is not dynamic enough. Supporters have a log way. Usually there are too much builders. Take FreeSpaces into account
+        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length) < 4;
       }
     }
   },
@@ -58,7 +59,8 @@ module.exports = {
     behaviors: ["goto_green_flag", "miner_harvest_commodities", "transfer_resources"],
 
     canBuild: function (rc) {
-      var miners = rc.getAllCreeps("miner_commodity");
+      var miners = _.filter(Game.creeps, (c) => c.memory.role == 'miner_commodity').length;
+      // var miners = rc.getAllCreeps("miner_commodity");
       return (_.find(Game.flags, {
         'color': COLOR_GREEN
       }) && miners < 3);

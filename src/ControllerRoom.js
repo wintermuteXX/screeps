@@ -125,6 +125,8 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 		for (var n in needsResources) {
 			let need = needsResources[n];
 			// TODO getCreeps needs to be better. Should calculate if more amount is needed...
+			// console.log("Test transport order controller container exception: " + need.id + " | " + Creep.room.controller.memory.containerID)
+
 			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && this.getCreeps(null, give.id).length == 0) {
 				// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
 				// if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
@@ -141,6 +143,7 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 
 	for (var n in needsResources) {
 		let need = needsResources[n];
+		// console.log("Test delivery order controller container exception: " + need.id + " | " + Creep.room.controller.memory.containerID)
 		if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
 			// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
 			// if (need.resourceType === Creep.memory.resourceType) {
@@ -379,10 +382,14 @@ ControllerRoom.prototype.needsResources = function () {
 			_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
 			_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
-			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+			if (this.room.powerSpawn) {
+				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
+				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
+			}
+			if (this.room.nuker) {
+				_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
+				_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+			}
 		}
 
 		let sto = this.room.storage;
