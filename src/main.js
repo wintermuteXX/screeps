@@ -6,6 +6,8 @@ Game.market.deal('59d1e4719b0a8a64bbfdd5dc', 30000, "E68S47");
 Game.market.changeOrderPrice('59d232ed78c2755738b3105e', 0.14);
 Game.market.extendOrder('59edcfbcbd894910c4e2fff1', 100000);
 
+grunt screeps --server=season
+
 Log.warn(`The creep spawns?: ${creep.room.spawns[0].spawning} `, "Spawning")
 Log.LEVEL_DEBUG = 0; Log.LEVEL_INFO = 1; Log.LEVEL_WARN = 2; Log.LEVEL_ERROR = 3; Log.LEVEL_SUCCESS = 4;
 

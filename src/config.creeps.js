@@ -56,7 +56,7 @@ module.exports = {
     minParts: 16,
     wait4maxEnergy: true,
     body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY],
-    behaviors: ["goto_green_flag", "miner_harvest_commodities", "transfer_resources"],
+    behaviors: ["goto_green_flag", "miner_harvest_commodities", "goto_home", "transfer_resources"],
 
     canBuild: function (rc) {
       var miners = _.filter(Game.creeps, (c) => c.memory.role == 'miner_commodity').length;
