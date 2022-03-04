@@ -131,6 +131,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 
     if (terminal && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
+            // BUG global.minResourceThreshold does not work with energy. Implement other system (every Resource has a threshold)
             if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.minResourceThreshold)
                 return;
 

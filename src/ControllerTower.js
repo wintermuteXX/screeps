@@ -22,6 +22,7 @@ ControllerTower.prototype.fire = function () {
     }
 };
 
+// TODO Create parameter to repair/upgrade even if needsRepair is not true
 ControllerTower.prototype.repair = function () {
 
     var targetList = this.ControllerRoom.getEnemys();
