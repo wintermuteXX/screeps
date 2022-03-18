@@ -3,8 +3,6 @@
 Game.spawns.Southtown.spawnCreep([WORK, CARRY, MOVE, CARRY, MOVE], 'Builder_666', {memory: {role: 'builder'}});
 Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.01, 30000, "E68S47");
 Game.market.deal('59d1e4719b0a8a64bbfdd5dc', 30000, "E68S47");
-Game.market.changeOrderPrice('59d232ed78c2755738b3105e', 0.14);
-Game.market.extendOrder('59edcfbcbd894910c4e2fff1', 100000);
 
 grunt screeps --server=season
 
@@ -15,9 +13,7 @@ todo-tree.tags
 **  TODO,FIXME,TEST,BUG,REMOVE,LONGTERM
 
 Game.profiler.profile(ticks, [functionFilter]);
-Game.profiler.stream(ticks, [functionFilter]);
 Game.profiler.email(ticks, [functionFilter]);
-Game.profiler.background([functionFilter]);
 */
 
 // LONGTERM Remote Mining (there was a formula for calculation if RM makes sense)

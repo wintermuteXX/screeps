@@ -86,6 +86,9 @@ function initGlobal(g) {
    * Intervals
    */
 
+
+  // TODO global durch const ersetzen
+
   global.checkPopulation = 10
   global.checkConstructions = 100
   global.checkLinks = 5
