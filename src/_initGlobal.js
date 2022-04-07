@@ -119,6 +119,8 @@ function initGlobal(g) {
   global.maxOrderAmount = 150000
   global.energyPrice = 0.02
   global.theProfit = 0.05
+  // Factory
+  global.ThresholdMinEnergyInFactory = 5000
 
   /**
    * Behaviors
