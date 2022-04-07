@@ -385,6 +385,23 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 		}
 
+		let fac = this.room.factory;
+		if (fac && fac.store.getFreeCapacity() > 0) {
+			if (fac.store[RESOURCE_ENERGY] < global.ThresholdMinEnergyInFactory) {
+				prio = 75;
+				let amount = global.ThresholdMinEnergyInFactory - (fac.store[RESOURCE_ENERGY] || 0);
+
+				self._needsResources.push({
+					'priority': prio,
+					'structureType': fac.structureType,
+					'resourceType': RESOURCE_ENERGY,
+					'amount': amount,
+					'id': fac.id,
+					'exact': true
+				})
+			}
+		}
+
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 

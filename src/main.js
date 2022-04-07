@@ -28,7 +28,7 @@ var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log');
 var stats = require('ControllerStats');
-var helper = require('helperRoomResources')
+// var helper = require('helperRoomResources')
 // var visual = require('RoomVisual');
 
 // profiler.enable();

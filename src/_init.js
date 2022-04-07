@@ -216,17 +216,29 @@ Structure.prototype.getFirstMineral = function () {
   let result = {
     amount: 0
   }
-  if (this.store) {
-    _.each(this.store, function (amount, resourceType) {
-      if (resourceType !== RESOURCE_ENERGY) {
-        result = {
-          resource: resourceType,
-          amount: amount
-        }
+  /*  if (this.store) {
+     for (const e of this.store) {
+       if (e.resourceType != RESOURCE_ENERGY) {
+         return {
+           resource: e.resourceType,
+           amount: e.amount
+         }
+       }
+     } */
+
+  _.each(this.store, function (amount, resourceType) {
+    if (resourceType !== RESOURCE_ENERGY) {
+      result = {
+        resource: resourceType,
+        amount: amount
       }
-    });
-  }
+    }
+  });
+
   return result;
+  /* return {
+    amount: 0
+  } */
 }
 
 Room.prototype.getRoomResourceAmount = function (res) {
