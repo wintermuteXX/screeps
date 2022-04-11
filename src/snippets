@@ -63,17 +63,6 @@ for (var i in RESOURCES_ALL) {
     });
 }
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
-DEFINE_CACHED_GETTER(Structure.prototype, 'storedPct', ({
-    storedTotal,
-    storeCapacity
-}) => storedTotal / storeCapacity);
-DEFINE_CACHED_GETTER(Structure.prototype, 'storageCapacityAvailable', ({
-    storedTotal,
-    storeCapacity
-}) => storeCapacity - storedTotal);
-define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 /*
  * Get type of room from name
  *
@@ -304,7 +293,6 @@ function displayCostMatrix(costMatrix, color = '#ff0000') {
         }
     }
 }
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 global.BUCKET_MAX = 10000;
 global.clamp = function clamp(min, val, max) {
