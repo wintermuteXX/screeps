@@ -87,7 +87,7 @@ function initGlobal(g) {
    */
 
 
-  // TODO global durch const ersetzen
+  // TODO global durch const ersetzen. Erster Test fehlgeschlagen...
 
   global.checkPopulation = 10
   global.checkConstructions = 100
