@@ -129,14 +129,14 @@ ControllerTerminal.prototype.internalTrade = function () {
     }
     let cancelOrders = false;
 
-    if (terminal && terminal.cooldown === 0) {
+    if (terminal && terminal.isActive() && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
             // BUG global.minResourceThreshold does not work with energy. Implement other system (every Resource has a threshold)
             if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.minResourceThreshold)
                 return;
 
             let myRooms = _.filter(Game.rooms, r => {
-                return r.terminal && r.terminal.my;
+                return r.terminal && r.terminal.my && r.terminal.isActive();
             });
 
             for (let r in myRooms) {
@@ -172,7 +172,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 
 ControllerTerminal.prototype.buyEnergyOrder = function () {
     let ter = this.terminal;
-    if (!ter) {
+    if (!ter || !ter.isActive()) {
         return null;
     }
     let energyInTerminal = ter.store[RESOURCE_ENERGY];

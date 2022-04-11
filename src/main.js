@@ -2,7 +2,6 @@ var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log');
 var stats = require('ControllerStats');
-// var helper = require('helperRoomResources')
 // var visual = require('RoomVisual');
 // profiler.enable();
 
@@ -10,11 +9,12 @@ module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
     require("_init");
-    Log.success(`------------------ ${Game.time} is running ------------------`, "Main")
+    if (Game.time % 100 === 0) {
+      Log.success(`------------------ ${Game.time} is running ------------------`, "Main")
+    }
 
     var ControllerGame = require('ControllerGame');
     var gc = new ControllerGame();
-    //gc.garbageCollection();
     gc.processRooms();
   })
   if (Game.cpu.bucket > 9000) {
