@@ -377,7 +377,7 @@ ControllerRoom.prototype.needsResources = function () {
 
 			if (this.room.powerSpawn) {
 				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
-				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
+				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 90), e => self._needsResources.push(e));
 			}
 			if (this.room.nuker) {
 				_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));

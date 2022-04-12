@@ -16,6 +16,8 @@ todo-tree.tags
 
 Game.profiler.profile(ticks, [functionFilter]);
 Game.profiler.email(ticks, [functionFilter]);
+
+global.json(global.MarketCal.commodity.bestCommodity())
 */
 
 
