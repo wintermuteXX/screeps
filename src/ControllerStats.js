@@ -1,6 +1,7 @@
 module.exports = {
 
   doStats() {
+    delete Memory.stats
     if (!Memory.stats) {
       Memory.stats = {}
     }
