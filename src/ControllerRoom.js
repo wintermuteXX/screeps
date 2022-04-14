@@ -400,6 +400,35 @@ ControllerRoom.prototype.needsResources = function () {
 					'exact': true
 				})
 			}
+			for (var r of MarketCal.COMPRESSED_RESOURCES) {
+				if (fac.store[r] === undefined || fac.store[r] < 1000) {
+					prio = 75;
+					let amount = 1000 - (fac.store[r] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': r,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
+
+			for (var b of MarketCal.BASIC_RESOURCES_WITHOUT_ENERGY) {
+				if (fac.store[b] === undefined || fac.store[b] < 2000) {
+					prio = 75;
+					let amount = 2000 - (fac.store[b] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': b,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
 		}
 
 		let sto = this.room.storage;
