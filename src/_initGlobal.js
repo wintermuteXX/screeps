@@ -121,6 +121,9 @@ function initGlobal(g) {
   global.theProfit = 0.05
   // Factory
   global.ThresholdMinEnergyInFactory = 5000
+  global.barsInFactory = 1000
+  global.basicResourcesInFactory = 2000
+  global.basicCommoditiesInFactory = 3000
 
   /**
    * Behaviors

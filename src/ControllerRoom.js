@@ -3,6 +3,7 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
 var ControllerTerminal = require("ControllerTerminal");
+var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
 
 function ControllerRoom(room, ControllerGame) {
@@ -27,6 +28,7 @@ function ControllerRoom(room, ControllerGame) {
 	}
 
 	this.terminal = new ControllerTerminal(this);
+	this.factory = new ControllerFactory(this);
 	this.labs = new ControllerLab(this);
 }
 
@@ -81,6 +83,8 @@ ControllerRoom.prototype.run = function () {
 		this.labs.checkStatus();
 	}
 	this.labs.produce();
+
+	this.factory.produce();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
@@ -400,10 +404,11 @@ ControllerRoom.prototype.needsResources = function () {
 					'exact': true
 				})
 			}
+
 			for (var r of MarketCal.COMPRESSED_RESOURCES) {
-				if (fac.store[r] === undefined || fac.store[r] < 1000) {
-					prio = 75;
-					let amount = 1000 - (fac.store[r] || 0);
+				if (fac.store[r] === undefined || fac.store[r] < global.barsInFactory) {
+					prio = 85;
+					let amount = global.barsInFactory - (fac.store[r] || 0);
 					self._needsResources.push({
 						'priority': prio,
 						'structureType': fac.structureType,
@@ -416,13 +421,27 @@ ControllerRoom.prototype.needsResources = function () {
 			}
 
 			for (var b of MarketCal.BASIC_RESOURCES_WITHOUT_ENERGY) {
-				if (fac.store[b] === undefined || fac.store[b] < 2000) {
-					prio = 75;
-					let amount = 2000 - (fac.store[b] || 0);
+				if (fac.store[b] === undefined || fac.store[b] < global.basicResourcesInFactory) {
+					prio = 85;
+					let amount = global.basicResourcesInFactory - (fac.store[b] || 0);
 					self._needsResources.push({
 						'priority': prio,
 						'structureType': fac.structureType,
 						'resourceType': b,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
+			for (var r of MarketCal.COMMODITIES_BASIC) {
+				if (fac.store[r] === undefined || fac.store[r] < global.basicCommoditiesInFactory) {
+					prio = 85;
+					let amount = global.basicCommoditiesInFactory - (fac.store[r] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': r,
 						'amount': amount,
 						'id': fac.id,
 						'exact': true
