@@ -207,7 +207,6 @@ module.exports = {
       return _.filter(Game.creeps, (c) => c.memory.role == 'attacker').length < 1; */
       return false
     }
-
   },
 
   // TODO Supporter help rooms with RCL <= 3

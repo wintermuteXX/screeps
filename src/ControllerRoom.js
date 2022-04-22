@@ -346,13 +346,15 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			self._needsResources.push({
-				'priority': 50,
-				'structureType': constr.structureType,
-				'resourceType': "energy",
-				'amount': constr.store.getFreeCapacity(RESOURCE_ENERGY),
-				'id': constr.id
-			})
+			if (constr.store.getFreeCapacity(RESOURCE_ENERGY) > constr.store.getCapacity() / 2) {
+				self._needsResources.push({
+					'priority': 50,
+					'structureType': constr.structureType,
+					'resourceType': "energy",
+					'amount': constr.store.getFreeCapacity(RESOURCE_ENERGY),
+					'id': constr.id
+				})
+			}
 		}
 
 		_.forEach(this.room.labs, function (c) {

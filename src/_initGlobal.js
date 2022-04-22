@@ -124,6 +124,19 @@ function initGlobal(g) {
   global.barsInFactory = 1000
   global.basicResourcesInFactory = 2000
   global.basicCommoditiesInFactory = 3000
+  // Resources
+  global.fillLevel = {
+    RESOURCE_LEMERGIUM: {
+      storage: 18000,
+      terminal: 500,
+      factory: 2000
+    },
+    RESOURCE_HYDROXIDE: {
+      storage: 18000,
+      terminal: 500,
+      factory: 2000
+    }
+  }
 
   /**
    * Behaviors
