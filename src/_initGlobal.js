@@ -126,17 +126,29 @@ function initGlobal(g) {
   global.basicCommoditiesInFactory = 3000
   // Resources
   global.fillLevel = {
-    RESOURCE_LEMERGIUM: {
+    [RESOURCE_LEMERGIUM]: {
       storage: 18000,
       terminal: 500,
       factory: 2000
     },
-    RESOURCE_HYDROXIDE: {
+    [RESOURCE_HYDROXIDE]: {
       storage: 18000,
       terminal: 500,
       factory: 2000
     }
   }
+
+  //BUG Does not work right now :-( 
+  global.getFillLevel = function (resource, structure = "all") {
+    let amount = 0
+    console.log("RESOURCE: " + resource);
+    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory
+    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage
+    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal
+
+    return amount;
+  }
+
 
   /**
    * Behaviors
