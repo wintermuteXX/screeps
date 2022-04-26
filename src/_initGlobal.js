@@ -86,9 +86,6 @@ function initGlobal(g) {
    * Intervals
    */
 
-
-  // TODO global durch const ersetzen. Erster Test fehlgeschlagen...
-
   global.checkPopulation = 10
   global.checkConstructions = 100
   global.checkLinks = 5
@@ -138,7 +135,6 @@ function initGlobal(g) {
     }
   }
 
-  //BUG Does not work right now :-( 
   global.getFillLevel = function (resource, structure = "all") {
     let amount = 0
     console.log("RESOURCE: " + resource);
