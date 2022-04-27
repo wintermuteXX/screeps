@@ -19,8 +19,10 @@ Game.profiler.email(ticks, [functionFilter]);
 
 global.json(global.MarketCal.commodity.bestCommodity([],{detectLevel:true}))
 */
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
-
+const price = Game.market.getHistory(res)[0].avgPrice
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 global.RECIPES = {};
 for (const a in REACTIONS) {
     for (const b in REACTIONS[a]) {
