@@ -18,6 +18,7 @@ ControllerFactory.prototype.produce = function () {
     if (this.getFactoryLevel() == null) {
         // Produce level 0
         for (var r of MarketCal.COMPRESSED_RESOURCES) {
+            // BUG Check if the needed resources are available in factory
             if ((this.factory.store[r] === undefined || this.factory.store[r] < global.barsInFactory) && this.factory.store[RESOURCE_ENERGY] >= 600) {
                 let result = this.factory.produce(r)
                 Log.success(`The factory ${this.factory} tried to produce ${r} with result ${result} `, "FactoryProduce")
