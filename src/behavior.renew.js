@@ -28,7 +28,7 @@ b.work = function (creep, rc) {
       case OK:
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
-        Log.warn(`not enough resources for (creep ${creep}). renew (${target}): ${result}`, "Creep");
+        Log.warn(`${creep} not enough resources for renew (${target}): ${result}`, "Creep");
         creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
@@ -40,7 +40,7 @@ b.work = function (creep, rc) {
         break;
       default:
         creep.memory.abort = true;
-        Log.warn(`unknown result from (creep ${creep}). renew (${target}): ${result}`, "Creep");
+        Log.warn(`${creep} has unknown result from renew (${target}): ${result}`, "Creep");
     }
   } else {
     creep.memory.abort = true;

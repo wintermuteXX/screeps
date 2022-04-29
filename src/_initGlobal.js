@@ -1,6 +1,6 @@
 function initGlobal(g) {
 
-  // Prototpyes für Room Structures
+  // Prototypes für Room Structures
   var roomStructures = {};
   var roomStructuresExpiration = {};
   const CACHE_TIMEOUT = 50;
@@ -116,6 +116,492 @@ function initGlobal(g) {
   global.maxOrderAmount = 150000
   global.energyPrice = 0.02
   global.theProfit = 0.05
+  // Factory
+  global.ThresholdMinEnergyInFactory = 5000
+  global.barsInFactory = 1000
+  global.basicResourcesInFactory = 2000
+  global.basicCommoditiesInFactory = 3000
+  // Resources
+  global.fillLevel = {
+    [RESOURCE_ENERGY]: {
+      storage: 30000,
+      terminal: 50000,
+      factory: 5000
+    },
+    [RESOURCE_POWER]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_HYDROGEN]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_OXYGEN]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_UTRIUM]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_LEMERGIUM]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_KEANIUM]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_ZYNTHIUM]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_CATALYST]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_GHODIUM]: {
+      storage: 20000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_SILICON]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_METAL]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_BIOMASS]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_MIST]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 2000
+    },
+    [RESOURCE_HYDROXIDE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ZYNTHIUM_KEANITE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_LEMERGITE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_HYDRIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_OXIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_KEANIUM_HYDRIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_KEANIUM_OXIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_LEMERGIUM_HYDRIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_LEMERGIUM_OXIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ZYNTHIUM_OXIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_GHODIUM_HYDRIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_GHODIUM_OXIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_ACID]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_ALKALIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_KEANIUM_ACID]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_KEANIUM_ALKALIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_LEMERGIUM_ACID]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_LEMERGIUM_ALKALIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ZYNTHIUM_ACID]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ZYNTHIUM_ALKALIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_GHODIUM_ACID]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_GHODIUM_ALKALIDE]: {
+      storage: 9000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_OPS]: {
+      storage: 18000,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_UTRIUM_BAR]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_LEMERGIUM_BAR]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_ZYNTHIUM_BAR]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_KEANIUM_BAR]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_GHODIUM_MELT]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_OXIDANT]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_REDUCTANT]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_PURIFIER]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_BATTERY]: {
+      storage: 5000,
+      terminal: 0,
+      factory: 1000
+    },
+    [RESOURCE_COMPOSITE]: {
+      storage: 1000,
+      terminal: 0,
+      factory2: 400,
+      factory3: 1000
+    },
+    [RESOURCE_CRYSTAL]: {
+      storage: 1000,
+      terminal: 0,
+      factory5: 2200
+    },
+    [RESOURCE_LIQUID]: {
+      storage: 1000,
+      terminal: 0,
+      factory4: 3000,
+      factory5: 3000
+    },
+    [RESOURCE_WIRE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory1: 800,
+      factory2: 300,
+      factory3: 234
+    },
+    [RESOURCE_SWITCH]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory2: 80,
+      factory4: 80
+    },
+    [RESOURCE_TRANSISTOR]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory3: 40,
+      factory4: 100
+    },
+    [RESOURCE_MICROCHIP]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory4: 20,
+      factory5: 60
+    },
+    [RESOURCE_CIRCUIT]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory5: 20
+    },
+    [RESOURCE_DEVICE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CELL]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory1: 400,
+      factory2: 200,
+      factory5: 6200
+    },
+    [RESOURCE_PHLEGM]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory2: 200,
+      factory3: 60
+    },
+    [RESOURCE_TISSUE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory3: 60,
+      factory4: 100,
+      factory5: 120
+    },
+    [RESOURCE_MUSCLE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory4: 20
+    },
+    [RESOURCE_ORGANOID]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory5: 20
+    },
+    [RESOURCE_ORGANISM]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_ALLOY]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory1: 800,
+      factory2: 820
+    },
+    [RESOURCE_TUBE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory3: 80,
+      factory4: 300,
+      factory5: 240
+    },
+    [RESOURCE_FIXTURES]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory3: 40,
+      factory4: 60,
+      factory5: 240
+    },
+    [RESOURCE_FRAME]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory5: 40
+    },
+    [RESOURCE_HYDRAULICS]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory5: 20
+    },
+    [RESOURCE_MACHINE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0
+    },
+    [RESOURCE_CONDENSATE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory1: 600,
+      factory2: 600
+    },
+    [RESOURCE_CONCENTRATE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory2: 200,
+      factory3: 120,
+      factory4: 60
+    },
+    [RESOURCE_EXTRACT]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory3: 40,
+      factory4: 40
+    },
+    [RESOURCE_SPIRIT]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory4: 40,
+      factory5: 60
+    },
+    [RESOURCE_EMANATION]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0,
+      factory5: 20
+    },
+    [RESOURCE_ESSENCE]: {
+      storage: 0,
+      terminal: 0,
+      factory: 0
+    }
+  }
+
+  global.getFillLevel = function (resource, structure = "all") {
+    let amount = 0
+    console.log("RESOURCE: " + resource);
+    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage
+    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal
+    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory
+    if (structure == "all" || structure == "factory1") amount += global.fillLevel[resource].factory1
+    if (structure == "all" || structure == "factory2") amount += global.fillLevel[resource].factory2
+    if (structure == "all" || structure == "factory3") amount += global.fillLevel[resource].factory3
+    if (structure == "all" || structure == "factory4") amount += global.fillLevel[resource].factory4
+    if (structure == "all" || structure == "factory5") amount += global.fillLevel[resource].factory5
+
+    return amount;
+  }
+
 
   /**
    * Behaviors

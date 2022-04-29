@@ -3,6 +3,7 @@ var ControllerCreep = require("ControllerCreep");
 var ControllerLink = require("ControllerLink");
 var ControllerTower = require("ControllerTower");
 var ControllerTerminal = require("ControllerTerminal");
+var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
 
 function ControllerRoom(room, ControllerGame) {
@@ -27,6 +28,7 @@ function ControllerRoom(room, ControllerGame) {
 	}
 
 	this.terminal = new ControllerTerminal(this);
+	this.factory = new ControllerFactory(this);
 	this.labs = new ControllerLab(this);
 }
 
@@ -81,6 +83,8 @@ ControllerRoom.prototype.run = function () {
 		this.labs.checkStatus();
 	}
 	this.labs.produce();
+
+	this.factory.produce();
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
@@ -125,9 +129,7 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 		for (var n in needsResources) {
 			let need = needsResources[n];
 			// TODO getCreeps needs to be better. Should calculate if more amount is needed...
-			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && this.getCreeps(null, give.id).length == 0) {
-				// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
-				// if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id) {
+			if (give.resourceType === need.resourceType && give.priority > need.priority && need.id !== give.id && (this.getCreeps(null, give.id).length == 0 || need.id == Creep.room.controller.memory.containerID)) {
 				Log.debug(`${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount,give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${give.priority}) which has ${give.amount}`, "getTransportOrder")
 				return give;
 			}
@@ -141,9 +143,7 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 
 	for (var n in needsResources) {
 		let need = needsResources[n];
-		if (need.resourceType === Creep.memory.resourceType && this.getCreeps(null, need.id).length == 0) {
-			// There was a problem with the check if a creep is already on the way. The controller Container is the target of the upgraders. Need another solution or an exception.
-			// if (need.resourceType === Creep.memory.resourceType) {
+		if (need.resourceType === Creep.memory.resourceType && (this.getCreeps(null, need.id).length == 0 || need.id == Creep.room.controller.memory.containerID)) {
 			Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount,need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
 			return need;
 		}
@@ -346,13 +346,15 @@ ControllerRoom.prototype.needsResources = function () {
 
 		let constructor = this.getCreeps('constructor')
 		for (var constr of constructor) {
-			self._needsResources.push({
-				'priority': 50,
-				'structureType': constr.structureType,
-				'resourceType': "energy",
-				'amount': constr.store.getFreeCapacity(RESOURCE_ENERGY),
-				'id': constr.id
-			})
+			if (constr.store.getFreeCapacity(RESOURCE_ENERGY) > constr.store.getCapacity() / 2) {
+				self._needsResources.push({
+					'priority': 50,
+					'structureType': constr.structureType,
+					'resourceType': "energy",
+					'amount': constr.store.getFreeCapacity(RESOURCE_ENERGY),
+					'id': constr.id
+				})
+			}
 		}
 
 		_.forEach(this.room.labs, function (c) {
@@ -379,10 +381,75 @@ ControllerRoom.prototype.needsResources = function () {
 			_.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), e => self._needsResources.push(e));
 			_.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), e => self._needsResources.push(e));
 
-			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 20), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
-			_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+			if (this.room.powerSpawn) {
+				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), e => self._needsResources.push(e));
+				_.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 90), e => self._needsResources.push(e));
+			}
+			if (this.room.nuker) {
+				_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), e => self._needsResources.push(e));
+				_.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), e => self._needsResources.push(e));
+			}
+		}
+
+		let fac = this.room.factory;
+		if (fac && fac.store.getFreeCapacity() > 0) {
+			if (fac.store[RESOURCE_ENERGY] < global.ThresholdMinEnergyInFactory) {
+				prio = 75;
+				let amount = global.ThresholdMinEnergyInFactory - (fac.store[RESOURCE_ENERGY] || 0);
+
+				self._needsResources.push({
+					'priority': prio,
+					'structureType': fac.structureType,
+					'resourceType': RESOURCE_ENERGY,
+					'amount': amount,
+					'id': fac.id,
+					'exact': true
+				})
+			}
+
+			for (var r of MarketCal.COMPRESSED_RESOURCES) {
+				if (fac.store[r] === undefined || fac.store[r] < global.barsInFactory) {
+					prio = 85;
+					let amount = global.barsInFactory - (fac.store[r] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': r,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
+
+			for (var b of MarketCal.BASIC_RESOURCES_WITHOUT_ENERGY) {
+				if (fac.store[b] === undefined || fac.store[b] < global.basicResourcesInFactory) {
+					prio = 85;
+					let amount = global.basicResourcesInFactory - (fac.store[b] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': b,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
+			for (var r of MarketCal.COMMODITIES_BASIC) {
+				if (fac.store[r] === undefined || fac.store[r] < global.basicCommoditiesInFactory) {
+					prio = 85;
+					let amount = global.basicCommoditiesInFactory - (fac.store[r] || 0);
+					self._needsResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': r,
+						'amount': amount,
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
 		}
 
 		let sto = this.room.storage;
@@ -763,7 +830,7 @@ ControllerRoom.prototype.centerPoint = function () {
 		}
 	}
 
-	Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "internalTrade")
+	Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "centerPoint")
 	let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.room.name);
 	return thePosition;
 	// this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);

@@ -1,5 +1,28 @@
 Code Snippetss
 
+/* 
+
+Game.spawns.Southtown.spawnCreep([WORK, CARRY, MOVE, CARRY, MOVE], 'Builder_666', {memory: {role: 'builder'}});
+Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, 0.01, 30000, "E68S47");
+Game.market.deal('59d1e4719b0a8a64bbfdd5dc', 30000, "E68S47");
+
+grunt screeps --server=season
+
+Log.warn(`The creep spawns?: ${creep.room.spawns[0].spawning} `, "Spawning")
+Log.LEVEL_DEBUG = 0; Log.LEVEL_INFO = 1; Log.LEVEL_WARN = 2; Log.LEVEL_ERROR = 3; Log.LEVEL_SUCCESS = 4;
+
+todo-tree.tags
+**  TODO,FIXME,TEST,BUG,REMOVE,LONGTERM
+
+Game.profiler.profile(ticks, [functionFilter]);
+Game.profiler.email(ticks, [functionFilter]);
+
+global.json(global.MarketCal.commodity.bestCommodity([],{detectLevel:true}))
+*/
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+const price = Game.market.getHistory(res)[0].avgPrice
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 global.RECIPES = {};
 for (const a in REACTIONS) {
     for (const b in REACTIONS[a]) {
@@ -40,20 +63,9 @@ for (var i in RESOURCES_ALL) {
         resourceType: RESOURCES_ALL[i],
         price: 0.003,
         totalAmount: 50000,
-        roomName: "E28S23"
+        roomName: "E29S22"
     });
 }
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-DEFINE_CACHED_GETTER(Structure.prototype, 'storedTotal', s => _.sum(s.store));
-DEFINE_CACHED_GETTER(Structure.prototype, 'storedPct', ({
-    storedTotal,
-    storeCapacity
-}) => storedTotal / storeCapacity);
-DEFINE_CACHED_GETTER(Structure.prototype, 'storageCapacityAvailable', ({
-    storedTotal,
-    storeCapacity
-}) => storeCapacity - storedTotal);
-define(Creep, "hitsLost", (self) => self.hitsMax - self.hits);
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 /*
  * Get type of room from name
@@ -285,7 +297,6 @@ function displayCostMatrix(costMatrix, color = '#ff0000') {
         }
     }
 }
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 global.BUCKET_MAX = 10000;
 global.clamp = function clamp(min, val, max) {

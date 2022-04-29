@@ -28,7 +28,7 @@ b.work = function (creep, rc) {
     }
 
     creep.harvest(source);
-    if (creep.energy == 0) {
+    if (creep.store.getUsedCapacity() == 0) {
       return
     }
     var link;
@@ -36,7 +36,9 @@ b.work = function (creep, rc) {
       link = Game.getObjectById(source.memory.linkID);
     } else {
       link = rc.findNearLink(creep);
-      if (link) {source.memory.linkID = link.id}
+      if (link) {
+        source.memory.linkID = link.id
+      }
     }
     if (link) {
       creep.transfer(link, RESOURCE_ENERGY);

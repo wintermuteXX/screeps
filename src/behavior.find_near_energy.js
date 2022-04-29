@@ -24,13 +24,13 @@ var b = new Behavior("find_near_energy");
 
 b.when = function (creep) {
   Log.info(`${creep.room.name} ${creep.name} is checking "when" condition`, "find_near_energy")
-  return (creep.energy === 0);
+  return (creep.store[RESOURCE_ENERGY] === 0);
 };
 
 b.completed = function (creep) {
   Log.info(`${creep.room.name} ${creep.name} is checking "completed" condition`, "find_near_energy")
   var target = creep.getTarget();
-  if (creep.energy > 0 || !target) return true;
+  if (creep.store[RESOURCE_ENERGY] > 0 || !target) return true;
   return false;
 };
 
@@ -47,7 +47,7 @@ b.work = function (creep, rc) {
       creep.target = link.id;
       target = creep.getTarget();
     } else if (
-      creep.room.controller.container && creep.room.controller.container.store[RESOURCE_ENERGY] > 0) {
+      creep.room.controller.container && creep.room.controller.container.store && creep.room.controller.container.store[RESOURCE_ENERGY] > 0) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${creep.room.controller.container}`, "find_near_energy")
       creep.target = creep.room.controller.container.id
       target = creep.getTarget();

@@ -11,7 +11,8 @@ module.exports = {
       if (rc.getLevel() > 2) {
         return rc.getAllCreeps().length === 0;
       } else {
-        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length) < 5;
+        // TODO This is not dynamic enough. Supporters have a log way. Usually there are too much builders. Take FreeSpaces into account
+        return (rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length) < 4;
       }
     }
   },
@@ -23,7 +24,7 @@ module.exports = {
     levelMin: 2,
     minParts: 3,
     wait4maxEnergy: false,
-    body2: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
+    body2: [MOVE, WORK, WORK, WORK, WORK, WORK, CARRY, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
     behaviors: ["miner_harvest"],
 
     canBuild: function (rc) {
@@ -45,6 +46,24 @@ module.exports = {
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_mineral");
       return (rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000);
+    }
+  },
+
+  "miner_commodity": {
+    produceGlobal: false,
+    priority: 6,
+    levelMin: 5,
+    minParts: 16,
+    wait4maxEnergy: true,
+    body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY],
+    behaviors: ["goto_green_flag", "miner_harvest_commodities", "goto_home", "transfer_storage"],
+
+    canBuild: function (rc) {
+      var miners = _.filter(Game.creeps, (c) => c.memory.role == 'miner_commodity').length;
+      // var miners = rc.getAllCreeps("miner_commodity");
+      return (_.find(Game.flags, {
+        'color': COLOR_GREEN
+      }) && miners < 3);
     }
   },
 
@@ -98,7 +117,7 @@ module.exports = {
       }
       // Low Level
       if (rc.getLevel() <= 4) {
-        return controller.my && rc.getAllCreeps('upgrader').length < 4
+        return controller.my && rc.getAllCreeps('upgrader').length < 3
       }
       if (rc.getLevel() == 5) {
         return controller.my && rc.getAllCreeps('upgrader').length < 2
@@ -188,7 +207,6 @@ module.exports = {
       return _.filter(Game.creeps, (c) => c.memory.role == 'attacker').length < 1; */
       return false
     }
-
   },
 
   // TODO Supporter help rooms with RCL <= 3
