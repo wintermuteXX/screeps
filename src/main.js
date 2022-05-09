@@ -26,10 +26,17 @@ module.exports.loop = function () {
   stats.doStats();
 }
 
-// LONGTERM Remote Mining (there was a formula for calculation if RM makes sense)
-// LONGTERM Harvest Power
-// LONGTERM test attack behavior
-// LONGTERM spawn defenders if attacked
-// LONGTERM Boost creeps
-// LONGTERM Allow creeps to transport more then 1 resource 
-// LONGTERM New Task "recycle" for e.g. mineral miner
+// LONGTERM 1. Use new constants for filling and removing resources in Terminal + Storage
+// LONGTERM 2. Sell stuff in Terminal that is not needed globally
+// LONGTERM 3. Start producing in factory (level 0)
+// LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
+// LONGTERM 5. Activate and user Powercreeps to set factory level an maintain it
+// LONGTERM 6. Distribute materials only needed in factory level > 0
+// LONGTERM 7. Sell materials produced in factories when not needed
+// LONGTERM 8. Boost upgrader8 creeps
+// LONGTERM 9. spawn defenders if attacked
+// LONGTERM 10. Allow creeps to transport more then 1 resource 
+// LONGTERM 11. New Task "recycle" for e.g. mineral miner
+// LONGTERM 12. Remote Mining (there was a formula for calculation if RM makes sense)
+// LONGTERM 13. Harvest Power
+// LONGTERM 14. test attack behavior

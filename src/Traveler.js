@@ -82,7 +82,6 @@ class Traveler {
             options.freshMatrix = true;
             delete travelData.path;
         }
-        // TODO:handle case where creep moved by some other function, but destination is still the same
         // delete path cache if destination is different
         if (!this.samePos(state.destination, destination)) {
             if (options.movingTarget && state.destination.isNearTo(destination)) {
@@ -474,7 +473,6 @@ class Traveler {
         });
     }
     //update memory on whether a room should be avoided based on controller owner
-    //TODO: Add whitelist functionality..or add your own..whatever
     static updateRoomStatus(room) {
         if (!room) {
             return;
@@ -606,7 +604,6 @@ class Traveler {
                     console.log(`TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`);
                     return ret;
                 }
-                // TODO: handle case where a wall or some other obstacle is blocking the exit assumed by findRoute
             } else {}
         }
         return ret;
@@ -1106,7 +1103,6 @@ class Traveler {
         }
         return true;
     }
-    //TODO: Disable logging
     static cleanCacheByUsage(usage) {
         if (!Memory.Traveler.pCache || _.size(Memory.Traveler.pCache) <= MAX_CACHED_PATH_MEM_USAGE) {
             return; //not above the limit
