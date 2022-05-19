@@ -1,4 +1,4 @@
-Code Snippetss
+Code Snippets
 
 /* 
 
@@ -18,17 +18,22 @@ Game.profiler.profile(ticks, [functionFilter]);
 Game.profiler.email(ticks, [functionFilter]);
 
 global.json(global.MarketCal.commodity.bestCommodity([],{detectLevel:true}))
+
+https://screepspl.us/services/stat-deletion/
+Path to remove:
+screeps.utiuti.rooms.E26S21
+
 */
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 const price = Game.market.getHistory(res)[0].avgPrice
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 global.RECIPES = {};
 for (const a in REACTIONS) {
     for (const b in REACTIONS[a]) {
         RECIPES[REACTIONS[a][b]] = [a, b];
     }
-} 
+}
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 for (var key in REACTIONS) {
     if (REACTIONS.hasOwnProperty(key)) {
@@ -36,7 +41,9 @@ for (var key in REACTIONS) {
         for (var prop in obj) {
             if (obj.hasOwnProperty(prop)) {
                 console.log(key + " " + prop + " " + obj[prop]);
-                if () {break 2}
+                if () {
+                    break 2
+                }
             }
         }
     }
@@ -407,7 +414,8 @@ avg without reset:      0.003262
 
 Room.prototype._checkRoomCache = function _checkRoomCache() {
 
-    --  if cache is expired or does not exist
+    --
+    if cache is expired or does not exist
     if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {
         roomStructuresExpiration[this.name] = Game.time + getCacheExpiration();
         roomStructures[this.name] = _.groupBy(this.find(FIND_STRUCTURES), s => s.structureType);
