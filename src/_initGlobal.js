@@ -589,7 +589,6 @@ function initGlobal(g) {
 
   global.getFillLevel = function (resource, structure = "all") {
     let amount = 0
-    console.log("RESOURCE: " + resource);
     if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage
     if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal
     if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory
