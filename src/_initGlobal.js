@@ -426,7 +426,7 @@ function initGlobal(g) {
       factory5: 3000
     },
     [RESOURCE_WIRE]: {
-      storage: 0,
+      storage: 1600,
       terminal: 0,
       factory: 0,
       factory1: 800,
@@ -466,12 +466,12 @@ function initGlobal(g) {
       factory: 0
     },
     [RESOURCE_CELL]: {
-      storage: 0,
+      storage: 800,
       terminal: 0,
       factory: 0,
       factory1: 400,
       factory2: 200,
-      factory5: 6200
+      factory5: 620
     },
     [RESOURCE_PHLEGM]: {
       storage: 0,
@@ -506,7 +506,7 @@ function initGlobal(g) {
       factory: 0
     },
     [RESOURCE_ALLOY]: {
-      storage: 0,
+      storage: 1600,
       terminal: 0,
       factory: 0,
       factory1: 800,
@@ -546,7 +546,7 @@ function initGlobal(g) {
       factory: 0
     },
     [RESOURCE_CONDENSATE]: {
-      storage: 0,
+      storage: 1200,
       terminal: 0,
       factory: 0,
       factory1: 600,
