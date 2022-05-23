@@ -241,6 +241,25 @@ ControllerRoom.prototype.givesResources = function () {
 			}
 		});
 
+		let fac = this.room.factory;
+		if (fac) {
+			for (var a of RESOURCES_ALL) {
+				let fillLevel = global.getFillLevel(a, "factory");
+				if ((fac.store[a] || 0) > fillLevel) {
+					prio = 180
+
+					self._givesResources.push({
+						'priority': prio,
+						'structureType': fac.structureType,
+						'resourceType': a,
+						'amount': ((fac.store[a] || 0) - fillLevel),
+						'id': fac.id,
+						'exact': true
+					})
+				}
+			}
+		}
+
 		let sto = this.room.storage;
 		let ter = this.room.terminal;
 
@@ -268,6 +287,7 @@ ControllerRoom.prototype.givesResources = function () {
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
+						// TEST Why not "amount"? Missing || 0 ?
 						'amount': sto.store[r],
 						'id': sto.id
 					})
@@ -402,77 +422,18 @@ ControllerRoom.prototype.needsResources = function () {
 					} else {
 						prio = 85
 					}
-					// console.log("Factory needs " + (fillLevel - fac.store[a]) + " of " + a + " in room "+ fac.room.name);
+
 					self._needsResources.push({
 						'priority': prio,
 						'structureType': fac.structureType,
-						'resourceType': RESOURCE_ENERGY,
-						'amount': fillLevel - fac.store[a],
+						'resourceType': a,
+						'amount': (fillLevel - (fac.store[a] || 0)),
 						'id': fac.id,
 						'exact': true
 					})
 				}
-				// console.log("Factory needs " + (fillLevel - fac.store[a]) + " of " + a);
 			}
-			/*
-						if (fac.store[RESOURCE_ENERGY] < global.ThresholdMinEnergyInFactory) {
-							prio = 75;
-							let amount = global.ThresholdMinEnergyInFactory - (fac.store[RESOURCE_ENERGY] || 0);
 
-							self._needsResources.push({
-								'priority': prio,
-								'structureType': fac.structureType,
-								'resourceType': RESOURCE_ENERGY,
-								'amount': amount,
-								'id': fac.id,
-								'exact': true
-							})
-						}
-
-						for (var r of MarketCal.COMPRESSED_RESOURCES) {
-							if (fac.store[r] === undefined || fac.store[r] < global.barsInFactory) {
-								prio = 85;
-								let amount = global.barsInFactory - (fac.store[r] || 0);
-								self._needsResources.push({
-									'priority': prio,
-									'structureType': fac.structureType,
-									'resourceType': r,
-									'amount': amount,
-									'id': fac.id,
-									'exact': true
-								})
-							}
-						}
-
-						for (var b of MarketCal.BASIC_RESOURCES_WITHOUT_ENERGY) {
-							if (fac.store[b] === undefined || fac.store[b] < global.basicResourcesInFactory) {
-								prio = 85;
-								let amount = global.basicResourcesInFactory - (fac.store[b] || 0);
-								self._needsResources.push({
-									'priority': prio,
-									'structureType': fac.structureType,
-									'resourceType': b,
-									'amount': amount,
-									'id': fac.id,
-									'exact': true
-								})
-							}
-						}
-						for (var r of MarketCal.COMMODITIES_BASIC) {
-							if (fac.store[r] === undefined || fac.store[r] < global.basicCommoditiesInFactory) {
-								prio = 85;
-								let amount = global.basicCommoditiesInFactory - (fac.store[r] || 0);
-								self._needsResources.push({
-									'priority': prio,
-									'structureType': fac.structureType,
-									'resourceType': r,
-									'amount': amount,
-									'id': fac.id,
-									'exact': true
-								})
-							}
-						}
-						*/
 		}
 
 		let sto = this.room.storage;
