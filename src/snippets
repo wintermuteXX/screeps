@@ -17,6 +17,7 @@ todo-tree.tags
 Game.profiler.profile(ticks, [functionFilter]);
 Game.profiler.email(ticks, [functionFilter]);
 
+https://github.com/RaymondJiangkw/screeps_script/blob/master/src/tool/marketCalculator/README.md
 global.json(global.MarketCal.commodity.bestCommodity([],{detectLevel:true}))
 
 https://screepspl.us/services/stat-deletion/

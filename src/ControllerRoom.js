@@ -267,18 +267,21 @@ ControllerRoom.prototype.givesResources = function () {
 			for (var r of RESOURCES_ALL) {
 				// Energy
 				let amount = 0;
-				if (r === "energy" && sto.store[r] <= global.minEnergyThreshold) {
+				let fillLevel = global.getFillLevel(r, "storage");
+				if (r === "energy" && sto.store[r] <= fillLevel) {
 					prio = 40;
 					amount = sto.store[r]
-				} else if (r === "energy" && sto.store[r] > global.minEnergyThreshold) {
+				} else if (r === "energy" && sto.store[r] > fillLevel) {
 					prio = 120;
-					amount = sto.store[r] - global.minEnergyThreshold;
+					amount = sto.store[r] - fillLevel;
 				} else {
 					// Minerals
-					if (sto.store[r] > global.minResourceThreshold) {
+					if (sto.store[r] > fillLevel) {
 						prio = 150;
+						amount = sto.store[r] - fillLevel;
 					} else {
 						prio = 100;
+						amount = sto.store[r];
 					}
 				}
 
@@ -287,9 +290,9 @@ ControllerRoom.prototype.givesResources = function () {
 						'priority': prio,
 						'structureType': sto.structureType,
 						'resourceType': r,
-						// TEST Why not "amount"? Missing || 0 ?
-						'amount': sto.store[r],
-						'id': sto.id
+						'amount': amount,
+						'id': sto.id,
+						'exact': true
 					})
 				}
 			}
@@ -442,16 +445,17 @@ ControllerRoom.prototype.needsResources = function () {
 		if (sto && sto.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < global.minEnergyThreshold)) {
+				let fillLevel = global.getFillLevel(r, "storage");
+				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
 					prio = 55;
-					amount = global.minEnergyThreshold - (sto.store[r] || 0);
+					amount = fillLevel - (sto.store[r] || 0);
 
-				} else if (r === 'energy' && ((sto.store[r] >= global.minEnergyThreshold) && (sto.store[r] < global.maxEnergyThreshold))) {
+				} else if (r === 'energy' && ((sto.store[r] >= fillLevel) && (sto.store[r] < global.maxEnergyThreshold))) {
 					prio = 125;
 					amount = global.maxEnergyThreshold - (sto.store[r] || 0);
-				} else if (r !== 'energy' && (sto.store[r] < global.minResourceThreshold)) {
+				} else if (r !== 'energy' && (sto.store[r] < fillLevel)) {
 					prio = 105;
-					amount = global.minResourceThreshold - sto.store[r];
+					amount = fillLevel - (sto.store[r] || 0);
 				} else {
 					continue;
 				}
@@ -697,7 +701,7 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
 					// TODO 9000 should be dynamic based on number of labs, or complete new system
-					if (this.getRoomResourceAmount(key) >= 9000 && this.getRoomResourceAmount(prop) >= 9000 && this.getRoomResourceAmount(obj[prop]) < global.minResourceThreshold) {
+					if (this.getRoomResourceAmount(key) >= 9000 && this.getRoomResourceAmount(prop) >= 9000 && this.getRoomResourceAmount(obj[prop]) < global.getFillLevel(obj[prop], "all")) {
 						return {
 							resourceA: key,
 							resourceB: prop,
