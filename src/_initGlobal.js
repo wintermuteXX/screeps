@@ -194,7 +194,7 @@ function initGlobal(g) {
       factory: 2000
     },
     [RESOURCE_HYDROXIDE]: {
-      storage: 0,
+      storage: 20000,
       terminal: 0,
       factory: 0
     },

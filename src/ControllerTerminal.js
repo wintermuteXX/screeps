@@ -132,7 +132,8 @@ ControllerTerminal.prototype.internalTrade = function () {
     if (terminal && terminal.isActive() && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
             // BUG global.minResourceThreshold does not work with energy. Implement other system (every Resource has a threshold)
-            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.minResourceThreshold)
+            // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getFillLevel(resourceType, "storage"))
+            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.getFillLevel(resourceType, "storage"))
                 return;
 
             let myRooms = _.filter(Game.rooms, r => {
@@ -148,7 +149,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 }
                 let resourceAmountInRoom = targetroom.getRoomResourceAmount(resourceType);
                 // How much does room need to get MIN_AMOUNT
-                let needed = global.minResourceThreshold - resourceAmountInRoom;
+                let needed = global.getFillLevel(resourceType, "storage") - resourceAmountInRoom;
                 if (needed > 0) {
                     // How much will the terminal send?
                     let sendAmount = Math.min(amount, needed);
