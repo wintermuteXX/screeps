@@ -95,9 +95,7 @@ function initGlobal(g) {
   global.repairLimit = 0.95
   global.noAnalyseLimit = 100
   // Storage
-  global.minEnergyThreshold = 30000
   global.maxEnergyThreshold = 100000
-  global.minResourceThreshold = 18000
   // Terminal
   global.internalTrade = 50
   global.minEnergyThresholdTerminal = 50000
@@ -116,11 +114,6 @@ function initGlobal(g) {
   global.maxOrderAmount = 150000
   global.energyPrice = 0.02
   global.theProfit = 0.05
-  // Factory
-  global.ThresholdMinEnergyInFactory = 5000
-  global.barsInFactory = 1000
-  global.basicResourcesInFactory = 2000
-  global.basicCommoditiesInFactory = 3000
   // Resources
   global.fillLevel = {
     [RESOURCE_ENERGY]: {
@@ -309,52 +302,52 @@ function initGlobal(g) {
       factory: 0
     },
     [RESOURCE_CATALYZED_UTRIUM_ACID]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_KEANIUM_ACID]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_LEMERGIUM_ACID]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_GHODIUM_ACID]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
     [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: {
-      storage: 18000,
+      storage: 21000,
       terminal: 0,
       factory: 0
     },
@@ -589,14 +582,14 @@ function initGlobal(g) {
 
   global.getFillLevel = function (resource, structure = "all") {
     let amount = 0
-    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage
-    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal
-    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory
-    if (structure == "all" || structure == "factory1") amount += global.fillLevel[resource].factory1
-    if (structure == "all" || structure == "factory2") amount += global.fillLevel[resource].factory2
-    if (structure == "all" || structure == "factory3") amount += global.fillLevel[resource].factory3
-    if (structure == "all" || structure == "factory4") amount += global.fillLevel[resource].factory4
-    if (structure == "all" || structure == "factory5") amount += global.fillLevel[resource].factory5
+    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0
+    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0
+    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory || 0
+    if (structure == "factory1") amount += global.fillLevel[resource].factory1 || 0
+    if (structure == "factory2") amount += global.fillLevel[resource].factory2 || 0
+    if (structure == "factory3") amount += global.fillLevel[resource].factory3 || 0
+    if (structure == "factory4") amount += global.fillLevel[resource].factory4 || 0
+    if (structure == "factory5") amount += global.fillLevel[resource].factory5 || 0
 
     return amount;
   }
@@ -795,14 +788,14 @@ g.resourceReorder = setInterval(() => {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
         result.push("<td align='right'> " + amountResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * global.minResourceThreshold) - amountResources(resource)) + " </td>");
+        result.push("<td align='right'> " + ((numberOfRooms * global.getFillLevel(resource, "all")) - amountResources(resource)) + " </td>");
         result.push("</tr>");
       } else {
         if (amountResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
           result.push("<td align='right'> " + amountResources(resource) + " </td>");
-          result.push("<td align='right'> " + ((numberOfRooms * global.minResourceThreshold) - amountResources(resource)) + " </td>");
+          result.push("<td align='right'> " + ((numberOfRooms * global.getFillLevel(resource, "all")) - amountResources(resource)) + " </td>");
           result.push("</tr>");
         }
       }
