@@ -161,7 +161,6 @@ module.exports = {
       var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
         return s.needsRepair();
       });
-
       if (rc.getLevel() < 4) {
         return (((rc.find(FIND_CONSTRUCTION_SITES).length > 0) || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 2);
       } else {
