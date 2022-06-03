@@ -25,7 +25,7 @@ module.exports.loop = function () {
   stats.doStats();
 }
 
-// LONGTERM 1. Use new constants for filling and removing resources in Terminal + Storage
+// DONE 1. Use new constants for filling and removing resources in Terminal + Storage
 // LONGTERM 2. Sell stuff in Terminal that is not needed globally
 // LONGTERM 3. Start producing in factory (level 0)
 // LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
