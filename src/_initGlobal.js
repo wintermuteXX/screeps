@@ -700,7 +700,7 @@ function initGlobal(g) {
     return amount
   }
 
-  const reorderResources = () => {
+  global.reorderResources = () => {
     const scriptInject = `
 <script>
 const g = window || global;
@@ -724,9 +724,6 @@ g.resourceReorder = setInterval(() => {
 </script>`.replace(/\r?\n|\r/g, ``);
     console.log(scriptInject);
   };
-
-  // Adding it to the global object
-  global.reorderResources = reorderResources;
 
   global.showLabs = function () {
     let result = [];
