@@ -54,7 +54,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         return null;
     }
 
-    if (global.amountResources(theMineralType) < (global.numberOfTerminals() * global.getFillLevel(theMineralType, "all"))) {
+    if (global.amountResources(theMineralType) < (global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all"))) {
         return null;
     }
 
@@ -132,8 +132,8 @@ ControllerTerminal.prototype.internalTrade = function () {
     if (terminal && terminal.isActive() && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
             // BUG does not work with energy (100000).
-            // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getFillLevel(resourceType, "storage"))
-            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.getFillLevel(resourceType, "storage"))
+            // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getRoomThreshold(resourceType, "storage"))
+            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.getRoomThreshold(resourceType, "storage"))
                 return;
 
             let myRooms = _.filter(Game.rooms, r => {
@@ -149,7 +149,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 }
                 let resourceAmountInRoom = targetroom.getRoomResourceAmount(resourceType);
                 // How much does room need to get MIN_AMOUNT
-                let needed = global.getFillLevel(resourceType, "storage") - resourceAmountInRoom;
+                let needed = global.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
                 if (needed > 0) {
                     // How much will the terminal send?
                     let sendAmount = Math.min(amount, needed);
@@ -183,7 +183,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         Log.warn(`There are less than ${global.minEnergyThresholdTerminal} credits available. Skipping...`, "buyEnergyOrder");
         return false;
     }
-    if (energyInTerminal < (global.getFillLevel(RESOURCE_ENERGY, "storage") - 5000)) {
+    if (energyInTerminal < (global.getRoomThreshold(RESOURCE_ENERGY, "storage") - 5000)) {
         Log.debug(`Less than ${global.minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
         for (let id in Game.market.orders) {
@@ -191,10 +191,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
             if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name) {
                 Log.debug(`Found an existing buy energy order for room ${order.roomName}`, "buyEnergyOrder");
                 orderExists = true;
-                if ((order.remainingAmount + energyInTerminal) < global.getFillLevel(RESOURCE_ENERGY, "storage")) {
+                if ((order.remainingAmount + energyInTerminal) < global.getRoomThreshold(RESOURCE_ENERGY, "storage")) {
                     Log.debug(`Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${global.minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`, "buyEnergyOrder");
 
-                    let result = Game.market.extendOrder(order.id, global.getFillLevel(RESOURCE_ENERGY, "storage") - order.remainingAmount - energyInTerminal);
+                    let result = Game.market.extendOrder(order.id, global.getRoomThreshold(RESOURCE_ENERGY, "storage") - order.remainingAmount - energyInTerminal);
                     switch (result) {
                         case OK:
                             Log.success(`ExtendOrder in room ${ter.room} was successful`, "buyEnergyOrder");

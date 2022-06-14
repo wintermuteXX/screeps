@@ -241,7 +241,7 @@ Structure.prototype.getFirstMineral = function () {
   } */
 }
 
-// TODO This needs to cover the factory to match global.getFillLevel() --- also there are othe wrong implementations 
+// TODO This needs to cover the factory to match global.getRoomThreshold() --- also there are othe wrong implementations 
 Room.prototype.getRoomResourceAmount = function (res) {
   var amount = 0;
   if (this.storage && this.storage.store[res]) {

@@ -580,7 +580,7 @@ function initGlobal(g) {
     }
   }
 
-  global.getFillLevel = function (resource, structure = "all") {
+  global.getRoomThreshold = function (resource, structure = "all") {
     let amount = 0
     if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0
     if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0
@@ -785,14 +785,14 @@ g.resourceReorder = setInterval(() => {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
         result.push("<td align='right'> " + amountResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * global.getFillLevel(resource, "all")) - amountResources(resource)) + " </td>");
+        result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountResources(resource)) + " </td>");
         result.push("</tr>");
       } else {
         if (amountResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
           result.push("<td align='right'> " + amountResources(resource) + " </td>");
-          result.push("<td align='right'> " + ((numberOfRooms * global.getFillLevel(resource, "all")) - amountResources(resource)) + " </td>");
+          result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountResources(resource)) + " </td>");
           result.push("</tr>");
         }
       }

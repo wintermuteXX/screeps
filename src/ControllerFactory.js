@@ -18,8 +18,8 @@ ControllerFactory.prototype.produce = function () {
     if (this.getFactoryLevel() == null) {
         // Produce level 0
         for (var r of MarketCal.COMPRESSED_RESOURCES) {
-            if (this.factory.store[r] === undefined || this.factory.store[r] < global.getFillLevel(r, "factory")) {
-                // console.log("Factory: " + this.factory.store[r] + " Needed: " + global.getFillLevel(r, "factory"))
+            if (this.factory.store[r] === undefined || this.factory.store[r] < global.getRoomThreshold(r, "factory")) {
+                // console.log("Factory: " + this.factory.store[r] + " Needed: " + global.getRoomThreshold(r, "factory"))
                 // TODO Check if the needed resources are available in factory+
                 let produce = true
                 for (var i in COMMODITIES[r].components) {

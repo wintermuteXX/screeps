@@ -244,7 +244,7 @@ ControllerRoom.prototype.givesResources = function () {
 		let fac = this.room.factory;
 		if (fac) {
 			for (var a of RESOURCES_ALL) {
-				let fillLevel = global.getFillLevel(a, "factory");
+				let fillLevel = global.getRoomThreshold(a, "factory");
 				if ((fac.store[a] || 0) > fillLevel) {
 					prio = 180
 
@@ -267,7 +267,7 @@ ControllerRoom.prototype.givesResources = function () {
 			for (var r of RESOURCES_ALL) {
 				// Energy
 				let amount = 0;
-				let fillLevel = global.getFillLevel(r, "storage");
+				let fillLevel = global.getRoomThreshold(r, "storage");
 				if (r === "energy" && sto.store[r] <= fillLevel) {
 					prio = 40;
 					amount = sto.store[r]
@@ -418,7 +418,7 @@ ControllerRoom.prototype.needsResources = function () {
 		if (fac && fac.store.getFreeCapacity() > 0) {
 
 			for (var a of RESOURCES_ALL) {
-				let fillLevel = global.getFillLevel(a, "factory");
+				let fillLevel = global.getRoomThreshold(a, "factory");
 				if (fac.store[a] < fillLevel) {
 					if (a === RESOURCE_ENERGY) {
 						prio = 75
@@ -445,7 +445,7 @@ ControllerRoom.prototype.needsResources = function () {
 		if (sto && sto.store.getFreeCapacity() > 0) {
 			for (var r of RESOURCES_ALL) {
 				let amount = 0;
-				let fillLevel = global.getFillLevel(r, "storage");
+				let fillLevel = global.getRoomThreshold(r, "storage");
 				if (r === 'energy' && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
 					prio = 55;
 					amount = fillLevel - (sto.store[r] || 0);
@@ -701,7 +701,7 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
 			for (var prop in obj) {
 				if (obj.hasOwnProperty(prop)) {
 					// TODO 9000 should be dynamic based on number of labs, or complete new system
-					if (this.getRoomResourceAmount(key) >= 9000 && this.getRoomResourceAmount(prop) >= 9000 && this.getRoomResourceAmount(obj[prop]) < global.getFillLevel(obj[prop], "all")) {
+					if (this.getRoomResourceAmount(key) >= 9000 && this.getRoomResourceAmount(prop) >= 9000 && this.getRoomResourceAmount(obj[prop]) < global.getRoomThreshold(obj[prop], "all")) {
 						return {
 							resourceA: key,
 							resourceB: prop,
