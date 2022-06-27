@@ -242,12 +242,15 @@ Structure.prototype.getFirstMineral = function () {
 }
 
 // TODO This needs to cover the factory to match global.getRoomThreshold() --- also there are othe wrong implementations 
-Room.prototype.getRoomResourceAmount = function (res) {
+Room.prototype.getRoomResourceAmount = function (res, structure = "all") {
   var amount = 0;
-  if (this.storage && this.storage.store[res]) {
+  if ((structure == "all" || structure == "storage") && this.storage && this.storage.store[res]) {
     amount += this.storage.store[res];
   }
-  if (this.terminal && this.terminal.store[res]) {
+  if ((structure == "all" || structure == "terminal") && this.terminal && this.terminal.store[res]) {
+    amount += this.terminal.store[res];
+  }
+  if ((structure == "all" || structure == "factory") && this.factory && this.factory.store[res]) {
     amount += this.terminal.store[res];
   }
   return amount;

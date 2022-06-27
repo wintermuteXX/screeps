@@ -133,7 +133,7 @@ ControllerTerminal.prototype.internalTrade = function () {
         _.each(terminal.store, function (amount, resourceType) {
             // BUG does not work with energy (100000).
             // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getRoomThreshold(resourceType, "storage"))
-            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType) < global.getRoomThreshold(resourceType, "storage"))
+            if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType, "storage") < global.getRoomThreshold(resourceType, "storage"))
                 return;
 
             let myRooms = _.filter(Game.rooms, r => {
@@ -147,7 +147,7 @@ ControllerTerminal.prototype.internalTrade = function () {
                 if (targetroom.terminal && (cancelOrders || terminal.room.name == targetroom.name)) {
                     continue;
                 }
-                let resourceAmountInRoom = targetroom.getRoomResourceAmount(resourceType);
+                let resourceAmountInRoom = targetroom.getRoomResourceAmount(resourceType, "storage");
                 // How much does room need to get MIN_AMOUNT
                 let needed = global.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
                 if (needed > 0) {
