@@ -561,7 +561,7 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 };
 
 ControllerRoom.prototype.getEnemys = function () {
-	var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
+	var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_"]
 	var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
 		filter: function (foundCreep) {
 			for (let i = allowedNameList.length; --i >= 0;) {

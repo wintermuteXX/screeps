@@ -5,16 +5,6 @@ function ControllerTower(tower, ControllerRoom) {
 
 ControllerTower.prototype.fire = function () {
 
-    /* var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet"]
-    var targetList = this.tower.room.find(FIND_HOSTILE_CREEPS, {
-        filter: function(foundCreep) { 
-            for (let i=allowedNameList.length;--i>=0;){
-                if (foundCreep.owner.username === allowedNameList[i]) return(false);
-            }
-            return(true);
-        }
-    });
-     */
     var targetList = this.ControllerRoom.getEnemys();
     var closestHostile = this.tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
