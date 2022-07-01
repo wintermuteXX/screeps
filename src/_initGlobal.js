@@ -82,10 +82,6 @@ function initGlobal(g) {
     }
   };
 
-  /**
-   * Intervals
-   */
-
   global.checkPopulation = 10
   global.checkConstructions = 100
   global.checkLinks = 5
@@ -594,11 +590,6 @@ function initGlobal(g) {
     return amount;
   }
 
-
-  /**
-   * Behaviors
-   */
-
   g._behaviors = {};
 
   g.getBehavior = function (key) {
@@ -677,7 +668,7 @@ function initGlobal(g) {
     return numberOfTerminals;
   }
 
-  global.amountResources = function (resource) {
+  global.amountGlobalResources = function (resource) {
     let amount = 0
     let allStr = []
 
@@ -784,15 +775,15 @@ g.resourceReorder = setInterval(() => {
       if (!hide) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
-        result.push("<td align='right'> " + amountResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountResources(resource)) + " </td>");
+        result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
+        result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountGlobalResources(resource)) + " </td>");
         result.push("</tr>");
       } else {
-        if (amountResources(resource) > 0) {
+        if (amountGlobalResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
-          result.push("<td align='right'> " + amountResources(resource) + " </td>");
-          result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountResources(resource)) + " </td>");
+          result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
+          result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountGlobalResources(resource)) + " </td>");
           result.push("</tr>");
         }
       }
@@ -941,7 +932,6 @@ g.resourceReorder = setInterval(() => {
                 </script>`
       .replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, ""));
   }
-
 }
 
 module.exports = initGlobal;

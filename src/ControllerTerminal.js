@@ -21,6 +21,7 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         modify = global.modSellMultiplier4
     }
 
+    // TODO make a global funktion to find the price
     // Get selling history for specified Resource
     let history = Game.market.getHistory(theResourceType);
     // list only the Average Prices of the array
@@ -54,7 +55,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         return null;
     }
 
-    if (global.amountResources(theMineralType) < (global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all"))) {
+    if (global.amountGlobalResources(theMineralType) < (global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all"))) {
         return null;
     }
 
@@ -107,7 +108,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
     if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > global.maxOrderAmount) {
 
-        let bestOrder = this.findBestOrder(theMineralType, global.energyPrice, global.theProfit);
+        let bestOrder = this.findBestBuyOrder(theMineralType, global.energyPrice, global.theProfit);
         if (bestOrder !== null) {
             let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
             if (result == OK) {
@@ -124,14 +125,10 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
 ControllerTerminal.prototype.internalTrade = function () {
     let terminal = this.terminal;
-    if (!terminal) {
-        return null;
-    }
     let cancelOrders = false;
 
     if (terminal && terminal.isActive() && terminal.cooldown === 0) {
         _.each(terminal.store, function (amount, resourceType) {
-            // BUG does not work with energy (100000).
             // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getRoomThreshold(resourceType, "storage"))
             if (cancelOrders || (amount === 0) || terminal.room.getRoomResourceAmount(resourceType, "storage") < global.getRoomThreshold(resourceType, "storage"))
                 return;
@@ -148,10 +145,10 @@ ControllerTerminal.prototype.internalTrade = function () {
                     continue;
                 }
                 let resourceAmountInRoom = targetroom.getRoomResourceAmount(resourceType, "storage");
-                // How much does room need to get MIN_AMOUNT
+                // The desired amount of resource to reach the threshold
                 let needed = global.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
                 if (needed > 0) {
-                    // How much will the terminal send?
+                    // Amount of resource that will be send
                     let sendAmount = Math.min(amount, needed);
 
                     let result = terminal.send(resourceType, sendAmount, targetroom.name, 'internal');
@@ -221,7 +218,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     }
 };
 
-ControllerTerminal.prototype.findBestOrder = function (theMineralType, energyPrice, theProfit) {
+ControllerTerminal.prototype.findBestBuyOrder = function (theMineralType, energyPrice, theProfit) {
     let terminal = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {
         return order.type === ORDER_BUY &&
