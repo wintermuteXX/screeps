@@ -74,17 +74,24 @@ ControllerRoom.prototype.run = function () {
 		this.terminal.sellRoomMineral();
 	}
 
-	if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
-		this.room.powerSpawn.processPower();
+	if ((Game.cpu.limit - Game.cpu.getUsed()) > 0 && Game.cpu.bucket > 2000) {
+		if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
+			this.room.powerSpawn.processPower();
+		}
 	}
 	// this.labs.findLabPartner();
+	if ((Game.cpu.limit - Game.cpu.getUsed()) > 0 && Game.cpu.bucket > 2000) {
 
-	if (Game.time % 10 === 0) {
-		this.labs.checkStatus();
+		if (Game.time % 10 === 0) {
+			this.labs.checkStatus();
+		}
 	}
-	this.labs.produce();
-
-	this.factory.produce();
+	if ((Game.cpu.limit - Game.cpu.getUsed()) > 0 && Game.cpu.bucket > 2000) {
+		this.labs.produce();
+	}
+	if ((Game.cpu.limit - Game.cpu.getUsed()) > 0 && Game.cpu.bucket > 2000) {
+		this.factory.produce();
+	}
 };
 
 ControllerRoom.prototype.commandCreeps = function () {

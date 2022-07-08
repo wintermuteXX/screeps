@@ -245,7 +245,6 @@ ControllerTerminal.prototype.findBestBuyOrder = function (theMineralType, energy
     });
     if (orders.length === 0)
         return null;
-    // TEST this looks wrong 'profit'
     let bestOrder = _.max(orders, 'profit');
     return bestOrder;
 };

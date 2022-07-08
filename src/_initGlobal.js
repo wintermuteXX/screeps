@@ -757,7 +757,7 @@ g.resourceReorder = setInterval(() => {
     return result
   }
 
-  global.myResources = function (hide = false, rooms = 1) {
+  global.myResources = function (hide = false) {
     let result = [];
     result.push("<table border=\"1\">");
     result.push('<caption> RESOURCE\n</caption>');
@@ -767,7 +767,11 @@ g.resourceReorder = setInterval(() => {
     result.push("<th> Offset to perfect </th>");
     result.push("</tr>");
 
-    let numberOfRooms = rooms
+    let numberOfRooms = 0
+    for (i in Game.rooms) {
+      if (Game.rooms[i].storage) numberOfRooms += 1;
+    }
+
     for (i in RESOURCES_ALL) {
 
       let resource = RESOURCES_ALL[i]
@@ -776,14 +780,20 @@ g.resourceReorder = setInterval(() => {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
         result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
-        result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountGlobalResources(resource)) + " </td>");
+        let offset = amountGlobalResources(resource) - (numberOfRooms * global.getRoomThreshold(resource, "all"));
+        if (offset >= 0) {
+          result.push("<td align='right' style='color:#008000'> " + offset + " </td>");
+
+        } else {
+          result.push("<td align='right' style='color:#FF0000'> " + offset + " </td>");
+        }
         result.push("</tr>");
       } else {
         if (amountGlobalResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
           result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
-          result.push("<td align='right'> " + ((numberOfRooms * global.getRoomThreshold(resource, "all")) - amountGlobalResources(resource)) + " </td>");
+          result.push("<td align='right'> " + (amountGlobalResources(resource) - (numberOfRooms * global.getRoomThreshold(resource, "all"))) + " </td>");
           result.push("</tr>");
         }
       }
