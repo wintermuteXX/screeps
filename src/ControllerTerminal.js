@@ -98,7 +98,6 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         }
     }
 };
-
 ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
     let terminal = this.terminal;
     if (!terminal) {
@@ -217,6 +216,25 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         }
     }
 };
+
+ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAmount = 100) {
+    // OPTIMIZE take transactionCost with actual Energy price in account
+    let orders = Game.market.getAllOrders({
+        type: ORDER_BUY,
+        resourceType: theMineralType
+    });
+    let highestGain = 0;
+    let bestOrder;
+    for (let order of orders) {
+        if (order.remainingAmount < minAmount) continue;
+        let gain = order.price;
+        if (gain > highestGain) {
+            highestGain = gain;
+            bestOrder = order;
+        }
+    }
+    return bestOrder;
+}
 
 ControllerTerminal.prototype.findBestBuyOrder = function (theMineralType, energyPrice, theProfit) {
     let terminal = this.terminal;
