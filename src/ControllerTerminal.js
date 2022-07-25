@@ -32,13 +32,26 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     let maxSellPrice = history.sort(function (a, b) {
         return b - a
     })[1];
-
+    console.log("Sell price in CHSP: " + maxSellPrice + " new function: " + this.getAvgPrice(theResourceType));
+    
     Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
     return Math.max(maxSellPrice, global.minSellPrice)
 }
 
+ControllerTerminal.prototype.getAvgPrice = function(theResourceType, index = 1) {
+    let history = Game.market.getHistory(theResourceType);
+    // list only the Average Prices of the array
+    history = history.map(function (o) {
+        return o.avgPrice;
+    });
+    // Get the avg trading price (index 0 = highest price, index 1 = second highest price)
+    let maxSellPrice = history.sort(function (a, b) {
+        return b - a
+    })[index];
+    return maxSellPrice
+}
 ControllerTerminal.prototype.sellRoomMineral = function () {
     let terminal = this.terminal;
     if (!terminal) {
@@ -121,7 +134,6 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
         }
     }
 };
-
 ControllerTerminal.prototype.internalTrade = function () {
     let terminal = this.terminal;
     let cancelOrders = false;
@@ -166,7 +178,6 @@ ControllerTerminal.prototype.internalTrade = function () {
         })
     }
 };
-
 ControllerTerminal.prototype.buyEnergyOrder = function () {
     let ter = this.terminal;
     if (!ter || !ter.isActive()) {
@@ -216,7 +227,6 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         }
     }
 };
-
 ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAmount = 100) {
     // OPTIMIZE take transactionCost with actual Energy price in account
     let orders = Game.market.getAllOrders({
@@ -235,7 +245,6 @@ ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAm
     }
     return bestOrder;
 }
-
 ControllerTerminal.prototype.findBestBuyOrder = function (theMineralType, energyPrice, theProfit) {
     let terminal = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {

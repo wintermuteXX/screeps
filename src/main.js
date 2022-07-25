@@ -39,3 +39,4 @@ module.exports.loop = function () {
 // LONGTERM 12. Remote Mining (there was a formula for calculation if RM makes sense)
 // LONGTERM 13. Harvest Power
 // LONGTERM 14. test attack behavior
+// LONGTERM 15. log market transactions to console (manual/auto/compressed over time)
