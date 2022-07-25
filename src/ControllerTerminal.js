@@ -21,37 +21,34 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         modify = global.modSellMultiplier4
     }
 
-    // TODO make a global funktion to find the price
-    // Get selling history for specified Resource
-    let history = Game.market.getHistory(theResourceType);
-    // list only the Average Prices of the array
-    history = history.map(function (o) {
-        return o.avgPrice;
-    });
-    // Get the SECOND highest selling price for "history"
-    let maxSellPrice = history.sort(function (a, b) {
-        return b - a
-    })[1];
-    console.log("Sell price in CHSP: " + maxSellPrice + " new function: " + this.getAvgPrice(theResourceType));
-    
+    let maxSellPrice = this.getAvgPrice(theResourceType,1)
+    console.log("OLD: " + maxSellPrice + " NEW: " + this._getPrice(theResourceType));
     Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
     return Math.max(maxSellPrice, global.minSellPrice)
 }
 
-ControllerTerminal.prototype.getAvgPrice = function(theResourceType, index = 1) {
+ControllerTerminal.prototype.getAvgPrice = function(theResourceType, index = 0) {
     let history = Game.market.getHistory(theResourceType);
     // list only the Average Prices of the array
     history = history.map(function (o) {
         return o.avgPrice;
     });
-    // Get the avg trading price (index 0 = highest price, index 1 = second highest price)
+    // Get the avg trading price (index 0 = highest price, index 1 = second highest price, ...)
     let maxSellPrice = history.sort(function (a, b) {
         return b - a
     })[index];
     return maxSellPrice
 }
+
+ControllerTerminal.prototype._getPrice = function(commodity) {
+    const priceHistory = Game.market.getHistory(commodity);
+    if (!priceHistory || Object.keys(priceHistory).length === 0) return ERR_NO_DATA;
+    return priceHistory[priceHistory.length - 1]["avgPrice"];
+}
+
+
 ControllerTerminal.prototype.sellRoomMineral = function () {
     let terminal = this.terminal;
     if (!terminal) {
