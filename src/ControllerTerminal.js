@@ -21,33 +21,23 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
         modify = global.modSellMultiplier4
     }
 
-    let maxSellPrice = this.getAvgPrice(theResourceType,1)
-    console.log("OLD: " + maxSellPrice + " NEW: " + this._getPrice(theResourceType));
+    let maxSellPrice = this.getAvgPrice(theResourceType,2)
     Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
     maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
     return Math.max(maxSellPrice, global.minSellPrice)
 }
 
-ControllerTerminal.prototype.getAvgPrice = function(theResourceType, index = 0) {
-    let history = Game.market.getHistory(theResourceType);
-    // list only the Average Prices of the array
-    history = history.map(function (o) {
-        return o.avgPrice;
-    });
-    // Get the avg trading price (index 0 = highest price, index 1 = second highest price, ...)
-    let maxSellPrice = history.sort(function (a, b) {
-        return b - a
-    })[index];
-    return maxSellPrice
+ControllerTerminal.prototype.getAvgPrice = function(resourceType, days = 2) {
+    // Get the market history for the specified resourceType
+    const history = Game.market.getHistory(resourceType)
+    // Init the totalPrice
+    let totalPrice = 0
+    // Iterate through each index less than days
+    for (let index = 0; index <= days; index += 1) totalPrice += history[index].avgPrice
+    // Inform the totalPrice divided by the days
+    return totalPrice / days
 }
-
-ControllerTerminal.prototype._getPrice = function(commodity) {
-    const priceHistory = Game.market.getHistory(commodity);
-    if (!priceHistory || Object.keys(priceHistory).length === 0) return ERR_NO_DATA;
-    return priceHistory[priceHistory.length - 1]["avgPrice"];
-}
-
 
 ControllerTerminal.prototype.sellRoomMineral = function () {
     let terminal = this.terminal;
@@ -226,13 +216,15 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
 };
 ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAmount = 100) {
     // OPTIMIZE take transactionCost with actual Energy price in account
-    let orders = Game.market.getAllOrders({
+    if (!this._orders) {
+		this._orders = null;
+        this._orders = Game.market.getAllOrders({
         type: ORDER_BUY,
         resourceType: theMineralType
     });
     let highestGain = 0;
     let bestOrder;
-    for (let order of orders) {
+    for (let order of this._orders) {
         if (order.remainingAmount < minAmount) continue;
         let gain = order.price;
         if (gain > highestGain) {

@@ -25,17 +25,27 @@ Path to remove:
 screeps.utiuti.rooms.E26S21
 
 */
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+function getAvgPrice(resourceType: MarketResourceConstant, days = 2) {
+    // Get the market history for the specified resourceType
+    const history = Game.market.getHistory(resourceType)
+    // Init the totalPrice
+    let totalPrice = 0
+    // Iterate through each index less than days
+    for (let index = 0; index <= days; index += 1) totalPrice += history[index].avgPrice
+    // Inform the totalPrice divided by the days
+    return totalPrice / days
+}
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 const price = Game.market.getHistory(res)[0].avgPrice
-    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 global.RECIPES = {};
 for (const a in REACTIONS) {
     for (const b in REACTIONS[a]) {
         RECIPES[REACTIONS[a][b]] = [a, b];
     }
 }
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 for (var key in REACTIONS) {
     if (REACTIONS.hasOwnProperty(key)) {
         var obj = REACTIONS[key];
@@ -50,7 +60,7 @@ for (var key in REACTIONS) {
     }
 }
 // [17:43:29][shard3]H O OH //
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 function sorter(structure) {
     switch (structure.structureType) {
         case STRUCTURE_SPAWN:
@@ -64,7 +74,7 @@ function sorter(structure) {
     }
 }
 let sortedThings = _.sortBy(unsortedThings, sorter);
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 for (var i in RESOURCES_ALL) {
     Game.market.createOrder({
         type: ORDER_BUY,
