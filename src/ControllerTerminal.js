@@ -222,6 +222,7 @@ ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAm
         type: ORDER_BUY,
         resourceType: theMineralType
     });
+}
     let highestGain = 0;
     let bestOrder;
     for (let order of this._orders) {
@@ -233,7 +234,7 @@ ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAm
         }
     }
     return bestOrder;
-}
+};
 ControllerTerminal.prototype.findBestBuyOrder = function (theMineralType, energyPrice, theProfit) {
     let terminal = this.terminal;
     let orders = Game.market.getAllOrders().filter(function (order) {

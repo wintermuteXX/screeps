@@ -1,7 +1,12 @@
+if (Game.cpu.bucket < 200) {
+	throw new Error('Der Bucket ist fast leer. Ich setze mal einen Tick aus...')
+  }
+
 var profiler = require('screeps-profiler');
 var Traveler = require('Traveler');
 global.Log = require('Log');
 var stats = require('ControllerStats');
+const Log = require('Log');
 require('marketCalculator');
 
 // var visual = require('RoomVisual');
@@ -10,6 +15,13 @@ require('marketCalculator');
 module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
+    if (Game.cpu.bucket < 200) {
+      if (Game.cpu.limit !== 0) {
+        Log.error('Bucket sehr Niedrig. Abbruch', "Main")
+      }
+      return
+    }
+
     require("_init");
     if (Game.time % 100 === 0) {
       Log.success(`------------------ ${Game.time} is running ------------------`, "Main")
