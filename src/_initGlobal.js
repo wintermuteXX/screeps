@@ -590,31 +590,6 @@ function initGlobal(g) {
     return amount;
   }
 
- g.roomsNeedMinerals = function() {
-    if(!_needMinerals) {
-        for (let r in Game.rooms){
-            _needMinerals = []
-        let theRoom = Game.rooms[r];
-            if (theRoom.terminal) {
-                for (let res of RESOURCES_ALL) {
-                    let has = theRoom.getRoomResourceAmount(res);
-                    let want = global.getRoomThreshold(res);
-                    if (  has < want ) {
-                        _needMinerals.push({
-                            'resourceType': res,
-                            'amount': has-want,
-                            'room': theRoom.name
-                        })
-                        // if (res == "crystal") { console.log("Room " + theRoom.name + " needs " + (want-has) + " of " + res + " Tick: " + Game.time); }
-                    }
-                }
-            }
-        }
-    }
-    console.log("Game time: " + Game.time + " Resources " + global.json(_needMinerals))
-    return _needMinerals;
-}
-
   g._behaviors = {};
 
   g.getBehavior = function (key) {
