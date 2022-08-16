@@ -1,4 +1,4 @@
-if (Game.cpu.bucket < 200) {
+if (Game.cpu.bucket < 500) {
   throw new Error("Der Bucket ist fast leer. Ich setze mal einen Tick aus...");
 }
 
@@ -15,9 +15,9 @@ require("marketCalculator");
 module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
-    if (Game.cpu.bucket < 200) {
+    if (Game.cpu.bucket < 500) {
       if (Game.cpu.limit !== 0) {
-        Log.error("Bucket sehr Niedrig. Abbruch", "Main");
+        Log.error("Bucket sehr Niedrig. Abbruch " + Game.time, "Main");
       }
       return;
     }

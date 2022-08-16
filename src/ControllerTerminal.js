@@ -220,16 +220,16 @@ ControllerTerminal.prototype.internalTrade = function () {
       )
         return;
 
-      let myRooms = _.filter(Game.rooms, (r) => {
+      let roomsWithTerminal = _.filter(Game.rooms, (r) => {
         return r.terminal && r.terminal.my && r.terminal.isActive();
       });
 
-      for (let r in myRooms) {
-        let targetroom = myRooms[r];
-        // Only check other rooms
+      for (let r in roomsWithTerminal) {
+        let targetroom = roomsWithTerminal[r];
         // BUG internalTrade will send xxx Resources from every terminal at the same time
         if (
           targetroom.terminal &&
+          // Only check other rooms
           (cancelOrders || terminal.room.name == targetroom.name)
         ) {
           continue;
