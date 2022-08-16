@@ -34,7 +34,7 @@ module.exports.loop = function () {
     var gc = new ControllerGame();
     gc.processRooms();
   });
-  if (Game.cpu.bucket > 9000) {
+  if (Game.cpu.bucket > 9999) {
     Game.cpu.generatePixel();
   }
   // stats.doStats();
