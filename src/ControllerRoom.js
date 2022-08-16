@@ -42,7 +42,7 @@ ControllerRoom.prototype.run = function () {
   this.commandCreeps();
 
   if (
-    this.room.getRoomResourceAmount(RESOURCE_ENERGY, "all") >
+    this.room.getResourceAmount(RESOURCE_ENERGY, "all") >
     global.getRoomThreshold(RESOURCE_ENERGY, "all")
   ) {
     _.each(this._towers, function (tower) {
@@ -831,9 +831,9 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
         if (obj.hasOwnProperty(prop)) {
           // TODO 9000 should be dynamic based on number of labs, or complete new system
           if (
-            this.room.getRoomResourceAmount(key, "all") >= 9000 &&
-            this.room.getRoomResourceAmount(prop, "all") >= 9000 &&
-            this.room.getRoomResourceAmount(obj[prop], "all") <
+            this.room.getResourceAmount(key, "all") >= 9000 &&
+            this.room.getResourceAmount(prop, "all") >= 9000 &&
+            this.room.getResourceAmount(obj[prop], "all") <
               global.getRoomThreshold(obj[prop], "all")
           ) {
             return {
@@ -847,17 +847,6 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
     }
   }
 };
-
-/* ControllerRoom.prototype.getRoomResourceAmount = function (res) {
-	var amount = 0;
-	if (this.room.storage && this.room.storage.store[res]) {
-		amount += this.room.storage.store[res];
-	}
-	if (this.room.terminal && this.room.terminal.store[res]) {
-		amount += this.room.terminal.store[res];
-	}
-	return amount;
-}; */
 
 ControllerRoom.prototype.findStructuresToRepair = function () {
   var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {

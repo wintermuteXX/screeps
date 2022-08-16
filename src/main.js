@@ -1,13 +1,13 @@
 if (Game.cpu.bucket < 200) {
-	throw new Error('Der Bucket ist fast leer. Ich setze mal einen Tick aus...')
-  }
+  throw new Error("Der Bucket ist fast leer. Ich setze mal einen Tick aus...");
+}
 
-var profiler = require('screeps-profiler');
-var Traveler = require('Traveler');
-global.Log = require('Log');
-var stats = require('ControllerStats');
-const Log = require('Log');
-require('marketCalculator');
+var profiler = require("screeps-profiler");
+var Traveler = require("Traveler");
+global.Log = require("Log");
+var stats = require("ControllerStats");
+const Log = require("Log");
+require("marketCalculator");
 
 // var visual = require('RoomVisual');
 // profiler.enable();
@@ -17,25 +17,28 @@ module.exports.loop = function () {
     // Main.js logic should go here.
     if (Game.cpu.bucket < 200) {
       if (Game.cpu.limit !== 0) {
-        Log.error('Bucket sehr Niedrig. Abbruch', "Main")
+        Log.error("Bucket sehr Niedrig. Abbruch", "Main");
       }
-      return
+      return;
     }
 
     require("_init");
     if (Game.time % 100 === 0) {
-      Log.success(`------------------ ${Game.time} is running ------------------`, "Main")
+      Log.success(
+        `------------------ ${Game.time} is running ------------------`,
+        "Main"
+      );
     }
 
-    var ControllerGame = require('ControllerGame');
+    var ControllerGame = require("ControllerGame");
     var gc = new ControllerGame();
     gc.processRooms();
-  })
+  });
   if (Game.cpu.bucket > 9000) {
     Game.cpu.generatePixel();
   }
-  stats.doStats();
-}
+  // stats.doStats();
+};
 
 // DONE 1. Use new constants for filling and removing resources in Terminal + Storage
 // LONGTERM 2. Sell stuff in Terminal that is not needed globally
@@ -46,7 +49,7 @@ module.exports.loop = function () {
 // LONGTERM 7. Sell materials produced in factories when not needed
 // LONGTERM 8. Boost upgrader8 creeps
 // LONGTERM 9. spawn defenders if attacked
-// LONGTERM 10. Allow creeps to transport more then 1 resource 
+// LONGTERM 10. Allow creeps to transport more then 1 resource
 // LONGTERM 11. New Task "recycle" for e.g. mineral miner
 // LONGTERM 12. Remote Mining (there was a formula for calculation if RM makes sense)
 // LONGTERM 13. Harvest Power

@@ -211,11 +211,11 @@ ControllerTerminal.prototype.internalTrade = function () {
 
   if (terminal && terminal.isActive() && terminal.cooldown === 0) {
     _.each(terminal.store, function (amount, resourceType) {
-      // console.log("TERMINAL: " + terminal.room.getRoomResourceAmount(resourceType) + " " + global.getRoomThreshold(resourceType, "storage"))
+      // console.log("TERMINAL: " + terminal.room.getResourceAmount(resourceType) + " " + global.getRoomThreshold(resourceType, "storage"))
       if (
         cancelOrders ||
         amount === 0 ||
-        terminal.room.getRoomResourceAmount(resourceType, "storage") <
+        terminal.room.getResourceAmount(resourceType, "storage") <
           global.getRoomThreshold(resourceType, "storage")
       )
         return;
@@ -234,7 +234,7 @@ ControllerTerminal.prototype.internalTrade = function () {
         ) {
           continue;
         }
-        let resourceAmountInRoom = targetroom.getRoomResourceAmount(
+        let resourceAmountInRoom = targetroom.getResourceAmount(
           resourceType,
           "storage"
         );
@@ -375,7 +375,6 @@ ControllerTerminal.prototype.findBestBuyOrder2 = function (
   theMineralType,
   minAmount = 100
 ) {
-  // OPTIMIZE take transactionCost with actual Energy price in account
   if (!this._orders) {
     this._orders = null;
     this._orders = Game.market.getAllOrders({
@@ -387,6 +386,7 @@ ControllerTerminal.prototype.findBestBuyOrder2 = function (
   let bestOrder;
   for (let order of this._orders) {
     if (order.remainingAmount < minAmount) continue;
+    // OPTIMIZE take transactionCost with actual Energy price in account
     let gain = order.price;
     if (gain > highestGain) {
       highestGain = gain;

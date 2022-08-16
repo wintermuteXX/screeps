@@ -265,8 +265,7 @@ Structure.prototype.getFirstMineral = function () {
   } */
 };
 
-// TODO This needs to cover the factory to match global.getRoomThreshold() --- also there are othe wrong implementations
-Room.prototype.getRoomResourceAmount = function (res, structure = "all") {
+Room.prototype.getResourceAmount = function (res, structure = "all") {
   var amount = 0;
   if (
     (structure == "all" || structure == "storage") &&
@@ -297,7 +296,7 @@ Room.prototype.roomNeedResources = function () {
     _needResources = [];
     if (this.terminal) {
       for (let res of RESOURCES_ALL) {
-        let has = this.getRoomResourceAmount(res);
+        let has = this.getResourceAmount(res);
         let want = global.getRoomThreshold(res);
         if (has < want) {
           _needResources.push({
