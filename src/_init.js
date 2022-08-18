@@ -112,10 +112,7 @@ Object.defineProperty(Source.prototype, "container", {
       if (Game.getObjectById(this.memory.containerID)) {
         this._container = Game.getObjectById(this.memory.containerID);
       } else {
-        Log.info(
-          `Container does not exist anymore. Delete from memory`,
-          "Container"
-        );
+        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
         this.memory.containerID = null;
         this._container = null;
       }
@@ -128,15 +125,12 @@ Object.defineProperty(Source.prototype, "container", {
 
 Object.defineProperty(Source.prototype, "memory", {
   get: function () {
-    if (!Memory.rooms[this.room.name].sources)
-      Memory.rooms[this.room.name].sources = {};
-    if (!Memory.rooms[this.room.name].sources[this.id])
-      Memory.rooms[this.room.name].sources[this.id] = {};
+    if (!Memory.rooms[this.room.name].sources) Memory.rooms[this.room.name].sources = {};
+    if (!Memory.rooms[this.room.name].sources[this.id]) Memory.rooms[this.room.name].sources[this.id] = {};
     return Memory.rooms[this.room.name].sources[this.id];
   },
   set: function (v) {
-    if (!Memory.rooms[this.room.name].sources)
-      Memory.rooms[this.room.name].sources = {};
+    if (!Memory.rooms[this.room.name].sources) Memory.rooms[this.room.name].sources = {};
     return (Memory.rooms[this.room.name].sources[this.id] = v);
   },
 });
@@ -166,20 +160,14 @@ Object.defineProperty(Structure.prototype, "container", {
         } else {
           Log.info(`ContainerPos will be calculated`, "Container");
           this.calculateContainerPos(1);
-          Log.info(
-            `ContainerPos calculated and build order given`,
-            "Container"
-          );
+          Log.info(`ContainerPos calculated and build order given`, "Container");
           this._container = null;
         }
       }
       if (Game.getObjectById(this.memory.containerID)) {
         this._container = Game.getObjectById(this.memory.containerID);
       } else {
-        Log.info(
-          `Container does not exist anymore. Delete from memory`,
-          "Container"
-        );
+        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
         this.memory.containerID = null;
         this._container = null;
       }
@@ -192,44 +180,22 @@ Object.defineProperty(Structure.prototype, "container", {
 
 Object.defineProperty(Structure.prototype, "memory", {
   get: function () {
-    if (!Memory.rooms[this.room.name].structures)
-      Memory.rooms[this.room.name].structures = {};
-    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-      Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-    if (
-      !Memory.rooms[this.room.name].structures[`${this.structureType}s`][
-        this.id
-      ]
-    )
-      Memory.rooms[this.room.name].structures[`${this.structureType}s`][
-        this.id
-      ] = {};
-    return Memory.rooms[this.room.name].structures[`${this.structureType}s`][
-      this.id
-    ];
+    if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`]) Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id]) Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = {};
+    return Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id];
   },
   set: function (v) {
-    if (!Memory.rooms[this.room.name].structures)
-      Memory.rooms[this.room.name].structures = {};
-    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`])
-      Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
-    return (Memory.rooms[this.room.name].structures[`${this.structureType}s`][
-      this.id
-    ] = v);
+    if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures[`${this.structureType}s`]) Memory.rooms[this.room.name].structures[`${this.structureType}s`] = {};
+    return (Memory.rooms[this.room.name].structures[`${this.structureType}s`][this.id] = v);
   },
 });
 
 Structure.prototype.needsRepair = function () {
   //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
-  if (
-    this.structureType == STRUCTURE_RAMPART ||
-    this.structureType == STRUCTURE_WALL
-  ) {
-    return (
-      this.hits < global.maxHitsDefense &&
-      this.hits < this.hitsMax &&
-      this.hitsMax > 1
-    );
+  if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
+    return this.hits < global.maxHitsDefense && this.hits < this.hitsMax && this.hitsMax > 1;
   }
   // Repair remaining stuff if HP is under 90%
   //return this.hits < (this.hitsMax * global.repairLimit);
@@ -267,25 +233,13 @@ Structure.prototype.getFirstMineral = function () {
 
 Room.prototype.getResourceAmount = function (res, structure = "all") {
   var amount = 0;
-  if (
-    (structure == "all" || structure == "storage") &&
-    this.storage &&
-    this.storage.store[res]
-  ) {
+  if ((structure == "all" || structure == "storage") && this.storage && this.storage.store[res]) {
     amount += this.storage.store[res];
   }
-  if (
-    (structure == "all" || structure == "terminal") &&
-    this.terminal &&
-    this.terminal.store[res]
-  ) {
+  if ((structure == "all" || structure == "terminal") && this.terminal && this.terminal.store[res]) {
     amount += this.terminal.store[res];
   }
-  if (
-    (structure == "all" || structure == "factory") &&
-    this.factory &&
-    this.factory.store[res]
-  ) {
+  if ((structure == "all" || structure == "factory") && this.factory && this.factory.store[res]) {
     amount += this.terminal.store[res];
   }
   return amount;
@@ -309,9 +263,7 @@ Room.prototype.roomNeedResources = function () {
       }
     }
   }
-  console.log(
-    "Game time: " + Game.time + " Resources " + global.json(_needResources)
-  );
+  console.log("Game time: " + Game.time + " Resources " + global.json(_needResources));
   return _needResources;
 };
 
@@ -346,8 +298,7 @@ Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
       [this.y - 1, this.y, this.y + 1].forEach((y) => {
         if (!(x == self.x && self.y == y)) {
           let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
-          if (Game.map.getRoomTerrain(x, y, this.roomName) != "wall")
-            freeSpaceCount++;
+          if (Game.map.getRoomTerrain(x, y, this.roomName) != "wall") freeSpaceCount++;
         }
       }, this);
     }, this);
@@ -361,23 +312,16 @@ RoomObject.prototype.calculateContainerPos = function (range) {
   if (
     this.room.controller.reservation &&
     /* reserved and not mine */
-    this.room.controller.reservation.username !=
-      Game.structures[_.first(Object.keys(Game.structures))].owner.username
+    this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username
   ) {
-    Log.warn(
-      `Unable to place container in ${this.room}, hostile reserved room`,
-      "calculateContainerPos"
-    );
+    Log.warn(`Unable to place container in ${this.room}, hostile reserved room`, "calculateContainerPos");
     return;
   }
   if (this.structureType === STRUCTURE_CONTROLLER) {
     range = 2;
   }
   var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
-  Log.info(
-    `Calculation Container Pos. Start at ${startingPosition}`,
-    "Container"
-  );
+  Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
   if (!startingPosition) {
     startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
       filter: function (s) {
@@ -396,10 +340,7 @@ RoomObject.prototype.calculateContainerPos = function (range) {
     plainCost: 2,
   });
   if (ret.incomplete || ret.path.length === 0) {
-    Log.error(
-      "Path used for container placement in calculateContainerPos incomplete, please investigate",
-      "calculateContainerPos"
-    );
+    Log.error("Path used for container placement in calculateContainerPos incomplete, please investigate", "calculateContainerPos");
     return;
   }
   var position_1 = ret.path[range - 1];
@@ -462,9 +403,7 @@ Creep.prototype.toString = function (htmlLink = true) {
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    return `<a href="#!/room/${Game.shard.name}/${
-      this.room.name
-    }" onClick="${onClick}">[${this.name ? this.name : this.id}]</a>`;
+    return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[${this.name ? this.name : this.id}]</a>`;
   }
   return `[${this.name ? this.name : this.id}]`;
 };
@@ -476,11 +415,7 @@ Structure.prototype.toString = function (htmlLink = true) {
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    return `<a href="#!/room/${Game.shard.name}/${
-      this.room.name
-    }" onClick="${onClick}">[${
-      this.structureType ? this.structureType : this.id
-    }]</a>`;
+    return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[${this.structureType ? this.structureType : this.id}]</a>`;
   }
   return `[(${this.structureType}) #${this.id}]`;
 };
@@ -492,9 +427,7 @@ StructureSpawn.prototype.toString = function (htmlLink = true) {
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    return `<a href="#!/room/${Game.shard.name}/${
-      this.room.name
-    }" onClick="${onClick}">[${this.name ? this.name : this.id}]</a>`;
+    return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[${this.name ? this.name : this.id}]</a>`;
   }
   return `[(${this.structureType}) #${this.id}]`;
 };

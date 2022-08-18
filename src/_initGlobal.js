@@ -18,20 +18,11 @@ function initGlobal(g) {
     STRUCTURE_CONTAINER,
     STRUCTURE_POWER_BANK,
   ];
-  const singleList = [
-    STRUCTURE_OBSERVER,
-    STRUCTURE_POWER_SPAWN,
-    STRUCTURE_EXTRACTOR,
-    STRUCTURE_NUKER,
-    STRUCTURE_FACTORY,
-  ];
+  const singleList = [STRUCTURE_OBSERVER, STRUCTURE_POWER_SPAWN, STRUCTURE_EXTRACTOR, STRUCTURE_NUKER, STRUCTURE_FACTORY];
   //STRUCTURE_TERMINAL,   STRUCTURE_CONTROLLER,   STRUCTURE_STORAGE,
 
   function getCacheExpiration() {
-    return (
-      CACHE_TIMEOUT +
-      Math.round(Math.random() * CACHE_OFFSET * 2 - CACHE_OFFSET)
-    );
+    return CACHE_TIMEOUT + Math.round(Math.random() * CACHE_OFFSET * 2 - CACHE_OFFSET);
   }
 
   /********* CPU Profiling stats for Room.prototype._checkRoomCache ********** 
@@ -44,22 +35,12 @@ function initGlobal(g) {
   ****************************************************************************/
   Room.prototype._checkRoomCache = function _checkRoomCache() {
     // if cache is expired or doesn't exist
-    if (
-      !roomStructuresExpiration[this.name] ||
-      !roomStructures[this.name] ||
-      roomStructuresExpiration[this.name] < Game.time
-    ) {
+    if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {
       roomStructuresExpiration[this.name] = Game.time + getCacheExpiration();
-      roomStructures[this.name] = _.groupBy(
-        this.find(FIND_STRUCTURES),
-        (s) => s.structureType
-      );
+      roomStructures[this.name] = _.groupBy(this.find(FIND_STRUCTURES), (s) => s.structureType);
       var i;
       for (i in roomStructures[this.name]) {
-        roomStructures[this.name][i] = _.map(
-          roomStructures[this.name][i],
-          (s) => s.id
-        );
+        roomStructures[this.name][i] = _.map(roomStructures[this.name][i], (s) => s.id);
       }
     }
   };
@@ -72,9 +53,7 @@ function initGlobal(g) {
           this._checkRoomCache();
           if (roomStructures[this.name][type]) {
             this["_" + type + "s_ts"] = Game.time;
-            return (this["_" + type + "s"] = roomStructures[this.name][
-              type
-            ].map(Game.getObjectById));
+            return (this["_" + type + "s"] = roomStructures[this.name][type].map(Game.getObjectById));
           } else {
             this["_" + type + "s_ts"] = Game.time;
             return (this["_" + type + "s"] = []);
@@ -95,9 +74,7 @@ function initGlobal(g) {
           this._checkRoomCache();
           if (roomStructures[this.name][type]) {
             this["_" + type + "_ts"] = Game.time;
-            return (this["_" + type] = Game.getObjectById(
-              roomStructures[this.name][type][0]
-            ));
+            return (this["_" + type] = Game.getObjectById(roomStructures[this.name][type][0]));
           } else {
             this["_" + type + "_ts"] = Game.time;
             return (this["_" + type] = undefined);
@@ -655,22 +632,14 @@ function initGlobal(g) {
   // TODO this belongs in _init.js
   global.getRoomThreshold = function (resource, structure = "all") {
     let amount = 0;
-    if (structure == "all" || structure == "storage")
-      amount += global.fillLevel[resource].storage || 0;
-    if (structure == "all" || structure == "terminal")
-      amount += global.fillLevel[resource].terminal || 0;
-    if (structure == "all" || structure == "factory")
-      amount += global.fillLevel[resource].factory || 0;
-    if (structure == "factory1")
-      amount += global.fillLevel[resource].factory1 || 0;
-    if (structure == "factory2")
-      amount += global.fillLevel[resource].factory2 || 0;
-    if (structure == "factory3")
-      amount += global.fillLevel[resource].factory3 || 0;
-    if (structure == "factory4")
-      amount += global.fillLevel[resource].factory4 || 0;
-    if (structure == "factory5")
-      amount += global.fillLevel[resource].factory5 || 0;
+    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0;
+    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0;
+    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory || 0;
+    if (structure == "factory1") amount += global.fillLevel[resource].factory1 || 0;
+    if (structure == "factory2") amount += global.fillLevel[resource].factory2 || 0;
+    if (structure == "factory3") amount += global.fillLevel[resource].factory3 || 0;
+    if (structure == "factory4") amount += global.fillLevel[resource].factory4 || 0;
+    if (structure == "factory5") amount += global.fillLevel[resource].factory5 || 0;
 
     return amount;
   };
@@ -791,33 +760,13 @@ g.resourceReorder = setInterval(() => {
         let labC = labs[i];
         if (labC.memory.partnerA) {
           result.push("<tr>");
-          result.push(
-            "<td> " +
-              Game.getObjectById(labC.memory.partnerA).memory.status +
-              " </td>"
-          );
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerA).memory.status + " </td>");
           result.push("<td> " + resourceImg(labC.memory.resource) + " </td>");
           result.push("<td> " + labC + " </td>");
-          result.push(
-            "<td> " +
-              resourceImg(
-                Game.getObjectById(labC.memory.partnerA).memory.resource
-              ) +
-              " </td>"
-          );
-          result.push(
-            "<td> " +
-              resourceImg(
-                Game.getObjectById(labC.memory.partnerB).memory.resource
-              ) +
-              " </td>"
-          );
-          result.push(
-            "<td> " + Game.getObjectById(labC.memory.partnerA) + " </td>"
-          );
-          result.push(
-            "<td> " + Game.getObjectById(labC.memory.partnerB) + " </td>"
-          );
+          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerA).memory.resource) + " </td>");
+          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerB).memory.resource) + " </td>");
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerA) + " </td>");
+          result.push("<td> " + Game.getObjectById(labC.memory.partnerB) + " </td>");
           result.push("</tr>");
         }
       }
@@ -847,35 +796,20 @@ g.resourceReorder = setInterval(() => {
       if (!hide) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
-        result.push(
-          "<td align='right'> " + amountGlobalResources(resource) + " </td>"
-        );
-        let offset =
-          amountGlobalResources(resource) -
-          numberOfRooms * global.getRoomThreshold(resource, "all");
+        result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
+        let offset = amountGlobalResources(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
         if (offset >= 0) {
-          result.push(
-            "<td align='right' style='color:#008000'> " + offset + " </td>"
-          );
+          result.push("<td align='right' style='color:#008000'> " + offset + " </td>");
         } else {
-          result.push(
-            "<td align='right' style='color:#FF0000'> " + offset + " </td>"
-          );
+          result.push("<td align='right' style='color:#FF0000'> " + offset + " </td>");
         }
         result.push("</tr>");
       } else {
         if (amountGlobalResources(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
-          result.push(
-            "<td align='right'> " + amountGlobalResources(resource) + " </td>"
-          );
-          result.push(
-            "<td align='right'> " +
-              (amountGlobalResources(resource) -
-                numberOfRooms * global.getRoomThreshold(resource, "all")) +
-              " </td>"
-          );
+          result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
+          result.push("<td align='right'> " + (amountGlobalResources(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
           result.push("</tr>");
         }
       }
@@ -1017,10 +951,7 @@ g.resourceReorder = setInterval(() => {
                         document.getElementsByTagName("head")[0].appendChild(script);
                         setTimeout("responsiveVoice.init()", 1000);
                     }
-                </script>`.replace(
-        /(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm,
-        ""
-      )
+                </script>`.replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, "")
     );
   };
 }

@@ -41,10 +41,7 @@ ControllerRoom.prototype.run = function () {
 
   this.commandCreeps();
 
-  if (
-    this.room.getResourceAmount(RESOURCE_ENERGY, "all") >
-    global.getRoomThreshold(RESOURCE_ENERGY, "all")
-  ) {
+  if (this.room.getResourceAmount(RESOURCE_ENERGY, "all") > global.getRoomThreshold(RESOURCE_ENERGY, "all")) {
     _.each(this._towers, function (tower) {
       tower.fire();
       tower.repair();
@@ -76,11 +73,7 @@ ControllerRoom.prototype.run = function () {
   }
 
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
-    if (
-      this.room.powerSpawn &&
-      this.room.powerSpawn.store.energy > 0 &&
-      this.room.powerSpawn.store.power > 0
-    ) {
+    if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
       this.room.powerSpawn.processPower();
     }
   }
@@ -144,17 +137,12 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
         give.resourceType === need.resourceType &&
         give.priority > need.priority &&
         need.id !== give.id &&
-        (this.getCreeps(null, give.id).length == 0 ||
-          need.id == Creep.room.controller.memory.containerID)
+        (this.getCreeps(null, give.id).length == 0 || need.id == Creep.room.controller.memory.containerID)
       ) {
         Log.debug(
-          `${this.room.name} ${need.structureType} (${
-            need.priority
-          }) needs ${_.min([need.amount, give.amount])} ${global.resourceImg(
-            need.resourceType
-          )} from ${give.structureType} (${give.priority}) which has ${
-            give.amount
-          }`,
+          `${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount, give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${
+            give.priority
+          }) which has ${give.amount}`,
           "getTransportOrder"
         );
         return give;
@@ -169,18 +157,8 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
 
   for (var n in needsResources) {
     let need = needsResources[n];
-    if (
-      need.resourceType === Creep.memory.resourceType &&
-      (this.getCreeps(null, need.id).length == 0 ||
-        need.id == Creep.room.controller.memory.containerID)
-    ) {
-      Log.debug(
-        `${this.room.name} ${Creep.name} transports ${_.min([
-          Creep.amount,
-          need.amount,
-        ])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`,
-        "getDeliveryOrder"
-      );
+    if (need.resourceType === Creep.memory.resourceType && (this.getCreeps(null, need.id).length == 0 || need.id == Creep.room.controller.memory.containerID)) {
+      Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount, need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
       return need;
     }
   }
@@ -266,13 +244,7 @@ ControllerRoom.prototype.givesResources = function () {
     // Labs
     _.forEach(this.room.labs, function (c) {
       let result = c.getFirstMineral();
-      if (
-        c &&
-        c.memory.resource &&
-        c.memory.status == "empty" &&
-        result &&
-        result["amount"] > 0
-      ) {
+      if (c && c.memory.resource && c.memory.status == "empty" && result && result["amount"] > 0) {
         self._givesResources.push({
           priority: 185,
           resourceType: result["resource"],
@@ -343,16 +315,10 @@ ControllerRoom.prototype.givesResources = function () {
     if (ter) {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
-        if (
-          r === "energy" &&
-          ter.store[r] <= global.minEnergyThresholdTerminal
-        ) {
+        if (r === "energy" && ter.store[r] <= global.minEnergyThresholdTerminal) {
           prio = 35;
           amount = ter.store[r];
-        } else if (
-          r === "energy" &&
-          ter.store[r] > global.minEnergyThresholdTerminal
-        ) {
+        } else if (r === "energy" && ter.store[r] > global.minEnergyThresholdTerminal) {
           prio = 140;
           amount = ter.store[r] - global.minEnergyThresholdTerminal;
         } else if (r !== "energy" && ter.store[r] > 0) {
@@ -386,10 +352,7 @@ ControllerRoom.prototype.needsResources = function () {
     let prio = 127;
     if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
       prio = 10;
-    } else if (
-      this.room.controller &&
-      this.room.controller.ticksToDowngrade < 5000
-    ) {
+    } else if (this.room.controller && this.room.controller.ticksToDowngrade < 5000) {
       prio = 25;
     }
     //	Fill Upgrader directly, if no container in position
@@ -418,10 +381,7 @@ ControllerRoom.prototype.needsResources = function () {
 
     let constructor = this.getCreeps("constructor");
     for (var constr of constructor) {
-      if (
-        constr.store.getFreeCapacity(RESOURCE_ENERGY) >
-        constr.store.getCapacity() / 2
-      ) {
+      if (constr.store.getFreeCapacity(RESOURCE_ENERGY) > constr.store.getCapacity() / 2) {
         self._needsResources.push({
           priority: 50,
           structureType: constr.structureType,
@@ -433,13 +393,7 @@ ControllerRoom.prototype.needsResources = function () {
     }
 
     _.forEach(this.room.labs, function (c) {
-      if (
-        c &&
-        c.memory.resource &&
-        c.memory.status == "fill" &&
-        c.store.getFreeCapacity(c.memory.resource) > 0 &&
-        c.memory.usedBy
-      ) {
+      if (c && c.memory.resource && c.memory.status == "fill" && c.store.getFreeCapacity(c.memory.resource) > 0 && c.memory.usedBy) {
         self._needsResources.push({
           priority: 70,
           resourceType: c.memory.resource,
@@ -457,57 +411,18 @@ ControllerRoom.prototype.needsResources = function () {
     }
 
     if (this.room.controller && this.room.controller.my) {
-      _.forEach(
-        this.structuresNeedResource(
-          this.room.towers,
-          RESOURCE_ENERGY,
-          prio,
-          400
-        ),
-        (e) => self._needsResources.push(e)
-      );
-      _.forEach(
-        this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15),
-        (e) => self._needsResources.push(e)
-      );
-      _.forEach(
-        this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20),
-        (e) => self._needsResources.push(e)
-      );
-      _.forEach(
-        this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65),
-        (e) => self._needsResources.push(e)
-      );
+      _.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), (e) => self._needsResources.push(e));
 
       if (this.room.powerSpawn) {
-        _.forEach(
-          this.structuresNeedResource(
-            [this.room.powerSpawn],
-            RESOURCE_ENERGY,
-            80,
-            400
-          ),
-          (e) => self._needsResources.push(e)
-        );
-        _.forEach(
-          this.structuresNeedResource(
-            [this.room.powerSpawn],
-            RESOURCE_POWER,
-            90,
-            90
-          ),
-          (e) => self._needsResources.push(e)
-        );
+        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 90), (e) => self._needsResources.push(e));
       }
       if (this.room.nuker) {
-        _.forEach(
-          this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110),
-          (e) => self._needsResources.push(e)
-        );
-        _.forEach(
-          this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95),
-          (e) => self._needsResources.push(e)
-        );
+        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), (e) => self._needsResources.push(e));
       }
     }
 
@@ -541,17 +456,10 @@ ControllerRoom.prototype.needsResources = function () {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
         let fillLevel = global.getRoomThreshold(r, "storage");
-        if (
-          r === "energy" &&
-          (sto.store[r] === undefined || sto.store[r] < fillLevel)
-        ) {
+        if (r === "energy" && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
           prio = 55;
           amount = fillLevel - (sto.store[r] || 0);
-        } else if (
-          r === "energy" &&
-          sto.store[r] >= fillLevel &&
-          sto.store[r] < global.maxEnergyThreshold
-        ) {
+        } else if (r === "energy" && sto.store[r] >= fillLevel && sto.store[r] < global.maxEnergyThreshold) {
           prio = 125;
           amount = global.maxEnergyThreshold - (sto.store[r] || 0);
         } else if (r !== "energy" && sto.store[r] < fillLevel) {
@@ -575,11 +483,7 @@ ControllerRoom.prototype.needsResources = function () {
     if (ter && ter.store.getFreeCapacity() > 0) {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
-        if (
-          r === "energy" &&
-          (ter.store[r] === undefined ||
-            ter.store[r] < global.minEnergyThresholdTerminal)
-        ) {
+        if (r === "energy" && (ter.store[r] === undefined || ter.store[r] < global.minEnergyThresholdTerminal)) {
           prio = 45;
           amount = global.minEnergyThresholdTerminal - (ter.store[r] || 0);
         } else if (r === "energy") {
@@ -647,9 +551,7 @@ ControllerRoom.prototype.getAllCreeps = function (role) {
   var room = this.room;
   var creeps = [];
   if (role) {
-    creeps = Object.values(Game.creeps).filter(
-      (c) => c.memory.role === role && c.room === room
-    );
+    creeps = Object.values(Game.creeps).filter((c) => c.memory.role === role && c.room === room);
   } else {
     creeps = Object.values(Game.creeps).filter((c) => c.room === room);
   }
@@ -667,17 +569,7 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 };
 
 ControllerRoom.prototype.getEnemys = function () {
-  var allowedNameList = [
-    "lur",
-    "starwar15432",
-    "leonyx",
-    "lisp",
-    "rubra",
-    "thekraken",
-    "apemanzilla",
-    "iskillet",
-    "Tada_",
-  ];
+  var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_"];
   var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
     filter: function (foundCreep) {
       for (let i = allowedNameList.length; --i >= 0; ) {
@@ -697,10 +589,7 @@ ControllerRoom.prototype.getLevel = function () {
   return 0;
 };
 
-ControllerRoom.prototype.structureNeedResource = function (
-  structure,
-  resource
-) {
+ControllerRoom.prototype.structureNeedResource = function (structure, resource) {
   if (structure) {
     return structure.store.getFreeCapacity(resource);
   } else {
@@ -708,16 +597,8 @@ ControllerRoom.prototype.structureNeedResource = function (
   }
 };
 
-ControllerRoom.prototype.structuresNeedResource = function (
-  structures,
-  resource,
-  prio,
-  threshold
-) {
-  var structures = _.filter(
-    structures,
-    (s) => s.store.getFreeCapacity(resource) > (threshold || 0)
-  );
+ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
+  var structures = _.filter(structures, (s) => s.store.getFreeCapacity(resource) > (threshold || 0));
 
   return _.map(structures, (s) => {
     return {
@@ -748,11 +629,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
       if (containerId != null) {
         var container = Game.getObjectById(containerId);
         if (container != null) {
-          if (
-            container.store &&
-            container.store[RESOURCE_ENERGY] + 800 <
-              container.store.getCapacity(RESOURCE_ENERGY)
-          ) {
+          if (container.store && container.store[RESOURCE_ENERGY] + 800 < container.store.getCapacity(RESOURCE_ENERGY)) {
             this._controllerNF = container;
           }
         }
@@ -833,8 +710,7 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
           if (
             this.room.getResourceAmount(key, "all") >= 9000 &&
             this.room.getResourceAmount(prop, "all") >= 9000 &&
-            this.room.getResourceAmount(obj[prop], "all") <
-              global.getRoomThreshold(obj[prop], "all")
+            this.room.getResourceAmount(obj[prop], "all") < global.getRoomThreshold(obj[prop], "all")
           ) {
             return {
               resourceA: key,
@@ -866,11 +742,7 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   var lMax = cfg.levelMax || 10;
   if (level < lReq) return false;
   if (lMax < level) return false;
-  if (
-    cfg.wait4maxEnergy == true &&
-    this.room.energyCapacityAvailable > this.room.energyAvailable
-  )
-    return false;
+  if (cfg.wait4maxEnergy == true && this.room.energyCapacityAvailable > this.room.energyAvailable) return false;
   if (!cfg.canBuild) {
     console.log(role + " : no canBuild() implemented");
     return false;
@@ -895,17 +767,7 @@ ControllerRoom.prototype.centerPoint = function () {
       });
       if (structs.length > 0) continue;
 
-      let terrain = _.filter(
-        this.room.lookForAtArea(
-          LOOK_TERRAIN,
-          y - freeRange,
-          x - freeRange,
-          y + freeRange,
-          x + freeRange,
-          true
-        ),
-        (p) => p.type == "terrain" && p.terrain == "wall"
-      );
+      let terrain = _.filter(this.room.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == "terrain" && p.terrain == "wall");
       if (terrain.length > 0) continue;
 
       let goodPos = new RoomPosition(x, y, this.room.name);
@@ -944,11 +806,7 @@ ControllerRoom.prototype.centerPoint = function () {
         if (bestPos.s[foo] > toSource[foo]) cnt++;
       }
 
-      if (
-        cnt >= 2 ||
-        (cnt >= 1 && toController <= bestPos.c) ||
-        toController * 2 <= bestPos.c
-      ) {
+      if (cnt >= 2 || (cnt >= 1 && toController <= bestPos.c) || toController * 2 <= bestPos.c) {
         bestPos = {
           x: goodPos.x,
           y: goodPos.y,
@@ -959,10 +817,7 @@ ControllerRoom.prototype.centerPoint = function () {
     }
   }
 
-  Log.error(
-    `Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`,
-    "centerPoint"
-  );
+  Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "centerPoint");
   let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.room.name);
   return thePosition;
   // this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);
