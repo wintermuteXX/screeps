@@ -162,7 +162,7 @@ ControllerTerminal.prototype.internalTrade = function () {
     }
     if (!cancelTrading) {
       // let order = this.findBestBuyOrder2(resourceType,amount);
-      console.log("Now sell it :-) ");
+      // console.log("Now sell it :-) ");
     }
   });
 };
