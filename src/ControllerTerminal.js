@@ -2,7 +2,6 @@ function ControllerTerminal(rc) {
   this.room = rc;
   this.terminal = rc.room.terminal;
 }
-
 ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType, theAmount = 0) {
   if (theResourceType == undefined || theResourceType == null) {
     return null;
@@ -26,7 +25,6 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
 
   return Math.max(maxSellPrice, global.minSellPrice);
 };
-
 ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2) {
   // Get the market history for the specified resourceType
   const history = Game.market.getHistory(resourceType);
@@ -37,7 +35,6 @@ ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2) {
   // Inform the totalPrice divided by the days
   return totalPrice / days;
 };
-
 ControllerTerminal.prototype.sellRoomMineral = function () {
   let terminal = this.terminal;
   if (!terminal) {
@@ -162,6 +159,10 @@ ControllerTerminal.prototype.internalTrade = function () {
             Log.warn(`${terminal} has unknown result in ${terminal.room} tries to transfer to (${targetroom}): ${result}`, "internalTrade");
         }
       }
+    }
+    if (!cancelTrading) {
+      // let order = this.findBestBuyOrder2(resourceType,amount);
+      console.log("Now sell it :-) ");
     }
   });
 };
