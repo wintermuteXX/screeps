@@ -25,6 +25,33 @@ Path to remove:
 screeps.utiuti.rooms.E26S21
 
 */
+
+
+// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+const orders = Game.market.getAllOrders({ type: ORDER_BUY, resourceType })
+const minSellOrderPrice = Math.min.apply(
+    Math,
+    orders.map(o => o.price),
+)
+const sellPrice = minSellOrderPrice - 0.001
+
+if (sellPrice < getAvgPrice(resourceType) * 0.8) {
+    return false
+}
+const price = sellPrice
+
+// Otherwise, create a new market order and inform true
+
+return (
+    Game.market.createOrder({
+        roomName: this.name,
+        type: ORDER_SELL,
+        resourceType,
+        price: getAvgPrice(resourceType) * 0.8,
+        price,
+        totalAmount: amount,
+    }) == OK
+)
 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 function getAvgPrice(resourceType: MarketResourceConstant, days = 2) {
     // Get the market history for the specified resourceType

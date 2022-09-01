@@ -28,8 +28,6 @@ ControllerGame.prototype.garbageCollection = function () {
 			delete Memory.rooms[r];
 		}
 	}
-
-
 };
 
 module.exports = ControllerGame;
