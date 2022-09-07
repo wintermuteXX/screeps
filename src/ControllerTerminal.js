@@ -164,6 +164,7 @@ ControllerTerminal.prototype.internalTrade = function () {
     }
     if (false && !cancelTrading && resourceType !== RESOURCE_ENERGY) {
       // BUG keine wertvollen mineralien (Commodities) und nicht das Room Mineral veraufen. Dann false entfernen
+      // BUG Mindestverkaufspreis setzen
       let order = self.findBestBuyOrder2(resourceType, amount);
       if (order) {
         let result2 = Game.market.deal(order.id, order.amount, terminal.room.name);
