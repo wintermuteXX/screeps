@@ -120,9 +120,11 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
     }
   }
 };
+
 ControllerTerminal.prototype.internalTrade = function () {
   let terminal = this.terminal;
   let cancelTrading = false;
+  const self = this;
 
   if (!terminal || !terminal.isActive() || terminal.cooldown !== 0) return;
 
@@ -137,7 +139,7 @@ ControllerTerminal.prototype.internalTrade = function () {
       let targetroom = roomsWithTerminal[r];
       // BUG internalTrade will send xxx Resources from every terminal at the same time
 
-      if (targetroom.terminal && !cancelTrading && terminal == targetroom.terminal) {
+      if ((targetroom.terminal && terminal == targetroom.terminal) || cancelTrading) {
         continue;
       }
       let resourceAmountInRoom = targetroom.getResourceAmount(resourceType, "storage");
@@ -160,9 +162,21 @@ ControllerTerminal.prototype.internalTrade = function () {
         }
       }
     }
-    if (!cancelTrading) {
-      // let order = this.findBestBuyOrder2(resourceType,amount);
-      // console.log("Now sell it :-) ");
+    if (false && !cancelTrading && resourceType !== RESOURCE_ENERGY) {
+      // BUG keine wertvollen mineralien (Commodities) und nicht das Room Mineral veraufen. Dann false entfernen
+      let order = self.findBestBuyOrder2(resourceType, amount);
+      if (order) {
+        let result2 = Game.market.deal(order.id, order.amount, terminal.room.name);
+        switch (result2) {
+          case OK:
+            cancelTrading = true;
+            Log.success(`${terminal.room} sells ${order.amount} of ${global.resourceImg(resourceType)} from ${terminal.room}`, "internalTrade");
+            break;
+
+          default:
+            Log.warn(`${terminal} has unknown result in ${terminal.room} tries to sell ${order.amount} ${global.resourceImg(resourceType)} to market: ${result2}`, "internalTrade");
+        }
+      }
     }
   });
 };
@@ -218,14 +232,13 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     }
   }
 };
+
+// BUG scheint den schlechtesten Deal zu finden
 ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAmount = 100) {
-  if (!this._orders) {
-    this._orders = null;
-    this._orders = Game.market.getAllOrders({
-      type: ORDER_BUY,
-      resourceType: theMineralType,
-    });
-  }
+  this._orders = Game.market.getAllOrders({
+    type: ORDER_BUY,
+    resourceType: theMineralType,
+  });
   let highestGain = 0;
   let bestOrder;
   for (let order of this._orders) {
