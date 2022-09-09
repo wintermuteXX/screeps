@@ -189,12 +189,12 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
   let energyInTerminal = ter.store[RESOURCE_ENERGY];
   let orderExists = false;
 
-  if (Game.market.credits < global.minEnergyThresholdTerminal) {
-    Log.warn(`There are less than ${global.minEnergyThresholdTerminal} credits available. Skipping...`, "buyEnergyOrder");
+  if (Game.market.credits < global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
+    Log.warn(`There are less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} credits available. Skipping...`, "buyEnergyOrder");
     return false;
   }
   if (energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage") - 5000) {
-    Log.debug(`Less than ${global.minEnergyThreshold} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
+    Log.debug(`Less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
     for (let id in Game.market.orders) {
       let order = Game.market.orders[id];
@@ -203,7 +203,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
         orderExists = true;
         if (order.remainingAmount + energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage")) {
           Log.debug(
-            `Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${global.minEnergyThreshold} - ${order.remainingAmount} - ${energyInTerminal}`,
+            `Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${global.getRoomThreshold(
+              RESOURCE_ENERGY,
+              "terminal"
+            )} - ${order.remainingAmount} - ${energyInTerminal}`,
             "buyEnergyOrder"
           );
 
@@ -221,10 +224,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
       }
     }
     if (orderExists === false) {
-      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, global.energyPrice, global.minEnergyThreshold, ter.room.name);
+      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, global.energyPrice, global.getRoomThreshold(RESOURCE_ENERGY, "terminal"), ter.room.name);
       switch (result2) {
         case OK:
-          Log.success(`Created order in room ${ter.room} for ${global.minEnergyThreshold} energy was successful`, "buyEnergyOrder");
+          Log.success(`Created order in room ${ter.room} for ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy was successful`, "buyEnergyOrder");
           break;
 
         default:

@@ -1,9 +1,9 @@
 var Behavior = require("_behavior");
-var b = new Behavior("goto_green_flag");
+var b = new Behavior("goto_yellow_flag");
 
 function findFlag(rc) {
   return _.find(Game.flags, {
-    color: COLOR_GREEN,
+    color: COLOR_YELLOW,
   });
 }
 

@@ -315,12 +315,12 @@ ControllerRoom.prototype.givesResources = function () {
     if (ter) {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
-        if (r === "energy" && ter.store[r] <= global.minEnergyThresholdTerminal) {
+        if (r === "energy" && ter.store[r] <= global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
           prio = 35;
           amount = ter.store[r];
-        } else if (r === "energy" && ter.store[r] > global.minEnergyThresholdTerminal) {
+        } else if (r === "energy" && ter.store[r] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
           prio = 140;
-          amount = ter.store[r] - global.minEnergyThresholdTerminal;
+          amount = ter.store[r] - global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
         } else if (r !== "energy" && ter.store[r] > 0) {
           prio = 130;
           amount = ter.store[r];
@@ -483,9 +483,9 @@ ControllerRoom.prototype.needsResources = function () {
     if (ter && ter.store.getFreeCapacity() > 0) {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
-        if (r === "energy" && (ter.store[r] === undefined || ter.store[r] < global.minEnergyThresholdTerminal)) {
+        if (r === "energy" && (ter.store[r] === undefined || ter.store[r] < global.getRoomThreshold(RESOURCE_ENERGY, "terminal"))) {
           prio = 45;
-          amount = global.minEnergyThresholdTerminal - (ter.store[r] || 0);
+          amount = global.getRoomThreshold(RESOURCE_ENERGY, "terminal") - (ter.store[r] || 0);
         } else if (r === "energy") {
           prio = 145;
           amount = ter.store.getFreeCapacity();
