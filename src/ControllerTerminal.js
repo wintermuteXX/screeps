@@ -147,18 +147,24 @@ ControllerTerminal.prototype.internalTrade = function () {
       let needed = global.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
       if (needed > 0) {
         // Amount of resource that will be send
-        let sendAmount = Math.min(amount, needed);
+        if (resourceType == RESOURCE_ENERGY) {
+          var sendAmount = Math.min(terminal.room.storage.store[RESOURCE_ENERGY] - global.getRoomThreshold(resourceType, "storage"), needed);
+        } else {
+          var sendAmount = Math.min(amount, needed);
+        }
 
-        let result = terminal.send(resourceType, sendAmount, targetroom.name, "internal");
+        if (sendAmount > 0) {
+          let result = terminal.send(resourceType, sendAmount, targetroom.name, "internal");
 
-        switch (result) {
-          case OK:
-            cancelTrading = true;
-            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetroom}`, "internalTrade");
-            break;
+          switch (result) {
+            case OK:
+              cancelTrading = true;
+              Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetroom}`, "internalTrade");
+              break;
 
-          default:
-            Log.warn(`${terminal} has unknown result in ${terminal.room} tries to transfer to (${targetroom}): ${result}`, "internalTrade");
+            default:
+              Log.warn(`${terminal} has unknown result in ${terminal.room} tries to transfer to (${targetroom}): ${result}`, "internalTrade");
+          }
         }
       }
     }
