@@ -240,7 +240,7 @@ Room.prototype.getResourceAmount = function (res, structure = "all") {
     amount += this.terminal.store[res];
   }
   if ((structure == "all" || structure == "factory") && this.factory && this.factory.store[res]) {
-    amount += this.terminal.store[res];
+    amount += this.factory.store[res];
   }
   return amount;
 };
