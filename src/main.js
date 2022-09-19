@@ -24,7 +24,7 @@ module.exports.loop = function () {
 
     require("_init");
     if (Game.time % 100 === 0) {
-      Log.success(`------------------ ${Game.time} is running ------------------`, "Main");
+      Log.success(`------------------ ${Game.time} is running //  Bucket: ${Game.cpu.bucket}------------------`, "Main");
     }
 
     var ControllerGame = require("ControllerGame");
@@ -39,7 +39,7 @@ module.exports.loop = function () {
 
 // DONE 1. Use new constants for filling and removing resources in Terminal + Storage
 // LONGTERM 2. Sell stuff in Terminal that is not needed globally
-// LONGTERM 3. Start producing in factory (level 0)
+// DONE 3. Start producing in factory (level 0)
 // LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
 // LONGTERM 5. Activate and user Powercreeps to set factory level and maintain it
 // LONGTERM 6. Distribute materials only needed in factory level > 0
