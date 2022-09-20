@@ -427,7 +427,7 @@ function initGlobal(g) {
       factory5: 3000,
     },
     [RESOURCE_WIRE]: {
-      storage: 1600,
+      storage: 0,
       terminal: 0,
       factory: 0,
       factory1: 800,
@@ -507,7 +507,7 @@ function initGlobal(g) {
       factory: 0,
     },
     [RESOURCE_ALLOY]: {
-      storage: 1600,
+      storage: 0,
       terminal: 0,
       factory: 0,
       factory1: 800,
@@ -547,7 +547,7 @@ function initGlobal(g) {
       factory: 0,
     },
     [RESOURCE_CONDENSATE]: {
-      storage: 1200,
+      storage: 0,
       terminal: 0,
       factory: 0,
       factory1: 600,

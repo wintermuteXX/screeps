@@ -19,19 +19,15 @@ ControllerFactory.prototype.produce = function () {
     // Produce level 0
     let produce = true;
     let abort = false;
-    const combinedResources = MarketCal.COMPRESSED_RESOURCES.concat(MarketCal.COMMODITIES_BASIC);
-    // console.log(combinedResources);
-    // console.log(MarketCal.COMPRESSED_RESOURCES);
-    //for (var r of combinedResources) {
-    for (var r of MarketCal.COMPRESSED_RESOURCES) {
+    const combinedResources = MarketCal.COMPRESSED_RESOURCES.concat(MarketCal.COMMODITIES_LEVEL_0);
+    for (var r of combinedResources) {
+      produce = true;
       if (abort == false && (this.factory.store[r] === undefined || this.factory.room.getResourceAmount(r, "all") < global.getRoomThreshold(r, "all"))) {
-        console.log("Factory " + this.factory.room.name + " produces: " + r + " RoomAmount " + this.factory.room.getResourceAmount(r, "all") + " Needed: " + global.getRoomThreshold(r, "all"));
-        // TODO Check if the needed resources are available in factory+
+        // console.log("Factory " + this.factory.room.name + " produces: " + r + " RoomAmount " + this.factory.room.getResourceAmount(r, "all") + " Needed: " + global.getRoomThreshold(r, "all"));
         for (var i in COMMODITIES[r].components) {
           if ((this.factory.store[i] || 0) < COMMODITIES[r].components[i]) {
             produce = false;
           }
-          // console.log(i + " " + COMMODITIES[r].components[i])
         }
         if (produce === true) {
           let result = this.factory.produce(r);

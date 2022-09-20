@@ -86,7 +86,7 @@ ControllerRoom.prototype.run = function () {
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
     this.labs.produce();
   }
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
+  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 1000) {
     this.factory.produce();
   }
 };
