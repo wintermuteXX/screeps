@@ -15,7 +15,8 @@ ControllerFactory.prototype.produce = function () {
   if (!this.factory || (this.factory && this.factory.cooldown !== 0)) {
     return null;
   }
-  if (this.getFactoryLevel() == null) {
+  // if (this.getFactoryLevel() == null) {
+  if (true) {
     // Produce level 0
     let produce = true;
     let abort = false;
@@ -26,6 +27,7 @@ ControllerFactory.prototype.produce = function () {
         // console.log("Factory " + this.factory.room.name + " produces: " + r + " RoomAmount " + this.factory.room.getResourceAmount(r, "all") + " Needed: " + global.getRoomThreshold(r, "all"));
         for (var i in COMMODITIES[r].components) {
           if ((this.factory.store[i] || 0) < COMMODITIES[r].components[i]) {
+            // console.log("False: " + this.factory.store[i] + " " + this.factory.room);
             produce = false;
           }
         }
