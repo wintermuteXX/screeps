@@ -9,7 +9,6 @@ var stats = require("ControllerStats");
 const Log = require("Log");
 require("marketCalculator");
 
-// var visual = require('RoomVisual');
 // profiler.enable();
 
 module.exports.loop = function () {
