@@ -135,42 +135,42 @@ function initGlobal(g) {
       factory: 0,
     },
     [RESOURCE_HYDROGEN]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_OXYGEN]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_UTRIUM]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_LEMERGIUM]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_KEANIUM]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_ZYNTHIUM]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_CATALYST]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
     [RESOURCE_GHODIUM]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 2000,
     },
@@ -195,7 +195,7 @@ function initGlobal(g) {
       factory: 2000,
     },
     [RESOURCE_HYDROXIDE]: {
-      storage: 20000,
+      storage: 21000,
       terminal: 0,
       factory: 0,
     },
@@ -467,7 +467,7 @@ function initGlobal(g) {
       factory: 0,
     },
     [RESOURCE_CELL]: {
-      storage: 800,
+      storage: 0,
       terminal: 0,
       factory: 0,
       factory1: 400,

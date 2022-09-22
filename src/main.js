@@ -17,7 +17,7 @@ module.exports.loop = function () {
     // Main.js logic should go here.
     if (Game.cpu.bucket < 500) {
       if (Game.cpu.limit !== 0) {
-        Log.error("Bucket sehr Niedrig. Abbruch " + Game.time, "Main");
+        Log.error("Bucket sehr Niedrig. Abbruch " + Game.time + " " + Game.cpu.bucket, "Main");
       }
       return;
     }
@@ -38,11 +38,11 @@ module.exports.loop = function () {
 };
 
 // DONE 1. Use new constants for filling and removing resources in Terminal + Storage
-// LONGTERM 2. Sell stuff in Terminal that is not needed globally
-// DONE 3. Start producing in factory (level 0)
+// LONGTERM 2. Sell stuff in Terminal that is not needed globaly
+// DONE 3. Start producing in factory
 // LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
-// LONGTERM 5. Activate and user Powercreeps to set factory level and maintain it
-// LONGTERM 6. Distribute materials only needed in factory level > 0
+// LONGTERM 5. Activate and use Powercreeps to set factory level and maintain it
+// DONE 6. Distribute materials only needed in factory level > 0
 // LONGTERM 7. Sell materials produced in factories when not needed
 // LONGTERM 8. Boost upgrader8 creeps
 // LONGTERM 9. spawn defenders if attacked
