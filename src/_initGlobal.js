@@ -105,7 +105,7 @@ function initGlobal(g) {
   // Storage
   global.maxEnergyThreshold = 100000;
   // Terminal
-  global.internalTrade = 50;
+  global.internalTrade = 25;
   // global.minEnergyThresholdTerminal = 50000;
   global.buyEnergyOrder = 20;
   global.sellRoomMineralOverflow = 499;

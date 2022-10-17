@@ -1,3 +1,5 @@
+const { __esModule } = require("./Traveler");
+
 function ControllerTerminal(rc) {
   this.room = rc;
   this.terminal = rc.room.terminal;
@@ -168,18 +170,17 @@ ControllerTerminal.prototype.internalTrade = function () {
         }
       }
     }
-    if (false && !cancelTrading && resourceType !== RESOURCE_ENERGY) {
-      // BUG keine wertvollen mineralien (Commodities) und nicht das Room Mineral veraufen. Dann false entfernen
+    let helperArray = MarketCal.TIER_1_COMPOUNDS.concat(MarketCal.TIER_2_COMPOUNDS, MarketCal.TIER_3_COMPOUNDS, MarketCal.BASE_COMPOUNDS, MarketCal.COMPRESSED_RESOURCES);
+    if (!cancelTrading && _.includes(helperArray, resourceType)) {
       // BUG Mindestverkaufspreis setzen
-      let order = self.findBestBuyOrder2(resourceType, amount);
+      let order = self.findBestBuyOrder2(resourceType);
       if (order) {
-        let result2 = Game.market.deal(order.id, order.amount, terminal.room.name);
+        let result2 = Game.market.deal(order.id, _.min([order.amount, amount]), terminal.room.name);
         switch (result2) {
           case OK:
             cancelTrading = true;
-            Log.success(`${terminal.room} sells ${order.amount} of ${global.resourceImg(resourceType)} from ${terminal.room}`, "internalTrade");
+            Log.success(`${terminal.room} sells ${order.amount} of ${global.resourceImg(resourceType)} for ${order.price}`, "internalTrade");
             break;
-
           default:
             Log.warn(`${terminal} has unknown result in ${terminal.room} tries to sell ${order.amount} ${global.resourceImg(resourceType)} to market: ${result2}`, "internalTrade");
         }
@@ -243,21 +244,22 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
   }
 };
 
-// BUG scheint den schlechtesten Deal zu finden
-ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType, minAmount = 100) {
-  this._orders = Game.market.getAllOrders({
+ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType) {
+  let orders = Game.market.getAllOrders({
     type: ORDER_BUY,
     resourceType: theMineralType,
   });
+
   let highestGain = 0;
   let bestOrder;
-  for (let order of this._orders) {
-    if (order.remainingAmount < minAmount) continue;
-    // OPTIMIZE take transactionCost with actual Energy price in account
-    let gain = order.price;
-    if (gain > highestGain) {
-      highestGain = gain;
-      bestOrder = order;
+  for (let order of orders) {
+    if (order.remainingAmount > 0) {
+      // OPTIMIZE take transactionCost with actual Energy price in account
+      let gain = order.price;
+      if (gain > highestGain) {
+        highestGain = gain;
+        bestOrder = order;
+      }
     }
   }
   return bestOrder;
