@@ -235,7 +235,7 @@ module.exports = {
       var transporters = rc.getAllCreeps("transporter");
       let modifier = 0;
       if (rc.getDroppedResourcesAmount() > 5000) {
-        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()} `, "transporter");
+        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()}. Build additional transporter.`, "transporter");
         modifier = 1;
       }
       if (rc.getLevel() < 4) {
@@ -428,7 +428,6 @@ module.exports = {
       MOVE,
       WORK,
     ],
-    // behaviors: ["get_energy_dropped", "get_energy_container", "get_energy_link", "get_energy_storage", "get_energy_terminal", "harvest", "build_structures", "repair", "find_near_energy", "upgrade_controller"],
     behaviors: ["renew_emergency", "build_structures", "repair"],
 
     canBuild: function (rc) {
