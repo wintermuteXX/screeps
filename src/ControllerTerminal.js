@@ -122,7 +122,6 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
     }
   }
 };
-
 ControllerTerminal.prototype.internalTrade = function () {
   let terminal = this.terminal;
   let cancelTrading = false;
@@ -190,7 +189,7 @@ ControllerTerminal.prototype.internalTrade = function () {
 };
 ControllerTerminal.prototype.buyEnergyOrder = function () {
   let ter = this.terminal;
-  if (!ter || !ter.isActive()) {
+  if (!ter || !ter.isActive() || !ter.my) {
     return null;
   }
   let energyInTerminal = ter.store[RESOURCE_ENERGY];
@@ -243,7 +242,6 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     }
   }
 };
-
 ControllerTerminal.prototype.findBestBuyOrder2 = function (theMineralType) {
   let orders = Game.market.getAllOrders({
     type: ORDER_BUY,
