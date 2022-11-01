@@ -430,6 +430,7 @@ ControllerRoom.prototype.needsResources = function () {
     if (fac && fac.store.getFreeCapacity() > 0) {
       for (var a of RESOURCES_ALL) {
         let fillLevel = global.getRoomThreshold(a, "factory");
+        if (fac.level !== undefined) console.log("Factory Level: " + fac.level);
         if (fac.store[a] < fillLevel) {
           if (a === RESOURCE_ENERGY) {
             prio = 75;
