@@ -105,7 +105,56 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
-    body2: [MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY],
+    body2: [
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+      MOVE,
+      WORK,
+      MOVE,
+      CARRY,
+    ],
     behaviors: ["goto_green_flag", "miner_harvest_commodities", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
@@ -114,7 +163,7 @@ module.exports = {
       return (
         _.find(Game.flags, {
           color: COLOR_GREEN,
-        }) && miners < 3
+        }) && miners < 1
       );
     },
   },
@@ -125,7 +174,6 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
-    // home: rc.room.name,
     body2: [
       MOVE,
       WORK,
@@ -236,6 +284,7 @@ module.exports = {
       let modifier = 0;
       if (rc.getDroppedResourcesAmount() > 5000) {
         Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()}. Build additional transporter.`, "transporter");
+        Game.notify(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()}. Build additional transporter.`);
         modifier = 1;
       }
       if (rc.getLevel() < 4) {
@@ -243,7 +292,7 @@ module.exports = {
       } else if (rc.getLevel() < 7) {
         return transporters.length < 2 + modifier;
       } else {
-        return transporters.length < 1 + modifier;
+        return transporters.length < 1;
       }
     },
   },
