@@ -21,19 +21,19 @@ ControllerTerminal.prototype.calcHighestSellingPrice = function (theResourceType
     modify = global.modSellMultiplier4;
   }
 
-  let maxSellPrice = this.getAvgPrice(theResourceType, 2);
+  let maxSellPrice = this.getAvgPrice(theResourceType, 2, 1);
   Log.info(`${this.terminal} returns ${maxSellPrice} * ${modify} = ${maxSellPrice * modify} for resource ${theResourceType}`, "calcHighestSellingPrice");
   maxSellPrice = (maxSellPrice * modify).toFixed(3);
 
   return Math.max(maxSellPrice, global.minSellPrice);
 };
-ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2) {
+ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2, skipToday = 0) {
   // Get the market history for the specified resourceType
   const history = Game.market.getHistory(resourceType);
   // Init the totalPrice
   let totalPrice = 0;
   // Iterate through each index less than days
-  for (let index = 0; index <= days; index += 1) totalPrice += history[index].avgPrice;
+  for (let index = skipToday; index <= days; index += 1) totalPrice += history[index].avgPrice;
   // Inform the totalPrice divided by the days
   return totalPrice / days;
 };
