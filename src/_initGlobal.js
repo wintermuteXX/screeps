@@ -109,7 +109,7 @@ function initGlobal(g) {
   // global.minEnergyThresholdTerminal = 50000;
   global.buyEnergyOrder = 20;
   global.sellRoomMineralOverflow = 499;
-  global.sellRoomMineral = 1000;
+  global.sellRoomMineral = 200;
   global.minSellPrice = 0.04;
   global.modSellAmount1 = 50000;
   global.modSellMultiplier1 = 1.2;
