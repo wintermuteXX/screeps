@@ -678,7 +678,11 @@ ControllerRoom.prototype.getSourcesNotEmpty = function () {
     let sources = this.getSources();
     if (sources) {
       this._sourcesNE = _.filter(sources, function (s) {
+        // TODO Freie Plätze für Source berechnen
+        // this.getCreeps funktioniert nicht.
+        // console.log(this.getCreeps(null, s.id).length + " " + s.pos.freeFieldsCount());
         return s.energy > 0;
+        // return (s.energy > 0) && (this.getCreeps(null, s.id).length < s.pos.freeFieldsCount)
       });
     } else {
       return null;

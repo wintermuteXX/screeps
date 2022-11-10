@@ -4,13 +4,13 @@ var b = new Behavior("harvest");
 
 b.when = function (creep, rc) {
   var sources = rc.getSourcesNotEmpty();
-  return (creep.store.getUsedCapacity() === 0 && sources.length > 0);
+  return creep.store.getUsedCapacity() === 0 && sources.length > 0;
 };
 
 b.completed = function (creep, rc) {
   if (!creep.getTarget()) return false;
   if (creep.getTarget().energy == 0) return true;
-  return (creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY));
+  return creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY);
 };
 
 b.work = function (creep, rc) {
@@ -19,7 +19,7 @@ b.work = function (creep, rc) {
   if (target === null) {
     var sources = rc.getSourcesNotEmpty();
     if (sources.length) {
-      // TODO Only choose source with enough space around      
+      // TODO Only choose source with enough space around
       // Source per Zufall auswählen
       target = sources[Math.floor(Math.random() * sources.length)];
     }

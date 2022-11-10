@@ -1,5 +1,4 @@
 var Behavior = require("_behavior");
-//TODO Maybe delete and integrate in upgrade_controller
 var RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {

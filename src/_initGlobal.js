@@ -99,14 +99,13 @@ function initGlobal(g) {
   global.checkLinks = 5;
   global.checkResourcesQueue = 1;
   global.repairTower = 8;
-  global.maxHitsDefense = 2100000;
+  global.maxHitsDefense = 2150000;
   global.repairLimit = 0.95;
   global.noAnalyseLimit = 100;
   // Storage
   global.maxEnergyThreshold = 100000;
   // Terminal
   global.internalTrade = 25;
-  // global.minEnergyThresholdTerminal = 50000;
   global.buyEnergyOrder = 20;
   global.sellRoomMineralOverflow = 499;
   global.sellRoomMineral = 200;
