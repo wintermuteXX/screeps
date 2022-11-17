@@ -111,9 +111,9 @@ function initGlobal(g) {
   global.sellRoomMineral = 200;
   global.minSellPrice = 0.04;
   global.modSellAmount1 = 50000;
-  global.modSellMultiplier1 = 1.2;
+  global.modSellMultiplier1 = 1.5;
   global.modSellAmount2 = 90000;
-  global.modSellMultiplier2 = 1.1;
+  global.modSellMultiplier2 = 1.2;
   global.modSellAmount3 = 150000;
   global.modSellMultiplier3 = 0.9;
   global.modSellMultiplier4 = 0.75;
