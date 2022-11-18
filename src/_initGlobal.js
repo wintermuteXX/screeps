@@ -99,7 +99,7 @@ function initGlobal(g) {
   global.checkLinks = 5;
   global.checkResourcesQueue = 1;
   global.repairTower = 8;
-  global.maxHitsDefense = 2150000;
+  global.maxHitsDefense = 2155000;
   global.repairLimit = 0.95;
   global.noAnalyseLimit = 100;
   // Storage

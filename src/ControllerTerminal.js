@@ -45,6 +45,9 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
   let theMineralType = terminal.room.mineral.mineralType;
   let orderExists = false;
 
+  /*
+  removed because also inactive orders should change price
+   
   if (terminal.store[theMineralType] === (0 || undefined)) {
     return null;
   }
@@ -52,7 +55,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
   if (terminal.store[theMineralType] < 10000) {
     return null;
   }
-
+*/
   if (global.amountGlobalResources(theMineralType) < global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all")) {
     return null;
   }
@@ -64,7 +67,6 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
       orderExists = true;
       // Adjust Price
       let thePrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
-
       if (order.price !== thePrice && Math.abs(order.price - thePrice) > 0.01) {
         Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
         Game.market.changeOrderPrice(order.id, thePrice);
