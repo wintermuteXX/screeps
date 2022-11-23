@@ -686,7 +686,7 @@ function initGlobal(g) {
     return numberOfTerminals;
   };
 
-  global.amountGlobalResources = function (resource) {
+  global.globalResourcesAmount = function (resource) {
     let amount = 0;
     let allStr = [];
 
@@ -795,8 +795,8 @@ g.resourceReorder = setInterval(() => {
       if (!hide) {
         result.push("<tr>");
         result.push("<td> " + resourceImg(resource) + " </td>");
-        result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
-        let offset = amountGlobalResources(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
+        result.push("<td align='right'> " + globalResourcesAmount(resource) + " </td>");
+        let offset = globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
         if (offset >= 0) {
           result.push("<td align='right' style='color:#008000'> " + offset + " </td>");
         } else {
@@ -804,11 +804,11 @@ g.resourceReorder = setInterval(() => {
         }
         result.push("</tr>");
       } else {
-        if (amountGlobalResources(resource) > 0) {
+        if (globalResourcesAmount(resource) > 0) {
           result.push("<tr>");
           result.push("<td> " + resourceImg(resource) + " </td>");
-          result.push("<td align='right'> " + amountGlobalResources(resource) + " </td>");
-          result.push("<td align='right'> " + (amountGlobalResources(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
+          result.push("<td align='right'> " + globalResourcesAmount(resource) + " </td>");
+          result.push("<td align='right'> " + (globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
           result.push("</tr>");
         }
       }
@@ -905,9 +905,6 @@ g.resourceReorder = setInterval(() => {
 
   global.json = (x) => JSON.stringify(x, null, 2);
 
-  global.defaultVoice = "Deutsch Female"; // can be changed
-  // see https://responsivevoice.org/text-to-speech-languages/
-  // for options
   global.voiceConsole = function voiceConsole(text) {
     // The function below was developed late last year by @stybbe, published in
     //  Screeps Slack's #share-thy-code channel. No license was applied; all
@@ -916,6 +913,9 @@ g.resourceReorder = setInterval(() => {
 
     // NOTE: that this code works in chrome and firefox (albiet quietly
     //  in firefox) but not the steam client.
+
+    let defaultVoice = "Deutsch Female"; // can be changed
+    // see https://responsivevoice.org/text-to-speech-languages/
 
     console.log(
       `<span style="color:green; font-style: italic;">${text}</span>

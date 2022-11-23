@@ -56,7 +56,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
     return null;
   }
 */
-  if (global.amountGlobalResources(theMineralType) < global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all")) {
+  if (global.globalResourcesAmount(theMineralType) < global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all")) {
     return null;
   }
 
