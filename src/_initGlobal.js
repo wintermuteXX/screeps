@@ -844,10 +844,6 @@ g.resourceReorder = setInterval(() => {
 
     const orders = Game.market.getAllOrders();
 
-    // let test;
-
-    // test = _.groupBy(orders, o => o.type);
-
     for (i in RESOURCES_ALL) {
       resources = RESOURCES_ALL[i];
 
