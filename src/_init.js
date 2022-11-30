@@ -193,12 +193,17 @@ Object.defineProperty(Structure.prototype, "memory", {
 });
 
 Structure.prototype.needsRepair = function () {
-  //"Repair" walls + ramparts until Limit (maxHitsDefense) is reached
+  //"Repair" walls + ramparts until Limit (room.memory.wallHits) is reached
   if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
-    return this.hits < global.maxHitsDefense && this.hits < this.hitsMax && this.hitsMax > 1;
+    if (this.room.memory.wallHits) {
+      // Should I repair/upgrade walls + ramparts?
+      return this.hits < this.room.memory.wallHits && this.hits < this.hitsMax && this.hitsMax > 1;
+    } else {
+      // initialse Walls HPs to repair
+      this.room.memory.wallHits = 5000;
+    }
   }
-  // Repair remaining stuff if HP is under 90%
-  //return this.hits < (this.hitsMax * global.repairLimit);
+  // Repair remaining stuff if HP is under global.repairLimit (~90%)
   return this.hits < this.hitsMax * global.repairLimit;
 };
 

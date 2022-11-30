@@ -72,6 +72,10 @@ ControllerRoom.prototype.run = function () {
     this.terminal.sellRoomMineral();
   }
 
+  if (Game.time % global.adjustWallHits === 0) {
+    this.terminal.adjustWallHits();
+  }
+
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
     if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
       this.room.powerSpawn.processPower();

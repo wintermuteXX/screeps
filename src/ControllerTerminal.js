@@ -1,3 +1,4 @@
+const Log = require("./Log");
 const { __esModule } = require("./Traveler");
 
 function ControllerTerminal(rc) {
@@ -122,6 +123,17 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
     } else {
       Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room}`, "sellRoomMineralOverflow");
     }
+  }
+};
+
+ControllerTerminal.prototype.adjustWallHits = function () {
+  let terminal = this.terminal;
+  if (!terminal) {
+    return null;
+  }
+  if (terminal.store[RESOURCE_ENERGY] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
+    Log.success(`Increased the wallHits in room ${terminal.room.name}`);
+    terminal.room.memory.wallHits += 5000;
   }
 };
 ControllerTerminal.prototype.internalTrade = function () {
