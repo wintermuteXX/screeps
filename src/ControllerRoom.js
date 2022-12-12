@@ -733,17 +733,6 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
   }
 };
 
-/* ControllerRoom.prototype.getResourceAmount = function (res) {
-	var amount = 0;
-	if (this.room.storage && this.room.storage.store[res]) {
-		amount += this.room.storage.store[res];
-	}
-	if (this.room.terminal && this.room.terminal.store[res]) {
-		amount += this.room.terminal.store[res];
-	}
-	return amount;
-}; */
-
 ControllerRoom.prototype.findStructuresToRepair = function () {
   var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {
     return s.needsRepair();

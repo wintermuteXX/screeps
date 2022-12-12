@@ -37,7 +37,7 @@ module.exports.loop = function () {
 };
 
 // DONE 1. Use new constants for filling and removing resources in Terminal + Storage
-// LONGTERM 2. Sell stuff in Terminal that is not needed globaly
+// DONE 2. Sell stuff in Terminal that is not needed globaly
 // DONE 3. Start producing in factory
 // LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
 // LONGTERM 5. Activate and use Powercreeps to set factory level and maintain it
@@ -51,3 +51,4 @@ module.exports.loop = function () {
 // LONGTERM 13. Harvest Power
 // LONGTERM 14. test attack behavior
 // LONGTERM 15. log market transactions to console (manual/auto/compressed over time)
+// OPTIMIZE merge GOTO_FLAG in one behavior
