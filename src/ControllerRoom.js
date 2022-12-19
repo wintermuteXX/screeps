@@ -603,6 +603,8 @@ ControllerRoom.prototype.structureNeedResource = function (structure, resource) 
 };
 
 ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
+  // BUG If you delete an extension, this throws an error
+  // TypeError: Cannot read property 'store' of null at _.filter (ControllerRoom:606:50)
   var structures = _.filter(structures, (s) => s.store.getFreeCapacity(resource) > (threshold || 0));
 
   return _.map(structures, (s) => {

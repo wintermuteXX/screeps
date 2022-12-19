@@ -1,6 +1,3 @@
-const Log = require("./Log");
-const { __esModule } = require("./Traveler");
-
 function ControllerTerminal(rc) {
   this.room = rc;
   this.terminal = rc.room.terminal;
