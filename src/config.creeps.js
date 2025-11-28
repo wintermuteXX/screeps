@@ -71,7 +71,7 @@ module.exports = {
     minParts: 16,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, WORK, MOVE, CARRY], 12), // 24 MOVE, 12 WORK, 12 CARRY
-    behaviors: ["goto_green_flag", "miner_harvest_commodities", "goto_home", "transfer_storage"],
+    behaviors: ["goto_flag:green", "miner_harvest_commodities", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
       var miners = _.filter(Game.creeps, (c) => c.memory.role === "miner_commodity").length;
@@ -86,7 +86,7 @@ module.exports = {
     minParts: 16,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
-    behaviors: ["goto_yellow_flag", "miner_raid_room", "goto_home", "transfer_storage"],
+    behaviors: ["goto_flag:yellow", "miner_raid_room", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
       return false;
@@ -324,7 +324,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, ATTACK], 25), // 25 MOVE, 25 ATTACK
-    behaviors: ["goto_red_flag", "attack_enemy"],
+    behaviors: ["goto_flag:red", "attack_enemy"],
 
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_RED });
@@ -358,7 +358,7 @@ module.exports = {
     wait4maxEnergy: true,
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body2: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_white_flag", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
+    behaviors: ["goto_flag:white", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });
@@ -374,7 +374,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, CLAIM], 2), // 2 MOVE, 2 CLAIM
-    behaviors: ["goto_white_flag", "claim_controller", "place_spawn"],
+    behaviors: ["goto_flag:white", "claim_controller", "place_spawn"],
 
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });

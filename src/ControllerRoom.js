@@ -168,350 +168,588 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
   return null;
 };
 
-ControllerRoom.prototype.givesResources = function () {
-  const self = this;
-
+/**
+ * Helper function to add a resource entry to givesResources array
+ */
+ControllerRoom.prototype._addGivesResource = function (entry) {
   if (!this._givesResources) {
     this._givesResources = [];
+  }
+  this._givesResources.push(entry);
+};
 
-    let prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
+/**
+ * Helper function to check if position is too close to controller
+ */
+ControllerRoom.prototype._isTooCloseToController = function (pos) {
+  return pos.inRangeTo(this.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
+};
 
-    this.find(FIND_TOMBSTONES).forEach((tombstone) => {
-      _.each(tombstone.store, function (amount, resourceType) {
-        if (amount > CONSTANTS.RESOURCES.TOMBSTONE_MIN) {
-          self._givesResources.push({
-            priority: CONSTANTS.PRIORITY.TOMBSTONE,
-            resourceType: resourceType,
-            structureType: tombstone.structureType,
-            amount: amount,
-            id: tombstone.id,
-          });
-        }
-      });
-    });
-
-    // Links
-    for (var l of _.filter(this.links.receivers, function (l) {
-      return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
-    })) {
-      self._givesResources.push({
-        priority: CONSTANTS.PRIORITY.LINK,
-        resourceType: "energy",
-        structureType: l.structureType,
-        amount: l.energy,
-        id: l.id,
-      });
-    }
-
-    // Dropped Resources
-    for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-      if (s.amount > CONSTANTS.RESOURCES.DROPPED_MIN && !s.pos.inRangeTo(this.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES)) {
-        self._givesResources.push({
-          priority: CONSTANTS.PRIORITY.DROPPED_RESOURCE,
-          resourceType: s.resourceType,
-          amount: s.amount,
-          id: s.id,
-        });
-      }
-    }
-
-    // Containers
-    var containers = [];
-    var sources = this.getSources();
-    for (var s of sources) {
-      if (s && s.container) {
-        containers.push(s.container);
-      }
-    }
-
-    if (this.room.extractor && this.room.extractor.container) {
-      containers.push(this.room.extractor.container);
-    }
-
-    _.each(containers, function (c) {
-      if (c && c.store && c.store !== undefined) {
-        _.each(c.store, function (amount, resourceType) {
-          if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
-            self._givesResources.push({
-              priority: CONSTANTS.PRIORITY.CONTAINER,
-              resourceType: resourceType,
-              structureType: c.structureType,
-              amount: amount,
-              id: c.id,
-            });
-          }
-        });
-      }
-    });
-
-    // Labs
-    _.forEach(this.room.labs, function (c) {
-      let result = c.getFirstMineral();
-      if (c && c.memory.resource && c.memory.status == "empty" && result && result["amount"] > 0) {
-        self._givesResources.push({
-          priority: 185,
-          resourceType: result["resource"],
-          structureType: c.structureType,
-          amount: result["amount"],
-          id: c.id,
-        });
-      }
-    });
-
-    let fac = this.room.factory;
-    if (fac) {
-      for (var a of RESOURCES_ALL) {
-        let fillLevel = global.getRoomThreshold(a, "factory");
-        if ((fac.store[a] || 0) > fillLevel) {
-          prio = CONSTANTS.PRIORITY.FACTORY_OVERFLOW;
-
-          self._givesResources.push({
-            priority: prio,
-            structureType: fac.structureType,
-            resourceType: a,
-            amount: (fac.store[a] || 0) - fillLevel,
-            id: fac.id,
-            exact: true,
-          });
-        }
-      }
-    }
-
-    let sto = this.room.storage;
-    let ter = this.room.terminal;
-
-    if (sto) {
-      for (var r of RESOURCES_ALL) {
-        // Energy
-        let amount = 0;
-        let fillLevel = global.getRoomThreshold(r, "storage");
-        if (r === "energy" && sto.store[r] <= fillLevel) {
-          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW;
-          amount = sto.store[r];
-        } else if (r === "energy" && sto.store[r] > fillLevel) {
-          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
-          amount = sto.store[r] - fillLevel;
-        } else {
-          // Minerals
-          if (sto.store[r] > fillLevel) {
-            prio = CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW;
-            amount = sto.store[r] - fillLevel;
-          } else {
-            prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
-            amount = sto.store[r];
-          }
-        }
-
-        if (sto.store[r] > 0) {
-          self._givesResources.push({
-            priority: prio,
-            structureType: sto.structureType,
-            resourceType: r,
-            amount: amount,
-            id: sto.id,
-            exact: true,
-          });
-        }
-      }
-    }
-
-    if (ter) {
-      for (var r of RESOURCES_ALL) {
-        let amount = 0;
-        if (r === "energy" && ter.store[r] <= global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
-          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
-          amount = ter.store[r];
-        } else if (r === "energy" && ter.store[r] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
-          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH;
-          amount = ter.store[r] - global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
-        } else if (r !== "energy" && ter.store[r] > 0) {
-          prio = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-          amount = ter.store[r];
-        } else {
-          continue;
-        }
-
-        self._givesResources.push({
-          priority: prio,
-          structureType: ter.structureType,
-          resourceType: r,
+/**
+ * Process tombstones that can give resources
+ */
+ControllerRoom.prototype._processTombstones = function () {
+  this.find(FIND_TOMBSTONES).forEach((tombstone) => {
+    for (var resourceType in tombstone.store) {
+      var amount = tombstone.store[resourceType];
+      if (amount > CONSTANTS.RESOURCES.TOMBSTONE_MIN) {
+        this._addGivesResource({
+          priority: CONSTANTS.PRIORITY.TOMBSTONE,
+          resourceType: resourceType,
+          structureType: tombstone.structureType,
           amount: amount,
-          id: ter.id,
+          id: tombstone.id,
         });
       }
     }
-    this._givesResources.sort((a, b) => {
-      return b.priority - a.priority;
+  });
+};
+
+/**
+ * Process links that can give energy
+ */
+ControllerRoom.prototype._processLinks = function () {
+  if (!this.links.receivers) return;
+  
+  for (var link of this.links.receivers) {
+    if (link.energy > 0 && !this._isTooCloseToController(link.pos)) {
+      this._addGivesResource({
+        priority: CONSTANTS.PRIORITY.LINK,
+        resourceType: RESOURCE_ENERGY,
+        structureType: link.structureType,
+        amount: link.energy,
+        id: link.id,
+      });
+    }
+  }
+};
+
+/**
+ * Process dropped resources
+ */
+ControllerRoom.prototype._processDroppedResources = function () {
+  for (var resource of this.find(FIND_DROPPED_RESOURCES)) {
+    if (resource.amount > CONSTANTS.RESOURCES.DROPPED_MIN && !this._isTooCloseToController(resource.pos)) {
+      this._addGivesResource({
+        priority: CONSTANTS.PRIORITY.DROPPED_RESOURCE,
+        resourceType: resource.resourceType,
+        amount: resource.amount,
+        id: resource.id,
+      });
+    }
+  }
+};
+
+/**
+ * Process containers that can give resources
+ */
+ControllerRoom.prototype._processContainers = function () {
+  var containers = [];
+  
+  // Get containers from sources
+  var sources = this.getSources();
+  for (var source of sources) {
+    if (source && source.container) {
+      containers.push(source.container);
+    }
+  }
+  
+  // Get container from extractor
+  if (this.room.extractor && this.room.extractor.container) {
+    containers.push(this.room.extractor.container);
+  }
+  
+  for (var container of containers) {
+    if (!container || !container.store) continue;
+    
+    for (var resourceType in container.store) {
+      var amount = container.store[resourceType];
+      if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
+        this._addGivesResource({
+          priority: CONSTANTS.PRIORITY.CONTAINER,
+          resourceType: resourceType,
+          structureType: container.structureType,
+          amount: amount,
+          id: container.id,
+        });
+      }
+    }
+  }
+};
+
+/**
+ * Process labs that can give resources
+ */
+ControllerRoom.prototype._processLabs = function () {
+  if (!this.room.labs) return;
+  
+  for (var lab of this.room.labs) {
+    if (!lab.memory || lab.memory.status !== "empty") continue;
+    
+    var result = lab.getFirstMineral();
+    if (result && result.amount > 0) {
+      this._addGivesResource({
+        priority: CONSTANTS.PRIORITY.LAB_EMPTY,
+        resourceType: result.resource,
+        structureType: lab.structureType,
+        amount: result.amount,
+        id: lab.id,
+      });
+    }
+  }
+};
+
+/**
+ * Process factory overflow resources
+ */
+ControllerRoom.prototype._processFactory = function () {
+  var factory = this.room.factory;
+  if (!factory) return;
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var fillLevel = global.getRoomThreshold(resourceType, "factory");
+    var amount = factory.store[resourceType] || 0;
+    
+    if (amount > fillLevel) {
+      this._addGivesResource({
+        priority: CONSTANTS.PRIORITY.FACTORY_OVERFLOW,
+        structureType: factory.structureType,
+        resourceType: resourceType,
+        amount: amount - fillLevel,
+        id: factory.id,
+        exact: true,
+      });
+    }
+  }
+};
+
+/**
+ * Process storage resources
+ */
+ControllerRoom.prototype._processStorage = function () {
+  var storage = this.room.storage;
+  if (!storage) return;
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var amount = storage.store[resourceType] || 0;
+    if (amount === 0) continue;
+    
+    var fillLevel = global.getRoomThreshold(resourceType, "storage");
+    var priority;
+    var giveAmount;
+    
+    if (resourceType === RESOURCE_ENERGY) {
+      if (amount <= fillLevel) {
+        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW;
+        giveAmount = amount;
+      } else {
+        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
+        giveAmount = amount - fillLevel;
+      }
+    } else {
+      // Minerals
+      if (amount > fillLevel) {
+        priority = CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW;
+        giveAmount = amount - fillLevel;
+      } else {
+        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+        giveAmount = amount;
+      }
+    }
+    
+    this._addGivesResource({
+      priority: priority,
+      structureType: storage.structureType,
+      resourceType: resourceType,
+      amount: giveAmount,
+      id: storage.id,
+      exact: true,
     });
   }
+};
+
+/**
+ * Process terminal resources
+ */
+ControllerRoom.prototype._processTerminal = function () {
+  var terminal = this.room.terminal;
+  if (!terminal) return;
+  
+  var energyThreshold = global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var amount = terminal.store[resourceType] || 0;
+    var priority;
+    var giveAmount;
+    
+    if (resourceType === RESOURCE_ENERGY) {
+      if (amount <= energyThreshold) {
+        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
+        giveAmount = amount;
+      } else {
+        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH;
+        giveAmount = amount - energyThreshold;
+      }
+    } else {
+      // Minerals
+      if (amount > 0) {
+        priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+        giveAmount = amount;
+      } else {
+        continue;
+      }
+    }
+    
+    this._addGivesResource({
+      priority: priority,
+      structureType: terminal.structureType,
+      resourceType: resourceType,
+      amount: giveAmount,
+      id: terminal.id,
+    });
+  }
+};
+
+/**
+ * Get all resources that can be given/transported from this room
+ * Returns sorted array by priority (highest first)
+ */
+ControllerRoom.prototype.givesResources = function () {
+  if (!this._givesResources) {
+    this._givesResources = [];
+    
+    // Process all resource sources
+    this._processTombstones();
+    this._processLinks();
+    this._processDroppedResources();
+    this._processContainers();
+    this._processLabs();
+    this._processFactory();
+    this._processStorage();
+    this._processTerminal();
+    
+    // Sort by priority (highest first)
+    this._givesResources.sort((a, b) => b.priority - a.priority);
+  }
+  
   return this._givesResources;
 };
 
-ControllerRoom.prototype.needsResources = function () {
-  const self = this;
+/**
+ * Helper function to add a resource entry to needsResources array
+ */
+ControllerRoom.prototype._addNeedsResource = function (entry) {
   if (!this._needsResources) {
     this._needsResources = [];
+  }
+  this._needsResources.push(entry);
+};
 
-    let prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
-    if (this.room.controller && this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
-      prio = CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
-    } else if (this.room.controller && this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
-      prio = CONSTANTS.PRIORITY.CONTROLLER_LOW;
-    }
-    //	Fill Upgrader directly, if no container in position
-    if (this.room.controller && !this.room.controller.container) {
-      let upgrader = this.getCreeps("upgrader");
-      for (var u of upgrader) {
-        self._needsResources.push({
-          priority: prio,
-          resourceType: "energy",
-          amount: u.store.getFreeCapacity(RESOURCE_ENERGY),
-          id: u.id,
-        });
-      }
-    }
+/**
+ * Get controller priority based on ticks to downgrade
+ */
+ControllerRoom.prototype._getControllerPriority = function () {
+  if (!this.room.controller) {
+    return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+  }
+  
+  if (this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
+    return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
+  } else if (this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
+    return CONSTANTS.PRIORITY.CONTROLLER_LOW;
+  }
+  
+  return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+};
 
-    let con = this.getControllerNotFull();
-    if (con && con != null) {
-      self._needsResources.push({
-        priority: prio,
-        structureType: con.structureType,
-        resourceType: "energy",
-        amount: con.store.getFreeCapacity(RESOURCE_ENERGY),
-        id: con.id,
+/**
+ * Process upgrader creeps that need energy (when no container at controller)
+ */
+ControllerRoom.prototype._processUpgraders = function (priority) {
+  if (!this.room.controller || this.room.controller.container) return;
+  
+  var upgraders = this.getCreeps("upgrader");
+  for (var upgrader of upgraders) {
+    var freeCapacity = upgrader.store.getFreeCapacity(RESOURCE_ENERGY);
+    if (freeCapacity > 0) {
+      this._addNeedsResource({
+        priority: priority,
+        resourceType: RESOURCE_ENERGY,
+        amount: freeCapacity,
+        id: upgrader.id,
       });
     }
+  }
+};
 
-    let constructor = this.getCreeps("constructor");
-    for (var constr of constructor) {
-      if (constr.store.getFreeCapacity(RESOURCE_ENERGY) > constr.store.getCapacity() / 2) {
-        self._needsResources.push({
-          priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
-          structureType: constr.structureType,
-          resourceType: "energy",
-          amount: constr.store.getFreeCapacity(RESOURCE_ENERGY),
-          id: constr.id,
-        });
-      }
+/**
+ * Process controller container that needs energy
+ */
+ControllerRoom.prototype._processController = function (priority) {
+  var controllerContainer = this.getControllerNotFull();
+  if (controllerContainer) {
+    var freeCapacity = controllerContainer.store.getFreeCapacity(RESOURCE_ENERGY);
+    if (freeCapacity > 0) {
+      this._addNeedsResource({
+        priority: priority,
+        structureType: controllerContainer.structureType,
+        resourceType: RESOURCE_ENERGY,
+        amount: freeCapacity,
+        id: controllerContainer.id,
+      });
     }
+  }
+};
 
-    _.forEach(this.room.labs, function (c) {
-      if (c && c.memory.resource && c.memory.status == "fill" && c.store.getFreeCapacity(c.memory.resource) > 0 && c.memory.usedBy) {
-        self._needsResources.push({
-          priority: CONSTANTS.PRIORITY.LAB_FILL,
-          resourceType: c.memory.resource,
-          structureType: c.structureType,
-          amount: c.store.getFreeCapacity(c.memory.resource),
-          id: c.id,
-        });
+/**
+ * Process constructor creeps that need energy
+ */
+ControllerRoom.prototype._processConstructors = function () {
+  var constructors = this.getCreeps("constructor");
+  for (var constructor of constructors) {
+    var freeCapacity = constructor.store.getFreeCapacity(RESOURCE_ENERGY);
+    var capacity = constructor.store.getCapacity();
+    
+    // Only add if more than half capacity is free
+    if (freeCapacity > capacity / 2) {
+      this._addNeedsResource({
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
+        structureType: constructor.structureType,
+        resourceType: RESOURCE_ENERGY,
+        amount: freeCapacity,
+        id: constructor.id,
+      });
+    }
+  }
+};
+
+/**
+ * Process labs that need resources for filling
+ */
+ControllerRoom.prototype._processLabsNeeds = function () {
+  if (!this.room.labs) return;
+  
+  for (var lab of this.room.labs) {
+    if (!lab.memory || lab.memory.status !== "fill" || !lab.memory.usedBy) continue;
+    
+    var resourceType = lab.memory.resource;
+    if (!resourceType) continue;
+    
+    var freeCapacity = lab.store.getFreeCapacity(resourceType);
+    if (freeCapacity > 0) {
+      this._addNeedsResource({
+        priority: CONSTANTS.PRIORITY.LAB_FILL,
+        resourceType: resourceType,
+        structureType: lab.structureType,
+        amount: freeCapacity,
+        id: lab.id,
+      });
+    }
+  }
+};
+
+/**
+ * Process structures that need resources (towers, spawns, extensions, etc.)
+ */
+ControllerRoom.prototype._processStructures = function () {
+  if (!this.room.controller || !this.room.controller.my) return;
+  
+  // Determine tower priority based on enemies
+  var towerPriority = this.getEnemys().length > 0 
+    ? CONSTANTS.PRIORITY.TOWER_ENEMY 
+    : CONSTANTS.PRIORITY.TOWER_NORMAL;
+  
+  // Process towers
+  var towerNeeds = this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, towerPriority, 400);
+  for (var need of towerNeeds) {
+    this._addNeedsResource(need);
+  }
+  
+  // Process spawns
+  var spawnNeeds = this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
+  for (var need of spawnNeeds) {
+    this._addNeedsResource(need);
+  }
+  
+  // Process extensions
+  var extensionNeeds = this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
+  for (var need of extensionNeeds) {
+    this._addNeedsResource(need);
+  }
+  
+  // Process labs (for energy)
+  var labNeeds = this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
+  for (var need of labNeeds) {
+    this._addNeedsResource(need);
+  }
+  
+  // Process power spawn
+  if (this.room.powerSpawn) {
+    var powerSpawnEnergyNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
+    for (var need of powerSpawnEnergyNeeds) {
+      this._addNeedsResource(need);
+    }
+    
+    var powerSpawnPowerNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
+    for (var need of powerSpawnPowerNeeds) {
+      this._addNeedsResource(need);
+    }
+  }
+  
+  // Process nuker
+  if (this.room.nuker) {
+    var nukerEnergyNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
+    for (var need of nukerEnergyNeeds) {
+      this._addNeedsResource(need);
+    }
+    
+    var nukerGhodiumNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
+    for (var need of nukerGhodiumNeeds) {
+      this._addNeedsResource(need);
+    }
+  }
+};
+
+/**
+ * Process factory that needs resources
+ */
+ControllerRoom.prototype._processFactoryNeeds = function () {
+  var factory = this.room.factory;
+  if (!factory || factory.store.getFreeCapacity() === 0) return;
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var fillLevel = global.getRoomThreshold(resourceType, "factory");
+    var currentAmount = factory.store[resourceType] || 0;
+    
+    if (currentAmount < fillLevel) {
+      var priority = resourceType === RESOURCE_ENERGY 
+        ? CONSTANTS.PRIORITY.FACTORY_ENERGY 
+        : CONSTANTS.PRIORITY.FACTORY_MINERAL;
+      
+      this._addNeedsResource({
+        priority: priority,
+        structureType: factory.structureType,
+        resourceType: resourceType,
+        amount: fillLevel - currentAmount,
+        id: factory.id,
+        exact: true,
+      });
+    }
+  }
+};
+
+/**
+ * Process storage that needs resources
+ */
+ControllerRoom.prototype._processStorageNeeds = function () {
+  var storage = this.room.storage;
+  if (!storage || storage.store.getFreeCapacity() === 0) return;
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var fillLevel = global.getRoomThreshold(resourceType, "storage");
+    var currentAmount = storage.store[resourceType] || 0;
+    var priority;
+    var neededAmount;
+    
+    if (resourceType === RESOURCE_ENERGY) {
+      if (currentAmount < fillLevel) {
+        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
+        neededAmount = fillLevel - currentAmount;
+      } else if (currentAmount < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
+        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
+        neededAmount = CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount;
+      } else {
+        continue;
       }
-    });
-
-    if (this.getEnemys().length > 0) {
-      prio = CONSTANTS.PRIORITY.TOWER_ENEMY;
     } else {
-      prio = CONSTANTS.PRIORITY.TOWER_NORMAL;
-    }
-
-    if (this.room.controller && this.room.controller.my) {
-      _.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB), (e) => self._needsResources.push(e));
-
-      if (this.room.powerSpawn) {
-        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400), (e) => self._needsResources.push(e));
-        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90), (e) => self._needsResources.push(e));
-      }
-      if (this.room.nuker) {
-        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY), (e) => self._needsResources.push(e));
-        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM), (e) => self._needsResources.push(e));
+      // Minerals
+      if (currentAmount < fillLevel) {
+        priority = CONSTANTS.PRIORITY.STORAGE_MINERAL;
+        neededAmount = fillLevel - currentAmount;
+      } else {
+        continue;
       }
     }
-
-    let fac = this.room.factory;
-    if (fac && fac.store.getFreeCapacity() > 0) {
-      for (var a of RESOURCES_ALL) {
-        let fillLevel = global.getRoomThreshold(a, "factory");
-        if (fac.level !== undefined) console.log("Factory Level: " + fac.level);
-        if (fac.store[a] < fillLevel) {
-          if (a === RESOURCE_ENERGY) {
-            prio = CONSTANTS.PRIORITY.FACTORY_ENERGY;
-          } else {
-            prio = CONSTANTS.PRIORITY.FACTORY_MINERAL;
-          }
-
-          self._needsResources.push({
-            priority: prio,
-            structureType: fac.structureType,
-            resourceType: a,
-            amount: fillLevel - (fac.store[a] || 0),
-            id: fac.id,
-            exact: true,
-          });
-        }
-      }
-    }
-
-    let sto = this.room.storage;
-    let ter = this.room.terminal;
-
-    if (sto && sto.store.getFreeCapacity() > 0) {
-      for (var r of RESOURCES_ALL) {
-        let amount = 0;
-        let fillLevel = global.getRoomThreshold(r, "storage");
-        if (r === "energy" && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
-          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
-          amount = fillLevel - (sto.store[r] || 0);
-        } else if (r === "energy" && sto.store[r] >= fillLevel && sto.store[r] < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
-          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
-          amount = CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - (sto.store[r] || 0);
-        } else if (r !== "energy" && sto.store[r] < fillLevel) {
-          prio = CONSTANTS.PRIORITY.STORAGE_MINERAL;
-          amount = fillLevel - (sto.store[r] || 0);
-        } else {
-          continue;
-        }
-
-        self._needsResources.push({
-          priority: prio,
-          structureType: sto.structureType,
-          resourceType: r,
-          amount: amount,
-          id: sto.id,
-          exact: true,
-        });
-      }
-    }
-
-    if (ter && ter.store.getFreeCapacity() > 0) {
-      for (var r of RESOURCES_ALL) {
-        let amount = 0;
-        if (r === "energy" && (ter.store[r] === undefined || ter.store[r] < global.getRoomThreshold(RESOURCE_ENERGY, "terminal"))) {
-          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
-          amount = global.getRoomThreshold(RESOURCE_ENERGY, "terminal") - (ter.store[r] || 0);
-        } else if (r === "energy") {
-          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_OVERFLOW;
-          amount = ter.store.getFreeCapacity();
-        } else if (r !== "energy") {
-          prio = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-          amount = ter.store.getFreeCapacity();
-        }
-        self._needsResources.push({
-          priority: prio,
-          structureType: ter.structureType,
-          resourceType: r,
-          amount: amount,
-          id: ter.id,
-          exact: true,
-        });
-      }
-    }
-    // Sortieren nach Prio
-    this._needsResources.sort((a, b) => {
-      return a.priority - b.priority;
+    
+    this._addNeedsResource({
+      priority: priority,
+      structureType: storage.structureType,
+      resourceType: resourceType,
+      amount: neededAmount,
+      id: storage.id,
+      exact: true,
     });
   }
+};
+
+/**
+ * Process terminal that needs resources
+ */
+ControllerRoom.prototype._processTerminalNeeds = function () {
+  var terminal = this.room.terminal;
+  if (!terminal || terminal.store.getFreeCapacity() === 0) return;
+  
+  var energyThreshold = global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  
+  for (var resourceType of RESOURCES_ALL) {
+    var currentAmount = terminal.store[resourceType] || 0;
+    var priority;
+    var neededAmount;
+    
+    if (resourceType === RESOURCE_ENERGY) {
+      if (currentAmount < energyThreshold) {
+        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
+        neededAmount = energyThreshold - currentAmount;
+      } else {
+        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_OVERFLOW;
+        neededAmount = terminal.store.getFreeCapacity();
+      }
+    } else {
+      // Minerals
+      priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+      neededAmount = terminal.store.getFreeCapacity();
+    }
+    
+    this._addNeedsResource({
+      priority: priority,
+      structureType: terminal.structureType,
+      resourceType: resourceType,
+      amount: neededAmount,
+      id: terminal.id,
+      exact: true,
+    });
+  }
+};
+
+/**
+ * Get all resources that are needed in this room
+ * Returns sorted array by priority (lowest first)
+ */
+ControllerRoom.prototype.needsResources = function () {
+  if (!this._needsResources) {
+    this._needsResources = [];
+    
+    // Get controller priority
+    var controllerPriority = this._getControllerPriority();
+    
+    // Process creeps and controller
+    this._processUpgraders(controllerPriority);
+    this._processController(controllerPriority);
+    this._processConstructors();
+    this._processLabsNeeds();
+    
+    // Process structures
+    this._processStructures();
+    
+    // Process storage structures
+    this._processFactoryNeeds();
+    this._processStorageNeeds();
+    this._processTerminalNeeds();
+    
+    // Sort by priority (lowest first = highest priority)
+    this._needsResources.sort((a, b) => a.priority - b.priority);
+  }
+  
   return this._needsResources;
 };
 

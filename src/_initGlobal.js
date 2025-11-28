@@ -582,7 +582,21 @@ function initGlobal(g) {
 
     if (!g._behaviors[n]) {
       try {
-        g._behaviors[n] = require("behavior." + n);
+        // Check if behavior name contains parameters (e.g., "goto_flag:red")
+        var moduleName = n;
+        if (n.indexOf(":") !== -1) {
+          moduleName = n.split(":")[0];
+        }
+        
+        var behaviorModule = require("behavior." + moduleName);
+        
+        // If module is a function (factory), call it with the behavior name
+        if (typeof behaviorModule === "function") {
+          g._behaviors[n] = behaviorModule(n);
+        } else {
+          // Otherwise, use the module directly
+          g._behaviors[n] = behaviorModule;
+        }
       } catch (e) {
         console.log("Error loading behavior '" + n + "'", e);
         g._behaviors[n] = null;

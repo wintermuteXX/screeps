@@ -13,6 +13,7 @@ module.exports = {
     BUCKET_MEDIUM: 2000,            // Medium bucket threshold
     BUCKET_HIGH: 9999,              // Generate pixel if above this
     PIXEL_GENERATION_THRESHOLD: 9999,
+    NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
   },
 
   // Tick Intervals
@@ -152,16 +153,6 @@ module.exports = {
   DEFENSE: {
     MAX_HITS: 2155000,                // Maximum hits for defense structures
     REPAIR_LIMIT: 0.95,               // Repair limit (95% of max hits)
-  },
-
-  // CPU
-  CPU: {
-    BUCKET_CRITICAL: 100,             // Skip tick if bucket below this
-    BUCKET_LOW: 1000,                 // Low bucket threshold
-    BUCKET_MEDIUM: 2000,              // Medium bucket threshold
-    BUCKET_HIGH: 9999,                // Generate pixel if above this
-    PIXEL_GENERATION_THRESHOLD: 9999,
-    NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
   },
 
   // Storage

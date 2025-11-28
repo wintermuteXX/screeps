@@ -1,10 +1,5 @@
 const CONSTANTS = require("constants");
 
-// Early bucket check - skip the tick entirely if bucket is critically low
-if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
-  throw new Error("Der Bucket ist fast leer. Ich setze mal einen Tick aus...");
-}
-
 // Cache all requires at module load time (runs once on global reset)
 const profiler = require("screeps-profiler");
 const memHack = require("memhack");
@@ -49,7 +44,7 @@ module.exports.loop = function () {
 // DONE 2. Sell stuff in Terminal that is not needed globaly
 // DONE 3. Start producing in factory
 // LONGTERM 4. Activate Powercreeps and code autorenew (and ops if needed)
-// LONGTERM 5. Activate and use Powercreeps to set factory level and maintain it
+// DONE 5. Activate and use Powercreeps to set factory level and maintain it
 // DONE 6. Distribute materials only needed in factory level > 0
 // LONGTERM 7. Sell materials produced in factories when not needed
 // LONGTERM 8. Boost upgrader8 creeps

@@ -193,8 +193,6 @@ Object.defineProperty(Structure.prototype, "memory", {
   },
 });
 
-const CONSTANTS = require("constants");
-
 Structure.prototype.needsRepair = function () {
   //"Repair" walls + ramparts until Limit (room.memory.wallHits) is reached
   if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
