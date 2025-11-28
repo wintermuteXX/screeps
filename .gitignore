@@ -42,7 +42,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Grunt
+# Dependencies
 node_modules/
-gruntfile.js
+
+# Screeps config (contains credentials)
 .screeps.json
+.screepsrc

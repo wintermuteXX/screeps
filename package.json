@@ -1,5 +1,12 @@
 {
-  "dependencies": {
-    "grunt-screeps": "^1.5.0"
+  "name": "screeps",
+  "version": "1.0.0",
+  "description": "Screeps AI codebase",
+  "scripts": {
+    "deploy": "node upload.js"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.21",
+    "@types/screeps": "^3.3.8"
   }
 }

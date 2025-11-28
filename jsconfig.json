@@ -1,7 +1,11 @@
 {
     "compilerOptions": {
         "target": "ES6",
-        "checkJs": true
+        "checkJs": true,
+        "module": "commonjs",
+        "lib": ["ES2017", "DOM"],
+        "typeRoots": ["./node_modules/@types"],
+        "skipLibCheck": true
     },
     "exclude": [
         "node_modules",

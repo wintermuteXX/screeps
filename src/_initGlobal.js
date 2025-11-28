@@ -37,7 +37,11 @@ function initGlobal(g) {
     // if cache is expired or doesn't exist
     if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {
       roomStructuresExpiration[this.name] = Game.time + getCacheExpiration();
-      roomStructures[this.name] = _.groupBy(this.find(FIND_STRUCTURES), (s) => s.structureType);
+      var structures = this.find(FIND_STRUCTURES);
+      roomStructures[this.name] = _.groupBy(structures.filter((s) => 'structureType' in s), (s) => {
+        var struct = s;
+        return struct.structureType;
+      });
       var i;
       for (i in roomStructures[this.name]) {
         roomStructures[this.name][i] = _.map(roomStructures[this.name][i], (s) => s.id);
@@ -684,7 +688,7 @@ function initGlobal(g) {
 
   g.numberOfTerminals = function () {
     let numberOfTerminals = 0;
-    for (i in Game.rooms) {
+    for (var i in Game.rooms) {
       if (Game.rooms[i].terminal) {
         numberOfTerminals += 1;
       }
@@ -696,19 +700,19 @@ function initGlobal(g) {
     let amount = 0;
     let allStr = [];
 
-    for (i in Game.rooms) {
-      room = Game.rooms[i];
+    for (var i in Game.rooms) {
+      var room = Game.rooms[i];
 
-      storeStr = room.find(FIND_STRUCTURES, {
+      var storeStr = room.find(FIND_STRUCTURES, {
         filter: (structure) => {
-          return structure.store;
+          return 'store' in structure;
         },
       });
 
       allStr = allStr.concat(storeStr);
     }
 
-    for (i in allStr) {
+    for (var i in allStr) {
       if (allStr[i].store[resource] > 0) amount += allStr[i].store[resource];
     }
 
@@ -754,30 +758,46 @@ g.resourceReorder = setInterval(() => {
     result.push("<th> B </th>");
     result.push("</tr>");
 
-    for (i in Game.rooms) {
-      let room = Game.rooms[i];
+    for (var i in Game.rooms) {
+      var room = Game.rooms[i];
 
-      let labs = room.find(FIND_STRUCTURES, {
-        filter: (i) => i.structureType == STRUCTURE_LAB,
+      var labs = room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return 'structureType' in structure && structure.structureType == STRUCTURE_LAB;
+        },
       });
 
-      for (i in labs) {
-        let labC = labs[i];
-        if (labC.memory.partnerA) {
+      for (var j in labs) {
+        var labC = labs[j];
+        // @ts-ignore - Lab memory is custom
+        var labMemory = labC.memory;
+        if (labC && labMemory && labMemory.partnerA) {
           result.push("<tr>");
-          result.push("<td> " + Game.getObjectById(labC.memory.partnerA).memory.status + " </td>");
-          result.push("<td> " + resourceImg(labC.memory.resource) + " </td>");
-          result.push("<td> " + labC + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerA).memory.resource) + " </td>");
-          result.push("<td> " + resourceImg(Game.getObjectById(labC.memory.partnerB).memory.resource) + " </td>");
-          result.push("<td> " + Game.getObjectById(labC.memory.partnerA) + " </td>");
-          result.push("<td> " + Game.getObjectById(labC.memory.partnerB) + " </td>");
-          result.push("</tr>");
+          var partnerA = Game.getObjectById(labMemory.partnerA);
+          var partnerB = Game.getObjectById(labMemory.partnerB);
+          // @ts-ignore - Lab memory is custom
+          var partnerAMemory = partnerA && partnerA.memory ? partnerA.memory : null;
+          if (partnerA && partnerAMemory) {
+            result.push("<td> " + partnerAMemory.status + " </td>");
+            result.push("<td> " + global.resourceImg(labMemory.resource) + " </td>");
+            result.push("<td> " + labC + " </td>");
+            result.push("<td> " + global.resourceImg(partnerAMemory.resource) + " </td>");
+            // @ts-ignore - Lab memory is custom
+            var partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
+            if (partnerB && partnerBMemory) {
+              result.push("<td> " + global.resourceImg(partnerBMemory.resource) + " </td>");
+            }
+            result.push("<td> " + partnerA + " </td>");
+            if (partnerB) {
+              result.push("<td> " + partnerB + " </td>");
+            }
+            result.push("</tr>");
+          }
         }
       }
     }
-    result = result.join("");
-    return result;
+    var resultString = result.join("");
+    return resultString;
   };
 
   global.myResources = function (hide = false) {
@@ -791,18 +811,18 @@ g.resourceReorder = setInterval(() => {
     result.push("</tr>");
 
     let numberOfRooms = 0;
-    for (i in Game.rooms) {
+    for (var i in Game.rooms) {
       if (Game.rooms[i].storage) numberOfRooms += 1;
     }
 
-    for (i in RESOURCES_ALL) {
-      let resource = RESOURCES_ALL[i];
+    for (var i in RESOURCES_ALL) {
+      var resource = RESOURCES_ALL[i];
 
       if (!hide) {
         result.push("<tr>");
-        result.push("<td> " + resourceImg(resource) + " </td>");
-        result.push("<td align='right'> " + globalResourcesAmount(resource) + " </td>");
-        let offset = globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
+        result.push("<td> " + global.resourceImg(resource) + " </td>");
+        result.push("<td align='right'> " + global.globalResourcesAmount(resource) + " </td>");
+        let offset = global.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
         if (offset >= 0) {
           result.push("<td align='right' style='color:#008000'> " + offset + " </td>");
         } else {
@@ -810,18 +830,18 @@ g.resourceReorder = setInterval(() => {
         }
         result.push("</tr>");
       } else {
-        if (globalResourcesAmount(resource) > 0) {
+        if (global.globalResourcesAmount && global.globalResourcesAmount(resource) > 0) {
           result.push("<tr>");
-          result.push("<td> " + resourceImg(resource) + " </td>");
-          result.push("<td align='right'> " + globalResourcesAmount(resource) + " </td>");
-          result.push("<td align='right'> " + (globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
+          result.push("<td> " + global.resourceImg(resource) + " </td>");
+          result.push("<td align='right'> " + global.globalResourcesAmount(resource) + " </td>");
+          result.push("<td align='right'> " + (global.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
           result.push("</tr>");
         }
       }
     }
 
-    result = result.join("");
-    return result;
+    var resultString = result.join("");
+    return resultString;
   };
 
   global.marketInfo = function () {
@@ -832,7 +852,7 @@ g.resourceReorder = setInterval(() => {
     let priceBuy;
     let lastPriceBuy;
 
-    result = [];
+    var result = [];
     result.push('<table border="1">');
     result.push("<caption> MARKET\n</caption>");
     result.push("<tr>");
@@ -850,13 +870,13 @@ g.resourceReorder = setInterval(() => {
 
     const orders = Game.market.getAllOrders();
 
-    for (i in RESOURCES_ALL) {
-      resources = RESOURCES_ALL[i];
+    for (var i in RESOURCES_ALL) {
+      var resources = RESOURCES_ALL[i];
 
-      orderMinerals = orders.filter((order) => order.resourceType == resources);
+      var orderMinerals = orders.filter((order) => order.resourceType == resources);
 
-      ordersSell = orderMinerals.filter((order) => order.type == "sell");
-      ordersBuy = orderMinerals.filter((order) => order.type == "buy");
+      var ordersSell = orderMinerals.filter((order) => order.type == "sell");
+      var ordersBuy = orderMinerals.filter((order) => order.type == "buy");
 
       ordersSell.sort((a, b) => a.price - b.price);
       ordersBuy.sort((a, b) => a.price - b.price);
@@ -888,12 +908,12 @@ g.resourceReorder = setInterval(() => {
       } else amountBuy = " - ";
 
       result.push("<tr>");
-      result.push("<td> " + resourceImg(resources) + " </td>");
+      result.push("<td> " + global.resourceImg(resources) + " </td>");
       result.push("<td> " + priceSell + " </td>");
       result.push("<td> " + amountSell + " </td>");
       result.push("<td> " + lastPriceSell + " </td>");
       result.push("<td> " + ordersSell.length + " </td>");
-      result.push("<td> " + resourceImg(resources) + " </td>");
+      result.push("<td> " + global.resourceImg(resources) + " </td>");
       result.push("<td> " + priceBuy + " </td>");
       result.push("<td> " + amountBuy + " </td>");
       result.push("<td> " + lastPriceBuy + " </td>");
@@ -901,8 +921,8 @@ g.resourceReorder = setInterval(() => {
       result.push("</tr>");
     }
 
-    result = result.join("");
-    return result;
+    var resultString = result.join("");
+    return resultString;
   };
 
   global.json = (x) => JSON.stringify(x, null, 2);

@@ -1,0 +1,11 @@
+# Screeps Configuration
+# Copy this file to .screepsrc and fill in your credentials
+# DO NOT commit .screepsrc to git!
+
+email=your@email.com
+password=yourpassword
+branch=default
+
+# For PTR (Private Test Realm), use:
+# branch=ptr
+

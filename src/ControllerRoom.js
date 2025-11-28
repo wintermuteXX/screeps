@@ -85,6 +85,10 @@ ControllerRoom.prototype.run = function () {
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
     this.labs.produce();
   }
+  // Automatically assign factory levels (each level 1-5 only once)
+  if (this.room.factory) {
+    this.factory.assignLevel();
+  }
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_LOW) {
     this.factory.produce();
   }
