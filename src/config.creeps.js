@@ -4,6 +4,8 @@
  * @param {number} count - Number of times to repeat the pattern
  * @returns {Array} - Generated body array
  */
+const CONSTANTS = require("constants");
+
 function generateBody(pattern, count) {
   const body = [];
   for (let i = 0; i < count; i++) {
@@ -25,7 +27,7 @@ module.exports = {
         return rc.getAllCreeps().length === 0;
       } else {
         // TODO This is not dynamic enough. Supporters have a log way. Usually there are too much builders. Take FreeSpaces into account
-        return rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length < 4;
+        return rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length < CONSTANTS.CREEP_LIMITS.BUILDER_MAX_LOW_LEVEL;
       }
     },
   },
@@ -58,7 +60,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_mineral");
-      return rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners.length < 1 && _.sum(rc.room.terminal.store) < 270000;
+      return rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners.length < CONSTANTS.CREEP_LIMITS.MINER_MINERAL_MAX && _.sum(rc.room.terminal.store) < CONSTANTS.RESOURCES.TERMINAL_MAX_STORE;
     },
   },
 
@@ -103,18 +105,18 @@ module.exports = {
       const transporters = rc.getAllCreeps("transporter");
       const droppedAmount = rc.getDroppedResourcesAmount();
       let modifier = 0;
-      if (droppedAmount > 5000) {
+      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * 50) { // 50x the minimum
         Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`, "transporter");
         Game.notify(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`);
         modifier = 1;
       }
       const level = rc.getLevel();
       if (level < 4) {
-        return transporters.length < 4 + modifier;
+        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_BASE + modifier;
       } else if (level < 7) {
-        return transporters.length < 2 + modifier;
+        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_MID + modifier;
       } else {
-        return transporters.length < 1;
+        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
       }
     },
   },
@@ -190,16 +192,16 @@ module.exports = {
       }
       // Low Level
       if (rc.getLevel() <= 4) {
-        return controller.my && rc.getAllCreeps("upgrader").length < 3;
+        return controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
       }
       if (rc.getLevel() == 5) {
-        return controller.my && rc.getAllCreeps("upgrader").length < 2;
+        return controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       }
       // High Level
-      if (energyAround(controller) > 2000) {
-        return controller && controller.my && rc.getAllCreeps("upgrader").length < 2;
+      if (energyAround(controller) > CONSTANTS.STRUCTURE_ENERGY.CONTROLLER_ENERGY_HIGH) {
+        return controller && controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       } else {
-        return controller && controller.my && rc.getAllCreeps("upgrader").length < 1;
+        return controller && controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_HIGH;
       }
     },
   },
@@ -252,7 +254,7 @@ module.exports = {
 
     canBuild: function (rc) {
       var controller = rc.room.controller;
-      return controller.my && rc.getAllCreeps("upgrader8").length < 1;
+      return controller.my && rc.getAllCreeps("upgrader8").length < CONSTANTS.CREEP_LIMITS.UPGRADER8_MAX;
     },
   },
 
@@ -308,9 +310,9 @@ module.exports = {
         return s.needsRepair();
       });
       if (rc.getLevel() < 4) {
-        return (rc.find(FIND_CONSTRUCTION_SITES).length > 0 || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 2;
+        return (rc.find(FIND_CONSTRUCTION_SITES).length > 0 || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < CONSTANTS.CREEP_LIMITS.CONSTRUCTOR_LOW;
       } else {
-        return (rc.find(FIND_CONSTRUCTION_SITES).length > 0 || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < 1;
+        return (rc.find(FIND_CONSTRUCTION_SITES).length > 0 || (towers.length < 1 && structures.length > 0)) && rc.getAllCreeps("constructor").length < CONSTANTS.CREEP_LIMITS.CONSTRUCTOR_HIGH;
       }
     },
   },
@@ -327,7 +329,7 @@ module.exports = {
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_RED });
       if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role === "attacker").length < 1;
+      return _.filter(Game.creeps, (c) => c.memory.role === "attacker").length < CONSTANTS.CREEP_LIMITS.ATTACKER_MAX;
     },
   },
 
@@ -361,7 +363,7 @@ module.exports = {
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });
       if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role === "supporter").length < 3;
+      return _.filter(Game.creeps, (c) => c.memory.role === "supporter").length < CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX;
     },
   },
 
@@ -378,7 +380,7 @@ module.exports = {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });
       if (flags.length === 0) return false;
       if (flags[0].room && flags[0].room.controller && flags[0].room.controller.my) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role === "claimer").length < 1;
+      return _.filter(Game.creeps, (c) => c.memory.role === "claimer").length < CONSTANTS.CREEP_LIMITS.CLAIMER_MAX;
     },
   },
 };

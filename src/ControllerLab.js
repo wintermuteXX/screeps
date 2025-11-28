@@ -1,3 +1,5 @@
+const CONSTANTS = require("constants");
+
 function ControllerLab(rc) {
     this.room = rc;
     this.labs = rc.room.labs;
@@ -16,7 +18,7 @@ ControllerLab.prototype.findLabPartner = function () {
     }
 
     // You need at least 3 labs without status to find a partner
-    if (noStatusLabs.length >= 3) {
+    if (noStatusLabs.length >= CONSTANTS.ROOM.SOURCE_COUNT_CORE) {
         noStatusLabs = _.shuffle(noStatusLabs)
         // Remove array items if array can not be divided by 3
         noStatusLabs.length = noStatusLabs.length - (noStatusLabs.length % 3)

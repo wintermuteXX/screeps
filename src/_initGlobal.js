@@ -51,9 +51,13 @@ function initGlobal(g) {
           return this["_" + type + "s"];
         } else {
           this._checkRoomCache();
-          if (roomStructures[this.name][type]) {
+          // Check if structure type exists and has structures
+          if (roomStructures[this.name] && roomStructures[this.name][type] && roomStructures[this.name][type].length > 0) {
             this["_" + type + "s_ts"] = Game.time;
-            return (this["_" + type + "s"] = roomStructures[this.name][type].map(Game.getObjectById));
+            // Filter out null/undefined in case structures were destroyed
+            return (this["_" + type + "s"] = roomStructures[this.name][type]
+              .map(Game.getObjectById)
+              .filter(s => s !== null && s !== undefined));
           } else {
             this["_" + type + "s_ts"] = Game.time;
             return (this["_" + type + "s"] = []);
@@ -72,7 +76,8 @@ function initGlobal(g) {
           return this["_" + type];
         } else {
           this._checkRoomCache();
-          if (roomStructures[this.name][type]) {
+          // Check if structure type exists and has at least one structure
+          if (roomStructures[this.name] && roomStructures[this.name][type] && roomStructures[this.name][type].length > 0) {
             this["_" + type + "_ts"] = Game.time;
             return (this["_" + type] = Game.getObjectById(roomStructures[this.name][type][0]));
           } else {

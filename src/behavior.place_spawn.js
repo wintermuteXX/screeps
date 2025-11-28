@@ -9,14 +9,14 @@ function findFlag(rc) {
 
 b.when = function (creep, rc) {
     let flag = findFlag(rc);
-    let spawns = rc.spawns;
-    return !!flag && flag.room == creep.room && !!spawns;
+    let spawns = rc.room.spawns; // Use room.spawns prototype
+    return !!flag && flag.room == creep.room && spawns && spawns.length > 0;
 };
 
 b.completed = function (creep, rc) {
     let flag = findFlag(rc);
-    let spawns = rc.spawns;
-    return !flag || (flag.room !== creep.room) || !spawns;
+    let spawns = rc.room.spawns; // Use room.spawns prototype
+    return !flag || (flag.room !== creep.room) || !spawns || spawns.length === 0;
 };
 
 b.work = function (creep, rc) {

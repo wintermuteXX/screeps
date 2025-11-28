@@ -1,8 +1,9 @@
 var Behavior = require("_behavior");
+const CONSTANTS = require("constants");
 
 var b = new Behavior("renew_emergency");
 b.when = function (creep, rc) {
-  return (creep.ticksToLive < 50) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
+  return (creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY) && (creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable) && rc.getIdleSpawnObject();
 };
 
 b.completed = function (creep, rc) {
@@ -10,7 +11,7 @@ b.completed = function (creep, rc) {
     creep.memory.abort = false;
     return true
   }
-  return creep.ticksToLive > 500;
+  return creep.ticksToLive > CONSTANTS.CREEP_LIFECYCLE.RENEW_NORMAL;
 };
 
 b.work = function (creep, rc) {

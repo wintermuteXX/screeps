@@ -192,6 +192,8 @@ Object.defineProperty(Structure.prototype, "memory", {
   },
 });
 
+const CONSTANTS = require("constants");
+
 Structure.prototype.needsRepair = function () {
   //"Repair" walls + ramparts until Limit (room.memory.wallHits) is reached
   if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
@@ -200,7 +202,7 @@ Structure.prototype.needsRepair = function () {
       return this.hits < this.room.memory.wallHits && this.hits < this.hitsMax && this.hitsMax > 1;
     } else {
       // initialse Walls HPs to repair
-      this.room.memory.wallHits = 5000;
+      this.room.memory.wallHits = CONSTANTS.RESOURCES.WALL_HITS_INITIAL;
     }
   }
   // Repair remaining stuff if HP is under global.repairLimit (~90%)
@@ -325,7 +327,7 @@ RoomObject.prototype.calculateContainerPos = function (range) {
     return;
   }
   if (this.structureType === STRUCTURE_CONTROLLER) {
-    range = 2;
+    range = CONSTANTS.CONTAINER.RANGE_TO_CONTROLLER;
   }
   var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
   Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
@@ -342,9 +344,9 @@ RoomObject.prototype.calculateContainerPos = function (range) {
   }
   if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0) return;
   var ret = PathFinder.search(this.pos, startingPosition, {
-    maxOps: 4000,
-    swampCost: 2,
-    plainCost: 2,
+    maxOps: CONSTANTS.PATHFINDING.MAX_OPS,
+    swampCost: CONSTANTS.PATHFINDING.SWAMP_COST,
+    plainCost: CONSTANTS.PATHFINDING.PLAIN_COST,
   });
   if (ret.incomplete || ret.path.length === 0) {
     Log.error("Path used for container placement in calculateContainerPos incomplete, please investigate", "calculateContainerPos");

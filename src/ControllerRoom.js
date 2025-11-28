@@ -5,6 +5,7 @@ var ControllerTower = require("ControllerTower");
 var ControllerTerminal = require("ControllerTerminal");
 var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
+const CONSTANTS = require("constants");
 
 function ControllerRoom(room, ControllerGame) {
   this.room = room;
@@ -70,21 +71,21 @@ ControllerRoom.prototype.run = function () {
     this.terminal.adjustWallHits();
   }
 
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
+  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
     if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
       this.room.powerSpawn.processPower();
     }
   }
   // this.labs.findLabPartner();
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
-    if (Game.time % 10 === 0) {
+  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
+    if (Game.time % CONSTANTS.TICKS.LAB_CHECK_STATUS === 0) {
       this.labs.checkStatus();
     }
   }
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 2000) {
+  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
     this.labs.produce();
   }
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > 1000) {
+  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_LOW) {
     this.factory.produce();
   }
 };
@@ -169,13 +170,13 @@ ControllerRoom.prototype.givesResources = function () {
   if (!this._givesResources) {
     this._givesResources = [];
 
-    let prio = 50;
+    let prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
 
     this.find(FIND_TOMBSTONES).forEach((tombstone) => {
       _.each(tombstone.store, function (amount, resourceType) {
-        if (amount > 100) {
+        if (amount > CONSTANTS.RESOURCES.TOMBSTONE_MIN) {
           self._givesResources.push({
-            priority: 165,
+            priority: CONSTANTS.PRIORITY.TOMBSTONE,
             resourceType: resourceType,
             structureType: tombstone.structureType,
             amount: amount,
@@ -187,10 +188,10 @@ ControllerRoom.prototype.givesResources = function () {
 
     // Links
     for (var l of _.filter(this.links.receivers, function (l) {
-      return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, 3);
+      return l.energy > 0 && !l.pos.inRangeTo(l.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
     })) {
       self._givesResources.push({
-        priority: 200,
+        priority: CONSTANTS.PRIORITY.LINK,
         resourceType: "energy",
         structureType: l.structureType,
         amount: l.energy,
@@ -200,9 +201,9 @@ ControllerRoom.prototype.givesResources = function () {
 
     // Dropped Resources
     for (var s of this.find(FIND_DROPPED_RESOURCES)) {
-      if (s.amount > 100 && !s.pos.inRangeTo(this.room.controller.pos, 3)) {
+      if (s.amount > CONSTANTS.RESOURCES.DROPPED_MIN && !s.pos.inRangeTo(this.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES)) {
         self._givesResources.push({
-          priority: 170,
+          priority: CONSTANTS.PRIORITY.DROPPED_RESOURCE,
           resourceType: s.resourceType,
           amount: s.amount,
           id: s.id,
@@ -226,9 +227,9 @@ ControllerRoom.prototype.givesResources = function () {
     _.each(containers, function (c) {
       if (c && c.store && c.store !== undefined) {
         _.each(c.store, function (amount, resourceType) {
-          if (amount > 750) {
+          if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
             self._givesResources.push({
-              priority: 195,
+              priority: CONSTANTS.PRIORITY.CONTAINER,
               resourceType: resourceType,
               structureType: c.structureType,
               amount: amount,
@@ -258,7 +259,7 @@ ControllerRoom.prototype.givesResources = function () {
       for (var a of RESOURCES_ALL) {
         let fillLevel = global.getRoomThreshold(a, "factory");
         if ((fac.store[a] || 0) > fillLevel) {
-          prio = 180;
+          prio = CONSTANTS.PRIORITY.FACTORY_OVERFLOW;
 
           self._givesResources.push({
             priority: prio,
@@ -281,18 +282,18 @@ ControllerRoom.prototype.givesResources = function () {
         let amount = 0;
         let fillLevel = global.getRoomThreshold(r, "storage");
         if (r === "energy" && sto.store[r] <= fillLevel) {
-          prio = 40;
+          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW;
           amount = sto.store[r];
         } else if (r === "energy" && sto.store[r] > fillLevel) {
-          prio = 120;
+          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
           amount = sto.store[r] - fillLevel;
         } else {
           // Minerals
           if (sto.store[r] > fillLevel) {
-            prio = 150;
+            prio = CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW;
             amount = sto.store[r] - fillLevel;
           } else {
-            prio = 100;
+            prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
             amount = sto.store[r];
           }
         }
@@ -314,13 +315,13 @@ ControllerRoom.prototype.givesResources = function () {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
         if (r === "energy" && ter.store[r] <= global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
-          prio = 35;
+          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
           amount = ter.store[r];
         } else if (r === "energy" && ter.store[r] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
-          prio = 140;
+          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH;
           amount = ter.store[r] - global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
         } else if (r !== "energy" && ter.store[r] > 0) {
-          prio = 130;
+          prio = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           amount = ter.store[r];
         } else {
           continue;
@@ -347,11 +348,11 @@ ControllerRoom.prototype.needsResources = function () {
   if (!this._needsResources) {
     this._needsResources = [];
 
-    let prio = 127;
-    if (this.room.controller && this.room.controller.ticksToDowngrade < 100) {
-      prio = 10;
-    } else if (this.room.controller && this.room.controller.ticksToDowngrade < 5000) {
-      prio = 25;
+    let prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+    if (this.room.controller && this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
+      prio = CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
+    } else if (this.room.controller && this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
+      prio = CONSTANTS.PRIORITY.CONTROLLER_LOW;
     }
     //	Fill Upgrader directly, if no container in position
     if (this.room.controller && !this.room.controller.container) {
@@ -381,7 +382,7 @@ ControllerRoom.prototype.needsResources = function () {
     for (var constr of constructor) {
       if (constr.store.getFreeCapacity(RESOURCE_ENERGY) > constr.store.getCapacity() / 2) {
         self._needsResources.push({
-          priority: 50,
+          priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
           structureType: constr.structureType,
           resourceType: "energy",
           amount: constr.store.getFreeCapacity(RESOURCE_ENERGY),
@@ -393,7 +394,7 @@ ControllerRoom.prototype.needsResources = function () {
     _.forEach(this.room.labs, function (c) {
       if (c && c.memory.resource && c.memory.status == "fill" && c.store.getFreeCapacity(c.memory.resource) > 0 && c.memory.usedBy) {
         self._needsResources.push({
-          priority: 70,
+          priority: CONSTANTS.PRIORITY.LAB_FILL,
           resourceType: c.memory.resource,
           structureType: c.structureType,
           amount: c.store.getFreeCapacity(c.memory.resource),
@@ -403,24 +404,24 @@ ControllerRoom.prototype.needsResources = function () {
     });
 
     if (this.getEnemys().length > 0) {
-      prio = 30;
+      prio = CONSTANTS.PRIORITY.TOWER_ENEMY;
     } else {
-      prio = 60;
+      prio = CONSTANTS.PRIORITY.TOWER_NORMAL;
     }
 
     if (this.room.controller && this.room.controller.my) {
       _.forEach(this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, prio, 400), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, 15), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, 20), (e) => self._needsResources.push(e));
-      _.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, 65), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION), (e) => self._needsResources.push(e));
+      _.forEach(this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB), (e) => self._needsResources.push(e));
 
       if (this.room.powerSpawn) {
-        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, 80, 400), (e) => self._needsResources.push(e));
-        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, 90, 90), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90), (e) => self._needsResources.push(e));
       }
       if (this.room.nuker) {
-        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, 110), (e) => self._needsResources.push(e));
-        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, 95), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY), (e) => self._needsResources.push(e));
+        _.forEach(this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM), (e) => self._needsResources.push(e));
       }
     }
 
@@ -431,9 +432,9 @@ ControllerRoom.prototype.needsResources = function () {
         if (fac.level !== undefined) console.log("Factory Level: " + fac.level);
         if (fac.store[a] < fillLevel) {
           if (a === RESOURCE_ENERGY) {
-            prio = 75;
+            prio = CONSTANTS.PRIORITY.FACTORY_ENERGY;
           } else {
-            prio = 85;
+            prio = CONSTANTS.PRIORITY.FACTORY_MINERAL;
           }
 
           self._needsResources.push({
@@ -456,13 +457,13 @@ ControllerRoom.prototype.needsResources = function () {
         let amount = 0;
         let fillLevel = global.getRoomThreshold(r, "storage");
         if (r === "energy" && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
-          prio = 55;
+          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
           amount = fillLevel - (sto.store[r] || 0);
         } else if (r === "energy" && sto.store[r] >= fillLevel && sto.store[r] < global.maxEnergyThreshold) {
-          prio = 125;
+          prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
           amount = global.maxEnergyThreshold - (sto.store[r] || 0);
         } else if (r !== "energy" && sto.store[r] < fillLevel) {
-          prio = 105;
+          prio = CONSTANTS.PRIORITY.STORAGE_MINERAL;
           amount = fillLevel - (sto.store[r] || 0);
         } else {
           continue;
@@ -483,13 +484,13 @@ ControllerRoom.prototype.needsResources = function () {
       for (var r of RESOURCES_ALL) {
         let amount = 0;
         if (r === "energy" && (ter.store[r] === undefined || ter.store[r] < global.getRoomThreshold(RESOURCE_ENERGY, "terminal"))) {
-          prio = 45;
+          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
           amount = global.getRoomThreshold(RESOURCE_ENERGY, "terminal") - (ter.store[r] || 0);
         } else if (r === "energy") {
-          prio = 145;
+          prio = CONSTANTS.PRIORITY.TERMINAL_ENERGY_OVERFLOW;
           amount = ter.store.getFreeCapacity();
         } else if (r !== "energy") {
-          prio = 135;
+          prio = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           amount = ter.store.getFreeCapacity();
         }
         self._needsResources.push({
@@ -629,7 +630,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
       if (containerId != null) {
         var container = Game.getObjectById(containerId);
         if (container != null) {
-          if (container.store && container.store[RESOURCE_ENERGY] + 800 < container.store.getCapacity(RESOURCE_ENERGY)) {
+          if (container.store && container.store[RESOURCE_ENERGY] + CONSTANTS.RESOURCES.CONTROLLER_ENERGY_BUFFER < container.store.getCapacity(RESOURCE_ENERGY)) {
             this._controllerNF = container;
           }
         }
@@ -710,10 +711,10 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
       var obj = REACTIONS[key];
       for (var prop in obj) {
         if (obj.hasOwnProperty(prop)) {
-          // TODO 9000 should be dynamic based on number of labs, or complete new system
+          // TODO RESOURCES.LAB_REACTION_MIN should be dynamic based on number of labs, or complete new system
           if (
-            this.room.getResourceAmount(key, "all") >= 9000 &&
-            this.room.getResourceAmount(prop, "all") >= 9000 &&
+            this.room.getResourceAmount(key, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
+            this.room.getResourceAmount(prop, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
             this.room.getResourceAmount(obj[prop], "all") < global.getRoomThreshold(obj[prop], "all")
           ) {
             return {
@@ -755,7 +756,7 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
 };
 
 ControllerRoom.prototype.centerPoint = function () {
-  const freeRange = 3;
+  const freeRange = CONSTANTS.ROOM.FREE_RANGE;
   var bestPos;
 
   for (let x = 3; x < 46; x++) {
@@ -843,7 +844,7 @@ ControllerRoom.prototype.analyse = function () {
       // core
       if (!memory.roomType) {
         let sources = this.room.find(FIND_SOURCES);
-        if (sources.length === 3) {
+        if (sources.length === CONSTANTS.ROOM.SOURCE_COUNT_CORE) {
           memory.roomType = "ROOMTYPE_CORE";
         }
       }

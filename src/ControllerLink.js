@@ -1,4 +1,4 @@
-var RANGE_TO_SOURCE = 3;
+const CONSTANTS = require("constants");
 
 function ControllerLink(rc) {
   this.room = rc;
@@ -9,7 +9,7 @@ Object.defineProperty(ControllerLink.prototype, "senders", {
   get: function () {
     var sources = this.room.getSources();
     return _.filter(this.links, function (link) {
-      return link.pos.findInRange(sources, RANGE_TO_SOURCE).length > 0;
+      return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length > 0;
     });
   }
 });
@@ -18,7 +18,7 @@ Object.defineProperty(ControllerLink.prototype, "receivers", {
   get: function () {
     var sources = this.room.getSources();
     return _.filter(this.links, function (link) {
-      return link.pos.findInRange(sources, RANGE_TO_SOURCE).length === 0;
+      return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length === 0;
     });
   }
 });
@@ -28,11 +28,11 @@ ControllerLink.prototype.transferEnergy = function () {
   if (Game.time % global.checkLinks !== 0) return;
 
   var senders = _.filter(this.senders, function (s) {
-    return (s.energy > s.store.getCapacity(RESOURCE_ENERGY) - 100);
+    return (s.energy > s.store.getCapacity(RESOURCE_ENERGY) - CONSTANTS.STRUCTURE_ENERGY.LINK_SENDER_THRESHOLD);
   });
 
   var receivers = _.shuffle(_.filter(this.receivers, function (r) {
-    return (r.energy < r.store.getCapacity(RESOURCE_ENERGY) - 200);
+    return (r.energy < r.store.getCapacity(RESOURCE_ENERGY) - CONSTANTS.STRUCTURE_ENERGY.LINK_RECEIVER_THRESHOLD);
   }));
 
   if (receivers.length == 0) return;

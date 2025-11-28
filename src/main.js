@@ -1,10 +1,13 @@
+const CONSTANTS = require("constants");
+
 // Early bucket check - skip the tick entirely if bucket is critically low
-if (Game.cpu.bucket < 100) {
+if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
   throw new Error("Der Bucket ist fast leer. Ich setze mal einen Tick aus...");
 }
 
 // Cache all requires at module load time (runs once on global reset)
 const profiler = require("screeps-profiler");
+const memHack = require("memhack");
 require("Traveler"); // Attaches to Creep prototype
 const Log = require("Log");
 global.Log = Log;
@@ -16,16 +19,19 @@ const ControllerGame = require("ControllerGame");
 // profiler.enable();
 
 module.exports.loop = function () {
+  // Run memhack first to optimize memory access for the entire tick
+  memHack.run();
+  
   profiler.wrap(function () {
     // Main.js logic should go here.
-    if (Game.cpu.bucket < 100) {
+    if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
       if (Game.cpu.limit !== 0) {
         Log.error("Bucket sehr Niedrig. Abbruch " + Game.time + " " + Game.cpu.bucket, "Main");
       }
       return;
     }
 
-    if (Game.time % 100 === 0) {
+    if (Game.time % CONSTANTS.TICKS.LOG_INTERVAL === 0) {
       Log.success(`------------------ ${Game.time} is running //  Bucket: ${Game.cpu.bucket}------------------`, "Main");
     }
 
@@ -33,7 +39,7 @@ module.exports.loop = function () {
     gc.processRooms();
   });
   
-  if (Game.cpu.bucket > 9999) {
+  if (Game.cpu.bucket > CONSTANTS.CPU.PIXEL_GENERATION_THRESHOLD) {
     Game.cpu.generatePixel();
   }
   // stats.doStats();

@@ -1,3 +1,5 @@
+const CONSTANTS = require("constants");
+
 function ControllerTerminal(rc) {
   this.room = rc;
   this.terminal = rc.room.terminal;
@@ -130,7 +132,7 @@ ControllerTerminal.prototype.adjustWallHits = function () {
   }
   if (terminal.store[RESOURCE_ENERGY] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
     Log.success(`Increased the wallHits in room ${terminal.room.name}`);
-    terminal.room.memory.wallHits += 5000;
+    terminal.room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
   }
 };
 ControllerTerminal.prototype.internalTrade = function () {
@@ -210,7 +212,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     Log.warn(`There are less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} credits available. Skipping...`, "buyEnergyOrder");
     return false;
   }
-  if (energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage") - 5000) {
+  if (energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage") - CONSTANTS.RESOURCES.TERMINAL_ENERGY_BUFFER) {
     Log.debug(`Less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
     for (let id in Game.market.orders) {
