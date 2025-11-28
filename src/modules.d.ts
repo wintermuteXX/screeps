@@ -53,61 +53,89 @@ declare module "ControllerGame" {
 }
 
 declare module "ControllerSpawn" {
-  export class ControllerSpawn {
+  class ControllerSpawn {
     constructor(spawn: StructureSpawn, room: any);
+    createCreep(role: string, creepConfig: any, memory?: any): boolean;
+    isIdle(): StructureSpawn | null;
   }
+  export = ControllerSpawn;
 }
 
 declare module "ControllerCreep" {
-  export class ControllerCreep {
-    constructor(room: any);
+  interface ControllerCreep {
     run(creep: Creep): void;
   }
+  interface ControllerCreepConstructor {
+    new (room: any): ControllerCreep;
+  }
+  const ControllerCreep: ControllerCreepConstructor;
+  export = ControllerCreep;
 }
 
 declare module "ControllerLink" {
-  export class ControllerLink {
-    constructor(room: any);
+  interface ControllerLink {
     transferEnergy(): void;
+    receivers?: any;
   }
+  interface ControllerLinkConstructor {
+    new (room: any): ControllerLink;
+  }
+  const ControllerLink: ControllerLinkConstructor;
+  export = ControllerLink;
 }
 
 declare module "ControllerTower" {
-  export class ControllerTower {
-    constructor(tower: StructureTower, room: any);
+  interface ControllerTower {
     fire(): void;
     repair(): void;
   }
+  interface ControllerTowerConstructor {
+    new (tower: StructureTower, room: any): ControllerTower;
+  }
+  const ControllerTower: ControllerTowerConstructor;
+  export = ControllerTower;
 }
 
 declare module "ControllerTerminal" {
-  export class ControllerTerminal {
-    constructor(room: any);
+  interface ControllerTerminal {
     buyEnergyOrder(): void;
     internalTrade(): void;
     sellRoomMineralOverflow(): void;
     sellRoomMineral(): void;
     adjustWallHits(): void;
   }
+  interface ControllerTerminalConstructor {
+    new (room: any): ControllerTerminal;
+  }
+  const ControllerTerminal: ControllerTerminalConstructor;
+  export = ControllerTerminal;
 }
 
 declare module "ControllerFactory" {
-  export class ControllerFactory {
-    constructor(room: any);
+  interface ControllerFactory {
     assignLevel(): boolean;
     setFactoryLevel(level: number): boolean;
     produce(): void;
     produceInFactory(ResourcesArray: string[], check?: boolean): boolean;
     getFactoryLevel(): number | null;
   }
+  interface ControllerFactoryConstructor {
+    new (room: any): ControllerFactory;
+  }
+  const ControllerFactory: ControllerFactoryConstructor;
+  export = ControllerFactory;
 }
 
 declare module "ControllerLab" {
-  export class ControllerLab {
-    constructor(room: any);
+  interface ControllerLab {
     checkStatus(): void;
     produce(): void;
   }
+  interface ControllerLabConstructor {
+    new (room: any): ControllerLab;
+  }
+  const ControllerLab: ControllerLabConstructor;
+  export = ControllerLab;
 }
 
 declare module "config.creeps" {

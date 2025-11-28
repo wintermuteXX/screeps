@@ -1,4 +1,5 @@
 require("_initGlobal")(global);
+const CONSTANTS = require("constants");
 
 /**
  * Extend Creep
@@ -205,8 +206,8 @@ Structure.prototype.needsRepair = function () {
       this.room.memory.wallHits = CONSTANTS.RESOURCES.WALL_HITS_INITIAL;
     }
   }
-  // Repair remaining stuff if HP is under global.repairLimit (~90%)
-  return this.hits < this.hitsMax * global.repairLimit;
+  // Repair remaining stuff if HP is under repairLimit (~90%)
+  return this.hits < this.hitsMax * CONSTANTS.DEFENSE.REPAIR_LIMIT;
 };
 
 Structure.prototype.getFirstMineral = function () {

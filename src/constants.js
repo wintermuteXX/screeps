@@ -22,6 +22,16 @@ module.exports = {
     MEMHACK_CLEANUP_STRUCTURES: 10000, // Clean up structure memory every N ticks
     LAB_CHECK_STATUS: 10,            // Check lab status every N ticks
     ROOM_EXPIRE_TIME: 30000,         // Room memory expires after N ticks (~25 days)
+    CHECK_POPULATION: 10,            // Check population every N ticks
+    CHECK_CONSTRUCTIONS: 100,        // Check constructions every N ticks
+    CHECK_LINKS: 5,                  // Check links every N ticks
+    CHECK_RESOURCES_QUEUE: 1,        // Check resources queue every N ticks
+    REPAIR_TOWER: 8,                 // Repair tower every N ticks
+    INTERNAL_TRADE: 25,              // Internal trade every N ticks
+    BUY_ENERGY_ORDER: 20,            // Buy energy order every N ticks
+    SELL_MINERAL_OVERFLOW: 499,      // Sell mineral overflow every N ticks
+    SELL_MINERAL: 200,               // Sell mineral every N ticks
+    ADJUST_WALL_HITS: 1000,          // Adjust wall hits every N ticks
   },
 
   // Resource Thresholds
@@ -136,5 +146,47 @@ module.exports = {
     FREE_RANGE: 3,                    // Free range for center point calculation
     SOURCE_COUNT_CORE: 3,             // Source count for core room type
   },
+
+
+  // Defense
+  DEFENSE: {
+    MAX_HITS: 2155000,                // Maximum hits for defense structures
+    REPAIR_LIMIT: 0.95,               // Repair limit (95% of max hits)
+  },
+
+  // CPU
+  CPU: {
+    BUCKET_CRITICAL: 100,             // Skip tick if bucket below this
+    BUCKET_LOW: 1000,                 // Low bucket threshold
+    BUCKET_MEDIUM: 2000,              // Medium bucket threshold
+    BUCKET_HIGH: 9999,                // Generate pixel if above this
+    PIXEL_GENERATION_THRESHOLD: 9999,
+    NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
+  },
+
+  // Storage
+  STORAGE: {
+    MAX_ENERGY_THRESHOLD: 100000,     // Maximum energy threshold for storage
+  },
+
+  // Market
+  MARKET: {
+    MIN_SELL_PRICE: 0.04,             // Minimum sell price
+    MOD_SELL_AMOUNT_1: 50000,         // Modification sell amount threshold 1
+    MOD_SELL_MULTIPLIER_1: 1.5,       // Modification sell multiplier 1
+    MOD_SELL_AMOUNT_2: 90000,         // Modification sell amount threshold 2
+    MOD_SELL_MULTIPLIER_2: 1.2,       // Modification sell multiplier 2
+    MOD_SELL_AMOUNT_3: 150000,        // Modification sell amount threshold 3
+    MOD_SELL_MULTIPLIER_3: 0.9,       // Modification sell multiplier 3
+    MOD_SELL_MULTIPLIER_4: 0.75,      // Modification sell multiplier 4
+    MIN_ORDER_AMOUNT: 50000,          // Minimum order amount
+    MAX_ORDER_AMOUNT: 150000,         // Maximum order amount
+    ENERGY_PRICE: 0.02,               // Energy price
+    PROFIT_THRESHOLD: 0.05,           // Profit threshold
+  },
+
+  // Fill Levels for Resources (storage, terminal, factory)
+  // Note: This is a large object, kept here for reference but assigned to global in _initGlobal.js
+  FILL_LEVEL: null, // Will be assigned from _initGlobal.js
 };
 

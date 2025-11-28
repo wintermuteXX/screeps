@@ -44,7 +44,7 @@ ControllerRoom.prototype.run = function () {
 
   // Tower operations - fire always, repair based on energy level
   const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > global.getRoomThreshold(RESOURCE_ENERGY, "all");
-  const shouldRepair = hasEnoughEnergy || (Game.time % global.repairTower === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
+  const shouldRepair = hasEnoughEnergy || (Game.time % CONSTANTS.TICKS.REPAIR_TOWER === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
   
   for (const tower of this._towers) {
     tower.fire();
@@ -52,22 +52,22 @@ ControllerRoom.prototype.run = function () {
       tower.repair();
     }
   }
-  if (Game.time % global.buyEnergyOrder === 0) {
+  if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
     this.terminal.buyEnergyOrder();
   }
-  if (Game.time % global.internalTrade === 0) {
+  if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
     this.terminal.internalTrade();
   }
 
-  if (Game.time % global.sellRoomMineralOverflow === 0) {
+  if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
     this.terminal.sellRoomMineralOverflow();
   }
 
-  if (Game.time % global.sellRoomMineral === 0) {
+  if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
     this.terminal.sellRoomMineral();
   }
 
-  if (Game.time % global.adjustWallHits === 0) {
+  if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
     this.terminal.adjustWallHits();
   }
 
@@ -104,7 +104,7 @@ ControllerRoom.prototype.commandCreeps = function () {
 };
 
 ControllerRoom.prototype.populate = function () {
-  if (Game.time % global.checkPopulation !== 0) return;
+  if (Game.time % CONSTANTS.TICKS.CHECK_POPULATION !== 0) return;
 
   var spawn = null;
 
@@ -463,9 +463,9 @@ ControllerRoom.prototype.needsResources = function () {
         if (r === "energy" && (sto.store[r] === undefined || sto.store[r] < fillLevel)) {
           prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
           amount = fillLevel - (sto.store[r] || 0);
-        } else if (r === "energy" && sto.store[r] >= fillLevel && sto.store[r] < global.maxEnergyThreshold) {
+        } else if (r === "energy" && sto.store[r] >= fillLevel && sto.store[r] < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
           prio = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
-          amount = global.maxEnergyThreshold - (sto.store[r] || 0);
+          amount = CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - (sto.store[r] || 0);
         } else if (r !== "energy" && sto.store[r] < fillLevel) {
           prio = CONSTANTS.PRIORITY.STORAGE_MINERAL;
           amount = fillLevel - (sto.store[r] || 0);
@@ -832,7 +832,7 @@ ControllerRoom.prototype.centerPoint = function () {
 };
 
 ControllerRoom.prototype.analyse = function () {
-  if (Game.cpu.tickLimit <= global.noAnalyseLimit) return;
+  if (Game.cpu.tickLimit <= CONSTANTS.CPU.NO_ANALYSE_LIMIT) return;
   var memory = this.room.memory;
 
   try {

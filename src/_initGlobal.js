@@ -103,35 +103,9 @@ function initGlobal(g) {
     }
   };
 
-  global.checkPopulation = 10;
-  global.checkConstructions = 100;
-  global.checkLinks = 5;
-  global.checkResourcesQueue = 1;
-  global.repairTower = 8;
-  global.maxHitsDefense = 2155000;
-  global.repairLimit = 0.95;
-  global.noAnalyseLimit = 100;
-  // Storage
-  global.maxEnergyThreshold = 100000;
-  // Terminal
-  global.internalTrade = 25;
-  global.buyEnergyOrder = 20;
-  global.sellRoomMineralOverflow = 499;
-  global.sellRoomMineral = 200;
-  global.adjustWallHits = 1000;
-  global.minSellPrice = 0.04;
-  global.modSellAmount1 = 50000;
-  global.modSellMultiplier1 = 1.5;
-  global.modSellAmount2 = 90000;
-  global.modSellMultiplier2 = 1.2;
-  global.modSellAmount3 = 150000;
-  global.modSellMultiplier3 = 0.9;
-  global.modSellMultiplier4 = 0.75;
-  global.minOrderAmount = 50000;
-  global.maxOrderAmount = 150000;
-  global.energyPrice = 0.02;
-  global.theProfit = 0.05;
-  // Resources
+  // Constants are now imported directly in each file that needs them
+  // No need to assign them to global anymore
+  // Resources - fillLevel is too large to move to constants.js, keeping it here
   global.fillLevel = {
     [RESOURCE_ENERGY]: {
       storage: 30000,

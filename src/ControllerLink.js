@@ -25,7 +25,7 @@ Object.defineProperty(ControllerLink.prototype, "receivers", {
 
 ControllerLink.prototype.transferEnergy = function () {
   // TODO Link should transport to most empty link OR make a better system for distributing energy to Controller OR Store
-  if (Game.time % global.checkLinks !== 0) return;
+  if (Game.time % CONSTANTS.TICKS.CHECK_LINKS !== 0) return;
 
   var senders = _.filter(this.senders, function (s) {
     return (s.energy > s.store.getCapacity(RESOURCE_ENERGY) - CONSTANTS.STRUCTURE_ENERGY.LINK_SENDER_THRESHOLD);

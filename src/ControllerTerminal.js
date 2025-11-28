@@ -72,8 +72,8 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
         Game.market.changeOrderPrice(order.id, thePrice);
       }
       // Extend Order
-      if (order.remainingAmount < global.minOrderAmount) {
-        let result = Game.market.extendOrder(order.id, global.maxOrderAmount - order.remainingAmount);
+      if (order.remainingAmount < CONSTANTS.MARKET.MIN_ORDER_AMOUNT) {
+        let result = Game.market.extendOrder(order.id, CONSTANTS.MARKET.MAX_ORDER_AMOUNT - order.remainingAmount);
         switch (result) {
           case OK:
             Log.success(`${terminal.room} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
@@ -87,7 +87,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
   }
   // Create new order
   if (orderExists === false) {
-    let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), global.maxOrderAmount, terminal.room.name);
+    let result2 = Game.market.createOrder(ORDER_SELL, theMineralType, this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]), CONSTANTS.MARKET.MAX_ORDER_AMOUNT, terminal.room.name);
     switch (result2) {
       case OK:
         Log.success(`Created sell order in room ${terminal.room} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
@@ -105,14 +105,14 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
   }
   let theMineralType = terminal.room.mineral.mineralType;
 
-  if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > global.maxOrderAmount) {
-    let bestOrder = this.findBestBuyOrder(theMineralType, global.energyPrice, global.theProfit);
+  if (terminal && terminal.cooldown === 0 && terminal.store[theMineralType] > CONSTANTS.MARKET.MAX_ORDER_AMOUNT) {
+    let bestOrder = this.findBestBuyOrder(theMineralType, CONSTANTS.MARKET.ENERGY_PRICE, CONSTANTS.MARKET.PROFIT_THRESHOLD);
     if (bestOrder !== null) {
       let result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
       if (result == OK) {
         Log.success(
           `${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${(bestOrder.amount * bestOrder.price).toFixed(2)} - EnergyCost: ${(
-            bestOrder.fee * global.energyPrice
+            bestOrder.fee * CONSTANTS.MARKET.ENERGY_PRICE
           ).toFixed(2)} `,
           "sellRoomMineralOverflow"
         );
@@ -243,7 +243,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
       }
     }
     if (orderExists === false) {
-      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, global.energyPrice, global.getRoomThreshold(RESOURCE_ENERGY, "terminal"), ter.room.name);
+      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, CONSTANTS.MARKET.ENERGY_PRICE, global.getRoomThreshold(RESOURCE_ENERGY, "terminal"), ter.room.name);
       switch (result2) {
         case OK:
           Log.success(`Created order in room ${ter.room} for ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy was successful`, "buyEnergyOrder");
