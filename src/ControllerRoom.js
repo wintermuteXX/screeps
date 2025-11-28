@@ -41,21 +41,15 @@ ControllerRoom.prototype.run = function () {
 
   this.commandCreeps();
 
-  if (this.room.getResourceAmount(RESOURCE_ENERGY, "all") > global.getRoomThreshold(RESOURCE_ENERGY, "all")) {
-    _.each(this._towers, function (tower) {
-      tower.fire();
+  // Tower operations - fire always, repair based on energy level
+  const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > global.getRoomThreshold(RESOURCE_ENERGY, "all");
+  const shouldRepair = hasEnoughEnergy || (Game.time % global.repairTower === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
+  
+  for (const tower of this._towers) {
+    tower.fire();
+    if (shouldRepair) {
       tower.repair();
-    });
-  } else {
-    _.each(this._towers, function (tower) {
-      tower.fire();
-      if (Game.time % global.repairTower === 0) {
-        if (this.getLevel == 8 && Math.random() >= 0.5) {
-          return;
-        }
-        tower.repair();
-      }
-    });
+    }
   }
   if (Game.time % global.buyEnergyOrder === 0) {
     this.terminal.buyEnergyOrder();
@@ -574,16 +568,16 @@ ControllerRoom.prototype.findNearLink = function (obj) {
 };
 
 ControllerRoom.prototype.getEnemys = function () {
-  var allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_", "xylist"];
-  var targetList = this.room.find(FIND_HOSTILE_CREEPS, {
-    filter: function (foundCreep) {
-      for (let i = allowedNameList.length; --i >= 0; ) {
-        if (foundCreep.owner.username === allowedNameList[i]) return false;
-      }
-      return true;
-    },
+  // Cache enemies for the current tick
+  if (this._enemies !== undefined) {
+    return this._enemies;
+  }
+  const allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_", "xylist"];
+  const allowedSet = new Set(allowedNameList); // O(1) lookup
+  this._enemies = this.room.find(FIND_HOSTILE_CREEPS, {
+    filter: (foundCreep) => !allowedSet.has(foundCreep.owner.username),
   });
-  return targetList;
+  return this._enemies;
 };
 
 ControllerRoom.prototype.getLevel = function () {
@@ -603,11 +597,10 @@ ControllerRoom.prototype.structureNeedResource = function (structure, resource) 
 };
 
 ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
-  // BUG If you delete an extension, this throws an error
-  // TypeError: Cannot read property 'store' of null at _.filter (ControllerRoom:606:50)
-  var structures = _.filter(structures, (s) => s.store.getFreeCapacity(resource) > (threshold || 0));
+  // Filter out null/undefined structures and those with enough resources
+  const filtered = _.filter(structures, (s) => s && s.store && s.store.getFreeCapacity(resource) > (threshold || 0));
 
-  return _.map(structures, (s) => {
+  return _.map(filtered, (s) => {
     return {
       priority: prio,
       structureType: s.structureType,
@@ -736,15 +729,14 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
 };
 
 ControllerRoom.prototype.findStructuresToRepair = function () {
-  var structures = _.filter(this.find(FIND_STRUCTURES), function (s) {
-    return s.needsRepair();
-  });
-
-  let theStructure = _.sortBy(structures, function (s) {
-    return s.hits;
-  });
-
-  return theStructure;
+  // Cache for current tick
+  if (this._structuresToRepair !== undefined) {
+    return this._structuresToRepair;
+  }
+  
+  const structures = _.filter(this.find(FIND_STRUCTURES), (s) => s.needsRepair());
+  this._structuresToRepair = _.sortBy(structures, (s) => s.hits);
+  return this._structuresToRepair;
 };
 
 ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {

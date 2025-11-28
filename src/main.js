@@ -1,13 +1,17 @@
+// Early bucket check - skip the tick entirely if bucket is critically low
 if (Game.cpu.bucket < 100) {
   throw new Error("Der Bucket ist fast leer. Ich setze mal einen Tick aus...");
 }
 
-var profiler = require("screeps-profiler");
-var Traveler = require("Traveler");
-global.Log = require("Log");
-var stats = require("ControllerStats");
+// Cache all requires at module load time (runs once on global reset)
+const profiler = require("screeps-profiler");
+require("Traveler"); // Attaches to Creep prototype
 const Log = require("Log");
+global.Log = Log;
+const stats = require("ControllerStats");
 require("marketCalculator");
+require("_init"); // Initialize prototypes once
+const ControllerGame = require("ControllerGame");
 
 // profiler.enable();
 
@@ -21,15 +25,14 @@ module.exports.loop = function () {
       return;
     }
 
-    require("_init");
     if (Game.time % 100 === 0) {
       Log.success(`------------------ ${Game.time} is running //  Bucket: ${Game.cpu.bucket}------------------`, "Main");
     }
 
-    var ControllerGame = require("ControllerGame");
-    var gc = new ControllerGame();
+    const gc = new ControllerGame();
     gc.processRooms();
   });
+  
   if (Game.cpu.bucket > 9999) {
     Game.cpu.generatePixel();
   }

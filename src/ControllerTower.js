@@ -4,9 +4,10 @@ function ControllerTower(tower, ControllerRoom) {
 }
 
 ControllerTower.prototype.fire = function () {
-
-    var targetList = this.ControllerRoom.getEnemys();
-    var closestHostile = this.tower.pos.findClosestByRange(targetList);
+    const targetList = this.ControllerRoom.getEnemys();
+    if (targetList.length === 0) return;
+    
+    const closestHostile = this.tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
         this.tower.attack(closestHostile);
     }
@@ -14,22 +15,15 @@ ControllerTower.prototype.fire = function () {
 
 // TODO Create parameter to repair/upgrade even if needsRepair is not true
 ControllerTower.prototype.repair = function () {
+    // Don't repair if enemies are present
+    if (this.ControllerRoom.getEnemys().length > 0) return;
+    if (this.tower.store[RESOURCE_ENERGY] <= 500) return;
 
-    var targetList = this.ControllerRoom.getEnemys();
-    if (targetList.length === 0) {
-
-        var structures = _.filter(this.tower.room.find(FIND_STRUCTURES), function (s) {
-            return s.needsRepair();
-        });
-
-        structures = _.sortBy(structures, function (s) {
-            return s.hits;
-        });
-
-        if (structures.length && this.tower.energy > 500) {
-            this.tower.repair(structures[0]);
-        };
-    };
+    // Use cached structures from ControllerRoom
+    const structures = this.ControllerRoom.findStructuresToRepair();
+    if (structures.length > 0) {
+        this.tower.repair(structures[0]);
+    }
 }
 
 // TODO Create Prototype heal

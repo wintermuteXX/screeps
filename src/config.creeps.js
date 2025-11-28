@@ -1,3 +1,17 @@
+/**
+ * Generate a body array by repeating a pattern
+ * @param {Array} pattern - Array of body parts to repeat (e.g., [MOVE, WORK])
+ * @param {number} count - Number of times to repeat the pattern
+ * @returns {Array} - Generated body array
+ */
+function generateBody(pattern, count) {
+  const body = [];
+  for (let i = 0; i < count; i++) {
+    body.push(...pattern);
+  }
+  return body;
+}
+
 module.exports = {
   builder: {
     priority: 1,
@@ -39,63 +53,12 @@ module.exports = {
     levelMin: 6,
     minParts: 16,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-    ],
+    body2: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
     behaviors: ["miner_harvest_mineral"],
 
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_mineral");
-      return rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners < 1 && _.sum(rc.room.terminal.store) < 270000;
+      return rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners.length < 1 && _.sum(rc.room.terminal.store) < 270000;
     },
   },
 
@@ -105,66 +68,12 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-    ],
+    body2: generateBody([MOVE, WORK, MOVE, CARRY], 12), // 24 MOVE, 12 WORK, 12 CARRY
     behaviors: ["goto_green_flag", "miner_harvest_commodities", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
-      var miners = _.filter(Game.creeps, (c) => c.memory.role == "miner_commodity").length;
-      // var miners = rc.getAllCreeps("miner_commodity");
-      return (
-        _.find(Game.flags, {
-          color: COLOR_GREEN,
-        }) && miners < 1
-      );
+      var miners = _.filter(Game.creeps, (c) => c.memory.role === "miner_commodity").length;
+      return _.find(Game.flags, { color: COLOR_GREEN }) && miners < 1;
     },
   },
 
@@ -174,67 +83,11 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-    ],
+    body2: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
     behaviors: ["goto_yellow_flag", "miner_raid_room", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
       return false;
-      // var miners = _.filter(Game.creeps, (c) => c.memory.role == 'miner_commodity').length;
-      // var miners = rc.getAllCreeps("miner_commodity");
-      // return (_.find(Game.flags, {
-      //   'color': COLOR_GREEN
-      // }) && miners < 3);
     },
   },
 
@@ -243,53 +96,22 @@ module.exports = {
     levelMin: 2,
     minParts: 6,
     wait4maxEnergy: false,
-    body2: [
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-      MOVE,
-      CARRY,
-    ],
+    body2: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
     behaviors: ["renew_emergency", "get_resources", "transfer_resources", "renew"],
 
     canBuild: function (rc) {
-      var transporters = rc.getAllCreeps("transporter");
+      const transporters = rc.getAllCreeps("transporter");
+      const droppedAmount = rc.getDroppedResourcesAmount();
       let modifier = 0;
-      if (rc.getDroppedResourcesAmount() > 5000) {
-        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()}. Build additional transporter.`, "transporter");
-        Game.notify(`High amount of Dropped resources in ${rc.room}. Amount: ${rc.getDroppedResourcesAmount()}. Build additional transporter.`);
+      if (droppedAmount > 5000) {
+        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`, "transporter");
+        Game.notify(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`);
         modifier = 1;
       }
-      if (rc.getLevel() < 4) {
+      const level = rc.getLevel();
+      if (level < 4) {
         return transporters.length < 4 + modifier;
-      } else if (rc.getLevel() < 7) {
+      } else if (level < 7) {
         return transporters.length < 2 + modifier;
       } else {
         return transporters.length < 1;
@@ -499,66 +321,13 @@ module.exports = {
     minLevel: 4,
     minParts: 6,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-      MOVE,
-      ATTACK,
-    ],
+    body2: generateBody([MOVE, ATTACK], 25), // 25 MOVE, 25 ATTACK
     behaviors: ["goto_red_flag", "attack_enemy"],
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, {
-        color: COLOR_RED,
-      });
+      const flags = _.filter(Game.flags, { color: COLOR_RED });
       if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role == "attacker").length < 1;
+      return _.filter(Game.creeps, (c) => c.memory.role === "attacker").length < 1;
     },
   },
 
@@ -568,68 +337,12 @@ module.exports = {
     minLevel: 2,
     minParts: 6,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-      MOVE,
-      RANGED_ATTACK,
-    ],
+    body2: generateBody([MOVE, RANGED_ATTACK], 25), // 25 MOVE, 25 RANGED_ATTACK
     // TODO Implement recycling
     behaviors: ["attack_enemy"],
 
     // TODO only build if no tower or boosted creeps enter room
     canBuild: function (rc) {
-      /* var flags = _.filter(Game.flags, {
-        'color': COLOR_RED
-      });
-      if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role == 'attacker').length < 1; */
       return false;
     },
   },
@@ -641,66 +354,14 @@ module.exports = {
     minLevel: 3,
     minParts: 8,
     wait4maxEnergy: true,
-    body2: [
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-    ],
+    // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
+    body2: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
     behaviors: ["goto_white_flag", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, {
-        color: COLOR_WHITE,
-      });
+      const flags = _.filter(Game.flags, { color: COLOR_WHITE });
       if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role == "supporter").length < 3;
+      return _.filter(Game.creeps, (c) => c.memory.role === "supporter").length < 3;
     },
   },
 
@@ -710,15 +371,14 @@ module.exports = {
     minLevel: 3,
     minParts: 4,
     wait4maxEnergy: true,
-    body2: [MOVE, CLAIM, MOVE, CLAIM],
+    body2: generateBody([MOVE, CLAIM], 2), // 2 MOVE, 2 CLAIM
     behaviors: ["goto_white_flag", "claim_controller", "place_spawn"],
 
     canBuild: function (rc) {
-      var flags = _.filter(Game.flags, {
-        color: COLOR_WHITE,
-      });
-      if (flags.length === 0 || (flags[0].room && flags[0].room.controller.my)) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role == "claimer").length < 1;
+      const flags = _.filter(Game.flags, { color: COLOR_WHITE });
+      if (flags.length === 0) return false;
+      if (flags[0].room && flags[0].room.controller && flags[0].room.controller.my) return false;
+      return _.filter(Game.creeps, (c) => c.memory.role === "claimer").length < 1;
     },
   },
 };

@@ -208,32 +208,19 @@ Structure.prototype.needsRepair = function () {
 };
 
 Structure.prototype.getFirstMineral = function () {
-  let result = {
-    amount: 0,
-  };
-  /*  if (this.store) {
-     for (const e of this.store) {
-       if (e.resourceType != RESOURCE_ENERGY) {
-         return {
-           resource: e.resourceType,
-           amount: e.amount
-         }
-       }
-     } */
-
-  _.each(this.store, function (amount, resourceType) {
-    if (resourceType !== RESOURCE_ENERGY) {
-      result = {
+  if (!this.store) {
+    return { amount: 0 };
+  }
+  // Use for..in for early exit (more efficient than _.each)
+  for (const resourceType in this.store) {
+    if (resourceType !== RESOURCE_ENERGY && this.store[resourceType] > 0) {
+      return {
         resource: resourceType,
-        amount: amount,
+        amount: this.store[resourceType],
       };
     }
-  });
-
-  return result;
-  /* return {
-    amount: 0
-  } */
+  }
+  return { amount: 0 };
 };
 
 Room.prototype.getResourceAmount = function (res, structure = "all") {
@@ -275,17 +262,28 @@ Room.prototype.roomNeedResources = function () {
 Object.defineProperty(Room.prototype, "mineral", {
   get: function () {
     if (this == Room.prototype || this == undefined) return undefined;
-    this.memory.mineral = {};
-    if (!this._mineral) {
-      if (this.memory.mineral.mineralId === undefined) {
-        let [theMineral] = this.find(FIND_MINERALS);
-        if (!theMineral) {
-          return (this.memory.mineral.mineralId = null);
-        }
-        this._mineral = theMineral;
-        this.memory.mineral.mineralId = theMineral.id;
-      } else {
-        this._mineral = Game.getObjectById(this.memory.mineral.mineralId);
+    // Cache for current tick
+    if (this._mineral !== undefined) {
+      return this._mineral;
+    }
+    // Initialize memory structure only if it doesn't exist
+    if (!this.memory.mineral) {
+      this.memory.mineral = {};
+    }
+    if (this.memory.mineral.mineralId === undefined) {
+      let [theMineral] = this.find(FIND_MINERALS);
+      if (!theMineral) {
+        this.memory.mineral.mineralId = null;
+        this._mineral = null;
+        return null;
+      }
+      this._mineral = theMineral;
+      this.memory.mineral.mineralId = theMineral.id;
+    } else {
+      this._mineral = Game.getObjectById(this.memory.mineral.mineralId);
+      // If mineral no longer exists, clear cache
+      if (!this._mineral) {
+        this.memory.mineral.mineralId = undefined;
       }
     }
     return this._mineral;
@@ -296,17 +294,21 @@ Object.defineProperty(Room.prototype, "mineral", {
 
 Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
   get: function () {
-    var self = this;
-
+    const terrain = Game.map.getRoomTerrain(this.roomName);
     let freeSpaceCount = 0;
-    [this.x - 1, this.x, this.x + 1].forEach((x) => {
-      [this.y - 1, this.y, this.y + 1].forEach((y) => {
-        if (!(x == self.x && self.y == y)) {
-          let [found] = this.lookFor(LOOK_STRUCTURES, x, y);
-          if (Game.map.getRoomTerrain(x, y, this.roomName) != "wall") freeSpaceCount++;
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (dx === 0 && dy === 0) continue;
+        const x = this.x + dx;
+        const y = this.y + dy;
+        // Check bounds
+        if (x < 0 || x > 49 || y < 0 || y > 49) continue;
+        // TERRAIN_MASK_WALL = 1
+        if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
+          freeSpaceCount++;
         }
-      }, this);
-    }, this);
+      }
+    }
     return freeSpaceCount;
   },
   enumerable: false,
