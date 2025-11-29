@@ -1,4 +1,5 @@
 const Log = require("./Log");
+const CONSTANTS = require("constants");
 
 function ControllerFactory(rc) {
   this.room = rc;
@@ -94,7 +95,7 @@ ControllerFactory.prototype.setFactoryLevel = function (level) {
 
   if (powerCreeps.length === 0) {
     // No Power Creep available - log and wait
-    if (Game.time % 100 === 0) {
+    if (Game.time % CONSTANTS.TICKS.FACTORY_POWER_CHECK === 0) {
       Log.warn(`${this.factory.room.name} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory.id} needs level ${level}`, "FactoryLevel");
     }
     return false;

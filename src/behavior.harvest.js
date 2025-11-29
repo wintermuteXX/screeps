@@ -20,7 +20,7 @@ b.work = function (creep, rc) {
     var sources = rc.getSourcesNotEmpty();
     if (sources.length) {
       // TODO Only choose source with enough space around
-      // Source per Zufall auswählen
+      // Select source randomly
       target = sources[Math.floor(Math.random() * sources.length)];
     }
   }

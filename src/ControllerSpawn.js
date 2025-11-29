@@ -15,7 +15,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
   // TODO createCreep. Calculate Move parts dynamically
   var theName = role + "_" + Math.round(Math.random() * 999);
   
-  // Verwende getBody() wenn vorhanden, sonst body2
+  // Use getBody() if available, otherwise body2
   var bodyTemplate = creepConfig.body2;
   if (typeof creepConfig.getBody === 'function') {
     bodyTemplate = creepConfig.getBody(this.ControllerRoom);

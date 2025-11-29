@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 const CONSTANTS = require("constants");
 
 /**
- * Prüft ob Creep nicht am Raumrand steht
+ * Checks if creep is not at room border
  */
 function isNotAtBorder(creep) {
   const { BORDER_MIN, BORDER_MAX } = CONSTANTS.ROOM;

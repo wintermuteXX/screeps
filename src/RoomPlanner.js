@@ -1,19 +1,19 @@
 /**
- * RoomPlanner - Automatische Raumplanung und Gebäudeplatzierung
+ * RoomPlanner - Automatic room planning and structure placement
  * 
- * Erstellt ein optimiertes Layout für jeden Raum basierend auf:
- * - Spawn-Position als Zentrum
- * - RCL-Level des Raums (nur verfügbare Strukturen werden gebaut)
- * - Terrain-Analyse (vermeidet Wände)
+ * Creates an optimized layout for each room based on:
+ * - Spawn position as center
+ * - Room's RCL level (only available structures are built)
+ * - Terrain analysis (avoids walls)
  * 
- * Layout-Stil: Kompaktes "Bunker"-Design für effiziente Verteidigung
+ * Layout style: Compact "bunker" design for efficient defense
  */
 
 const CONSTANTS = require("constants");
 
 /**
- * Struktur-Limits pro RCL (aus Screeps API)
- * Diese werden verwendet um zu prüfen ob eine Struktur gebaut werden kann
+ * Structure limits per RCL (from Screeps API)
+ * These are used to check if a structure can be built
  */
 const CONTROLLER_STRUCTURES = {
   [STRUCTURE_SPAWN]: { 0: 0, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 2, 8: 3 },
@@ -36,28 +36,28 @@ const CONTROLLER_STRUCTURES = {
 
 /**
  * Bunker Layout Definition
- * Positionen relativ zum Zentrum (0,0)
+ * Positions relative to center (0,0)
  * Format: { x: offsetX, y: offsetY, structureType: STRUCTURE_TYPE, priority: number }
- * Priority bestimmt die Baureihenfolge (niedriger = früher)
+ * Priority determines build order (lower = earlier)
  */
 const BUNKER_LAYOUT = {
-  // Spawn im Zentrum (wird als Referenzpunkt verwendet)
+  // Spawn in center (used as reference point)
   spawns: [
     { x: 0, y: 0, priority: 1 },
     { x: -2, y: 2, priority: 100 },
     { x: 2, y: 2, priority: 101 },
   ],
 
-  // Storage zentral für kurze Wege
+  // Storage central for short paths
   storage: [{ x: 0, y: 1, priority: 10 }],
 
-  // Terminal neben Storage
+  // Terminal next to Storage
   terminal: [{ x: 1, y: 1, priority: 20 }],
 
-  // Factory neben Terminal
+  // Factory next to Terminal
   factory: [{ x: -1, y: 1, priority: 25 }],
 
-  // Towers in strategischen Positionen (Schutz des Kerns)
+  // Towers in strategic positions (protection of the core)
   towers: [
     { x: 1, y: -1, priority: 5 },
     { x: -1, y: -1, priority: 6 },
@@ -67,7 +67,7 @@ const BUNKER_LAYOUT = {
     { x: 0, y: 2, priority: 33 },
   ],
 
-  // Extensions in einem effizienten Muster um den Kern
+  // Extensions in an efficient pattern around the core
   extensions: [
     // Ring 1 (RCL 2-3)
     { x: -1, y: -2, priority: 11 },
@@ -127,7 +127,7 @@ const BUNKER_LAYOUT = {
     { x: 3, y: -3, priority: 66 },
     { x: -3, y: 3, priority: 67 },
     { x: 3, y: 3, priority: 68 },
-    // Zusätzliche Extensions für RCL 8
+    // Additional extensions for RCL 8
     { x: -5, y: 0, priority: 69 },
     { x: 5, y: 0, priority: 70 },
     { x: 0, y: -5, priority: 71 },
@@ -136,7 +136,7 @@ const BUNKER_LAYOUT = {
     { x: 4, y: -3, priority: 74 },
   ],
 
-  // Labs in einem kompakten Cluster (für Reaktionen)
+  // Labs in a compact cluster (for reactions)
   labs: [
     { x: 3, y: 3, priority: 75 },
     { x: 4, y: 3, priority: 76 },
@@ -150,11 +150,11 @@ const BUNKER_LAYOUT = {
     { x: 6, y: 4, priority: 84 },
   ],
 
-  // Links an strategischen Positionen
+  // Links in strategic positions
   links: [
-    { x: -1, y: 0, priority: 85 }, // Beim Storage
-    { x: 1, y: 0, priority: 86 }, // Beim Spawn
-    // Weitere Links werden dynamisch bei Sources/Controller platziert
+    { x: -1, y: 0, priority: 85 }, // At storage
+    { x: 1, y: 0, priority: 86 }, // At spawn
+    // Additional links are placed dynamically at Sources/Controller
   ],
 
   // Observer
@@ -163,17 +163,17 @@ const BUNKER_LAYOUT = {
   // Power Spawn
   powerSpawn: [{ x: -1, y: 2, priority: 96 }],
 
-  // Nuker (weit vom Zentrum)
+  // Nuker (far from center)
   nuker: [{ x: -4, y: 3, priority: 97 }],
 
-  // Roads (Hauptwege)
+  // Roads (main paths)
   roads: [
-    // Kreuz durch das Zentrum
+    // Cross through the center
     { x: 0, y: -1, priority: 200 },
     { x: -1, y: 0, priority: 201 },
     { x: 1, y: 0, priority: 202 },
     { x: 0, y: 2, priority: 203 },
-    // Äußerer Ring
+    // Outer ring
     { x: -2, y: -2, priority: 204 },
     { x: -1, y: -2, priority: 205 },
     { x: 1, y: -2, priority: 206 },
@@ -184,7 +184,7 @@ const BUNKER_LAYOUT = {
 };
 
 /**
- * RoomPlanner Klasse
+ * RoomPlanner Class
  */
 function RoomPlanner(room) {
   this.room = room;
@@ -193,7 +193,7 @@ function RoomPlanner(room) {
 }
 
 /**
- * Initialisiert den Memory für den Raum
+ * Initializes the memory for the room
  */
 RoomPlanner.prototype._initMemory = function () {
   if (!Memory.rooms) {
@@ -214,22 +214,22 @@ RoomPlanner.prototype._initMemory = function () {
 };
 
 /**
- * Hauptfunktion - Plant und baut Strukturen
+ * Main function - Plans and builds structures
  */
 RoomPlanner.prototype.run = function () {
-  // Nur für eigene Räume mit Controller
+  // Only for own rooms with controller
   if (!this.room.controller || !this.room.controller.my) {
     return;
   }
 
   const rcl = this.room.controller.level;
 
-  // Zentrum bestimmen (basierend auf erstem Spawn)
+  // Determine center (based on first spawn)
   if (!this._hasCenter()) {
     this._findCenter();
   }
 
-  // Layout generieren wenn noch nicht geschehen
+  // Generate layout if not already done
   if (!this.memory.layoutGenerated && this._hasCenter()) {
     this._generateLayout();
   }
@@ -239,12 +239,12 @@ RoomPlanner.prototype.run = function () {
     this._placeConstructionSites(rcl);
   }
 
-  // Spezielle Strukturen platzieren (Extractor, Container bei Sources)
+  // Place special structures (Extractor, Container at Sources)
   this._placeSpecialStructures(rcl);
 };
 
 /**
- * Prüft ob ein Zentrum definiert ist
+ * Checks if a center is defined
  */
 RoomPlanner.prototype._hasCenter = function () {
   return this.memory.centerX !== null && this.memory.centerY !== null;
@@ -257,14 +257,14 @@ RoomPlanner.prototype._findCenter = function () {
   const spawns = this.room.find(FIND_MY_SPAWNS);
   
   if (spawns.length > 0) {
-    // Verwende ersten Spawn als Zentrum
+    // Use first spawn as center
     this.memory.centerX = spawns[0].pos.x;
     this.memory.centerY = spawns[0].pos.y;
     Log.info(`RoomPlanner: Center for ${this.roomName} found at (${this.memory.centerX}, ${this.memory.centerY})`, "RoomPlanner");
     return true;
   }
 
-  // Kein Spawn vorhanden - versuche optimale Position zu finden
+  // No spawn present - try to find optimal position
   const centerPos = this._calculateOptimalCenter();
   if (centerPos) {
     this.memory.centerX = centerPos.x;
@@ -277,7 +277,7 @@ RoomPlanner.prototype._findCenter = function () {
 };
 
 /**
- * Berechnet die optimale Zentrumsposition
+ * Calculates the optimal center position
  */
 RoomPlanner.prototype._calculateOptimalCenter = function () {
   const sources = this.room.find(FIND_SOURCES);
@@ -288,13 +288,13 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
   let bestPos = null;
   let bestScore = Infinity;
 
-  // Durchsuche mögliche Positionen
+  // Search through possible positions
   for (let x = 6; x < 44; x++) {
     for (let y = 6; y < 44; y++) {
-      // Prüfe ob Position und Umgebung frei sind
+      // Check if position and surroundings are free
       if (!this._isValidCenterPosition(x, y)) continue;
 
-      // Berechne Score (Summe der Distanzen zu Sources und Controller)
+      // Calculate score (sum of distances to sources and controller)
       let score = 0;
       const pos = new RoomPosition(x, y, this.roomName);
       
@@ -314,23 +314,23 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
 };
 
 /**
- * Prüft ob eine Position als Zentrum geeignet ist
+ * Checks if a position is suitable as center
  */
 RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
   const terrain = this.room.getTerrain();
-  const range = 5; // Benötigter freier Bereich um das Zentrum
+  const range = 5; // Required free area around the center
 
   for (let dx = -range; dx <= range; dx++) {
     for (let dy = -range; dy <= range; dy++) {
       const checkX = x + dx;
       const checkY = y + dy;
 
-      // Randprüfung
+      // Border check
       if (checkX < 2 || checkX > 47 || checkY < 2 || checkY > 47) {
         return false;
       }
 
-      // Wand-Prüfung
+      // Wall check
       if (terrain.get(checkX, checkY) === TERRAIN_MASK_WALL) {
         return false;
       }
@@ -349,17 +349,17 @@ RoomPlanner.prototype._generateLayout = function () {
   const terrain = this.room.getTerrain();
   const plannedStructures = [];
 
-  // Hilfsfunktion zum Hinzufügen einer Struktur
+  // Helper function to add a structure
   const addStructure = (offsetX, offsetY, structureType, priority) => {
     const x = centerX + offsetX;
     const y = centerY + offsetY;
 
-    // Randprüfung
+    // Border check
     if (x < 1 || x > 48 || y < 1 || y > 48) return;
 
-    // Wand-Prüfung
+    // Wall check
     if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
-      // Versuche alternative Position zu finden
+      // Try to find alternative position
       const altPos = this._findAlternativePosition(x, y, structureType);
       if (altPos) {
         plannedStructures.push({
@@ -375,7 +375,7 @@ RoomPlanner.prototype._generateLayout = function () {
     plannedStructures.push({ x, y, structureType, priority });
   };
 
-  // Spawns hinzufügen
+  // Add spawns
   BUNKER_LAYOUT.spawns.forEach((pos) => {
     addStructure(pos.x, pos.y, STRUCTURE_SPAWN, pos.priority);
   });
@@ -435,7 +435,7 @@ RoomPlanner.prototype._generateLayout = function () {
     addStructure(pos.x, pos.y, STRUCTURE_ROAD, pos.priority);
   });
 
-  // Sortiere nach Priorität
+  // Sort by priority
   plannedStructures.sort((a, b) => a.priority - b.priority);
 
   this.memory.plannedStructures = plannedStructures;
@@ -445,7 +445,7 @@ RoomPlanner.prototype._generateLayout = function () {
 };
 
 /**
- * Findet eine alternative Position wenn die gewünschte blockiert ist
+ * Finds an alternative position when the desired one is blocked
  */
 RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) {
   const terrain = this.room.getTerrain();
@@ -459,7 +459,7 @@ RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) 
       if (newX < 1 || newX > 48 || newY < 1 || newY > 48) continue;
       if (terrain.get(newX, newY) === TERRAIN_MASK_WALL) continue;
 
-      // Prüfe ob Position bereits belegt ist
+      // Check if position is already occupied
       const structures = this.room.lookForAt(LOOK_STRUCTURES, newX, newY);
       const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, newX, newY);
 
@@ -478,7 +478,7 @@ RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) 
 RoomPlanner.prototype._placeConstructionSites = function (rcl) {
   const existingSites = this.room.find(FIND_CONSTRUCTION_SITES);
   
-  // Limit für Construction Sites (max 100 pro Raum, aber wir begrenzen auf weniger für Effizienz)
+  // Limit for Construction Sites (max 100 per room, but we limit to fewer for efficiency)
   const maxSites = 5;
   if (existingSites.length >= maxSites) {
     return;
@@ -491,17 +491,17 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 
     const { x, y, structureType } = planned;
 
-    // Prüfe ob Struktur bei aktuellem RCL gebaut werden kann
+    // Check if structure can be built at current RCL
     if (!this._canBuildStructure(structureType, rcl)) {
       continue;
     }
 
-    // Prüfe ob bereits Struktur oder Construction Site vorhanden
+    // Check if structure or construction site already exists
     const pos = new RoomPosition(x, y, this.roomName);
     const existingStructures = pos.lookFor(LOOK_STRUCTURES);
     const existingConstSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
 
-    // Prüfe ob bereits eine Struktur dieses Typs existiert
+    // Check if a structure of this type already exists
     const hasStructure = existingStructures.some(
       (s) => s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD)
     );
@@ -511,7 +511,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
       continue;
     }
 
-    // Roads können über anderen Strukturen gebaut werden, andere nicht
+    // Roads can be built over other structures, others cannot
     if (structureType !== STRUCTURE_ROAD) {
       const blockingStructure = existingStructures.find(
         (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
@@ -521,14 +521,14 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
       }
     }
 
-    // Versuche Construction Site zu platzieren
+    // Try to place construction site
     const result = this.room.createConstructionSite(x, y, structureType);
     
     if (result === OK) {
       sitesPlaced++;
       Log.debug(`RoomPlanner: Construction site for ${structureType} placed at (${x}, ${y})`, "RoomPlanner");
     } else if (result === ERR_FULL) {
-      // Bereits zu viele Sites
+      // Already too many sites
       break;
     } else if (result !== ERR_INVALID_TARGET && result !== ERR_RCL_NOT_ENOUGH) {
       Log.warn(`RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${result}`, "RoomPlanner");
@@ -537,22 +537,22 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 };
 
 /**
- * Prüft ob eine Struktur bei gegebenem RCL gebaut werden kann
+ * Checks if a structure can be built at the given RCL
  */
 RoomPlanner.prototype._canBuildStructure = function (structureType, rcl) {
-  // Anzahl erlaubter Strukturen bei diesem RCL
+  // Number of allowed structures at this RCL
   const maxAllowed = CONTROLLER_STRUCTURES[structureType] ? CONTROLLER_STRUCTURES[structureType][rcl] : 0;
   
   if (maxAllowed === 0) {
     return false;
   }
 
-  // Zähle existierende Strukturen dieses Typs
+  // Count existing structures of this type
   const existingStructures = this.room.find(FIND_STRUCTURES, {
     filter: (s) => s.structureType === structureType,
   });
 
-  // Zähle Construction Sites dieses Typs
+  // Count construction sites of this type
   const existingSites = this.room.find(FIND_CONSTRUCTION_SITES, {
     filter: (s) => s.structureType === structureType,
   });
@@ -566,18 +566,18 @@ RoomPlanner.prototype._canBuildStructure = function (structureType, rcl) {
  * Platziert spezielle Strukturen (Extractor, Container bei Sources/Controller)
  */
 RoomPlanner.prototype._placeSpecialStructures = function (rcl) {
-  // Extractor bei Mineral (RCL 6+)
+  // Extractor at mineral (RCL 6+)
   if (rcl >= 6) {
     this._placeExtractor();
   }
 
-  // Container bei Sources (ab RCL 1)
+  // Container at sources (from RCL 1)
   this._placeSourceContainers();
 
   // Container beim Controller (ab RCL 1)
   this._placeControllerContainer();
 
-  // Links bei Sources (RCL 5+)
+  // Links at sources (RCL 5+)
   if (rcl >= 5) {
     this._placeSourceLinks();
   }
@@ -597,7 +597,7 @@ RoomPlanner.prototype._placeExtractor = function () {
 
   const mineral = minerals[0];
   
-  // Prüfe ob bereits Extractor vorhanden
+  // Check if extractor already exists
   const existingExtractor = mineral.pos.lookFor(LOOK_STRUCTURES).find((s) => s.structureType === STRUCTURE_EXTRACTOR);
   const existingSite = mineral.pos.lookFor(LOOK_CONSTRUCTION_SITES).find((s) => s.structureType === STRUCTURE_EXTRACTOR);
 
@@ -608,7 +608,7 @@ RoomPlanner.prototype._placeExtractor = function () {
     }
   }
 
-  // Container neben Mineral
+  // Container next to mineral
   this._placeContainerNear(mineral.pos, "mineral");
 };
 
@@ -632,7 +632,7 @@ RoomPlanner.prototype._placeControllerContainer = function () {
 };
 
 /**
- * Platziert einen Container in der Nähe einer Position
+ * Places a container near a position
  */
 RoomPlanner.prototype._placeContainerNear = function (pos, type) {
   // Container erst ab konfiguriertem RCL bauen (Standard: RCL 3)
@@ -642,7 +642,7 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
   
   const range = type === "controller" ? 2 : 1;
   
-  // Prüfe ob bereits Container in Reichweite
+  // Check if container already in range
   const nearbyContainers = pos.findInRange(FIND_STRUCTURES, range, {
     filter: (s) => s.structureType === STRUCTURE_CONTAINER,
   });
@@ -655,12 +655,12 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
     return;
   }
 
-  // Prüfe ob Container-Limit erreicht
+  // Check if container limit reached
   if (!this._canBuildStructure(STRUCTURE_CONTAINER, this.room.controller.level)) {
     return;
   }
 
-  // Finde beste Position für Container
+  // Find best position for container
   const terrain = this.room.getTerrain();
   let bestPos = null;
   let bestScore = Infinity;
@@ -677,13 +677,13 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
 
       const checkPos = new RoomPosition(x, y, this.roomName);
       
-      // Prüfe ob Position frei ist
+      // Check if position is free
       const structures = checkPos.lookFor(LOOK_STRUCTURES);
       const sites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
       
       if (structures.length > 0 || sites.length > 0) continue;
 
-      // Score: Distanz zum Zentrum (wenn vorhanden)
+      // Score: Distance to center (if available)
       let score = 0;
       if (this._hasCenter()) {
         const centerPos = new RoomPosition(this.memory.centerX, this.memory.centerY, this.roomName);
@@ -725,12 +725,12 @@ RoomPlanner.prototype._placeControllerLink = function () {
 };
 
 /**
- * Platziert einen Link in der Nähe einer Position
+ * Places a link near a position
  */
 RoomPlanner.prototype._placeLinkNear = function (pos, type) {
   const range = 2;
   
-  // Prüfe ob bereits Link in Reichweite
+  // Check if link already in range
   const nearbyLinks = pos.findInRange(FIND_STRUCTURES, range, {
     filter: (s) => s.structureType === STRUCTURE_LINK,
   });
@@ -743,12 +743,12 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
     return;
   }
 
-  // Prüfe ob Link-Limit erreicht
+  // Check if link limit reached
   if (!this._canBuildStructure(STRUCTURE_LINK, this.room.controller.level)) {
     return;
   }
 
-  // Finde beste Position für Link
+  // Find best position for link
   const terrain = this.room.getTerrain();
   let bestPos = null;
   let bestScore = Infinity;
@@ -765,7 +765,7 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
 
       const checkPos = new RoomPosition(x, y, this.roomName);
       
-      // Prüfe ob Position frei ist
+      // Check if position is free
       const structures = checkPos.lookFor(LOOK_STRUCTURES);
       const sites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
       
@@ -778,7 +778,7 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
       
       if (hasBlockingStructure || hasBlockingSite) continue;
 
-      // Score: Distanz zum Zentrum (wenn vorhanden)
+      // Score: Distance to center (if available)
       let score = 0;
       if (this._hasCenter()) {
         const centerPos = new RoomPosition(this.memory.centerX, this.memory.centerY, this.roomName);
@@ -801,14 +801,14 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
 };
 
 /**
- * Visualisiert das geplante Layout (für Debugging)
+ * Visualizes the planned layout (for debugging)
  */
 RoomPlanner.prototype.visualize = function () {
   if (!this.memory.layoutGenerated) return;
 
   const visual = this.room.visual;
 
-  // Zeichne Zentrum
+  // Draw center
   if (this._hasCenter()) {
     visual.circle(this.memory.centerX, this.memory.centerY, {
       fill: "transparent",
@@ -818,7 +818,7 @@ RoomPlanner.prototype.visualize = function () {
     });
   }
 
-  // Zeichne geplante Strukturen
+  // Draw planned structures
   const structureColors = {
     [STRUCTURE_SPAWN]: "#ffff00",
     [STRUCTURE_EXTENSION]: "#ffaa00",
@@ -846,7 +846,7 @@ RoomPlanner.prototype.visualize = function () {
 };
 
 /**
- * Setzt das Layout zurück (für Neuplanung)
+ * Resets the layout (for replanning)
  */
 RoomPlanner.prototype.reset = function () {
   this.memory.centerX = null;
@@ -857,7 +857,7 @@ RoomPlanner.prototype.reset = function () {
 };
 
 /**
- * Gibt Statistiken über das geplante Layout zurück
+ * Returns statistics about the planned layout
  */
 RoomPlanner.prototype.getStats = function () {
   if (!this.memory.layoutGenerated) {

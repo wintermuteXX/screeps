@@ -29,18 +29,18 @@ ControllerTower.prototype.repair = function () {
 };
 
 /**
- * Heilt verletzte eigene Creeps
- * Priorität: Am meisten verletzter Creep zuerst
+ * Heals damaged own creeps
+ * Priority: Most damaged creep first
  */
 ControllerTower.prototype.heal = function () {
-    // Finde alle eigenen Creeps und filtere verletzte
-    // Hinweis: ControllerRoom.find() ignoriert Filter, daher manuell filtern
+    // Find all own creeps and filter damaged ones
+    // Note: ControllerRoom.find() ignores filter, so filter manually
     const allCreeps = this.ControllerRoom.find(FIND_MY_CREEPS);
     const damagedCreeps = allCreeps.filter((creep) => creep.hits < creep.hitsMax);
 
     if (damagedCreeps.length === 0) return false;
 
-    // Sortiere nach Verletzungsgrad (am meisten verletzt zuerst)
+    // Sort by damage level (most damaged first)
     damagedCreeps.sort((a, b) => (a.hits / a.hitsMax) - (b.hits / b.hitsMax));
 
     // Heile den am meisten verletzten Creep

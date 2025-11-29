@@ -1,21 +1,21 @@
 var Behavior = require("_behavior");
 const CONSTANTS = require("constants");
 
-// Cache für erstellte Behaviors
+// Cache for created behaviors
 var behaviorCache = {};
 
 /**
- * Konfiguration für verschiedene Renew-Modi
+ * Configuration for different renew modes
  */
 var RENEW_CONFIGS = {
   normal: {
-    // Normales Renew wenn Creep noch etwas Zeit hat
+    // Normal renew when creep still has some time left
     whenThreshold: 1300,
     completedThreshold: 1400,
     checkEnergy: true,
   },
   emergency: {
-    // Notfall-Renew wenn Creep fast stirbt
+    // Emergency renew when creep is about to die
     whenThreshold: CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY,
     completedThreshold: CONSTANTS.CREEP_LIFECYCLE.RENEW_NORMAL,
     checkEnergy: false,
@@ -24,15 +24,15 @@ var RENEW_CONFIGS = {
 
 /**
  * Erstellt ein Renew-Behavior
- * Unterstützt: "renew", "renew:normal", "renew:emergency"
+ * Supports: "renew", "renew:normal", "renew:emergency"
  */
 function createRenewBehavior(behaviorName) {
-  // Cache prüfen
+  // Check cache
   if (behaviorCache[behaviorName]) {
     return behaviorCache[behaviorName];
   }
 
-  // Modus aus Behavior-Name parsen (Format: "renew:mode")
+  // Parse mode from behavior name (format: "renew:mode")
   var mode = "normal"; // Standard
   if (behaviorName.indexOf(":") !== -1) {
     mode = behaviorName.split(":")[1];
@@ -47,12 +47,12 @@ function createRenewBehavior(behaviorName) {
   var b = new Behavior(behaviorName);
 
   b.when = function (creep, rc) {
-    // Nur wenn Creep mit aktuellem Energie-Level geboren wurde
+    // Only if creep was born with current energy level
     if (creep.memory.bornEnergyLevel !== creep.room.energyCapacityAvailable) {
       return false;
     }
     
-    // Spawn muss verfügbar sein
+    // Spawn must be available
     if (!rc.getIdleSpawnObject()) {
       return false;
     }
@@ -68,7 +68,7 @@ function createRenewBehavior(behaviorName) {
       return true;
     }
     
-    // Fertig wenn über completedThreshold
+    // Done when above completedThreshold
     return creep.ticksToLive > config.completedThreshold;
   };
 
@@ -84,7 +84,7 @@ function createRenewBehavior(behaviorName) {
       return;
     }
 
-    // Bei normalem Renew: prüfen ob Spawn Energie hat
+    // For normal renew: check if spawn has energy
     if (config.checkEnergy && (!target.store || target.store[RESOURCE_ENERGY] <= 0)) {
       creep.memory.abort = true;
       return;

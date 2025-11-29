@@ -30,7 +30,7 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
-    // Prüfe ob Ziel einen Store hat (Strukturen, Tombstones, Ruins) -> withdraw
+    // Check if target has a store (structures, tombstones, ruins) -> withdraw
     // Sonst (Dropped Resources) -> pickup
     if (target.store !== undefined) {
       result = creep.withdraw(target, creep.memory.resourceType);

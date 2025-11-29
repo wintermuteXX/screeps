@@ -7,7 +7,7 @@ var b = new Behavior("transfer_storage");
  */
 
 b.when = function (creep, rc) {
-  // Nur wenn Creep etwas trägt und Storage/Terminal existiert
+  // Only if creep carries something and Storage/Terminal exists
   return creep.store.getUsedCapacity() > 0 && (creep.room.storage || creep.room.terminal);
 };
 

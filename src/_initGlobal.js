@@ -1,5 +1,5 @@
 function initGlobal(g) {
-  // Prototypes für Room Structures
+  // Prototypes for Room Structures
   var roomStructures = {};
   var roomStructuresExpiration = {};
   const CACHE_TIMEOUT = 50;
@@ -38,9 +38,8 @@ function initGlobal(g) {
     if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {
       roomStructuresExpiration[this.name] = Game.time + getCacheExpiration();
       var structures = this.find(FIND_STRUCTURES);
-      roomStructures[this.name] = _.groupBy(structures.filter((s) => 'structureType' in s), (s) => {
-        var struct = s;
-        return struct.structureType;
+      roomStructures[this.name] = _.groupBy(structures, (s) => {
+        return /** @type {Structure} */ (s).structureType;
       });
       var i;
       for (i in roomStructures[this.name]) {
@@ -598,7 +597,7 @@ function initGlobal(g) {
           g._behaviors[n] = behaviorModule;
         }
       } catch (e) {
-        console.log("Error loading behavior '" + n + "'", e);
+        Log.error(`Error loading behavior '${n}': ${e}`, "Behavior");
         g._behaviors[n] = null;
       }
     }
@@ -658,8 +657,8 @@ function initGlobal(g) {
         roomData[r.name][item] = quantity;
       });
     });
-    console.log("Room Data:", JSON.stringify(roomData, null, 3));
-    console.log("Totals:", JSON.stringify(sums, null, 3));
+    Log.info("Room Data: " + JSON.stringify(roomData, null, 3), "Terminal");
+    Log.info("Totals: " + JSON.stringify(sums, null, 3), "Terminal");
   };
 
   global.resourceImg = function (resourceType) {
@@ -729,7 +728,7 @@ g.resourceReorder = setInterval(() => {
     $scope.Room.selectedObject.store = orderedStore;
 }, 1000);
 </script>`.replace(/\r?\n|\r/g, ``);
-    console.log(scriptInject);
+    Log.info(scriptInject, "ScriptInject");
   };
 
   global.showLabs = function () {
@@ -915,88 +914,89 @@ g.resourceReorder = setInterval(() => {
 
   global.json = (x) => JSON.stringify(x, null, 2);
 
-  // ==================== RoomPlanner Hilfsfunktionen ====================
-  // Diese Funktionen ermöglichen den Zugriff auf den RoomPlanner aus der Konsole
+  // ==================== RoomPlanner Helper Functions ====================
+  // These functions provide console access to the RoomPlanner
   
   const RoomPlanner = require("RoomPlanner");
   
   /**
-   * Visualisiert das geplante Layout für einen Raum
-   * Verwendung: plannerVisualize('W1N1')
+   * Visualizes the planned layout for a room
+   * Usage: plannerVisualize('W1N1')
    */
   global.plannerVisualize = function (roomName) {
     const room = Game.rooms[roomName];
     if (!room) {
-      console.log(`Raum ${roomName} nicht sichtbar`);
+      Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
       return;
     }
     const planner = new RoomPlanner(room);
     planner.visualize();
-    console.log(`Layout für ${roomName} visualisiert. Schau in den Raum!`);
+    Log.info(`Layout for ${roomName} visualized. Check the room!`, "RoomPlanner");
   };
 
   /**
-   * Gibt Statistiken über das geplante Layout zurück
-   * Verwendung: plannerStats('W1N1')
+   * Returns statistics about the planned layout
+   * Usage: plannerStats('W1N1')
    */
   global.plannerStats = function (roomName) {
     const room = Game.rooms[roomName];
     if (!room) {
-      console.log(`Raum ${roomName} nicht sichtbar`);
+      Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
       return null;
     }
     const planner = new RoomPlanner(room);
     const stats = planner.getStats();
-    console.log(`RoomPlanner Stats für ${roomName}:`);
-    console.log(JSON.stringify(stats, null, 2));
+    Log.info(`RoomPlanner stats for ${roomName}:`, "RoomPlanner");
+    Log.info(JSON.stringify(stats, null, 2), "RoomPlanner");
     return stats;
   };
 
   /**
-   * Setzt das Layout für einen Raum zurück
-   * Verwendung: plannerReset('W1N1')
+   * Resets the layout for a room
+   * Usage: plannerReset('W1N1')
    */
   global.plannerReset = function (roomName) {
     const room = Game.rooms[roomName];
     if (!room) {
-      console.log(`Raum ${roomName} nicht sichtbar`);
+      Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
       return;
     }
     const planner = new RoomPlanner(room);
     planner.reset();
-    console.log(`Layout für ${roomName} wurde zurückgesetzt`);
+    Log.info(`Layout for ${roomName} has been reset`, "RoomPlanner");
   };
 
   /**
-   * Führt den RoomPlanner manuell aus
-   * Verwendung: plannerRun('W1N1')
+   * Runs the RoomPlanner manually
+   * Usage: plannerRun('W1N1')
    */
   global.plannerRun = function (roomName) {
     const room = Game.rooms[roomName];
     if (!room) {
-      console.log(`Raum ${roomName} nicht sichtbar`);
+      Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
       return;
     }
     const planner = new RoomPlanner(room);
     planner.run();
-    console.log(`RoomPlanner für ${roomName} ausgeführt`);
+    Log.info(`RoomPlanner for ${roomName} executed`, "RoomPlanner");
   };
 
   /**
-   * Setzt das Zentrum für einen Raum manuell
-   * Verwendung: plannerSetCenter('W1N1', 25, 25)
+   * Manually sets the center for a room
+   * Usage: plannerSetCenter('W1N1', 25, 25)
    */
   global.plannerSetCenter = function (roomName, x, y) {
     if (!Memory.rooms) Memory.rooms = {};
     if (!Memory.rooms[roomName]) Memory.rooms[roomName] = {};
-    if (!Memory.rooms[roomName].planner) Memory.rooms[roomName].planner = {};
+    // Initialize or reset planner with all required properties
+    Memory.rooms[roomName].planner = {
+      centerX: x,
+      centerY: y,
+      layoutGenerated: false,
+      plannedStructures: [],
+    };
     
-    Memory.rooms[roomName].planner.centerX = x;
-    Memory.rooms[roomName].planner.centerY = y;
-    Memory.rooms[roomName].planner.layoutGenerated = false;
-    Memory.rooms[roomName].planner.plannedStructures = [];
-    
-    console.log(`Zentrum für ${roomName} auf (${x}, ${y}) gesetzt. Layout wird beim nächsten Run neu generiert.`);
+    Log.info(`Center for ${roomName} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
   };
 
   global.voiceConsole = function voiceConsole(text) {

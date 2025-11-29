@@ -87,6 +87,7 @@ declare module "ControllerLink" {
 declare module "ControllerTower" {
   interface ControllerTower {
     fire(): void;
+    heal(): boolean;
     repair(): void;
   }
   interface ControllerTowerConstructor {

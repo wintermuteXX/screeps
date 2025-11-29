@@ -129,11 +129,11 @@ module.exports = {
     
     // Dynamischer Body basierend auf RCL
     // RCL 8: Max 15 Energy/tick Limit, daher kleinerer Body
-    // RCL 1-7: Größerer Body für schnelleres Upgraden
+    // RCL 1-7: Larger body for faster upgrading
     getBody: function (rc) {
       const level = rc.getLevel();
       if (level === 8) {
-        // RCL 8: Optimiert für 15 Energy/tick Limit (15 WORK Parts)
+        // RCL 8: Optimized for 15 Energy/tick limit (15 WORK parts)
         return [
           MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY,
           MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY,
@@ -142,7 +142,7 @@ module.exports = {
           MOVE, WORK, MOVE, WORK,
         ];
       } else {
-        // RCL 1-7: Maximaler Body für schnelles Upgraden
+        // RCL 1-7: Maximum body for fast upgrading
         return [
           MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK,
           MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK,
@@ -154,7 +154,7 @@ module.exports = {
       }
     },
     
-    // Fallback body2 für Kompatibilität (wird verwendet wenn getBody nicht aufgerufen wird)
+    // Fallback body2 for compatibility (used when getBody is not called)
     body2: [
       MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK,
       MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK,
@@ -173,7 +173,7 @@ module.exports = {
       const level = rc.getLevel();
       const upgraders = rc.getAllCreeps("upgrader");
 
-      // Hilfsfunktion: Energie in der Nähe des Controllers
+      // Helper function: Energy near the controller
       function energyAround(obj) {
         var dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
           filter: { resourceType: RESOURCE_ENERGY }
@@ -190,7 +190,7 @@ module.exports = {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_RCL8;
       }
       
-      // RCL 1-4: Mehr Upgrader für schnellen Fortschritt
+      // RCL 1-4: More upgraders for fast progress
       if (level <= 4) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
       }
@@ -200,7 +200,7 @@ module.exports = {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       }
       
-      // RCL 6-7: Dynamisch basierend auf verfügbarer Energie
+      // RCL 6-7: Dynamic based on available energy
       if (energyAround(controller) > CONSTANTS.STRUCTURE_ENERGY.CONTROLLER_ENERGY_HIGH) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       } else {
@@ -291,7 +291,6 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, RANGED_ATTACK], 25), // 25 MOVE, 25 RANGED_ATTACK
-    // TODO Implement recycling
     behaviors: ["attack_enemy"],
 
     // TODO only build if no tower or boosted creeps enter room

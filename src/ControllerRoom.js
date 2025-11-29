@@ -40,7 +40,7 @@ ControllerRoom.prototype.run = function () {
 
   this.populate();
 
-  // RoomPlanner ausführen (alle 50 Ticks um CPU zu sparen)
+  // Run RoomPlanner (every 50 ticks to save CPU)
   if (Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
     this.planner.run();
   }
@@ -900,7 +900,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
     if (controllerz) {
       let containerId = controllerz.memory.containerID || null;
       if (containerId != null) {
-        var container = Game.getObjectById(containerId);
+        var container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));
         if (container != null) {
           if (container.store && container.store[RESOURCE_ENERGY] + CONSTANTS.RESOURCES.CONTROLLER_ENERGY_BUFFER < container.store.getCapacity(RESOURCE_ENERGY)) {
             this._controllerNF = container;
@@ -950,11 +950,8 @@ ControllerRoom.prototype.getSourcesNotEmpty = function () {
     let sources = this.getSources();
     if (sources) {
       this._sourcesNE = _.filter(sources, function (s) {
-        // TODO Freie Plätze für Source berechnen
-        // this.getCreeps funktioniert nicht.
-        // console.log(this.getCreeps(null, s.id).length + " " + s.pos.freeFieldsCount());
+        // TODO Calculate free spaces around source
         return s.energy > 0;
-        // return (s.energy > 0) && (this.getCreeps(null, s.id).length < s.pos.freeFieldsCount)
       });
     } else {
       return null;
@@ -1025,78 +1022,6 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   }
 
   return cfg.canBuild(this);
-};
-
-ControllerRoom.prototype.centerPoint = function () {
-  const freeRange = CONSTANTS.ROOM.FREE_RANGE;
-  var bestPos;
-
-  for (let x = 3; x < 46; x++) {
-    for (let y = 3; y < 46; y++) {
-      let pos = new RoomPosition(x, y, this.room.name);
-
-      let exits = pos.findInRange(FIND_EXIT, freeRange);
-      if (exits.length > 0) continue;
-
-      let structs = pos.findInRange(FIND_STRUCTURES, freeRange, {
-        filter: (s) => s.structureType != STRUCTURE_ROAD,
-      });
-      if (structs.length > 0) continue;
-
-      let terrain = _.filter(this.room.lookForAtArea(LOOK_TERRAIN, y - freeRange, x - freeRange, y + freeRange, x + freeRange, true), (p) => p.type == "terrain" && p.terrain == "wall");
-      if (terrain.length > 0) continue;
-
-      let goodPos = new RoomPosition(x, y, this.room.name);
-
-      let toSource = [];
-      let toController;
-
-      _.forEach(this.find(FIND_SOURCES), (s) => {
-        toSource.push(
-          this.room.findPath(goodPos, s.pos, {
-            ignoreCreeps: true,
-            ignoreRoads: true,
-            maxRooms: 1,
-          }).length
-        );
-      });
-
-      toController = this.room.findPath(goodPos, this.room.controller.pos, {
-        ignoreCreeps: true,
-        ignoreRoads: true,
-        maxRooms: 1,
-      }).length;
-
-      let cnt = 0;
-
-      if (!bestPos) {
-        bestPos = {
-          x: goodPos.x,
-          y: goodPos.y,
-          c: toController,
-          s: toSource,
-        };
-      }
-
-      for (let foo in toSource) {
-        if (bestPos.s[foo] > toSource[foo]) cnt++;
-      }
-
-      if (cnt >= 2 || (cnt >= 1 && toController <= bestPos.c) || toController * 2 <= bestPos.c) {
-        bestPos = {
-          x: goodPos.x,
-          y: goodPos.y,
-          c: toController,
-          s: toSource,
-        };
-      }
-    }
-  }
-
-  Log.error(`Check bug in function centerPoint: ${bestPos.x} ${bestPos.y} ${this.room.name}`, "centerPoint");
-  let thePosition = new RoomPosition(bestPos.x, bestPos.y, this.room.name);
-  return thePosition;
-  // this.createFlag(bestPos.x, bestPos.y, 'CenterPoint:' + this.name, COLOR_PURPLE, COLOR_BLUE);
 };
 
 ControllerRoom.prototype.analyse = function () {

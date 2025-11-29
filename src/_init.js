@@ -76,20 +76,20 @@ Object.defineProperty(Source.prototype, "defended", {
 Object.defineProperty(Source.prototype, "container", {
   get: function () {
     if (this._container == undefined) {
-      // Prüfe ob Container-ID im Memory gespeichert ist
+      // Check if container ID is stored in memory
       if (this.memory.containerID) {
         const container = Game.getObjectById(this.memory.containerID);
         if (container) {
           this._container = container;
           return this._container;
         } else {
-          // Container existiert nicht mehr, ID aus Memory löschen
+          // Container no longer exists, delete ID from memory
           Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
           this.memory.containerID = null;
         }
       }
       
-      // Suche nach existierendem Container in der Nähe
+      // Search for existing container nearby
       const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: { structureType: STRUCTURE_CONTAINER },
       });
@@ -99,7 +99,7 @@ Object.defineProperty(Source.prototype, "container", {
         this.memory.containerID = found.id;
         this._container = found;
       } else {
-        // Kein Container vorhanden - RoomPlanner wird ihn erstellen
+        // No container present - RoomPlanner will create it
         this._container = null;
       }
     }
@@ -124,20 +124,20 @@ Object.defineProperty(Source.prototype, "memory", {
 Object.defineProperty(Structure.prototype, "container", {
   get: function () {
     if (this._container == undefined) {
-      // Prüfe ob Container-ID im Memory gespeichert ist
+      // Check if container ID is stored in memory
       if (this.memory.containerID) {
         const container = Game.getObjectById(this.memory.containerID);
         if (container) {
           this._container = container;
           return this._container;
         } else {
-          // Container existiert nicht mehr, ID aus Memory löschen
+          // Container no longer exists, delete ID from memory
           Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
           this.memory.containerID = null;
         }
       }
       
-      // Suche nach existierendem Container in der Nähe
+      // Search for existing container nearby
       const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: { structureType: STRUCTURE_CONTAINER },
       });
@@ -147,7 +147,7 @@ Object.defineProperty(Structure.prototype, "container", {
         this.memory.containerID = found.id;
         this._container = found;
       } else {
-        // Kein Container vorhanden - RoomPlanner wird ihn erstellen
+        // No container present - RoomPlanner will create it
         this._container = null;
       }
     }
@@ -292,7 +292,7 @@ Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
   configurable: true,
 });
 
-// calculateContainerPos wurde entfernt - Container-Erstellung erfolgt jetzt über RoomPlanner.js
+// calculateContainerPos was removed - Container creation now happens via RoomPlanner.js
 
 RoomObject.prototype.say = function (what) {
   this.room.visual

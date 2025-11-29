@@ -34,6 +34,7 @@ module.exports = {
     SELL_MINERAL: 200,               // Sell mineral every N ticks
     ADJUST_WALL_HITS: 1000,          // Adjust wall hits every N ticks
     ROOM_PLANNER: 50,                // Run room planner every N ticks
+    FACTORY_POWER_CHECK: 100,        // Check factory power level every N ticks
   },
 
   // Resource Thresholds
