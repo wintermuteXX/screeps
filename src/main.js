@@ -20,12 +20,14 @@ module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
     if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
-      // Nur warnen wenn Bucket abnimmt (nicht nach generatePixel)
-      const previousBucket = Memory.previousBucket || 0;
-      const bucketDecreasing = Game.cpu.bucket < previousBucket;
+      // Only warn if bucket is decreasing (not after generatePixel)
+      const prevBucket = Memory.previousBucket || 0;
+      const bucketDecreasing = Game.cpu.bucket < prevBucket;
       
       if (Game.cpu.limit !== 0 && bucketDecreasing) {
-        Log.error("Bucket sehr Niedrig und sinkt. Abbruch " + Game.time + " " + Game.cpu.bucket, "Main");
+        const bucketDiff = Game.cpu.bucket - prevBucket;
+        const diffStr = bucketDiff >= 0 ? `+${bucketDiff}` : `${bucketDiff}`;
+        Log.error(`Bucket critically low and decreasing. Skipping tick. Bucket: ${prevBucket} → ${Game.cpu.bucket} (${diffStr})`, "Main");
       }
       
       Memory.previousBucket = Game.cpu.bucket;
@@ -33,7 +35,10 @@ module.exports.loop = function () {
     }
 
     if (Game.time % CONSTANTS.TICKS.LOG_INTERVAL === 0) {
-      Log.success(`------------------ ${Game.time} is running //  Bucket: ${Game.cpu.bucket}------------------`, "Main");
+      const prevBucket = Memory.previousBucket || Game.cpu.bucket;
+      const bucketDiff = Game.cpu.bucket - prevBucket;
+      const diffStr = bucketDiff >= 0 ? `+${bucketDiff}` : `${bucketDiff}`;
+      Log.success(`------------------ Running //  Bucket: ${prevBucket} → ${Game.cpu.bucket} (${diffStr}) ------------------`, "Main");
     }
 
     const gc = new ControllerGame();
@@ -59,9 +64,9 @@ module.exports.loop = function () {
 // LONGTERM 8. Boost upgrader8 creeps
 // LONGTERM 9. spawn defenders if attacked
 // LONGTERM 10. Allow creeps to transport more then 1 resource
-// LONGTERM 11. New Task "recycle" for e.g. mineral miner
+// DONE 11. New Task "recycle" for e.g. mineral miner
 // LONGTERM 12. Remote Mining (there was a formula for calculation if RM makes sense)
 // LONGTERM 13. Harvest Power
 // LONGTERM 14. test attack behavior
 // LONGTERM 15. log market transactions to console (manual/auto/compressed over time)
-// OPTIMIZE merge GOTO_FLAG in one behavior
+// DONE 16. merge GOTO_FLAG in one behavior

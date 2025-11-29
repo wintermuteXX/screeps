@@ -2,7 +2,7 @@ var Behavior = require("_behavior");
 var b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
-  Log.debug(`${creep} is running "when" in Tick ${Game.time}`, "get_resources");
+  Log.debug(`${creep} is running "when"`, "get_resources");
   if (creep.store.getUsedCapacity() > 0) return false;
   const order = rc.getTransportOrder(creep);
   if (order === null || order === undefined) return false;
@@ -10,12 +10,12 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  Log.debug(`${creep} is running "completed" in Tick ${Game.time}`, "get_resources");
+  Log.debug(`${creep} is running "completed"`, "get_resources");
   return (creep.store.getUsedCapacity() > 0 || creep.target === null);
 };
 
 b.work = function (creep, rc) {
-  Log.debug(`${creep} is running "work" in Tick ${Game.time}`, "get_resources");
+  Log.debug(`${creep} is running "work"`, "get_resources");
   var target = creep.getTarget();
 
   if (!target) {
@@ -30,7 +30,9 @@ b.work = function (creep, rc) {
 
   if (target) {
     let result;
-    if (target.structureType !== undefined || target.deathTime !== undefined) { // deathTime is for tombstone check
+    // Prüfe ob Ziel einen Store hat (Strukturen, Tombstones, Ruins) -> withdraw
+    // Sonst (Dropped Resources) -> pickup
+    if (target.store !== undefined) {
       result = creep.withdraw(target, creep.memory.resourceType);
       Log.debug(`creep${creep} tries to withdraw ${creep.memory.resourceType} ${target}): ${result}`, "get_resources");
     } else {

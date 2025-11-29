@@ -8,7 +8,6 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep) {
-  // console.log(creep.name + " " + creep.ticksToLive + " " + creep.store.getFreeCapacity());
   return creep.store.getFreeCapacity() == 0 || creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY;
 };
 
@@ -20,7 +19,6 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null && creep.pos.isNearTo(target)) {
-    // console.log(_.findKey(target.store));
     creep.withdraw(target, _.findKey(target.store));
   } else {
     creep.travelTo(target);

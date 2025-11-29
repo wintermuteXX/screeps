@@ -56,7 +56,7 @@ module.exports = {
     minParts: 16,
     wait4maxEnergy: true,
     body2: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
-    behaviors: ["miner_harvest_mineral"],
+    behaviors: ["miner_harvest_mineral", "recycle"],
 
     canBuild: function (rc) {
       var miners = rc.getAllCreeps("miner_mineral");
@@ -99,7 +99,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body2: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    behaviors: ["renew_emergency", "get_resources", "transfer_resources", "renew"],
+    behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
 
     canBuild: function (rc) {
       const transporters = rc.getAllCreeps("transporter");
@@ -252,7 +252,7 @@ module.exports = {
       MOVE,
       WORK,
     ],
-    behaviors: ["renew_emergency", "build_structures", "repair"],
+    behaviors: ["renew:emergency", "build_structures", "repair"],
 
     canBuild: function (rc) {
       var towers = rc.room.towers;

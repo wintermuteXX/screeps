@@ -6,7 +6,6 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep) {
-    // console.log(creep.name + " " + creep.ticksToLive + " " + creep.store.getFreeCapacity())
     return (creep.store.getFreeCapacity() == 0 || creep.ticksToLive < 250 || !!creep.room.find(FIND_DEPOSITS))
 };
 

@@ -260,7 +260,7 @@ RoomPlanner.prototype._findCenter = function () {
     // Verwende ersten Spawn als Zentrum
     this.memory.centerX = spawns[0].pos.x;
     this.memory.centerY = spawns[0].pos.y;
-    Log.info(`RoomPlanner: Zentrum für ${this.roomName} gefunden bei (${this.memory.centerX}, ${this.memory.centerY})`, "RoomPlanner");
+    Log.info(`RoomPlanner: Center for ${this.roomName} found at (${this.memory.centerX}, ${this.memory.centerY})`, "RoomPlanner");
     return true;
   }
 
@@ -269,7 +269,7 @@ RoomPlanner.prototype._findCenter = function () {
   if (centerPos) {
     this.memory.centerX = centerPos.x;
     this.memory.centerY = centerPos.y;
-    Log.info(`RoomPlanner: Optimales Zentrum für ${this.roomName} berechnet bei (${this.memory.centerX}, ${this.memory.centerY})`, "RoomPlanner");
+    Log.info(`RoomPlanner: Optimal center for ${this.roomName} calculated at (${this.memory.centerX}, ${this.memory.centerY})`, "RoomPlanner");
     return true;
   }
 
@@ -441,7 +441,7 @@ RoomPlanner.prototype._generateLayout = function () {
   this.memory.plannedStructures = plannedStructures;
   this.memory.layoutGenerated = true;
 
-  Log.success(`RoomPlanner: Layout für ${this.roomName} generiert mit ${plannedStructures.length} Strukturen`, "RoomPlanner");
+  Log.success(`RoomPlanner: Layout for ${this.roomName} generated with ${plannedStructures.length} structures`, "RoomPlanner");
 };
 
 /**
@@ -526,12 +526,12 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     
     if (result === OK) {
       sitesPlaced++;
-      Log.debug(`RoomPlanner: Construction Site für ${structureType} bei (${x}, ${y}) platziert`, "RoomPlanner");
+      Log.debug(`RoomPlanner: Construction site for ${structureType} placed at (${x}, ${y})`, "RoomPlanner");
     } else if (result === ERR_FULL) {
       // Bereits zu viele Sites
       break;
     } else if (result !== ERR_INVALID_TARGET && result !== ERR_RCL_NOT_ENOUGH) {
-      Log.warn(`RoomPlanner: Konnte ${structureType} nicht bei (${x}, ${y}) platzieren. Fehler: ${result}`, "RoomPlanner");
+      Log.warn(`RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${result}`, "RoomPlanner");
     }
   }
 };
@@ -604,7 +604,7 @@ RoomPlanner.prototype._placeExtractor = function () {
   if (!existingExtractor && !existingSite) {
     const result = this.room.createConstructionSite(mineral.pos, STRUCTURE_EXTRACTOR);
     if (result === OK) {
-      Log.debug(`RoomPlanner: Extractor Construction Site beim Mineral platziert`, "RoomPlanner");
+      Log.debug(`RoomPlanner: Extractor construction site placed at mineral`, "RoomPlanner");
     }
   }
 
@@ -700,7 +700,7 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
   if (bestPos) {
     const result = this.room.createConstructionSite(bestPos, STRUCTURE_CONTAINER);
     if (result === OK) {
-      Log.debug(`RoomPlanner: Container Construction Site bei ${type} platziert`, "RoomPlanner");
+      Log.debug(`RoomPlanner: Container construction site placed at ${type}`, "RoomPlanner");
     }
   }
 };
@@ -795,7 +795,7 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
   if (bestPos) {
     const result = this.room.createConstructionSite(bestPos, STRUCTURE_LINK);
     if (result === OK) {
-      Log.debug(`RoomPlanner: Link Construction Site bei ${type} platziert`, "RoomPlanner");
+      Log.debug(`RoomPlanner: Link construction site placed at ${type}`, "RoomPlanner");
     }
   }
 };
@@ -853,7 +853,7 @@ RoomPlanner.prototype.reset = function () {
   this.memory.centerY = null;
   this.memory.layoutGenerated = false;
   this.memory.plannedStructures = [];
-  Log.info(`RoomPlanner: Layout für ${this.roomName} zurückgesetzt`, "RoomPlanner");
+  Log.info(`RoomPlanner: Layout for ${this.roomName} reset`, "RoomPlanner");
 };
 
 /**

@@ -26,7 +26,32 @@ ControllerTower.prototype.repair = function () {
     if (structures.length > 0) {
         this.tower.repair(structures[0]);
     }
-}
+};
 
-// TODO Create Prototype heal
+/**
+ * Heilt verletzte eigene Creeps
+ * Priorität: Am meisten verletzter Creep zuerst
+ */
+ControllerTower.prototype.heal = function () {
+    // Finde alle eigenen Creeps und filtere verletzte
+    // Hinweis: ControllerRoom.find() ignoriert Filter, daher manuell filtern
+    const allCreeps = this.ControllerRoom.find(FIND_MY_CREEPS);
+    const damagedCreeps = allCreeps.filter((creep) => creep.hits < creep.hitsMax);
+
+    if (damagedCreeps.length === 0) return false;
+
+    // Sortiere nach Verletzungsgrad (am meisten verletzt zuerst)
+    damagedCreeps.sort((a, b) => (a.hits / a.hitsMax) - (b.hits / b.hitsMax));
+
+    // Heile den am meisten verletzten Creep
+    const result = this.tower.heal(damagedCreeps[0]);
+    
+    if (result === OK) {
+        Log.debug(`Tower healing ${damagedCreeps[0].name} (${damagedCreeps[0].hits}/${damagedCreeps[0].hitsMax})`, "Tower");
+        return true;
+    }
+    
+    return false;
+};
+
 module.exports = ControllerTower;

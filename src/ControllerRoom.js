@@ -55,6 +55,7 @@ ControllerRoom.prototype.run = function () {
   
   for (const tower of this._towers) {
     tower.fire();
+    tower.heal();
     if (shouldRepair) {
       tower.repair();
     }
@@ -206,6 +207,27 @@ ControllerRoom.prototype._processTombstones = function () {
           structureType: tombstone.structureType,
           amount: amount,
           id: tombstone.id,
+        });
+      }
+    }
+  });
+};
+
+/**
+ * Process ruins that can give resources
+ * Ruins contain resources from destroyed structures
+ */
+ControllerRoom.prototype._processRuins = function () {
+  this.find(FIND_RUINS).forEach((ruin) => {
+    for (var resourceType in ruin.store) {
+      var amount = ruin.store[resourceType];
+      if (amount > 0) {
+        this._addGivesResource({
+          priority: CONSTANTS.PRIORITY.RUIN,
+          resourceType: resourceType,
+          structureType: ruin.structure ? ruin.structure.structureType : "ruin",
+          amount: amount,
+          id: ruin.id,
         });
       }
     }
@@ -427,6 +449,7 @@ ControllerRoom.prototype.givesResources = function () {
     
     // Process all resource sources
     this._processTombstones();
+    this._processRuins();
     this._processLinks();
     this._processDroppedResources();
     this._processContainers();
@@ -997,7 +1020,7 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   if (lMax < level) return false;
   if (cfg.wait4maxEnergy == true && this.room.energyCapacityAvailable > this.room.energyAvailable) return false;
   if (!cfg.canBuild) {
-    console.log(role + " : no canBuild() implemented");
+    Log.error(role + " : no canBuild() implemented", "ControllerRoom");
     return false;
   }
 
@@ -1108,7 +1131,7 @@ ControllerRoom.prototype.analyse = function () {
       }
     }
   } catch (e) {
-    console.log(e);
+    Log.error(e, "ControllerRoom.analyse");
   }
 };
 

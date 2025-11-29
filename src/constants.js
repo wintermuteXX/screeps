@@ -112,6 +112,7 @@ module.exports = {
     TERMINAL_ENERGY_OVERFLOW: 145,    // Terminal energy overflow
     STORAGE_MINERAL_OVERFLOW: 150,    // Storage mineral overflow
     TOMBSTONE: 165,                   // Tombstones
+    RUIN: 166,                        // Ruins (destroyed structures)
     DROPPED_RESOURCE: 170,            // Dropped resources
     FACTORY_OVERFLOW: 180,            // Factory overflow
     LAB_EMPTY: 185,                   // Labs with resources to empty
@@ -130,6 +131,7 @@ module.exports = {
   CREEP_LIFECYCLE: {
     RENEW_EMERGENCY: 100,             // Renew if ticks to live below this
     RENEW_NORMAL: 500,                // Normal renew threshold
+    RECYCLE_THRESHOLD: 200,           // Recycle if ticks to live below this
   },
 
   // Link Ranges

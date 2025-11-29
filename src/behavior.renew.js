@@ -24,7 +24,7 @@ var RENEW_CONFIGS = {
 
 /**
  * Erstellt ein Renew-Behavior
- * Unterstützt: "renew", "renew:normal", "renew:emergency", "renew_emergency" (legacy)
+ * Unterstützt: "renew", "renew:normal", "renew:emergency"
  */
 function createRenewBehavior(behaviorName) {
   // Cache prüfen
@@ -32,13 +32,9 @@ function createRenewBehavior(behaviorName) {
     return behaviorCache[behaviorName];
   }
 
-  // Modus aus Behavior-Name parsen
+  // Modus aus Behavior-Name parsen (Format: "renew:mode")
   var mode = "normal"; // Standard
-  
-  // Legacy-Support für "renew_emergency"
-  if (behaviorName === "renew_emergency") {
-    mode = "emergency";
-  } else if (behaviorName.indexOf(":") !== -1) {
+  if (behaviorName.indexOf(":") !== -1) {
     mode = behaviorName.split(":")[1];
   }
 

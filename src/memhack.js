@@ -53,7 +53,7 @@ MemHack.prototype.cleanupCreeps = function() {
   }
   
   if (cleaned > 0 && Game.time % CONSTANTS.TICKS.LOG_INTERVAL === 0) {
-    console.log(`[MemHack] Cleaned up ${cleaned} dead creep memories`);
+    Log.info(`Cleaned up ${cleaned} dead creep memories`, "MemHack");
   }
 };
 
@@ -77,7 +77,7 @@ MemHack.prototype.cleanupRooms = function() {
   }
   
   if (cleaned > 0) {
-    console.log(`[MemHack] Cleaned up ${cleaned} old room memories`);
+    Log.info(`Cleaned up ${cleaned} old room memories`, "MemHack");
   }
 };
 
@@ -94,7 +94,7 @@ MemHack.prototype.cleanupStructures = function() {
   }
   
   if (cleaned > 0) {
-    console.log(`[MemHack] Cleaned up ${cleaned} dead structure memories`);
+    Log.info(`Cleaned up ${cleaned} dead structure memories`, "MemHack");
   }
 };
 

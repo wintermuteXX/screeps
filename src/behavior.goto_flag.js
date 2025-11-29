@@ -77,7 +77,7 @@ function createGotoFlagBehavior(behaviorName) {
   
   var config = FLAG_CONFIGS[colorName];
   if (!config) {
-    console.log("Warning: Unknown flag color '" + colorName + "', using default 'red'");
+    Log.warn("Unknown flag color '" + colorName + "', using default 'red'", "goto_flag");
     config = FLAG_CONFIGS.red;
     colorName = "red";
   }
