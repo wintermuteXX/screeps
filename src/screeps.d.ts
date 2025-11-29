@@ -9,6 +9,22 @@ interface CreepMemory {
   [key: string]: any;
 }
 
+// Extend RoomMemory interface for RoomPlanner
+interface RoomMemory {
+  planner?: {
+    centerX: number | null;
+    centerY: number | null;
+    layoutGenerated: boolean;
+    plannedStructures: Array<{
+      x: number;
+      y: number;
+      structureType: StructureConstant;
+      priority: number;
+    }>;
+  };
+  [key: string]: any;
+}
+
 // Extend Room prototype
 interface Room {
   _checkRoomCache?(): void;

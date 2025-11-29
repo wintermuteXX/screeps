@@ -915,6 +915,90 @@ g.resourceReorder = setInterval(() => {
 
   global.json = (x) => JSON.stringify(x, null, 2);
 
+  // ==================== RoomPlanner Hilfsfunktionen ====================
+  // Diese Funktionen ermöglichen den Zugriff auf den RoomPlanner aus der Konsole
+  
+  const RoomPlanner = require("RoomPlanner");
+  
+  /**
+   * Visualisiert das geplante Layout für einen Raum
+   * Verwendung: plannerVisualize('W1N1')
+   */
+  global.plannerVisualize = function (roomName) {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      console.log(`Raum ${roomName} nicht sichtbar`);
+      return;
+    }
+    const planner = new RoomPlanner(room);
+    planner.visualize();
+    console.log(`Layout für ${roomName} visualisiert. Schau in den Raum!`);
+  };
+
+  /**
+   * Gibt Statistiken über das geplante Layout zurück
+   * Verwendung: plannerStats('W1N1')
+   */
+  global.plannerStats = function (roomName) {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      console.log(`Raum ${roomName} nicht sichtbar`);
+      return null;
+    }
+    const planner = new RoomPlanner(room);
+    const stats = planner.getStats();
+    console.log(`RoomPlanner Stats für ${roomName}:`);
+    console.log(JSON.stringify(stats, null, 2));
+    return stats;
+  };
+
+  /**
+   * Setzt das Layout für einen Raum zurück
+   * Verwendung: plannerReset('W1N1')
+   */
+  global.plannerReset = function (roomName) {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      console.log(`Raum ${roomName} nicht sichtbar`);
+      return;
+    }
+    const planner = new RoomPlanner(room);
+    planner.reset();
+    console.log(`Layout für ${roomName} wurde zurückgesetzt`);
+  };
+
+  /**
+   * Führt den RoomPlanner manuell aus
+   * Verwendung: plannerRun('W1N1')
+   */
+  global.plannerRun = function (roomName) {
+    const room = Game.rooms[roomName];
+    if (!room) {
+      console.log(`Raum ${roomName} nicht sichtbar`);
+      return;
+    }
+    const planner = new RoomPlanner(room);
+    planner.run();
+    console.log(`RoomPlanner für ${roomName} ausgeführt`);
+  };
+
+  /**
+   * Setzt das Zentrum für einen Raum manuell
+   * Verwendung: plannerSetCenter('W1N1', 25, 25)
+   */
+  global.plannerSetCenter = function (roomName, x, y) {
+    if (!Memory.rooms) Memory.rooms = {};
+    if (!Memory.rooms[roomName]) Memory.rooms[roomName] = {};
+    if (!Memory.rooms[roomName].planner) Memory.rooms[roomName].planner = {};
+    
+    Memory.rooms[roomName].planner.centerX = x;
+    Memory.rooms[roomName].planner.centerY = y;
+    Memory.rooms[roomName].planner.layoutGenerated = false;
+    Memory.rooms[roomName].planner.plannedStructures = [];
+    
+    console.log(`Zentrum für ${roomName} auf (${x}, ${y}) gesetzt. Layout wird beim nächsten Run neu generiert.`);
+  };
+
   global.voiceConsole = function voiceConsole(text) {
     // The function below was developed late last year by @stybbe, published in
     //  Screeps Slack's #share-thy-code channel. No license was applied; all

@@ -5,6 +5,7 @@ var ControllerTower = require("ControllerTower");
 var ControllerTerminal = require("ControllerTerminal");
 var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
+var RoomPlanner = require("RoomPlanner");
 const CONSTANTS = require("constants");
 
 function ControllerRoom(room, ControllerGame) {
@@ -31,12 +32,18 @@ function ControllerRoom(room, ControllerGame) {
   this.terminal = new ControllerTerminal(this);
   this.factory = new ControllerFactory(this);
   this.labs = new ControllerLab(this);
+  this.planner = new RoomPlanner(this.room);
 }
 
 ControllerRoom.prototype.run = function () {
   this.analyse();
 
   this.populate();
+
+  // RoomPlanner ausführen (alle 50 Ticks um CPU zu sparen)
+  if (Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
+    this.planner.run();
+  }
 
   this.links.transferEnergy();
 
