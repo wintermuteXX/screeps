@@ -635,6 +635,11 @@ RoomPlanner.prototype._placeControllerContainer = function () {
  * Platziert einen Container in der Nähe einer Position
  */
 RoomPlanner.prototype._placeContainerNear = function (pos, type) {
+  // Container erst ab konfiguriertem RCL bauen (Standard: RCL 3)
+  if (this.room.controller.level < CONSTANTS.CONTAINER.MIN_RCL) {
+    return;
+  }
+  
   const range = type === "controller" ? 2 : 1;
   
   // Prüfe ob bereits Container in Reichweite

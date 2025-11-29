@@ -1,4 +1,14 @@
 var Behavior = require("_behavior");
+const CONSTANTS = require("constants");
+
+/**
+ * Prüft ob Creep nicht am Raumrand steht
+ */
+function isNotAtBorder(creep) {
+  const { BORDER_MIN, BORDER_MAX } = CONSTANTS.ROOM;
+  return creep.pos.x > BORDER_MIN && creep.pos.x < BORDER_MAX && 
+         creep.pos.y > BORDER_MIN && creep.pos.y < BORDER_MAX;
+}
 
 /**
  * Configuration for different flag colors
@@ -21,9 +31,7 @@ var FLAG_CONFIGS = {
       return flag.room !== creep.room && creep.store.getUsedCapacity() === 0;
     },
     completedCondition: function (creep, flag) {
-      return flag.room === creep.room && 
-             creep.pos.x > 0 && creep.pos.x < 49 && 
-             creep.pos.y > 0 && creep.pos.y < 49;
+      return flag.room === creep.room && isNotAtBorder(creep);
     },
   },
   white: {
@@ -33,9 +41,7 @@ var FLAG_CONFIGS = {
       return flag.room !== creep.room;
     },
     completedCondition: function (creep, flag) {
-      return flag.room === creep.room && 
-             creep.pos.x > 0 && creep.pos.x < 49 && 
-             creep.pos.y > 0 && creep.pos.y < 49;
+      return flag.room === creep.room && isNotAtBorder(creep);
     },
   },
   green: {
@@ -45,9 +51,7 @@ var FLAG_CONFIGS = {
       return flag.room !== creep.room && creep.store.getUsedCapacity() === 0;
     },
     completedCondition: function (creep, flag) {
-      return flag.room === creep.room && 
-             creep.pos.x > 0 && creep.pos.x < 49 && 
-             creep.pos.y > 0 && creep.pos.y < 49;
+      return flag.room === creep.room && isNotAtBorder(creep);
     },
   },
 };

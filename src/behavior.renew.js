@@ -1,33 +1,107 @@
 var Behavior = require("_behavior");
+const CONSTANTS = require("constants");
 
-var b = new Behavior("renew");
-b.when = function (creep, rc) {
-  return creep.memory.bornEnergyLevel == creep.room.energyCapacityAvailable && rc.getIdleSpawnObject() && creep.ticksToLive < 1300;
+// Cache für erstellte Behaviors
+var behaviorCache = {};
+
+/**
+ * Konfiguration für verschiedene Renew-Modi
+ */
+var RENEW_CONFIGS = {
+  normal: {
+    // Normales Renew wenn Creep noch etwas Zeit hat
+    whenThreshold: 1300,
+    completedThreshold: 1400,
+    checkEnergy: true,
+  },
+  emergency: {
+    // Notfall-Renew wenn Creep fast stirbt
+    whenThreshold: CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY,
+    completedThreshold: CONSTANTS.CREEP_LIFECYCLE.RENEW_NORMAL,
+    checkEnergy: false,
+  },
 };
 
-b.completed = function (creep, rc) {
-  if (creep.memory.abort) {
-    creep.memory.abort = false;
-    return true;
-  }
-  return false;
-};
-
-b.work = function (creep, rc) {
-  var target = creep.getTarget();
-
-  if (!target) {
-    var target = rc.getIdleSpawnObject();
+/**
+ * Erstellt ein Renew-Behavior
+ * Unterstützt: "renew", "renew:normal", "renew:emergency", "renew_emergency" (legacy)
+ */
+function createRenewBehavior(behaviorName) {
+  // Cache prüfen
+  if (behaviorCache[behaviorName]) {
+    return behaviorCache[behaviorName];
   }
 
-  if (target && target.store[RESOURCE_ENERGY] > 0) {
+  // Modus aus Behavior-Name parsen
+  var mode = "normal"; // Standard
+  
+  // Legacy-Support für "renew_emergency"
+  if (behaviorName === "renew_emergency") {
+    mode = "emergency";
+  } else if (behaviorName.indexOf(":") !== -1) {
+    mode = behaviorName.split(":")[1];
+  }
+
+  var config = RENEW_CONFIGS[mode];
+  if (!config) {
+    Log.warn(`Unknown renew mode '${mode}', using 'normal'`, "renew");
+    config = RENEW_CONFIGS.normal;
+  }
+
+  var b = new Behavior(behaviorName);
+
+  b.when = function (creep, rc) {
+    // Nur wenn Creep mit aktuellem Energie-Level geboren wurde
+    if (creep.memory.bornEnergyLevel !== creep.room.energyCapacityAvailable) {
+      return false;
+    }
+    
+    // Spawn muss verfügbar sein
+    if (!rc.getIdleSpawnObject()) {
+      return false;
+    }
+    
+    // Ticks unter Schwellwert
+    return creep.ticksToLive < config.whenThreshold;
+  };
+
+  b.completed = function (creep, rc) {
+    // Abbruch-Flag gesetzt
+    if (creep.memory.abort) {
+      creep.memory.abort = false;
+      return true;
+    }
+    
+    // Fertig wenn über completedThreshold
+    return creep.ticksToLive > config.completedThreshold;
+  };
+
+  b.work = function (creep, rc) {
+    var target = creep.getTarget();
+
+    if (!target) {
+      target = rc.getIdleSpawnObject();
+    }
+
+    if (!target) {
+      creep.memory.abort = true;
+      return;
+    }
+
+    // Bei normalem Renew: prüfen ob Spawn Energie hat
+    if (config.checkEnergy && (!target.store || target.store[RESOURCE_ENERGY] <= 0)) {
+      creep.memory.abort = true;
+      return;
+    }
+
     creep.target = target.id;
     var result = target.renewCreep(creep);
+
     switch (result) {
       case OK:
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
-        Log.warn(`${creep} not enough resources for renew (${target}): ${result}`, "Creep");
+        Log.warn(`${creep} not enough resources for renew (${target}): ${result}`, "renew");
         creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
@@ -38,12 +112,15 @@ b.work = function (creep, rc) {
         creep.memory.abort = true;
         break;
       default:
+        Log.warn(`${creep} unknown result from renew (${target}): ${result}`, "renew");
         creep.memory.abort = true;
-        Log.warn(`${creep} has unknown result from renew (${target}): ${result}`, "Creep");
     }
-  } else {
-    creep.memory.abort = true;
-  }
-};
+  };
 
-module.exports = b;
+  // Cache speichern
+  behaviorCache[behaviorName] = b;
+  return b;
+}
+
+// Export als Factory-Funktion
+module.exports = createRenewBehavior;

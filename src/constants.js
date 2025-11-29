@@ -56,10 +56,10 @@ module.exports = {
     TRANSPORTER_BASE: 4,             // Base transporter count at low RCL
     TRANSPORTER_MID: 2,              // Transporter count at mid RCL
     TRANSPORTER_HIGH: 1,             // Transporter count at high RCL
-    UPGRADER_LOW: 3,                 // Upgrader count at low RCL
-    UPGRADER_MID: 2,                 // Upgrader count at mid RCL
-    UPGRADER_HIGH: 1,                // Upgrader count at high RCL
-    UPGRADER8_MAX: 1,                // Max upgrader8 creeps
+    UPGRADER_LOW: 3,                 // Upgrader count at RCL 1-4
+    UPGRADER_MID: 2,                 // Upgrader count at RCL 5-6
+    UPGRADER_HIGH: 1,                // Upgrader count at RCL 6-7
+    UPGRADER_RCL8: 1,                // Upgrader count at RCL 8 (15 energy/tick limit)
     CONSTRUCTOR_LOW: 2,              // Constructor count at low RCL
     CONSTRUCTOR_HIGH: 1,             // Constructor count at high RCL
     ATTACKER_MAX: 1,                 // Max attacker creeps
@@ -141,12 +141,17 @@ module.exports = {
   CONTAINER: {
     RANGE_TO_CONTROLLER: 2,           // Range for controller container
     RANGE_DEFAULT: 1,                 // Default range for other containers
+    MIN_RCL: 3,                       // Minimum RCL to build containers
   },
 
   // Room Analysis
   ROOM: {
     FREE_RANGE: 3,                    // Free range for center point calculation
     SOURCE_COUNT_CORE: 3,             // Source count for core room type
+    BORDER_MIN: 1,                    // Minimum coordinate (avoid edge)
+    BORDER_MAX: 48,                   // Maximum coordinate (avoid edge)
+    EDGE_MIN: 0,                      // Room edge minimum
+    EDGE_MAX: 49,                     // Room edge maximum
   },
 
 

@@ -1,6 +1,7 @@
 // Type definitions for Screeps Memory extensions
 interface Memory {
   factoryLevels?: { [factoryId: string]: number };
+  previousBucket?: number;
 }
 
 // Extend CreepMemory interface
@@ -25,10 +26,43 @@ interface RoomMemory {
   [key: string]: any;
 }
 
+// Extend Creep prototype
+interface Creep {
+  target?: string;
+  getTarget?(): any;
+  [key: string]: any;
+}
+
+// Extend Source prototype
+interface Source {
+  container?: StructureContainer | null;
+  defended?: boolean;
+  memory?: any;
+  _container?: StructureContainer | null;
+}
+
+// Extend Structure prototype
+interface Structure {
+  container?: StructureContainer | null;
+  memory?: any;
+  _container?: StructureContainer | null;
+  needsRepair?(): boolean;
+  getFirstMineral?(): { resource?: string; amount: number };
+  store?: StoreDefinition;
+}
+
+// Extend RoomObject prototype
+interface RoomObject {
+  say?(what: string): void;
+}
+
 // Extend Room prototype
 interface Room {
   _checkRoomCache?(): void;
   getResourceAmount?(resource: string, structure?: string): number;
+  roomNeedResources?(): Array<{ resourceType: string; amount: number; room: string }>;
+  _needResources?: Array<{ resourceType: string; amount: number; room: string }>;
+  mineral?: Mineral;
   [key: string]: any;
 }
 
@@ -85,4 +119,31 @@ declare const MarketCal: MarketCal;
 
 // COMMODITIES is a Screeps global constant
 declare const COMMODITIES: { [resourceType: string]: { components: { [componentType: string]: number } } };
+
+// Module declarations for local modules
+declare module "_initGlobal" {
+  const initGlobal: (g: typeof global) => void;
+  export = initGlobal;
+}
+
+declare module "constants" {
+  const CONSTANTS: any;
+  export = CONSTANTS;
+}
+
+declare module "RoomPlanner" {
+  class RoomPlanner {
+    constructor(room: Room);
+    run(): void;
+    visualize(): void;
+    reset(): void;
+    getStats(): any;
+  }
+  export = RoomPlanner;
+}
+
+// Extend RoomPosition for lookFor with string
+interface RoomPosition {
+  lookFor(type: string): any[];
+}
 

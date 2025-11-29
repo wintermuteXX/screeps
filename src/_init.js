@@ -76,45 +76,30 @@ Object.defineProperty(Source.prototype, "defended", {
 Object.defineProperty(Source.prototype, "container", {
   get: function () {
     if (this._container == undefined) {
-      if (this.memory.containerID == undefined) {
-        //TODO Is calculated every time during container is build // Split to 2 functions/prototypes
-        // During construction containerID = null
-        Log.info(`No ContainerPos found in memory`, "Container");
-        let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: {
-            structureType: STRUCTURE_CONTAINER,
-          },
-        });
-        if (found) {
-          Log.info(`Container found -> Memory`, "Container");
-          this.memory.containerID = found.id;
-          this._container = Game.getObjectById(found.id);
+      // Prüfe ob Container-ID im Memory gespeichert ist
+      if (this.memory.containerID) {
+        const container = Game.getObjectById(this.memory.containerID);
+        if (container) {
+          this._container = container;
           return this._container;
+        } else {
+          // Container existiert nicht mehr, ID aus Memory löschen
+          Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
+          this.memory.containerID = null;
         }
-
-        if (found == undefined) {
-          let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
-            filter: {
-              structureType: STRUCTURE_CONTAINER,
-            },
-          });
-          if (found) {
-            Log.info(`Container Construction Site is returned`, "Container");
-            this._container = Game.getObjectById(found.id);
-            return this._container;
-          }
-        }
-
-        Log.info(`ContainerPos will be calculated`, "Container");
-        this.calculateContainerPos(1);
-        Log.info(`ContainerPos calculated and build order given`, "Container");
-        this._container = null;
       }
-      if (Game.getObjectById(this.memory.containerID)) {
-        this._container = Game.getObjectById(this.memory.containerID);
+      
+      // Suche nach existierendem Container in der Nähe
+      const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: { structureType: STRUCTURE_CONTAINER },
+      });
+
+      if (found) {
+        Log.debug(`Container found -> Memory`, "Container");
+        this.memory.containerID = found.id;
+        this._container = found;
       } else {
-        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
-        this.memory.containerID = null;
+        // Kein Container vorhanden - RoomPlanner wird ihn erstellen
         this._container = null;
       }
     }
@@ -139,37 +124,30 @@ Object.defineProperty(Source.prototype, "memory", {
 Object.defineProperty(Structure.prototype, "container", {
   get: function () {
     if (this._container == undefined) {
-      if (this.memory.containerID == undefined) {
-        Log.info(`No ContainerPos found in memory`, "Container");
-        let [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: {
-            structureType: STRUCTURE_CONTAINER,
-          },
-        });
-
-        if (found == undefined) {
-          let [found] = this.pos.findInRange(FIND_CONSTRUCTION_SITES, 2, {
-            filter: {
-              structureType: STRUCTURE_CONTAINER,
-            },
-          });
-        }
-
-        if (found !== undefined) {
-          Log.info(`Container found -> Memory`, "Container");
-          this.memory.containerID = found.id;
+      // Prüfe ob Container-ID im Memory gespeichert ist
+      if (this.memory.containerID) {
+        const container = Game.getObjectById(this.memory.containerID);
+        if (container) {
+          this._container = container;
+          return this._container;
         } else {
-          Log.info(`ContainerPos will be calculated`, "Container");
-          this.calculateContainerPos(1);
-          Log.info(`ContainerPos calculated and build order given`, "Container");
-          this._container = null;
+          // Container existiert nicht mehr, ID aus Memory löschen
+          Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
+          this.memory.containerID = null;
         }
       }
-      if (Game.getObjectById(this.memory.containerID)) {
-        this._container = Game.getObjectById(this.memory.containerID);
+      
+      // Suche nach existierendem Container in der Nähe
+      const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: { structureType: STRUCTURE_CONTAINER },
+      });
+
+      if (found) {
+        Log.debug(`Container found -> Memory`, "Container");
+        this.memory.containerID = found.id;
+        this._container = found;
       } else {
-        Log.info(`Container does not exist anymore. Delete from memory`, "Container");
-        this.memory.containerID = null;
+        // Kein Container vorhanden - RoomPlanner wird ihn erstellen
         this._container = null;
       }
     }
@@ -239,25 +217,23 @@ Room.prototype.getResourceAmount = function (res, structure = "all") {
 };
 
 Room.prototype.roomNeedResources = function () {
-  if (!_needResources) {
-    _needResources = [];
+  if (!this._needResources) {
+    this._needResources = [];
     if (this.terminal) {
       for (let res of RESOURCES_ALL) {
         let has = this.getResourceAmount(res);
         let want = global.getRoomThreshold(res);
         if (has < want) {
-          _needResources.push({
+          this._needResources.push({
             resourceType: res,
             amount: has - want,
             room: this.name,
           });
-          // if (res == "crystal") { console.log("Room " + theRoom.name + " needs " + (want-has) + " of " + res + " Tick: " + Game.time); }
         }
       }
     }
   }
-  console.log("Game time: " + Game.time + " Resources " + global.json(_needResources));
-  return _needResources;
+  return this._needResources;
 };
 
 Object.defineProperty(Room.prototype, "mineral", {
@@ -316,48 +292,7 @@ Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
   configurable: true,
 });
 
-RoomObject.prototype.calculateContainerPos = function (range) {
-  if (
-    this.room.controller.reservation &&
-    /* reserved and not mine */
-    this.room.controller.reservation.username != Game.structures[_.first(Object.keys(Game.structures))].owner.username
-  ) {
-    Log.warn(`Unable to place container in ${this.room}, hostile reserved room`, "calculateContainerPos");
-    return;
-  }
-  if (this.structureType === STRUCTURE_CONTROLLER) {
-    range = CONSTANTS.CONTAINER.RANGE_TO_CONTROLLER;
-  }
-  var startingPosition = this.room.find(FIND_MY_SPAWNS)[0];
-  Log.info(`Calculation Container Pos. Start at ${startingPosition}`, "Container");
-  if (!startingPosition) {
-    startingPosition = this.room.find(FIND_CONSTRUCTION_SITES, {
-      filter: function (s) {
-        return s.structureType === STRUCTURE_SPAWN;
-      },
-    })[0];
-  }
-  if (!startingPosition) {
-    Log.info(`No starting Position`, "Container");
-    return;
-  }
-  if (this.pos.findInRange(FIND_CONSTRUCTION_SITES, range).length > 0) return;
-  var ret = PathFinder.search(this.pos, startingPosition, {
-    maxOps: CONSTANTS.PATHFINDING.MAX_OPS,
-    swampCost: CONSTANTS.PATHFINDING.SWAMP_COST,
-    plainCost: CONSTANTS.PATHFINDING.PLAIN_COST,
-  });
-  if (ret.incomplete || ret.path.length === 0) {
-    Log.error("Path used for container placement in calculateContainerPos incomplete, please investigate", "calculateContainerPos");
-    return;
-  }
-  var position_1 = ret.path[range - 1];
-  Log.info(`New container Postition ${position_1}`, "Container");
-
-  position_1.createConstructionSite(STRUCTURE_CONTAINER);
-  Log.info(`Placed Container in ${this.room}`, "Container");
-  return position_1;
-};
+// calculateContainerPos wurde entfernt - Container-Erstellung erfolgt jetzt über RoomPlanner.js
 
 RoomObject.prototype.say = function (what) {
   this.room.visual

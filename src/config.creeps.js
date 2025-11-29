@@ -124,65 +124,59 @@ module.exports = {
   upgrader: {
     priority: 4,
     levelMin: 1,
-    levelMax: 7,
     minParts: 3,
     wait4maxEnergy: true,
+    
+    // Dynamischer Body basierend auf RCL
+    // RCL 8: Max 15 Energy/tick Limit, daher kleinerer Body
+    // RCL 1-7: Größerer Body für schnelleres Upgraden
+    getBody: function (rc) {
+      const level = rc.getLevel();
+      if (level === 8) {
+        // RCL 8: Optimiert für 15 Energy/tick Limit (15 WORK Parts)
+        return [
+          MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY,
+          MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY,
+          MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK,
+        ];
+      } else {
+        // RCL 1-7: Maximaler Body für schnelles Upgraden
+        return [
+          MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK,
+          MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK,
+          MOVE, WORK, MOVE, WORK, MOVE, WORK,
+        ];
+      }
+    },
+    
+    // Fallback body2 für Kompatibilität (wird verwendet wenn getBody nicht aufgerufen wird)
     body2: [
-      MOVE,
-      WORK,
-      CARRY,
-      MOVE,
-      WORK,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      CARRY,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
+      MOVE, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK,
+      MOVE, WORK, MOVE, WORK, MOVE, CARRY, MOVE, WORK,
+      MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK,
+      MOVE, WORK, CARRY, WORK, MOVE, WORK, MOVE, WORK,
+      MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK,
+      MOVE, WORK, MOVE, WORK, MOVE, WORK,
     ],
-    behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
+    
+    behaviors: ["find_near_energy", "upgrade_controller"],
 
     canBuild: function (rc) {
       var controller = rc.room.controller;
+      if (!controller || !controller.my) return false;
+      
+      const level = rc.getLevel();
+      const upgraders = rc.getAllCreeps("upgrader");
 
+      // Hilfsfunktion: Energie in der Nähe des Controllers
       function energyAround(obj) {
         var dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
-          resourceType: RESOURCE_ENERGY,
+          filter: { resourceType: RESOURCE_ENERGY }
         });
         let amount = 0;
         for (var d in dropped) {
@@ -190,71 +184,28 @@ module.exports = {
         }
         return amount;
       }
-      // Low Level
-      if (rc.getLevel() <= 4) {
-        return controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
+
+      // RCL 8: Nur 1 Upgrader (wegen 15 Energy/tick Limit)
+      if (level === 8) {
+        return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_RCL8;
       }
-      if (rc.getLevel() == 5) {
-        return controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
+      
+      // RCL 1-4: Mehr Upgrader für schnellen Fortschritt
+      if (level <= 4) {
+        return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
       }
-      // High Level
+      
+      // RCL 5: Mittlere Anzahl
+      if (level === 5) {
+        return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
+      }
+      
+      // RCL 6-7: Dynamisch basierend auf verfügbarer Energie
       if (energyAround(controller) > CONSTANTS.STRUCTURE_ENERGY.CONTROLLER_ENERGY_HIGH) {
-        return controller && controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
+        return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       } else {
-        return controller && controller.my && rc.getAllCreeps("upgrader").length < CONSTANTS.CREEP_LIMITS.UPGRADER_HIGH;
+        return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_HIGH;
       }
-    },
-  },
-
-  upgrader8: {
-    priority: 4,
-    levelMin: 8,
-    minParts: 36,
-    wait4maxEnergy: true,
-    // Max 15 Energy per tick in RCL 8 needed
-    body2: [
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      CARRY,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-      MOVE,
-      WORK,
-    ],
-    behaviors: ["goto_controller", "find_near_energy", "upgrade_controller"],
-
-    canBuild: function (rc) {
-      var controller = rc.room.controller;
-      return controller.my && rc.getAllCreeps("upgrader8").length < CONSTANTS.CREEP_LIMITS.UPGRADER8_MAX;
     },
   },
 

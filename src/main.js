@@ -20,9 +20,15 @@ module.exports.loop = function () {
   profiler.wrap(function () {
     // Main.js logic should go here.
     if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
-      if (Game.cpu.limit !== 0) {
-        Log.error("Bucket sehr Niedrig. Abbruch " + Game.time + " " + Game.cpu.bucket, "Main");
+      // Nur warnen wenn Bucket abnimmt (nicht nach generatePixel)
+      const previousBucket = Memory.previousBucket || 0;
+      const bucketDecreasing = Game.cpu.bucket < previousBucket;
+      
+      if (Game.cpu.limit !== 0 && bucketDecreasing) {
+        Log.error("Bucket sehr Niedrig und sinkt. Abbruch " + Game.time + " " + Game.cpu.bucket, "Main");
       }
+      
+      Memory.previousBucket = Game.cpu.bucket;
       return;
     }
 
@@ -33,6 +39,9 @@ module.exports.loop = function () {
     const gc = new ControllerGame();
     gc.processRooms();
   });
+  
+  // Bucket-Wert für nächsten Tick speichern
+  Memory.previousBucket = Game.cpu.bucket;
   
   if (Game.cpu.bucket > CONSTANTS.CPU.PIXEL_GENERATION_THRESHOLD) {
     Game.cpu.generatePixel();
