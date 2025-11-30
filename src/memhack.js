@@ -8,7 +8,7 @@
  *   const memHack = require('memhack');
  *   memHack.run(); // Call at the start of your loop
  */
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 function MemHack() {

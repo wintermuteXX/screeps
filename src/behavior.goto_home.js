@@ -1,5 +1,5 @@
 var Behavior = require("_behavior");
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 
 var b = new Behavior("goto_home");
 

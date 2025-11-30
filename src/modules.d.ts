@@ -141,7 +141,7 @@ declare module "config.creeps" {
     levelMin?: number;
     minParts: number;
     wait4maxEnergy: boolean;
-    body2: BodyPartConstant[];
+    body: BodyPartConstant[];
     behaviors: string[];
     canBuild: (rc: any) => boolean;
     produceGlobal?: boolean;

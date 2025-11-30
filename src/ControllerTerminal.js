@@ -1,4 +1,4 @@
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 function ControllerTerminal(rc) {
@@ -40,7 +40,7 @@ ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2, ski
 };
 ControllerTerminal.prototype.sellRoomMineral = function () {
   let terminal = this.terminal;
-  if (!terminal) {
+  if (!terminal || !terminal.my) {
     return null;
   }
   let theMineralType = terminal.room.mineral.mineralType;
@@ -101,7 +101,7 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
 };
 ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
   let terminal = this.terminal;
-  if (!terminal) {
+  if (!terminal || !terminal.my) {
     return null;
   }
   let theMineralType = terminal.room.mineral.mineralType;
@@ -128,7 +128,7 @@ ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
 
 ControllerTerminal.prototype.adjustWallHits = function () {
   let terminal = this.terminal;
-  if (!terminal) {
+  if (!terminal || !terminal.my) {
     return null;
   }
   if (terminal.store[RESOURCE_ENERGY] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
@@ -141,7 +141,7 @@ ControllerTerminal.prototype.internalTrade = function () {
   let cancelTrading = false;
   const self = this;
 
-  if (!terminal || !terminal.isActive() || terminal.cooldown !== 0) return;
+  if (!terminal || !terminal.my || !terminal.isActive() || terminal.cooldown !== 0) return;
 
   _.each(terminal.store, function (amount, resourceType) {
     if (cancelTrading || amount === 0 || terminal.room.getResourceAmount(resourceType, "storage") < global.getRoomThreshold(resourceType, "storage")) return;

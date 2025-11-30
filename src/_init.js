@@ -1,5 +1,5 @@
 require("_initGlobal")(global);
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 /**
@@ -56,6 +56,84 @@ Object.defineProperty(Creep.prototype, "target", {
 
 Creep.prototype.getTarget = function () {
   return Game.getObjectById(this.target);
+};
+
+/**
+ * Multiple targets system
+ * Each target contains: { id: string, action: "withdraw"|"transfer", resourceType: string, amount: number }
+ */
+Object.defineProperty(Creep.prototype, "targets", {
+  get: function () {
+    if (!this.memory.targets) {
+      this.memory.targets = [];
+    }
+    return this.memory.targets;
+  },
+  set: function (newTargets) {
+    if (Array.isArray(newTargets)) {
+      this.memory.targets = newTargets;
+    } else {
+      this.memory.targets = [];
+    }
+  },
+});
+
+/**
+ * Add a target to the queue
+ * @param {string} id - Target object ID
+ * @param {string} action - "withdraw" or "transfer"
+ * @param {string} resourceType - Resource type (e.g., RESOURCE_ENERGY)
+ * @param {number} amount - Amount to withdraw/transfer
+ */
+Creep.prototype.addTarget = function (id, action, resourceType, amount) {
+  if (!this.memory.targets) {
+    this.memory.targets = [];
+  }
+  this.memory.targets.push({
+    id: id,
+    action: action,
+    resourceType: resourceType,
+    amount: amount || 0,
+  });
+};
+
+/**
+ * Remove the first target from the queue
+ */
+Creep.prototype.removeFirstTarget = function () {
+  if (this.memory.targets && this.memory.targets.length > 0) {
+    this.memory.targets.shift();
+  }
+};
+
+/**
+ * Clear all targets
+ */
+Creep.prototype.clearTargets = function () {
+  this.memory.targets = [];
+};
+
+/**
+ * Get the first target as an object
+ * @returns {Object|null} The target object or null
+ */
+Creep.prototype.getFirstTarget = function () {
+  if (this.memory.targets && this.memory.targets.length > 0) {
+    const targetData = this.memory.targets[0];
+    return Game.getObjectById(targetData.id);
+  }
+  return null;
+};
+
+/**
+ * Get the first target data (id, action, resourceType, amount)
+ * @returns {Object|null} The target data or null
+ */
+Creep.prototype.getFirstTargetData = function () {
+  if (this.memory.targets && this.memory.targets.length > 0) {
+    return this.memory.targets[0];
+  }
+  return null;
 };
 
 Object.defineProperty(Source.prototype, "defended", {

@@ -38,8 +38,7 @@ function ControllerRoom(room, ControllerGame) {
 }
 
 ControllerRoom.prototype.run = function () {
-  this.analyse();
-
+  
   this.populate();
 
   // Run RoomPlanner (every 50 ticks to save CPU)
@@ -873,7 +872,7 @@ ControllerRoom.prototype.getEnemys = function () {
 
 ControllerRoom.prototype.getLevel = function () {
   var controller = this.room.controller;
-  if (controller !== null && controller.my) {
+  if (controller && controller.my) {
     return controller.level;
   }
   return 0;
@@ -1040,42 +1039,6 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   }
 
   return cfg.canBuild(this);
-};
-
-ControllerRoom.prototype.analyse = function () {
-  if (Game.cpu.tickLimit <= CONSTANTS.CPU.NO_ANALYSE_LIMIT) return;
-  var memory = this.room.memory;
-
-  try {
-    memory.lastCheck = Game.time;
-
-    if (!memory.roomType) {
-      // source keeper
-      let lairs = this.room.find(STRUCTURE_KEEPER_LAIR);
-      if (lairs.length > 0) {
-        memory.roomType = "ROOMTYPE_SOURCEKEEPER";
-      }
-
-      // core
-      if (!memory.roomType) {
-        let sources = this.room.find(FIND_SOURCES);
-        if (sources.length === CONSTANTS.ROOM.SOURCE_COUNT_CORE) {
-          memory.roomType = "ROOMTYPE_CORE";
-        }
-      }
-
-      // controller rooms
-      if (!memory.roomType) {
-        if (this.room.controller) {
-          memory.roomType = "ROOMTYPE_CONTROLLER";
-        } else {
-          memory.roomType = "ROOMTYPE_ALLEY";
-        }
-      }
-    }
-  } catch (e) {
-    Log.error(e, "ControllerRoom.analyse");
-  }
 };
 
 module.exports = ControllerRoom;

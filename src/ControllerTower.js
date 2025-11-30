@@ -16,7 +16,7 @@ ControllerTower.prototype.fire = function () {
 };
 
 // TODO Create parameter to repair/upgrade even if needsRepair is not true
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 
 ControllerTower.prototype.repair = function () {
     // Don't repair if enemies are present

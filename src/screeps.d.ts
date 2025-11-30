@@ -4,6 +4,7 @@ interface Memory {
   previousBucket?: number;
   logging?: { [tag: string]: number };
   stats?: { [key: string]: number };
+  scoutVisited?: { [roomName: string]: number };
   Traveler?: {
     rooms?: { [roomName: string]: { avoid?: number } };
     pCache?: { [key: string]: { [cost: number]: string; uses: number } };
@@ -15,6 +16,14 @@ interface Memory {
 // Extend CreepMemory interface
 interface CreepMemory {
   role?: string;
+  scoutTarget?: string;
+  target?: string;
+  targets?: Array<{
+    id: string;
+    action: "withdraw" | "transfer";
+    resourceType: string;
+    amount: number;
+  }>;
   [key: string]: any;
 }
 
@@ -37,7 +46,18 @@ interface RoomMemory {
 // Extend Creep prototype
 interface Creep {
   target?: string;
+  targets?: Array<{
+    id: string;
+    action: "withdraw" | "transfer";
+    resourceType: string;
+    amount: number;
+  }>;
   getTarget?(): any;
+  addTarget?(id: string, action: "withdraw" | "transfer", resourceType: string, amount?: number): void;
+  removeFirstTarget?(): void;
+  clearTargets?(): void;
+  getFirstTarget?(): any;
+  getFirstTargetData?(): { id: string; action: "withdraw" | "transfer"; resourceType: string; amount: number } | null;
   [key: string]: any;
 }
 
@@ -82,6 +102,7 @@ declare var global: {
   globalResourcesAmount?: (resource: string) => number;
   getMyUsername: () => string | null;
   isHostileUsername: (username: string) => boolean;
+  analyzeRoom: (room: Room, fullAnalysis?: boolean) => void;
   [key: string]: any;
 };
 

@@ -1,4 +1,4 @@
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 function ControllerLab(rc) {

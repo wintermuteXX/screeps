@@ -24,10 +24,17 @@ b.when = function (creep) {
   return creep.store[RESOURCE_ENERGY] === 0;
 };
 
-b.completed = function (creep) {
+b.completed = function (creep, rc) {
   Log.info(`${creep.room.name} ${creep.name} is checking "completed" condition`, "find_near_energy");
+  // Completed when creep has energy
+  if (creep.store[RESOURCE_ENERGY] > 0) return true;
+  
+  // If no energy but no target set, stay active to move to controller
   var target = creep.getTarget();
-  if (creep.store[RESOURCE_ENERGY] > 0 || !target) return true;
+  if (!target && rc.room.controller) {
+    return false; // Keep behavior active to move to controller
+  }
+  
   return false;
 };
 
@@ -70,6 +77,12 @@ b.work = function (creep, rc) {
       } else {
         creep.pickup(target);
       }
+    }
+  } else if (controller && !target) {
+    // No energy found, but move to controller anyway to be ready when energy arrives
+    if (!creep.pos.isNearTo(controller)) {
+      Log.debug(`${creep.room.name} ${creep.name} found no energy, moving to controller to wait`, "find_near_energy");
+      creep.travelTo(controller, { range: 3 });
     }
   }
 };

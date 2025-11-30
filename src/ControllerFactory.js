@@ -1,5 +1,5 @@
 const Log = require("Log");
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 
 function ControllerFactory(rc) {
   this.room = rc;

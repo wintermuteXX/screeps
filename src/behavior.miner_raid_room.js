@@ -1,5 +1,5 @@
 var Behavior = require("_behavior");
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 
 var b = new Behavior("miner_raid_room");
 

@@ -9,7 +9,7 @@
  * Layout style: Compact "bunker" design for efficient defense
  */
 
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 /**
