@@ -4,11 +4,11 @@ A comprehensive, modular AI codebase for [Screeps](https://screeps.com) - an MMO
 
 **Player:** utiuti  
 **Original Codebase:** lethallic (inactive)  
-**Status:** Actively maintained and optimized
+**Status:** Actively maintained and optimized (all hail cursor)
 
 ## Project Overview
 
-This is a production-ready Screeps AI that manages multiple rooms, creeps, structures, and resources. The codebase follows a modular architecture with clear separation of concerns, making it easy to extend and maintain.
+This is NOT a production-ready Screeps AI that manages multiple rooms, creeps, structures, and resources. The codebase follows a modular architecture with clear separation of concerns, making it easy to extend and maintain.
 
 ### Architecture
 
@@ -114,12 +114,6 @@ The codebase supports the following creep roles:
    ```bash
    node upload.js
    ```
-   
-   Or use the npm script:
-   ```bash
-   npm run deploy
-   ```
-
 ## Deployment
 
 ### Using the Upload Script

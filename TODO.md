@@ -13,8 +13,8 @@
 ## config.creeps.js
 
 - [ ] Builder/Supporter calculation is not dynamic enough. Supporters have a long way. Usually there are too many builders. Take FreeSpaces into account (Line 29)
-- [ ] Miner - if idle - repair container (Line 36)
-- [ ] Miner - if link empty + container filled -> transfer to link (Line 37)
+- [x] Miner - if idle - repair container (Line 36)
+- [x] Miner - if link empty + container filled -> transfer to link (Line 37)
 - [ ] Defender - only build if no tower or boosted creeps enter room (Line 296)
 - [ ] Supporter help rooms with RCL <= 3 (Line 302)
 

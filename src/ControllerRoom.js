@@ -6,6 +6,7 @@ var ControllerTerminal = require("ControllerTerminal");
 var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
 var RoomPlanner = require("RoomPlanner");
+var LogisticsGroup = require("LogisticsGroup");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
@@ -35,6 +36,12 @@ function ControllerRoom(room, ControllerGame) {
   this.factory = new ControllerFactory(this);
   this.labs = new ControllerLab(this);
   this.planner = new RoomPlanner(this.room);
+  
+  // Initialize LogisticsGroup (neues Logistiksystem)
+  this.logisticsGroup = null;
+  if (CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false) {
+    this.logisticsGroup = new LogisticsGroup(this.room);
+  }
 }
 
 ControllerRoom.prototype.run = function () {
@@ -47,6 +54,11 @@ ControllerRoom.prototype.run = function () {
   }
 
   this.links.transferEnergy();
+
+  // Update LogisticsGroup (neues Logistiksystem)
+  if (this.logisticsGroup) {
+    this.updateLogisticsGroup();
+  }
 
   this.commandCreeps();
 
@@ -1039,6 +1051,147 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   }
 
   return cfg.canBuild(this);
+};
+
+/**
+ * Updates the LogisticsGroup system
+ * Converts givesResources() and needsResources() to requests
+ */
+ControllerRoom.prototype.updateLogisticsGroup = function () {
+  if (!this.logisticsGroup) return;
+  
+  // Register all transporters
+  const transporters = this.getAllCreeps("transporter");
+  for (const transporter of transporters) {
+    this.logisticsGroup.registerTransporter(transporter);
+  }
+  
+  // Remove transporters that no longer exist
+  const activeTransporterIds = transporters.map((t) => t.id);
+  const transportersToRemove = [];
+  for (const transporter of this.logisticsGroup.transporters) {
+    if (!activeTransporterIds.includes(transporter.id)) {
+      transportersToRemove.push(transporter.id);
+    }
+  }
+  for (const transporterId of transportersToRemove) {
+    this.logisticsGroup.unregisterTransporter(transporterId);
+  }
+  
+  // Collect current request IDs
+  const currentRequestIds = new Set();
+  
+  // Convert givesResources() to provide() requests
+  const givesResources = this.givesResources();
+  let provideCount = 0;
+  for (const give of givesResources) {
+    const target = Game.getObjectById(give.id);
+    if (!target || give.amount <= 0) continue;
+    
+    const requestId = `provide_${give.id}_${give.resourceType}`;
+    currentRequestIds.add(requestId);
+    
+    // Calculate dAmountdt based on type
+    let dAmountdt = 0;
+    if (give.structureType === STRUCTURE_CONTAINER) {
+      // Containers are filled by miners
+      dAmountdt = 10; // Estimate: ~10 per tick
+    } else if (give.structureType === STRUCTURE_LINK) {
+      // Links are filled by senders
+      dAmountdt = 0; // Manually transferred
+    }
+    
+    // Check if resource is actually available
+    let availableAmount = 0;
+    if (target.store) {
+      availableAmount = target.store[give.resourceType] || 0;
+    } else if (target.amount !== undefined) {
+      // Dropped Resource
+      availableAmount = target.amount;
+    }
+    
+    if (availableAmount > 0) {
+      this.logisticsGroup.provide({
+        target: target,
+        resourceType: give.resourceType,
+        amount: Math.min(give.amount, availableAmount),
+        dAmountdt: dAmountdt,
+        multiplier: 1,
+        id: requestId,
+      });
+      provideCount++;
+    }
+  }
+  
+  // Convert needsResources() to request() requests
+  const needsResources = this.needsResources();
+  let requestCount = 0;
+  for (const need of needsResources) {
+    const target = Game.getObjectById(need.id);
+    if (!target || need.amount <= 0) continue;
+    
+    // Check if target actually needs resource
+    let neededAmount = 0;
+    if (target.store) {
+      neededAmount = target.store.getFreeCapacity(need.resourceType) || 0;
+    } else if (target instanceof Creep) {
+      neededAmount = target.store.getFreeCapacity(need.resourceType) || 0;
+    }
+    
+    if (neededAmount <= 0) continue;
+    
+    const requestId = `request_${need.id}_${need.resourceType}`;
+    currentRequestIds.add(requestId);
+    
+    // Calculate dAmountdt based on type
+    let dAmountdt = 0;
+    if (need.structureType === STRUCTURE_TOWER) {
+      // Towers consume energy when shooting
+      const enemies = this.getEnemys();
+      dAmountdt = enemies.length > 0 ? -1 : 0; // Estimate: ~1 per tick when active
+    } else if (need.structureType === STRUCTURE_SPAWN || need.structureType === STRUCTURE_EXTENSION) {
+      // Spawns/Extensions consume when spawning
+      dAmountdt = 0; // Consumed when spawning
+    } else if (need.structureType === STRUCTURE_CONTROLLER) {
+      // Controller consumes when upgrading
+      const upgraders = this.getCreeps("upgrader");
+      dAmountdt = -upgraders.length * 2; // Estimate: ~2 per upgrader
+    }
+    
+    this.logisticsGroup.request({
+      target: target,
+      resourceType: need.resourceType,
+      amount: Math.min(need.amount, neededAmount),
+      dAmountdt: dAmountdt,
+      multiplier: 1 / (need.priority || 100), // Lower priority = higher multiplier
+      id: requestId,
+    });
+    requestCount++;
+  }
+  
+  // Remove old requests that no longer exist
+  const requestsToRemove = [];
+  for (const request of this.logisticsGroup.requests) {
+    if (!currentRequestIds.has(request.id)) {
+      requestsToRemove.push(request.id);
+    }
+  }
+  for (const requestId of requestsToRemove) {
+    this.logisticsGroup.removeRequest(requestId);
+  }
+  
+  // Run matching (only when needed, handled internally)
+  this.logisticsGroup.runMatching();
+};
+
+/**
+ * Initializes the LogisticsGroup system (if not already done)
+ */
+ControllerRoom.prototype.initLogisticsGroup = function () {
+  if (!this.logisticsGroup && CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false) {
+    this.logisticsGroup = new LogisticsGroup(this.room);
+  }
+  return this.logisticsGroup;
 };
 
 module.exports = ControllerRoom;

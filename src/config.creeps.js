@@ -100,7 +100,10 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
+    // Use new logistics system if enabled, otherwise old system
+    behaviors: (CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false)
+      ? ["renew:emergency", "transporter_logistics", "renew"]
+      : ["renew:emergency", "get_resources", "transfer_resources", "renew"],
 
     canBuild: function (rc) {
       const transporters = rc.getAllCreeps("transporter");
@@ -333,6 +336,7 @@ module.exports = {
     behaviors: ["scout"],
 
     canBuild: function (rc) {
+      return false
       // Don't spawn scouts if room has an Observer
       const observers = rc.room.find(FIND_MY_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_OBSERVER

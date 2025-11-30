@@ -157,7 +157,6 @@ module.exports = {
     EDGE_MAX: 49,                     // Room edge maximum
   },
 
-
   // Defense
   DEFENSE: {
     MAX_HITS: 2155000,                // Maximum hits for defense structures
@@ -167,6 +166,14 @@ module.exports = {
   // Storage
   STORAGE: {
     MAX_ENERGY_THRESHOLD: 100000,     // Maximum energy threshold for storage
+  },
+
+  // Logistics System (Stable Marriage)
+  LOGISTICS: {
+    ENABLED: false,                    // Enable new logistics system
+    MATCHING_INTERVAL: 5,              // Run matching every N ticks (CPU optimization)
+    MAX_REQUESTS: 20,                  // Maximum requests to consider per matching
+    MAX_TRANSPORTERS: 20,              // Maximum transporters to consider per matching
   },
 
   // Market
