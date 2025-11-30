@@ -2,6 +2,14 @@
 interface Memory {
   factoryLevels?: { [factoryId: string]: number };
   previousBucket?: number;
+  logging?: { [tag: string]: number };
+  stats?: { [key: string]: number };
+  Traveler?: {
+    rooms?: { [roomName: string]: { avoid?: number } };
+    pCache?: { [key: string]: { [cost: number]: string; uses: number } };
+    Portals?: { [room: string]: { rooms?: { [room: string]: string }; shards?: { [shard: string]: { [room: string]: string } } } };
+    portalUpdate?: number;
+  };
 }
 
 // Extend CreepMemory interface
@@ -72,6 +80,8 @@ declare var global: {
   getRoomThreshold: (resource: string, structure?: string) => number;
   resourceImg: (resourceType: string) => string;
   globalResourcesAmount?: (resource: string) => number;
+  getMyUsername: () => string | null;
+  isHostileUsername: (username: string) => boolean;
   [key: string]: any;
 };
 

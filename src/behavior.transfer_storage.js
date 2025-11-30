@@ -1,4 +1,5 @@
 var Behavior = require("_behavior");
+const Log = require("Log");
 var b = new Behavior("transfer_storage");
 
 /**

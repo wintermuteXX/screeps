@@ -1,5 +1,6 @@
 var Behavior = require("_behavior");
 var RoomPlanner = require("RoomPlanner");
+const Log = require("Log");
 var b = new Behavior("place_spawn");
 
 function findFlag(rc) {

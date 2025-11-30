@@ -1,3 +1,5 @@
+const Log = require("Log");
+
 function ControllerSpawn(spawn, ControllerRoom) {
   this.spawn = spawn;
   this.ControllerRoom = ControllerRoom;

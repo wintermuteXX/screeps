@@ -5,6 +5,7 @@
  * @returns {Array} - Generated body array
  */
 const CONSTANTS = require("constants");
+const Log = require("Log");
 
 function generateBody(pattern, count) {
   const body = [];

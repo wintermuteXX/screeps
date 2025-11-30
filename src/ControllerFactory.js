@@ -1,4 +1,4 @@
-const Log = require("./Log");
+const Log = require("Log");
 const CONSTANTS = require("constants");
 
 function ControllerFactory(rc) {

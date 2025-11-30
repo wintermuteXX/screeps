@@ -1,4 +1,5 @@
 var Behavior = require("_behavior");
+const Log = require("Log");
 var RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {

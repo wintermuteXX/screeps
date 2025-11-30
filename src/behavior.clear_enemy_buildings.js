@@ -8,7 +8,7 @@ function getTarget(room) {
 
     var filter = function (t) {
         if (t.structureType && t.structureType === STRUCTURE_CONTROLLER) return false;
-        return (t.owner.username !== 'Source Keeper');
+        return global.isHostileUsername(t.owner.username);
     };
 
     for (var i in TARGETS) {

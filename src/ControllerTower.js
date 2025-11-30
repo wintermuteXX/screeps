@@ -1,3 +1,5 @@
+const Log = require("Log");
+
 function ControllerTower(tower, ControllerRoom) {
     this.tower = tower;
     this.ControllerRoom = ControllerRoom;

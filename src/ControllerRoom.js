@@ -6,13 +6,15 @@ var ControllerTerminal = require("ControllerTerminal");
 var ControllerFactory = require("ControllerFactory");
 var ControllerLab = require("ControllerLab");
 var RoomPlanner = require("RoomPlanner");
-const CONSTANTS = require("constants");
+const CONSTANTS = require("./constants");
+const Log = require("Log");
 
 function ControllerRoom(room, ControllerGame) {
   this.room = room;
   this._find = {};
   this._spawns = [];
   this._towers = [];
+  this._creepsByRole = null;  // Cache for getAllCreeps
 
   var spawns = this.find(FIND_MY_SPAWNS);
   for (var s in spawns) {
@@ -60,21 +62,19 @@ ControllerRoom.prototype.run = function () {
       tower.repair();
     }
   }
+
   if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
     this.terminal.buyEnergyOrder();
   }
   if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
     this.terminal.internalTrade();
   }
-
   if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
     this.terminal.sellRoomMineralOverflow();
   }
-
   if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
     this.terminal.sellRoomMineral();
   }
-
   if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
     this.terminal.adjustWallHits();
   }
@@ -84,7 +84,7 @@ ControllerRoom.prototype.run = function () {
       this.room.powerSpawn.processPower();
     }
   }
-  // this.labs.findLabPartner();
+
   if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
     if (Game.time % CONSTANTS.TICKS.LAB_CHECK_STATUS === 0) {
       this.labs.checkStatus();
@@ -819,15 +819,33 @@ ControllerRoom.prototype.getCreeps = function (role, target) {
 };
 
 // Also finds creeps that are spawning (getCreeps does not)
+// Cached per tick - iterates Game.creeps only once
 ControllerRoom.prototype.getAllCreeps = function (role) {
-  var room = this.room;
-  var creeps = [];
-  if (role) {
-    creeps = Object.values(Game.creeps).filter((c) => c.memory.role === role && c.room === room);
-  } else {
-    creeps = Object.values(Game.creeps).filter((c) => c.room === room);
+  // Build cache if not exists (once per tick per room)
+  if (!this._creepsByRole) {
+    // Use Object.create(null) to avoid prototype pollution (e.g. role named "constructor")
+    this._creepsByRole = Object.create(null);
+    this._creepsByRole._all = [];
+    const room = this.room;
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.room === room) {
+        this._creepsByRole._all.push(creep);
+        const creepRole = creep.memory.role;
+        if (creepRole) {
+          if (!this._creepsByRole[creepRole]) {
+            this._creepsByRole[creepRole] = [];
+          }
+          this._creepsByRole[creepRole].push(creep);
+        }
+      }
+    }
   }
-  return creeps;
+  
+  if (role) {
+    return this._creepsByRole[role] || [];
+  }
+  return this._creepsByRole._all;
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {

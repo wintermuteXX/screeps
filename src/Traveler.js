@@ -2,6 +2,21 @@
 Object.defineProperty(exports, "__esModule", {
   value: true,
 });
+
+// Constants
+const MAX_CACHED_PATH_MEM_USAGE = 2000; // approx 100kb
+const MIN_CACHED_PATH_LENGTH = 999; // minimum path length to cache. Set to a very high value to stop caching.
+const REPORT_CPU_THRESHOLD = 1000;
+const DEFAULT_MAXOPS = 20000;
+const DEFAULT_STUCK_VALUE = 2;
+const STATE_PREV_X = 0;
+const STATE_PREV_Y = 1;
+const STATE_STUCK = 2;
+const STATE_CPU = 3;
+const STATE_DEST_X = 4;
+const STATE_DEST_Y = 5;
+const STATE_DEST_ROOMNAME = 6;
+
 class Traveler {
   static travelTo(creep, destination, options = {}) {
     // initialize data object
@@ -341,7 +356,7 @@ class Traveler {
     const structureMatrix = this.getStructureMatrix(creep.room, {
       freshMatrix: false,
     });
-    const creepMatrix = this.getCreepMatrix(creep.room, false);
+    const creepMatrix = this.getCreepMatrix(creep.room);
     for (let o in offsets) {
       //Out of bounds/exit
       if (offsets[o].x <= 0 || offsets[o].x >= 49 || offsets[o].y <= 0 || offsets[o].y >= 49) {
@@ -383,7 +398,7 @@ class Traveler {
     const structureMatrix = this.getStructureMatrix(creep.room, {
       freshMatrix: false,
     });
-    const creepMatrix = this.getCreepMatrix(creep.room, false);
+    const creepMatrix = this.getCreepMatrix(creep.room);
     let positions = [];
     let offsets = [];
     for (let x = -distance; x <= distance; x++) {
@@ -397,7 +412,7 @@ class Traveler {
         //not out of bounds/exit
         if (!(xpos <= 0 || xpos >= 49 || ypos <= 0 || ypos >= 49)) {
           if (
-            t.get(x, y) !== TERRAIN_MASK_WALL && //don't try to move on a wall.
+            t.get(xpos, ypos) !== TERRAIN_MASK_WALL && //don't try to move on a wall.
             structureMatrix.get(xpos, ypos) < 255 && // No impassable structures
             creepMatrix.get(xpos, ypos) < 255
           ) {
@@ -428,7 +443,6 @@ class Traveler {
         case MOVE:
           totalreduction += b.hits > 0 ? (b.boost ? BOOSTS[b.type][b.boost].fatigue * -2 : -2) : 0;
           return;
-          break;
         case CARRY:
           if (used > 0 && b.hits > 0) {
             used -= b.boost ? BOOSTS[b.type][b.boost].capacity * CARRY_CAPACITY : CARRY_CAPACITY;
@@ -486,8 +500,13 @@ class Traveler {
       Memory.Traveler.rooms[room.name] = {};
     }
     if (room.controller) {
-      // if ((room.controller.owner && !room.controller.my) || (room.controller.reservation && room.controller.reservation.username !== MY_USERNAME)) {
-      if ((room.controller.owner && !room.controller.my) || (room.controller.reservation && room.controller.reservation.username !== "utiuti")) {
+      // Avoid rooms that are owned by someone else or reserved by someone else
+      const myUsername = global.getMyUsername();
+      
+      const isHostile = (room.controller.owner && !room.controller.my) || 
+                       (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
+      
+      if (isHostile) {
         Memory.Traveler.rooms[room.name].avoid = 1;
       } else {
         delete Memory.Traveler.rooms[room.name].avoid;
@@ -608,7 +627,6 @@ class Traveler {
           console.log(`TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`);
           return ret;
         }
-      } else {
       }
     }
     return ret;
@@ -647,9 +665,11 @@ class Traveler {
         let parsed;
         if (options.preferHighway) {
           parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
-          let isHighway = parsed[1] % 10 === 0 || parsed[2] % 10 === 0;
-          if (isHighway) {
-            return 1;
+          if (parsed && parsed[1] && parsed[2]) {
+            let isHighway = parseInt(parsed[1]) % 10 === 0 || parseInt(parsed[2]) % 10 === 0;
+            if (isHighway) {
+              return 1;
+            }
           }
         }
         // SK rooms are avoided when there is no vision in the room, harvested-from SK rooms are allowed
@@ -657,11 +677,13 @@ class Traveler {
           if (!parsed) {
             parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
           }
-          let fMod = parsed[1] % 10;
-          let sMod = parsed[2] % 10;
-          let isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
-          if (isSK) {
-            return 10 * highwayBias;
+          if (parsed && parsed[1] && parsed[2]) {
+            let fMod = parseInt(parsed[1]) % 10;
+            let sMod = parseInt(parsed[2]) % 10;
+            let isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
+            if (isSK) {
+              return 10 * highwayBias;
+            }
           }
         }
         return highwayBias;
@@ -1210,20 +1232,6 @@ global.PERMACACHE = {}; // Create a permanent cache for immutable items such as 
 PERMACACHE._packedRoomNames = PERMACACHE._packedRoomNames || {};
 PERMACACHE._unpackedRoomNames = PERMACACHE._unpackedRoomNames || {};
 exports.Traveler = Traveler;
-// this might be higher than you wish, setting it lower is a great way to diagnose creep behavior issues. When creeps
-// need to repath to often or they aren't finding valid paths, it can sometimes point to problems elsewhere in your code
-const MAX_CACHED_PATH_MEM_USAGE = 2000; // approx 100kb
-const MIN_CACHED_PATH_LENGTH = 999; // minimum path length to cache. Set to a very high value to stop caching.
-const REPORT_CPU_THRESHOLD = 1000;
-const DEFAULT_MAXOPS = 20000;
-const DEFAULT_STUCK_VALUE = 2;
-const STATE_PREV_X = 0;
-const STATE_PREV_Y = 1;
-const STATE_STUCK = 2;
-const STATE_CPU = 3;
-const STATE_DEST_X = 4;
-const STATE_DEST_Y = 5;
-const STATE_DEST_ROOMNAME = 6;
 // assigns a function to Creep.prototype: creep.travelTo(destination)
 Creep.prototype.travelTo = function (destination, options) {
   return Traveler.travelTo(this, destination, options);

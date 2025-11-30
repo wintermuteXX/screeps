@@ -5,10 +5,6 @@ declare module "constants" {
   export = constants;
 }
 
-declare module "screeps-profiler" {
-  export function wrap(fn: Function): void;
-  export function enable(): void;
-}
 
 declare module "memhack" {
   export class MemHack {
@@ -176,6 +172,11 @@ interface CreepMemory {
   [key: string]: any;
 }
 
-// Log is available globally
-declare const Log: typeof import("./Log").default;
+// Extend global namespace
+declare global {
+  function getRoomThreshold(resource: string, structure?: string): number;
+  function getCreepRoles(): string[];
+  function getCreepsConfig(): any;
+  function resourceImg(resourceType: string): string;
+}
 

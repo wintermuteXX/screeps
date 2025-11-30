@@ -1,4 +1,5 @@
 var Behavior = require("_behavior");
+const Log = require("Log");
 var b = new Behavior("miner_harvest_mineral");
 
 b.when = function (creep, rc) {

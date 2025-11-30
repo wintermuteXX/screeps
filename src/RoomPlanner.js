@@ -10,6 +10,7 @@
  */
 
 const CONSTANTS = require("constants");
+const Log = require("Log");
 
 /**
  * Structure limits per RCL (from Screeps API)
@@ -484,6 +485,9 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     return;
   }
 
+  // Cache structure counts by type (CPU optimization - find only once)
+  const structureCounts = this._getStructureCounts();
+
   let sitesPlaced = 0;
 
   for (const planned of this.memory.plannedStructures) {
@@ -492,7 +496,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     const { x, y, structureType } = planned;
 
     // Check if structure can be built at current RCL
-    if (!this._canBuildStructure(structureType, rcl)) {
+    if (!this._canBuildStructure(structureType, rcl, structureCounts)) {
       continue;
     }
 
@@ -537,9 +541,41 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 };
 
 /**
+ * Cache structure and site counts by type (CPU optimization)
+ */
+RoomPlanner.prototype._getStructureCounts = function () {
+  if (this._structureCounts) {
+    return this._structureCounts;
+  }
+
+  this._structureCounts = {};
+  
+  // Count structures by type
+  const structures = this.room.find(FIND_STRUCTURES);
+  for (const s of structures) {
+    const type = s.structureType;
+    this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;
+  }
+  
+  // Count construction sites by type
+  const sites = this.room.find(FIND_CONSTRUCTION_SITES);
+  for (const s of sites) {
+    const type = s.structureType;
+    this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;
+  }
+  
+  return this._structureCounts;
+};
+
+/**
  * Checks if a structure can be built at the given RCL
  */
-RoomPlanner.prototype._canBuildStructure = function (structureType, rcl) {
+RoomPlanner.prototype._canBuildStructure = function (structureType, rcl, structureCounts) {
+  // Roads are only built from RCL 5 onwards
+  if (structureType === STRUCTURE_ROAD && rcl < 5) {
+    return false;
+  }
+
   // Number of allowed structures at this RCL
   const maxAllowed = CONTROLLER_STRUCTURES[structureType] ? CONTROLLER_STRUCTURES[structureType][rcl] : 0;
   
@@ -547,17 +583,10 @@ RoomPlanner.prototype._canBuildStructure = function (structureType, rcl) {
     return false;
   }
 
-  // Count existing structures of this type
-  const existingStructures = this.room.find(FIND_STRUCTURES, {
-    filter: (s) => s.structureType === structureType,
-  });
-
-  // Count construction sites of this type
-  const existingSites = this.room.find(FIND_CONSTRUCTION_SITES, {
-    filter: (s) => s.structureType === structureType,
-  });
-
-  const totalCount = existingStructures.length + existingSites.length;
+  // Use cached counts if provided, otherwise calculate (for external calls)
+  const totalCount = structureCounts 
+    ? (structureCounts[structureType] || 0)
+    : this._getStructureCounts()[structureType] || 0;
 
   return totalCount < maxAllowed;
 };

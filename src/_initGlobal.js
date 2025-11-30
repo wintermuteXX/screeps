@@ -1,4 +1,50 @@
+const Log = require("Log");
+
 function initGlobal(g) {
+  // ===== Username Utilities =====
+  // Cache for own username (per tick)
+  let cachedUsername = null;
+  let cachedUsernameTick = null;
+
+  /**
+   * Get the current player's username (cached per tick)
+   * @returns {string|null} The username or null if not available
+   */
+  g.getMyUsername = function() {
+    if (cachedUsername && cachedUsernameTick === Game.time) {
+      return cachedUsername;
+    }
+
+    // Try to get from spawns first
+    const spawns = Object.keys(Game.spawns);
+    if (spawns.length > 0) {
+      cachedUsername = Game.spawns[spawns[0]].owner.username;
+      cachedUsernameTick = Game.time;
+      return cachedUsername;
+    }
+
+    // Fallback: try structures
+    const structures = Object.keys(Game.structures);
+    if (structures.length > 0) {
+      cachedUsername = Game.structures[structures[0]].owner.username;
+      cachedUsernameTick = Game.time;
+      return cachedUsername;
+    }
+
+    return null;
+  };
+
+  /**
+   * Check if a username is hostile (not own and not Source Keeper)
+   * @param {string} username - The username to check
+   * @returns {boolean} True if hostile
+   */
+  g.isHostileUsername = function(username) {
+    if (!username) return false;
+    const myUsername = g.getMyUsername();
+    return username !== myUsername && username !== 'Source Keeper';
+  };
+
   // Prototypes for Room Structures
   var roomStructures = {};
   var roomStructuresExpiration = {};
@@ -641,7 +687,7 @@ function initGlobal(g) {
   };
 
   g.whatsInTerminals = function () {
-    let myUsername = Game.spawns[Object.keys(Game.spawns)[0]].owner.username;
+    let myUsername = g.getMyUsername();
     let roomData = {};
     let sums = {};
     let rooms = _.filter(Game.rooms, (r) => {

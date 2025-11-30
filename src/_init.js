@@ -1,5 +1,6 @@
 require("_initGlobal")(global);
 const CONSTANTS = require("constants");
+const Log = require("Log");
 
 /**
  * Extend Creep

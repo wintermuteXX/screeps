@@ -1,4 +1,5 @@
 const CONSTANTS = require("constants");
+const Log = require("Log");
 
 function ControllerTerminal(rc) {
   this.room = rc;

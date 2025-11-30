@@ -1,5 +1,6 @@
 var Behavior = require("_behavior");
 const CONSTANTS = require("constants");
+const Log = require("Log");
 
 // Cache for created behaviors
 var behaviorCache = {};
