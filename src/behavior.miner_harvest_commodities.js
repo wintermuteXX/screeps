@@ -1,5 +1,5 @@
-var Behavior = require("_behavior");
-var b = new Behavior("miner_harvest_commodities");
+const Behavior = require("_behavior");
+const b = new Behavior("miner_harvest_commodities");
 
 b.when = function (creep, rc) {
     const deposits = rc.find(FIND_DEPOSITS);
@@ -12,21 +12,21 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-    var target = creep.getTarget();
+  let target = creep.getTarget();
 
-    if (target === null) {
-        const deposits = rc.find(FIND_DEPOSITS);
-        if (deposits.length) {
-            creep.target = deposits[0].id;
-            target = deposits[0];
-        }
+  if (target === null) {
+    const deposits = rc.find(FIND_DEPOSITS);
+    if (deposits.length) {
+      creep.target = deposits[0].id;
+      target = deposits[0];
     }
+  }
 
-    if (target !== null && creep.pos.isNearTo(target) && target.cooldown === 0) {
-        creep.harvest(target);
-    } else {
-        creep.travelTo(target);
-    }
+  if (target !== null && creep.pos.isNearTo(target) && target.cooldown === 0) {
+    creep.harvest(target);
+  } else {
+    creep.travelTo(target);
+  }
 };
 
 module.exports = b;

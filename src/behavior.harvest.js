@@ -1,9 +1,9 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 
-var b = new Behavior("harvest");
+const b = new Behavior("harvest");
 
 b.when = function (creep, rc) {
-  var sources = rc.getSourcesNotEmpty();
+  const sources = rc.getSourcesNotEmpty();
   return creep.store.getUsedCapacity() === 0 && sources.length > 0;
 };
 
@@ -14,10 +14,10 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  var target = creep.getTarget();
+  let target = creep.getTarget();
 
   if (target === null) {
-    var sources = rc.getSourcesNotEmpty();
+    const sources = rc.getSourcesNotEmpty();
     if (sources.length) {
       // TODO Only choose source with enough space around
       // Select source randomly

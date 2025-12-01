@@ -1,6 +1,6 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 
-var b = new Behavior("repair");
+const b = new Behavior("repair");
 b.when = function (creep, rc) {
   if (creep.store.getUsedCapacity() > 0) {
     return (rc.findStructuresToRepair().length);
@@ -9,15 +9,15 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
-  var target = creep.getTarget();
+  const target = creep.getTarget();
   return (creep.store.getUsedCapacity() === 0 || !target || target.hits === target.hitsMax);
 };
 
 b.work = function (creep, rc) {
-  var target = creep.getTarget();
+  let target = creep.getTarget();
 
   if (!target) {
-    var structures = rc.findStructuresToRepair();
+    const structures = rc.findStructuresToRepair();
     if (structures.length) {
       target = structures[0];
       creep.target = target.id;

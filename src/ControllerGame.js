@@ -1,4 +1,4 @@
-var ControllerRoom = require("ControllerRoom");
+const ControllerRoom = require("ControllerRoom");
 
 var ControllerGame = function () {
 	// Garbage collection is now handled by memhack.js

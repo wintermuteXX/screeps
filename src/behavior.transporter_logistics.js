@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
 
-var b = new Behavior("transporter_logistics");
+const b = new Behavior("transporter_logistics");
 
 /**
  * When should this behavior be active?

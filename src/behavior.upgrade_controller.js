@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
 
-var b = new Behavior("upgrade_controller");
+const b = new Behavior("upgrade_controller");
 
 b.when = function (creep, rc) {
   return (rc.room.controller !== null && creep.store[RESOURCE_ENERGY] > 0);

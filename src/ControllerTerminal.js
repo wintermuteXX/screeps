@@ -131,7 +131,7 @@ ControllerTerminal.prototype.adjustWallHits = function () {
   if (!terminal || !terminal.my) {
     return null;
   }
-  if (terminal.store[RESOURCE_ENERGY] > global.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
+  if (terminal.store[RESOURCE_ENERGY] > terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
     Log.success(`Increased the wallHits in room ${terminal.room.name}`);
     terminal.room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
   }
@@ -144,7 +144,7 @@ ControllerTerminal.prototype.internalTrade = function () {
   if (!terminal || !terminal.my || !terminal.isActive() || terminal.cooldown !== 0) return;
 
   _.each(terminal.store, function (amount, resourceType) {
-    if (cancelTrading || amount === 0 || terminal.room.getResourceAmount(resourceType, "storage") < global.getRoomThreshold(resourceType, "storage")) return;
+    if (cancelTrading || amount === 0 || terminal.room.getResourceAmount(resourceType, "storage") < terminal.room.getRoomThreshold(resourceType, "storage")) return;
 
     let roomsWithTerminal = _.filter(Game.rooms, (r) => {
       return r.terminal && r.terminal.my && r.terminal.isActive();
@@ -159,11 +159,11 @@ ControllerTerminal.prototype.internalTrade = function () {
       }
       let resourceAmountInRoom = targetroom.getResourceAmount(resourceType, "storage");
       // The desired amount of resource to reach the threshold
-      let needed = global.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
+      let needed = targetroom.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
       if (needed > 0) {
         // Amount of resource that will be send
         if (resourceType == RESOURCE_ENERGY) {
-          var sendAmount = Math.min(terminal.room.storage.store[RESOURCE_ENERGY] - global.getRoomThreshold(resourceType, "storage"), needed);
+          var sendAmount = Math.min(terminal.room.storage.store[RESOURCE_ENERGY] - terminal.room.getRoomThreshold(resourceType, "storage"), needed);
         } else {
           var sendAmount = Math.min(amount, needed);
         }
@@ -209,28 +209,28 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
   let energyInTerminal = ter.store[RESOURCE_ENERGY];
   let orderExists = false;
 
-  if (Game.market.credits < global.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
-    Log.warn(`There are less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} credits available. Skipping...`, "buyEnergyOrder");
+  if (Game.market.credits < ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {
+    Log.warn(`There are less than ${ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal")} credits available. Skipping...`, "buyEnergyOrder");
     return false;
   }
-  if (energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage") - CONSTANTS.RESOURCES.TERMINAL_ENERGY_BUFFER) {
-    Log.debug(`Less than ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
+  if (energyInTerminal < ter.room.getRoomThreshold(RESOURCE_ENERGY, "storage") - CONSTANTS.RESOURCES.TERMINAL_ENERGY_BUFFER) {
+    Log.debug(`Less than ${ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy in Terminal. We should check orders for room ${ter.room.name}`, "buyEnergyOrder");
 
     for (let id in Game.market.orders) {
       let order = Game.market.orders[id];
       if (order.type === "buy" && order.resourceType === "energy" && order.roomName == ter.room.name) {
         Log.debug(`Found an existing buy energy order for room ${order.roomName}`, "buyEnergyOrder");
         orderExists = true;
-        if (order.remainingAmount + energyInTerminal < global.getRoomThreshold(RESOURCE_ENERGY, "storage")) {
+        if (order.remainingAmount + energyInTerminal < ter.room.getRoomThreshold(RESOURCE_ENERGY, "storage")) {
           Log.debug(
-            `Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${global.getRoomThreshold(
+            `Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${ter.room.getRoomThreshold(
               RESOURCE_ENERGY,
               "terminal"
             )} - ${order.remainingAmount} - ${energyInTerminal}`,
             "buyEnergyOrder"
           );
 
-          let result = Game.market.extendOrder(order.id, global.getRoomThreshold(RESOURCE_ENERGY, "storage") - order.remainingAmount - energyInTerminal);
+          let result = Game.market.extendOrder(order.id, ter.room.getRoomThreshold(RESOURCE_ENERGY, "storage") - order.remainingAmount - energyInTerminal);
           switch (result) {
             case OK:
               Log.success(`ExtendOrder in room ${ter.room} was successful`, "buyEnergyOrder");
@@ -244,10 +244,10 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
       }
     }
     if (orderExists === false) {
-      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, CONSTANTS.MARKET.ENERGY_PRICE, global.getRoomThreshold(RESOURCE_ENERGY, "terminal"), ter.room.name);
+      let result2 = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, CONSTANTS.MARKET.ENERGY_PRICE, ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal"), ter.room.name);
       switch (result2) {
         case OK:
-          Log.success(`Created order in room ${ter.room} for ${global.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy was successful`, "buyEnergyOrder");
+          Log.success(`Created order in room ${ter.room} for ${ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal")} energy was successful`, "buyEnergyOrder");
           break;
 
         default:

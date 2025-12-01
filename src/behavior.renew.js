@@ -1,14 +1,14 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 // Cache for created behaviors
-var behaviorCache = {};
+const behaviorCache = {};
 
 /**
  * Configuration for different renew modes
  */
-var RENEW_CONFIGS = {
+const RENEW_CONFIGS = {
   normal: {
     // Normal renew when creep still has some time left
     whenThreshold: 1300,
@@ -34,18 +34,18 @@ function createRenewBehavior(behaviorName) {
   }
 
   // Parse mode from behavior name (format: "renew:mode")
-  var mode = "normal"; // Standard
+  let mode = "normal"; // Standard
   if (behaviorName.indexOf(":") !== -1) {
     mode = behaviorName.split(":")[1];
   }
 
-  var config = RENEW_CONFIGS[mode];
+  let config = RENEW_CONFIGS[mode];
   if (!config) {
     Log.warn(`Unknown renew mode '${mode}', using 'normal'`, "renew");
     config = RENEW_CONFIGS.normal;
   }
 
-  var b = new Behavior(behaviorName);
+  const b = new Behavior(behaviorName);
 
   b.when = function (creep, rc) {
     // Only if creep was born with current energy level
@@ -74,7 +74,7 @@ function createRenewBehavior(behaviorName) {
   };
 
   b.work = function (creep, rc) {
-    var target = creep.getTarget();
+    let target = creep.getTarget();
 
     if (!target) {
       target = rc.getIdleSpawnObject();
@@ -92,7 +92,7 @@ function createRenewBehavior(behaviorName) {
     }
 
     creep.target = target.id;
-    var result = target.renewCreep(creep);
+    const result = target.renewCreep(creep);
 
     switch (result) {
       case OK:

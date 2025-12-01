@@ -1,21 +1,21 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
 
-var b = new Behavior("build_structures");
+const b = new Behavior("build_structures");
 
 b.when = function (creep, rc) {
   return (creep.store.getUsedCapacity() > 0 && rc.find(FIND_CONSTRUCTION_SITES).length);
 };
 
 b.completed = function (creep, rc) {
-  var target = creep.getTarget();
+  const target = creep.getTarget();
   return (creep.store.getUsedCapacity() === 0 || target === null);
 };
 
 b.work = function (creep, rc) {
-  var target = creep.getTarget();
+  let target = creep.getTarget();
   if (target === null) {
-    var constructions = rc.find(FIND_CONSTRUCTION_SITES);
+    const constructions = rc.find(FIND_CONSTRUCTION_SITES);
     if (constructions.length) {
       target = constructions[0];
       creep.target = target.id;
@@ -23,7 +23,7 @@ b.work = function (creep, rc) {
   }
 
   if (target !== null) {
-    var result = creep.build(target);
+    const result = creep.build(target);
     switch (result) {
       case OK:
         break;

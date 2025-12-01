@@ -178,7 +178,11 @@ LogisticsGroup.prototype.nextAvailability = function (transporter) {
       // Buffer no longer exists
       return [0, transporter.pos];
     }
-    const bufferPos = bufferObj.pos;
+    // Type assertion: bufferObj has pos property (Structure, Creep, etc.)
+    const bufferPos = /** @type {RoomObject} */ (/** @type {unknown} */ (bufferObj)).pos;
+    if (!bufferPos) {
+      return [0, transporter.pos];
+    }
     const distanceToBuffer = this._getDistance(transporter.pos, bufferPos);
     ticksUntilFree += distanceToBuffer;
     finalPos = bufferPos;
@@ -189,7 +193,11 @@ LogisticsGroup.prototype.nextAvailability = function (transporter) {
     // Target no longer exists
     return [0, transporter.pos];
   }
-  const targetPos = targetObj.pos;
+  // Type assertion: targetObj has pos property (Structure, Creep, etc.)
+  const targetPos = /** @type {RoomObject} */ (/** @type {unknown} */ (targetObj)).pos;
+  if (!targetPos) {
+    return [0, transporter.pos];
+  }
   const distanceToTarget = this._getDistance(finalPos, targetPos);
   ticksUntilFree += distanceToTarget;
   

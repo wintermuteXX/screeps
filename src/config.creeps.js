@@ -44,9 +44,17 @@ module.exports = {
     behaviors: ["miner_harvest"],
 
     canBuild: function (rc) {
-      var miners = rc.getAllCreeps("miner");
-      var sources = rc.getSources();
-      return miners.length < sources.length;
+      const miners = rc.getAllCreeps("miner");
+      const sources = rc.getSources();
+      // Count how many sources already have a miner assigned
+      let assignedSources = 0;
+      for (const source of sources) {
+        if (rc.getCreeps("miner", source.id).length > 0) {
+          assignedSources++;
+        }
+      }
+      // Only spawn if there are sources without miners
+      return assignedSources < sources.length;
     },
   },
   // LONGTERM miner - create moving miner

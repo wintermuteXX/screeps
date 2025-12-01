@@ -1,4 +1,4 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
@@ -14,7 +14,7 @@ function isNotAtBorder(creep) {
 /**
  * Configuration for different flag colors
  */
-var FLAG_CONFIGS = {
+const FLAG_CONFIGS = {
   red: {
     color: COLOR_RED,
     travelOptions: { ignoreDestructibleStructures: true },
@@ -58,7 +58,7 @@ var FLAG_CONFIGS = {
 };
 
 // Cache for created behaviors
-var behaviorCache = {};
+const behaviorCache = {};
 
 /**
  * Creates a goto_flag behavior instance
@@ -71,19 +71,19 @@ function createGotoFlagBehavior(behaviorName) {
   }
   
   // Parse color from behavior name (format: "goto_flag:red" or "goto_flag")
-  var colorName = "red"; // default
+  let colorName = "red"; // default
   if (behaviorName.indexOf(":") !== -1) {
     colorName = behaviorName.split(":")[1];
   }
   
-  var config = FLAG_CONFIGS[colorName];
+  let config = FLAG_CONFIGS[colorName];
   if (!config) {
     Log.warn("Unknown flag color '" + colorName + "', using default 'red'", "goto_flag");
     config = FLAG_CONFIGS.red;
     colorName = "red";
   }
 
-  var b = new Behavior(behaviorName);
+  const b = new Behavior(behaviorName);
 
   function findFlag() {
     return _.find(Game.flags, {
@@ -92,19 +92,19 @@ function createGotoFlagBehavior(behaviorName) {
   }
 
   b.when = function (creep, rc) {
-    var flag = findFlag();
+    const flag = findFlag();
     if (!flag) return false;
     return config.whenCondition(creep, flag);
   };
 
   b.completed = function (creep, rc) {
-    var flag = findFlag();
+    const flag = findFlag();
     if (!flag) return true;
     return config.completedCondition(creep, flag);
   };
 
   b.work = function (creep, rc) {
-    var flag = findFlag();
+    const flag = findFlag();
     if (flag) {
       creep.travelTo(flag, config.travelOptions);
     }

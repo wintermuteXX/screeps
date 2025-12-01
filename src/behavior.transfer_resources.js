@@ -1,6 +1,6 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
-var b = new Behavior("transfer_resources");
+const b = new Behavior("transfer_resources");
 
 b.when = function (creep, rc) {
   Log.debug(`${creep} is checking "when" in transfer_resources`, "transfer_resources")
@@ -38,10 +38,11 @@ b.work = function (creep, rc) {
   };
 
   if (target) {
+    let result;
     if (creep.exact === true) {
-      var result = creep.transfer(target, creepRes, Math.min(creep.amount, creep.store[creepRes]));
+      result = creep.transfer(target, creepRes, Math.min(creep.amount, creep.store[creepRes]));
     } else {
-      var result = creep.transfer(target, creepRes);
+      result = creep.transfer(target, creepRes);
     }
 
     switch (result) {

@@ -20,7 +20,7 @@ ControllerFactory.prototype.getFactoryLevel = function () {
  * Once assigned, the level cannot be changed.
  */
 ControllerFactory.prototype.assignLevel = function () {
-  if (!this.factory) {
+  if (!this.factory || !this.factory.my) {
     return false;
   }
 
@@ -70,7 +70,7 @@ ControllerFactory.prototype.assignLevel = function () {
  * Sets the factory level using a Power Creep with OPERATE_FACTORY power.
  */
 ControllerFactory.prototype.setFactoryLevel = function (level) {
-  if (!this.factory) {
+  if (!this.factory || !this.factory.my) {
     return false;
   }
 
@@ -134,13 +134,19 @@ ControllerFactory.prototype.produceInFactory = function (ResourcesArray, check =
     Log.error(`The Expected value must be an array`, "produceInFactory");
     return false;
   } */
+  
+  // Check if factory belongs to the player
+  if (!this.factory || !this.factory.my) {
+    return false;
+  }
+  
   let roomNeedsResource = true; // if no check is needed, this must be true
 
   for (var r of ResourcesArray) {
     let produce = true;
     if (check === true) {
       // Does this room really needs this resource? true || false
-      roomNeedsResource = this.factory.room.getResourceAmount(r, "all") < global.getRoomThreshold(r, "all");
+      roomNeedsResource = this.factory.room.getResourceAmount(r, "all") < this.factory.room.getRoomThreshold(r, "all");
     }
     // Check if all resources that are needed to produce, exist in factory
     for (var i in COMMODITIES[r].components) {
@@ -165,7 +171,7 @@ ControllerFactory.prototype.produceInFactory = function (ResourcesArray, check =
 };
 
 ControllerFactory.prototype.produce = function () {
-  if (!this.factory || (this.factory && this.factory.cooldown !== 0)) {
+  if (!this.factory || !this.factory.my || (this.factory && this.factory.cooldown !== 0)) {
     return null;
   }
   //

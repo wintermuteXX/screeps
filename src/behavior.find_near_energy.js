@@ -1,9 +1,9 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
-var RANGE_TO_ENERGY = 3;
+const RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {
-  var dropped = rc.find(FIND_DROPPED_RESOURCES, {
+  const dropped = rc.find(FIND_DROPPED_RESOURCES, {
     filter: {
       resourceType: RESOURCE_ENERGY,
     },
@@ -12,12 +12,12 @@ function findEnergy(obj, rc) {
 }
 
 function findNearLink(obj, rc) {
-  var links = rc.links.receivers;
-  var [thelink] = obj.pos.findInRange(links, 3);
+  const links = rc.links.receivers;
+  const [thelink] = obj.pos.findInRange(links, 3);
   if (thelink && thelink.energy != 0) return thelink;
 }
 
-var b = new Behavior("find_near_energy");
+const b = new Behavior("find_near_energy");
 
 b.when = function (creep) {
   Log.info(`${creep.room.name} ${creep.name} is checking "when" condition`, "find_near_energy");
@@ -30,7 +30,7 @@ b.completed = function (creep, rc) {
   if (creep.store[RESOURCE_ENERGY] > 0) return true;
   
   // If no energy but no target set, stay active to move to controller
-  var target = creep.getTarget();
+  const target = creep.getTarget();
   if (!target && rc.room.controller) {
     return false; // Keep behavior active to move to controller
   }
@@ -40,8 +40,8 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   Log.info(`${creep.room.name} ${creep.name} is is performing "work" condition`, "find_near_energy");
-  var target = creep.getTarget();
-  var controller = rc.room.controller;
+  let target = creep.getTarget();
+  const controller = rc.room.controller;
 
   if (!target && controller) {
     let link = findNearLink(controller, rc);
@@ -54,7 +54,7 @@ b.work = function (creep, rc) {
       creep.target = creep.room.controller.container.id;
       target = creep.getTarget();
     } else {
-      var dropped = findEnergy(controller, rc);
+      const dropped = findEnergy(controller, rc);
       if (dropped.length) {
         Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from ground: ${dropped}`, "find_near_energy");
         target = dropped[0];

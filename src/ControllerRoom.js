@@ -1,12 +1,12 @@
-var ControllerSpawn = require("ControllerSpawn");
-var ControllerCreep = require("ControllerCreep");
-var ControllerLink = require("ControllerLink");
-var ControllerTower = require("ControllerTower");
-var ControllerTerminal = require("ControllerTerminal");
-var ControllerFactory = require("ControllerFactory");
-var ControllerLab = require("ControllerLab");
-var RoomPlanner = require("RoomPlanner");
-var LogisticsGroup = require("LogisticsGroup");
+const ControllerSpawn = require("ControllerSpawn");
+const ControllerCreep = require("ControllerCreep");
+const ControllerLink = require("ControllerLink");
+const ControllerTower = require("ControllerTower");
+const ControllerTerminal = require("ControllerTerminal");
+const ControllerFactory = require("ControllerFactory");
+const ControllerLab = require("ControllerLab");
+const RoomPlanner = require("RoomPlanner");
+const LogisticsGroup = require("LogisticsGroup");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
@@ -45,6 +45,9 @@ function ControllerRoom(room, ControllerGame) {
 }
 
 ControllerRoom.prototype.run = function () {
+  // Reset caches at the start of each tick
+  this._creepsByRole = null;
+  this._find = {};
   
   this.populate();
 
@@ -63,7 +66,7 @@ ControllerRoom.prototype.run = function () {
   this.commandCreeps();
 
   // Tower operations - fire always, repair based on energy level
-  const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > global.getRoomThreshold(RESOURCE_ENERGY, "all");
+  const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > this.room.getRoomThreshold(RESOURCE_ENERGY, "all");
   const shouldRepair = hasEnoughEnergy || (Game.time % CONSTANTS.TICKS.REPAIR_TOWER === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
   
   for (const tower of this._towers) {
@@ -347,7 +350,7 @@ ControllerRoom.prototype._processFactory = function () {
   if (!factory) return;
   
   for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = global.getRoomThreshold(resourceType, "factory");
+    var fillLevel = this.room.getRoomThreshold(resourceType, "factory");
     var amount = factory.store[resourceType] || 0;
     
     if (amount > fillLevel) {
@@ -374,7 +377,7 @@ ControllerRoom.prototype._processStorage = function () {
     var amount = storage.store[resourceType] || 0;
     if (amount === 0) continue;
     
-    var fillLevel = global.getRoomThreshold(resourceType, "storage");
+    var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
     var priority;
     var giveAmount;
     
@@ -415,7 +418,7 @@ ControllerRoom.prototype._processTerminal = function () {
   var terminal = this.room.terminal;
   if (!terminal) return;
   
-  var energyThreshold = global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
   
   for (var resourceType of RESOURCES_ALL) {
     var amount = terminal.store[resourceType] || 0;
@@ -659,7 +662,7 @@ ControllerRoom.prototype._processFactoryNeeds = function () {
   if (!factory || factory.store.getFreeCapacity() === 0) return;
   
   for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = global.getRoomThreshold(resourceType, "factory");
+    var fillLevel = this.room.getRoomThreshold(resourceType, "factory");
     var currentAmount = factory.store[resourceType] || 0;
     
     if (currentAmount < fillLevel) {
@@ -687,7 +690,7 @@ ControllerRoom.prototype._processStorageNeeds = function () {
   if (!storage || storage.store.getFreeCapacity() === 0) return;
   
   for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = global.getRoomThreshold(resourceType, "storage");
+    var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
     var currentAmount = storage.store[resourceType] || 0;
     var priority;
     var neededAmount;
@@ -730,7 +733,7 @@ ControllerRoom.prototype._processTerminalNeeds = function () {
   var terminal = this.room.terminal;
   if (!terminal || terminal.store.getFreeCapacity() === 0) return;
   
-  var energyThreshold = global.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
   
   for (var resourceType of RESOURCES_ALL) {
     var currentAmount = terminal.store[resourceType] || 0;
@@ -1013,7 +1016,7 @@ ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
           if (
             this.room.getResourceAmount(key, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
             this.room.getResourceAmount(prop, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
-            this.room.getResourceAmount(obj[prop], "all") < global.getRoomThreshold(obj[prop], "all")
+            this.room.getResourceAmount(obj[prop], "all") < this.room.getRoomThreshold(obj[prop], "all")
           ) {
             return {
               resourceA: key,

@@ -8,7 +8,7 @@
 
 ## _initGlobal.js
 
-- [ ] `getRoomThreshold` belongs in `_init.js` (Line 628)
+- [x] `getRoomThreshold` belongs in `_init.js` (moved to _init.js)
 
 ## config.creeps.js
 

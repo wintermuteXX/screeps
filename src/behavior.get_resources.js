@@ -1,6 +1,6 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
-var b = new Behavior("get_resources");
+const b = new Behavior("get_resources");
 
 b.when = function (creep, rc) {
   Log.debug(`${creep} is running "when"`, "get_resources");
@@ -17,10 +17,10 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   Log.debug(`${creep} is running "work"`, "get_resources");
-  var target = creep.getTarget();
+  let target = creep.getTarget();
 
   if (!target) {
-    var resource = rc.getTransportOrder(creep)
+    const resource = rc.getTransportOrder(creep)
     if (resource !== null && resource !== undefined) {
       creep.target = resource.id;
       target = creep.getTarget();

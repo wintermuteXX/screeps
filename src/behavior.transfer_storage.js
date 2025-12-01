@@ -1,6 +1,6 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
-var b = new Behavior("transfer_storage");
+const b = new Behavior("transfer_storage");
 
 /**
  * Transferiert alle Ressourcen zum Storage

@@ -316,7 +316,7 @@ function initGlobal(g) {
     }
     
     const summary = `📊 ${room.name}: ${parts.join(' | ')}`;
-    Log.info(summary, "analyzeRoom");
+    Log.success(summary, "analyzeRoom");
   }
 
   // Prototypes for Room Structures
@@ -943,21 +943,6 @@ function initGlobal(g) {
     return _.sortBy(Object.keys(this._creeps), function (r) {
       return global._creeps[r].priority || 999;
     });
-  };
-
-  // TODO this belongs in _init.js
-  global.getRoomThreshold = function (resource, structure = "all") {
-    let amount = 0;
-    if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0;
-    if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0;
-    if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory || 0;
-    if (structure == "factory1") amount += global.fillLevel[resource].factory1 || 0;
-    if (structure == "factory2") amount += global.fillLevel[resource].factory2 || 0;
-    if (structure == "factory3") amount += global.fillLevel[resource].factory3 || 0;
-    if (structure == "factory4") amount += global.fillLevel[resource].factory4 || 0;
-    if (structure == "factory5") amount += global.fillLevel[resource].factory5 || 0;
-
-    return amount;
   };
 
   g.whatsInTerminals = function () {

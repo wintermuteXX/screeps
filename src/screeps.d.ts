@@ -4,7 +4,7 @@ interface Memory {
   previousBucket?: number;
   logging?: { [tag: string]: number };
   stats?: { [key: string]: number };
-  scoutVisited?: { [roomName: string]: number };
+  rooms?: { [roomName: string]: RoomMemory };
   Traveler?: {
     rooms?: { [roomName: string]: { avoid?: number } };
     pCache?: { [key: string]: { [cost: number]: string; uses: number } };
@@ -40,6 +40,7 @@ interface RoomMemory {
       priority: number;
     }>;
   };
+  scoutVisited?: number;
   [key: string]: any;
 }
 

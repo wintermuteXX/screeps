@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const CONSTANTS = require("./constants");
 
-var b = new Behavior("goto_home");
+const b = new Behavior("goto_home");
 
 b.when = function (creep, rc) {
   return creep.room.name !== creep.memory.home;

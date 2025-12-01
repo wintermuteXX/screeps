@@ -1,4 +1,4 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 

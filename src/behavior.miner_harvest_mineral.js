@@ -1,6 +1,6 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
-var b = new Behavior("miner_harvest_mineral");
+const b = new Behavior("miner_harvest_mineral");
 
 b.when = function (creep, rc) {
   return creep.room.extractor && creep.room.mineral.mineralAmount > 0;
@@ -11,7 +11,7 @@ b.completed = function (creep) {
 };
 
 b.work = function (creep, rc) {
-  var target = creep.getTarget();
+  let target = creep.getTarget();
 
   if (target === null) {
     creep.target = creep.room.mineral.id;

@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
 
-var b = new Behavior("scout");
+const b = new Behavior("scout");
 
 /**
  * Checks if a room needs to be analyzed
@@ -23,11 +23,20 @@ function needsAnalysis(roomName) {
 }
 
 /**
+ * Checks if a room has been visited by scout
+ */
+function hasBeenVisited(roomName) {
+  if (!Memory.rooms || !Memory.rooms[roomName]) {
+    return false;
+  }
+  return Memory.rooms[roomName].scoutVisited !== undefined;
+}
+
+/**
  * Finds an unvisited room within 2 hops from the start room that needs analysis
  */
 function findUnvisitedRoom(creep) {
   const currentRoom = creep.room.name;
-  const visitedRooms = Memory.scoutVisited || {};
   
   // Find start room (spawn room)
   const spawns = Object.keys(Game.spawns);
@@ -46,7 +55,7 @@ function findUnvisitedRoom(creep) {
     const roomName = exits[direction];
     const roomStatus = Game.map.getRoomStatus(roomName);
     const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
-    if (roomStatus.status === 'normal' && distFromStart <= 2 && needsAnalysis(roomName)) {
+    if (roomStatus.status === 'normal' && distFromStart <= 2 && needsAnalysis(roomName) && !hasBeenVisited(roomName)) {
       candidates.push({ roomName, distance: distFromStart });
     }
   }
@@ -64,7 +73,7 @@ function findUnvisitedRoom(creep) {
           const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
           // Don't go back to current room and max 2 hops from start
           if (roomName !== currentRoom && roomStatus.status === 'normal' && 
-              distFromStart <= 2 && needsAnalysis(roomName)) {
+              distFromStart <= 2 && needsAnalysis(roomName) && !hasBeenVisited(roomName)) {
             candidates.push({ roomName, distance: distFromStart });
           }
         }
@@ -96,10 +105,14 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   // Mark current room as visited
-  if (!Memory.scoutVisited) {
-    Memory.scoutVisited = {};
+  const roomName = creep.room.name;
+  if (!Memory.rooms) {
+    Memory.rooms = {};
   }
-  Memory.scoutVisited[creep.room.name] = Game.time;
+  if (!Memory.rooms[roomName]) {
+    Memory.rooms[roomName] = {};
+  }
+  Memory.rooms[roomName].scoutVisited = Game.time;
   
   // Analyze current room
   global.analyzeRoom(creep.room, true);
@@ -113,7 +126,7 @@ b.work = function (creep, rc) {
     if (nextRoom) {
       targetRoom = nextRoom.roomName;
       creep.memory.scoutTarget = targetRoom;
-      Log.info(`🔍 Scout ${creep.name} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
+      Log.success(`🔍 Scout ${creep.name} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
     } else {
       // No more unvisited rooms within 2 hops - return to spawn room
       const spawns = Object.keys(Game.spawns);

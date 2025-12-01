@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const Log = require("Log");
 
-var b = new Behavior("miner_harvest");
+const b = new Behavior("miner_harvest");
 
 b.when = function () {
   return true;
@@ -15,7 +15,7 @@ b.completed = function () {
  * Helper: Get or find source for this miner
  */
 function getSource(creep, rc) {
-  var source = creep.getTarget();
+  let source = creep.getTarget();
   if (source === null) {
     source = _.find(rc.getSources(), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);

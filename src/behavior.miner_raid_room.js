@@ -1,7 +1,7 @@
-var Behavior = require("_behavior");
+const Behavior = require("_behavior");
 const CONSTANTS = require("./constants");
 
-var b = new Behavior("miner_raid_room");
+const b = new Behavior("miner_raid_room");
 
 b.when = function (creep, rc) {
   return creep.store.getFreeCapacity() !== 0 && creep.ticksToLive >= 150;
@@ -12,7 +12,7 @@ b.completed = function (creep) {
 };
 
 b.work = function (creep, rc) {
-  var target = creep.getTarget();
+  let target = creep.getTarget();
   if (target === null && creep.room.storage) {
     creep.target = creep.room.storage.id;
     target = creep.room.storage;
