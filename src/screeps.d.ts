@@ -39,6 +39,7 @@ interface RoomMemory {
       structureType: StructureConstant;
       priority: number;
     }>;
+    visualizeUntil?: number | null;
   };
   scoutVisited?: number;
   [key: string]: any;

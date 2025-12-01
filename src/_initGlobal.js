@@ -926,6 +926,85 @@ g.resourceReorder = setInterval(() => {
     Log.info(`Center for ${roomName} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
   };
 
+  // ==================== Global Help Function ====================
+  /**
+   * Displays all available helper functions in a compact table format
+   * Usage: help() or help('category')
+   * Categories: 'all', 'resources', 'planner', 'market', 'utils'
+   */
+  global.help = function (category = 'all') {
+    const functions = {
+      resources: [
+        { name: 'myResources(hide)', desc: 'Table of all resources across rooms', example: 'myResources(true)' },
+        { name: 'showLabs()', desc: 'Table showing lab status and reactions', example: 'showLabs()' },
+        { name: 'globalResourcesAmount(res)', desc: 'Total amount of resource across all rooms', example: 'globalResourcesAmount(RESOURCE_ENERGY)' },
+        { name: 'getRoomThreshold(res, struct)', desc: 'Threshold (fill level) for resource', example: 'getRoomThreshold(RESOURCE_ENERGY, "storage")' },
+        { name: 'resourceImg(resourceType)', desc: 'Emoji image for resource type', example: 'resourceImg(RESOURCE_ENERGY)' },
+        { name: 'reorderResources()', desc: 'Reorders resources in terminal/storage', example: 'reorderResources()' }
+      ],
+      planner: [
+        { name: 'plannerVisualize(room)', desc: 'Visualizes planned layout in game view', example: 'plannerVisualize("W1N1")' },
+        { name: 'plannerStats(room)', desc: 'Statistics about planned layout', example: 'plannerStats("W1N1")' },
+        { name: 'plannerReset(room)', desc: 'Resets layout for a room', example: 'plannerReset("W1N1")' },
+        { name: 'plannerRun(room)', desc: 'Runs RoomPlanner manually', example: 'plannerRun("W1N1")' },
+        { name: 'plannerSetCenter(room, x, y)', desc: 'Sets center coordinates for planning', example: 'plannerSetCenter("W1N1", 25, 25)' }
+      ],
+      market: [
+        { name: 'marketInfo()', desc: 'Table with market info (prices, amounts, orders)', example: 'marketInfo()' },
+        { name: 'MarketCal', desc: 'Market Calculator object', example: 'MarketCal.calculateBestPrice(...)' }
+      ],
+      utils: [
+        { name: 'json(x)', desc: 'Pretty-prints JSON object', example: 'json(Game.rooms["W1N1"])' },
+        { name: 'voiceConsole(text)', desc: 'Text-to-speech (Chrome/Firefox only)', example: 'voiceConsole("Hello")' },
+        { name: 'getMyUsername()', desc: 'Returns current player username', example: 'getMyUsername()' },
+        { name: 'isHostileUsername(user)', desc: 'Checks if username is hostile', example: 'isHostileUsername("Player")' }
+      ]
+    };
+
+    let result = [];
+    result.push('<table border="1" style="border-collapse: collapse;">');
+    result.push('<caption><strong>SCREEPS HELPER FUNCTIONS</strong></caption>');
+    result.push('<tr>');
+    result.push('<th style="padding: 5px; background-color: #333;">FUNCTION</th>');
+    result.push('<th style="padding: 5px; background-color: #333;">DESCRIPTION</th>');
+    result.push('<th style="padding: 5px; background-color: #333;">EXAMPLE</th>');
+    result.push('</tr>');
+
+    if (category === 'all' || !category) {
+      // Show all categories
+      for (const [cat, funcs] of Object.entries(functions)) {
+        result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${cat.toUpperCase()}</td></tr>`);
+        funcs.forEach(func => {
+          result.push('<tr>');
+          result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
+          result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
+          result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
+          result.push('</tr>');
+        });
+      }
+    } else if (functions[category]) {
+      // Show specific category
+      result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${category.toUpperCase()}</td></tr>`);
+      functions[category].forEach(func => {
+        result.push('<tr>');
+        result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
+        result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
+        result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
+        result.push('</tr>');
+      });
+    } else {
+      result.push(`<tr><td colspan="3" style="padding: 5px; color: #ff0000;">Unknown category: ${category}</td></tr>`);
+      result.push(`<tr><td colspan="3" style="padding: 5px; color: #cccccc;">Available: ${Object.keys(functions).join(', ')}</td></tr>`);
+    }
+
+    result.push('</table>');
+    result.push('<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: all, resources, planner, market, utils</p>');
+    
+    const resultString = result.join('');
+    console.log(resultString);
+    return resultString;
+  };
+
   global.voiceConsole = function voiceConsole(text) {
     // The function below was developed late last year by @stybbe, published in
     //  Screeps Slack's #share-thy-code channel. No license was applied; all
@@ -974,6 +1053,7 @@ g.resourceReorder = setInterval(() => {
                 </script>`.replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, "")
     );
   };
+
 }
 
 module.exports = initGlobal;

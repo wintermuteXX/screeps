@@ -16,7 +16,7 @@ module.exports = {
     NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
   },
 
-  // Tick Intervals
+// Tick Intervals
   TICKS: {
     LOG_INTERVAL: 100,              // Log every N ticks
     MEMHACK_CLEANUP_ROOMS: 100,     // Clean up room memory every N ticks
@@ -166,14 +166,6 @@ module.exports = {
   // Storage
   STORAGE: {
     MAX_ENERGY_THRESHOLD: 100000,     // Maximum energy threshold for storage
-  },
-
-  // Logistics System (Stable Marriage)
-  LOGISTICS: {
-    ENABLED: false,                    // Enable new logistics system
-    MATCHING_INTERVAL: 5,              // Run matching every N ticks (CPU optimization)
-    MAX_REQUESTS: 20,                  // Maximum requests to consider per matching
-    MAX_TRANSPORTERS: 20,              // Maximum transporters to consider per matching
   },
 
   // Market

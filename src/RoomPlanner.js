@@ -13,6 +13,40 @@ const CONSTANTS = require("./constants");
 const Log = require("Log");
 
 /**
+ * RoomPlanner Constants
+ */
+const PLANNER_CONSTANTS = {
+  // Construction Site Limits
+  MAX_CONSTRUCTION_SITES: 5,
+  
+  // Road Building
+  MIN_RCL_FOR_ROADS: 5,
+  
+  // Center Calculation
+  CENTER_FREE_RANGE: 5,
+  CENTER_SEARCH_MIN: 6,
+  CENTER_SEARCH_MAX: 44,
+  CONTROLLER_WEIGHT: 0.5,
+  
+  // Alternative Position Search
+  ALTERNATIVE_POSITION_RANGE: 2,
+  
+  // Special Structure Placement
+  LINK_PLACEMENT_RANGE: 2,
+  CONTAINER_CONTROLLER_RANGE: 2,
+  CONTAINER_DEFAULT_RANGE: 1,
+  
+  // Visualization
+  VISUALIZATION_DURATION: 15,
+  
+  // Room Boundaries
+  ROOM_MIN: 1,
+  ROOM_MAX: 48,
+  ROOM_EDGE_MIN: 2,
+  ROOM_EDGE_MAX: 47,
+};
+
+/**
  * Structure limits per RCL (from Screeps API)
  * These are used to check if a structure can be built
  */
@@ -33,6 +67,24 @@ const CONTROLLER_STRUCTURES = {
   [STRUCTURE_CONTAINER]: { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5 },
   [STRUCTURE_NUKER]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
   [STRUCTURE_FACTORY]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 },
+};
+
+/**
+ * Structure Type Mapping for Layout Generation
+ */
+const STRUCTURE_TYPE_MAP = {
+  spawns: STRUCTURE_SPAWN,
+  storage: STRUCTURE_STORAGE,
+  terminal: STRUCTURE_TERMINAL,
+  factory: STRUCTURE_FACTORY,
+  towers: STRUCTURE_TOWER,
+  extensions: STRUCTURE_EXTENSION,
+  labs: STRUCTURE_LAB,
+  links: STRUCTURE_LINK,
+  observer: STRUCTURE_OBSERVER,
+  powerSpawn: STRUCTURE_POWER_SPAWN,
+  nuker: STRUCTURE_NUKER,
+  roads: STRUCTURE_ROAD,
 };
 
 /**
@@ -181,6 +233,27 @@ const BUNKER_LAYOUT = {
     { x: 2, y: -2, priority: 207 },
     { x: -2, y: 2, priority: 208 },
     { x: 2, y: 2, priority: 209 },
+    // Connection to labs cluster (from outer ring to labs)
+    { x: 2, y: 3, priority: 210 },
+    { x: 3, y: 2, priority: 211 },
+    // Roads around lab cluster (connecting all labs - NOT on lab positions)
+    // Horizontal paths between lab rows (y=2, y=6)
+    { x: 2, y: 4, priority: 212 },
+    { x: 2, y: 5, priority: 213 },
+    { x: 2, y: 6, priority: 214 },
+    // Vertical paths between lab columns (x=2, x=6)
+    { x: 4, y: 2, priority: 215 },
+    { x: 5, y: 2, priority: 216 },
+    { x: 6, y: 2, priority: 217 },
+    // Paths around the lab cluster perimeter (bottom row)
+    { x: 3, y: 6, priority: 218 },
+    { x: 4, y: 6, priority: 219 },
+    { x: 5, y: 6, priority: 220 },
+    { x: 6, y: 6, priority: 221 },
+    // Connection to additional lab at (6,4) - roads around it
+    { x: 7, y: 3, priority: 222 },
+    { x: 7, y: 4, priority: 223 },
+    { x: 7, y: 5, priority: 224 },
   ],
 };
 
@@ -204,11 +277,13 @@ RoomPlanner.prototype._initMemory = function () {
     Memory.rooms[this.roomName] = {};
   }
   if (!Memory.rooms[this.roomName].planner) {
+    // @ts-ignore - Memory object is dynamic at runtime
     Memory.rooms[this.roomName].planner = {
       centerX: null,
       centerY: null,
       layoutGenerated: false,
       plannedStructures: [],
+      visualizeUntil: null,
     };
   }
   return Memory.rooms[this.roomName].planner;
@@ -242,6 +317,18 @@ RoomPlanner.prototype.run = function () {
 
   // Place special structures (Extractor, Container at Sources)
   this._placeSpecialStructures(rcl);
+
+  // Draw visualization if active
+  // @ts-ignore - Memory object is dynamic at runtime
+  if (this.memory.visualizeUntil && Game.time <= this.memory.visualizeUntil) {
+    this._drawVisualization();
+    // Auto-disable after 15 ticks
+    // @ts-ignore - Memory object is dynamic at runtime
+    if (Game.time >= this.memory.visualizeUntil) {
+      // @ts-ignore - Memory object is dynamic at runtime
+      this.memory.visualizeUntil = null;
+    }
+  }
 };
 
 /**
@@ -290,8 +377,8 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
   let bestScore = Infinity;
 
   // Search through possible positions
-  for (let x = 6; x < 44; x++) {
-    for (let y = 6; y < 44; y++) {
+  for (let x = PLANNER_CONSTANTS.CENTER_SEARCH_MIN; x < PLANNER_CONSTANTS.CENTER_SEARCH_MAX; x++) {
+    for (let y = PLANNER_CONSTANTS.CENTER_SEARCH_MIN; y < PLANNER_CONSTANTS.CENTER_SEARCH_MAX; y++) {
       // Check if position and surroundings are free
       if (!this._isValidCenterPosition(x, y)) continue;
 
@@ -302,7 +389,7 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
       for (const source of sources) {
         score += pos.getRangeTo(source.pos);
       }
-      score += pos.getRangeTo(controller.pos) * 0.5; // Controller weniger gewichten
+      score += pos.getRangeTo(controller.pos) * PLANNER_CONSTANTS.CONTROLLER_WEIGHT;
 
       if (score < bestScore) {
         bestScore = score;
@@ -319,7 +406,7 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
  */
 RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
   const terrain = this.room.getTerrain();
-  const range = 5; // Required free area around the center
+  const range = PLANNER_CONSTANTS.CENTER_FREE_RANGE;
 
   for (let dx = -range; dx <= range; dx++) {
     for (let dy = -range; dy <= range; dy++) {
@@ -327,7 +414,8 @@ RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
       const checkY = y + dy;
 
       // Border check
-      if (checkX < 2 || checkX > 47 || checkY < 2 || checkY > 47) {
+      if (checkX < PLANNER_CONSTANTS.ROOM_EDGE_MIN || checkX > PLANNER_CONSTANTS.ROOM_EDGE_MAX || 
+          checkY < PLANNER_CONSTANTS.ROOM_EDGE_MIN || checkY > PLANNER_CONSTANTS.ROOM_EDGE_MAX) {
         return false;
       }
 
@@ -356,7 +444,8 @@ RoomPlanner.prototype._generateLayout = function () {
     const y = centerY + offsetY;
 
     // Border check
-    if (x < 1 || x > 48 || y < 1 || y > 48) return;
+    if (x < PLANNER_CONSTANTS.ROOM_MIN || x > PLANNER_CONSTANTS.ROOM_MAX || 
+        y < PLANNER_CONSTANTS.ROOM_MIN || y > PLANNER_CONSTANTS.ROOM_MAX) return;
 
     // Wall check
     if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
@@ -376,64 +465,33 @@ RoomPlanner.prototype._generateLayout = function () {
     plannedStructures.push({ x, y, structureType, priority });
   };
 
-  // Add spawns
-  BUNKER_LAYOUT.spawns.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_SPAWN, pos.priority);
-  });
+  // Add all structures from layout (except roads, which are handled separately)
+  const structureKeys = ['spawns', 'storage', 'terminal', 'factory', 'towers', 'extensions', 
+                          'labs', 'links', 'observer', 'powerSpawn', 'nuker'];
+  
+  for (const key of structureKeys) {
+    const structureType = STRUCTURE_TYPE_MAP[key];
+    if (!structureType) continue;
+    
+    BUNKER_LAYOUT[key].forEach((pos) => {
+      addStructure(pos.x, pos.y, structureType, pos.priority);
+    });
+  }
 
-  // Storage
-  BUNKER_LAYOUT.storage.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_STORAGE, pos.priority);
-  });
-
-  // Terminal
-  BUNKER_LAYOUT.terminal.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_TERMINAL, pos.priority);
-  });
-
-  // Factory
-  BUNKER_LAYOUT.factory.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_FACTORY, pos.priority);
-  });
-
-  // Towers
-  BUNKER_LAYOUT.towers.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_TOWER, pos.priority);
-  });
-
-  // Extensions
-  BUNKER_LAYOUT.extensions.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_EXTENSION, pos.priority);
-  });
-
-  // Labs
-  BUNKER_LAYOUT.labs.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_LAB, pos.priority);
-  });
-
-  // Links
-  BUNKER_LAYOUT.links.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_LINK, pos.priority);
-  });
-
-  // Observer
-  BUNKER_LAYOUT.observer.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_OBSERVER, pos.priority);
-  });
-
-  // Power Spawn
-  BUNKER_LAYOUT.powerSpawn.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_POWER_SPAWN, pos.priority);
-  });
-
-  // Nuker
-  BUNKER_LAYOUT.nuker.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_NUKER, pos.priority);
-  });
-
-  // Roads
+  // Roads - only add if position is not already occupied by another structure
   BUNKER_LAYOUT.roads.forEach((pos) => {
-    addStructure(pos.x, pos.y, STRUCTURE_ROAD, pos.priority);
+    const roadX = centerX + pos.x;
+    const roadY = centerY + pos.y;
+    
+    // Check if this position is already planned for a non-road structure
+    const isOccupied = plannedStructures.some(
+      (s) => s.x === roadX && s.y === roadY && s.structureType !== STRUCTURE_ROAD
+    );
+    
+    // Only add road if position is free (no other structure planned there)
+    if (!isOccupied) {
+      addStructure(pos.x, pos.y, STRUCTURE_ROAD, pos.priority);
+    }
   });
 
   // Sort by priority
@@ -450,14 +508,15 @@ RoomPlanner.prototype._generateLayout = function () {
  */
 RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) {
   const terrain = this.room.getTerrain();
-  const range = 2;
+  const range = PLANNER_CONSTANTS.ALTERNATIVE_POSITION_RANGE;
 
   for (let dx = -range; dx <= range; dx++) {
     for (let dy = -range; dy <= range; dy++) {
       const newX = x + dx;
       const newY = y + dy;
 
-      if (newX < 1 || newX > 48 || newY < 1 || newY > 48) continue;
+      if (newX < PLANNER_CONSTANTS.ROOM_MIN || newX > PLANNER_CONSTANTS.ROOM_MAX || 
+          newY < PLANNER_CONSTANTS.ROOM_MIN || newY > PLANNER_CONSTANTS.ROOM_MAX) continue;
       if (terrain.get(newX, newY) === TERRAIN_MASK_WALL) continue;
 
       // Check if position is already occupied
@@ -480,8 +539,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
   const existingSites = this.room.find(FIND_CONSTRUCTION_SITES);
   
   // Limit for Construction Sites (max 100 per room, but we limit to fewer for efficiency)
-  const maxSites = 5;
-  if (existingSites.length >= maxSites) {
+  if (existingSites.length >= PLANNER_CONSTANTS.MAX_CONSTRUCTION_SITES) {
     return;
   }
 
@@ -491,7 +549,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
   let sitesPlaced = 0;
 
   for (const planned of this.memory.plannedStructures) {
-    if (sitesPlaced >= maxSites - existingSites.length) break;
+    if (sitesPlaced >= PLANNER_CONSTANTS.MAX_CONSTRUCTION_SITES - existingSites.length) break;
 
     const { x, y, structureType } = planned;
 
@@ -505,18 +563,34 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     const existingStructures = pos.lookFor(LOOK_STRUCTURES);
     const existingConstSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
 
-    // Check if a structure of this type already exists
-    const hasStructure = existingStructures.some(
-      (s) => s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD)
-    );
-    const hasSite = existingConstSites.some((s) => s.structureType === structureType);
-
-    if (hasStructure || hasSite) {
-      continue;
-    }
-
-    // Roads can be built over other structures, others cannot
-    if (structureType !== STRUCTURE_ROAD) {
+    // For roads: check if there's already a non-road structure or site at this position
+    if (structureType === STRUCTURE_ROAD) {
+      const hasNonRoadStructure = existingStructures.some(
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+      );
+      const hasNonRoadSite = existingConstSites.some(
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+      );
+      if (hasNonRoadStructure || hasNonRoadSite) {
+        continue; // Don't place road under other structures
+      }
+      // Check if road already exists
+      const hasRoad = existingStructures.some((s) => s.structureType === STRUCTURE_ROAD);
+      const hasRoadSite = existingConstSites.some((s) => s.structureType === STRUCTURE_ROAD);
+      if (hasRoad || hasRoadSite) {
+        continue;
+      }
+    } else {
+      // For non-road structures: check if structure of this type already exists
+      const hasStructure = existingStructures.some(
+        (s) => s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD)
+      );
+      const hasSite = existingConstSites.some((s) => s.structureType === structureType);
+      if (hasStructure || hasSite) {
+        continue;
+      }
+      
+      // Check if there's a blocking non-road, non-rampart structure
       const blockingStructure = existingStructures.find(
         (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
       );
@@ -571,8 +645,8 @@ RoomPlanner.prototype._getStructureCounts = function () {
  * Checks if a structure can be built at the given RCL
  */
 RoomPlanner.prototype._canBuildStructure = function (structureType, rcl, structureCounts) {
-  // Roads are only built from RCL 5 onwards
-  if (structureType === STRUCTURE_ROAD && rcl < 5) {
+  // Roads are only built from minimum RCL onwards
+  if (structureType === STRUCTURE_ROAD && rcl < PLANNER_CONSTANTS.MIN_RCL_FOR_ROADS) {
     return false;
   }
 
@@ -669,69 +743,8 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
     return;
   }
   
-  const range = type === "controller" ? 2 : 1;
-  
-  // Check if container already in range
-  const nearbyContainers = pos.findInRange(FIND_STRUCTURES, range, {
-    filter: (s) => s.structureType === STRUCTURE_CONTAINER,
-  });
-  
-  const nearbySites = pos.findInRange(FIND_CONSTRUCTION_SITES, range, {
-    filter: (s) => s.structureType === STRUCTURE_CONTAINER,
-  });
-
-  if (nearbyContainers.length > 0 || nearbySites.length > 0) {
-    return;
-  }
-
-  // Check if container limit reached
-  if (!this._canBuildStructure(STRUCTURE_CONTAINER, this.room.controller.level)) {
-    return;
-  }
-
-  // Find best position for container
-  const terrain = this.room.getTerrain();
-  let bestPos = null;
-  let bestScore = Infinity;
-
-  for (let dx = -range; dx <= range; dx++) {
-    for (let dy = -range; dy <= range; dy++) {
-      if (dx === 0 && dy === 0) continue;
-
-      const x = pos.x + dx;
-      const y = pos.y + dy;
-
-      if (x < 1 || x > 48 || y < 1 || y > 48) continue;
-      if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
-
-      const checkPos = new RoomPosition(x, y, this.roomName);
-      
-      // Check if position is free
-      const structures = checkPos.lookFor(LOOK_STRUCTURES);
-      const sites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
-      
-      if (structures.length > 0 || sites.length > 0) continue;
-
-      // Score: Distance to center (if available)
-      let score = 0;
-      if (this._hasCenter()) {
-        const centerPos = new RoomPosition(this.memory.centerX, this.memory.centerY, this.roomName);
-        score = checkPos.getRangeTo(centerPos);
-      }
-
-      if (score < bestScore) {
-        bestScore = score;
-        bestPos = checkPos;
-      }
-    }
-  }
-
-  if (bestPos) {
-    const result = this.room.createConstructionSite(bestPos, STRUCTURE_CONTAINER);
-    if (result === OK) {
-      Log.debug(`RoomPlanner: Container construction site placed at ${type}`, "RoomPlanner");
-    }
-  }
+  const range = type === "controller" ? PLANNER_CONSTANTS.CONTAINER_CONTROLLER_RANGE : PLANNER_CONSTANTS.CONTAINER_DEFAULT_RANGE;
+  this._placeStructureNear(pos, STRUCTURE_CONTAINER, range, type, false);
 };
 
 /**
@@ -757,27 +770,38 @@ RoomPlanner.prototype._placeControllerLink = function () {
  * Places a link near a position
  */
 RoomPlanner.prototype._placeLinkNear = function (pos, type) {
-  const range = 2;
-  
-  // Check if link already in range
-  const nearbyLinks = pos.findInRange(FIND_STRUCTURES, range, {
-    filter: (s) => s.structureType === STRUCTURE_LINK,
+  const range = PLANNER_CONSTANTS.LINK_PLACEMENT_RANGE;
+  this._placeStructureNear(pos, STRUCTURE_LINK, range, type, true);
+};
+
+/**
+ * Generic function to place a structure near a position
+ * @param {RoomPosition} pos - Target position
+ * @param {string} structureType - Type of structure to place
+ * @param {number} range - Search range around position
+ * @param {string} type - Type identifier for logging (e.g., "source", "controller")
+ * @param {boolean} allowRoads - Whether roads/ramparts are allowed at the position
+ */
+RoomPlanner.prototype._placeStructureNear = function (pos, structureType, range, type, allowRoads) {
+  // Check if structure already in range
+  const nearbyStructures = pos.findInRange(FIND_STRUCTURES, range, {
+    filter: (s) => s && 'structureType' in s && s.structureType === structureType,
   });
   
   const nearbySites = pos.findInRange(FIND_CONSTRUCTION_SITES, range, {
-    filter: (s) => s.structureType === STRUCTURE_LINK,
+    filter: (s) => s && 'structureType' in s && s.structureType === structureType,
   });
 
-  if (nearbyLinks.length > 0 || nearbySites.length > 0) {
+  if (nearbyStructures.length > 0 || nearbySites.length > 0) {
     return;
   }
 
-  // Check if link limit reached
-  if (!this._canBuildStructure(STRUCTURE_LINK, this.room.controller.level)) {
+  // Check if structure limit reached
+  if (!this._canBuildStructure(structureType, this.room.controller.level)) {
     return;
   }
 
-  // Find best position for link
+  // Find best position for structure
   const terrain = this.room.getTerrain();
   let bestPos = null;
   let bestScore = Infinity;
@@ -789,7 +813,8 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
       const x = pos.x + dx;
       const y = pos.y + dy;
 
-      if (x < 1 || x > 48 || y < 1 || y > 48) continue;
+      if (x < PLANNER_CONSTANTS.ROOM_MIN || x > PLANNER_CONSTANTS.ROOM_MAX || 
+          y < PLANNER_CONSTANTS.ROOM_MIN || y > PLANNER_CONSTANTS.ROOM_MAX) continue;
       if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
 
       const checkPos = new RoomPosition(x, y, this.roomName);
@@ -798,14 +823,19 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
       const structures = checkPos.lookFor(LOOK_STRUCTURES);
       const sites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
       
-      const hasBlockingStructure = structures.some(
-        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
-      );
-      const hasBlockingSite = sites.some(
-        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
-      );
-      
-      if (hasBlockingStructure || hasBlockingSite) continue;
+      if (allowRoads) {
+        // For links: allow roads/ramparts, but block other structures
+        const hasBlockingStructure = structures.some(
+          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+        );
+        const hasBlockingSite = sites.some(
+          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+        );
+        if (hasBlockingStructure || hasBlockingSite) continue;
+      } else {
+        // For containers: no structures or sites allowed
+        if (structures.length > 0 || sites.length > 0) continue;
+      }
 
       // Score: Distance to center (if available)
       let score = 0;
@@ -822,32 +852,39 @@ RoomPlanner.prototype._placeLinkNear = function (pos, type) {
   }
 
   if (bestPos) {
-    const result = this.room.createConstructionSite(bestPos, STRUCTURE_LINK);
+    const result = this.room.createConstructionSite(bestPos, structureType);
     if (result === OK) {
-      Log.debug(`RoomPlanner: Link construction site placed at ${type}`, "RoomPlanner");
+      const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
+      Log.debug(`RoomPlanner: ${structureName} construction site placed at ${type}`, "RoomPlanner");
     }
   }
 };
 
 /**
- * Visualizes the planned layout (for debugging)
+ * Activates visualization for 15 ticks
  */
 RoomPlanner.prototype.visualize = function () {
+  if (!this.memory.layoutGenerated) {
+    Log.warn(`Cannot visualize: Layout not generated for ${this.roomName}`, "RoomPlanner");
+    return;
+  }
+  
+  // Activate visualization
+  // @ts-ignore - Memory object is dynamic at runtime
+  this.memory.visualizeUntil = Game.time + PLANNER_CONSTANTS.VISUALIZATION_DURATION;
+  this._drawVisualization();
+  Log.info(`Visualization activated for ${this.roomName} (${PLANNER_CONSTANTS.VISUALIZATION_DURATION} ticks)`, "RoomPlanner");
+};
+
+/**
+ * Draws the visualization (internal method)
+ */
+RoomPlanner.prototype._drawVisualization = function () {
   if (!this.memory.layoutGenerated) return;
 
   const visual = this.room.visual;
 
-  // Draw center
-  if (this._hasCenter()) {
-    visual.circle(this.memory.centerX, this.memory.centerY, {
-      fill: "transparent",
-      stroke: "#00ff00",
-      strokeWidth: 0.2,
-      radius: 0.5,
-    });
-  }
-
-  // Draw planned structures
+  // Structure colors - each structure type has a unique color
   const structureColors = {
     [STRUCTURE_SPAWN]: "#ffff00",
     [STRUCTURE_EXTENSION]: "#ffaa00",
@@ -863,6 +900,72 @@ RoomPlanner.prototype.visualize = function () {
     [STRUCTURE_ROAD]: "#aaaaaa",
   };
 
+  // Structure names for legend
+  const structureNames = {
+    [STRUCTURE_SPAWN]: "Spawn",
+    [STRUCTURE_EXTENSION]: "Extension",
+    [STRUCTURE_TOWER]: "Tower",
+    [STRUCTURE_STORAGE]: "Storage",
+    [STRUCTURE_TERMINAL]: "Terminal",
+    [STRUCTURE_LAB]: "Lab",
+    [STRUCTURE_LINK]: "Link",
+    [STRUCTURE_FACTORY]: "Factory",
+    [STRUCTURE_OBSERVER]: "Observer",
+    [STRUCTURE_POWER_SPAWN]: "PowerSpawn",
+    [STRUCTURE_NUKER]: "Nuker",
+    [STRUCTURE_ROAD]: "Road",
+  };
+
+  // Draw center
+  if (this._hasCenter()) {
+    visual.circle(this.memory.centerX, this.memory.centerY, {
+      fill: "transparent",
+      stroke: "#00ff00",
+      strokeWidth: 0.2,
+      radius: 0.5,
+    });
+  }
+
+  // Collect unique structure types for legend
+  const usedStructures = new Set();
+  for (const planned of this.memory.plannedStructures) {
+    usedStructures.add(planned.structureType);
+  }
+
+  // Draw legend in top-left corner (doubled size)
+  let legendY = 1;
+  const legendWidth = 8;
+  const legendItemHeight = 1;
+  visual.rect(0.5, 0.5, legendWidth, usedStructures.size * legendItemHeight + 1, {
+    fill: "#000000",
+    opacity: 0.7,
+    stroke: "#ffffff",
+    strokeWidth: 0.2,
+  });
+
+  for (const structureType of usedStructures) {
+    const color = structureColors[structureType] || "#ffffff";
+    const name = structureNames[structureType] || structureType;
+    
+    // Color square (doubled size)
+    visual.rect(0.8, legendY, 0.6, 0.6, {
+      fill: color,
+      opacity: 1,
+      stroke: color,
+      strokeWidth: 0.2,
+    });
+    
+    // Text label: "Farbe = Extension" format (doubled size)
+    visual.text(`= ${name}`, 1.6, legendY + 0.4, {
+      color: "#ffffff",
+      font: "0.8 Arial",
+      align: "left",
+    });
+    
+    legendY += legendItemHeight;
+  }
+
+  // Draw planned structures
   for (const planned of this.memory.plannedStructures) {
     const color = structureColors[planned.structureType] || "#ffffff";
     visual.rect(planned.x - 0.4, planned.y - 0.4, 0.8, 0.8, {

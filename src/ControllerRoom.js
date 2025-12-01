@@ -7,7 +7,6 @@ const ControllerTerminal = require("ControllerTerminal");
 const ControllerFactory = require("ControllerFactory");
 const ControllerLab = require("ControllerLab");
 const RoomPlanner = require("RoomPlanner");
-const LogisticsGroup = require("LogisticsGroup");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
@@ -37,12 +36,6 @@ function ControllerRoom(room, ControllerGame) {
   this.factory = new ControllerFactory(this);
   this.labs = new ControllerLab(this);
   this.planner = new RoomPlanner(this.room);
-  
-  // Initialize LogisticsGroup (neues Logistiksystem)
-  this.logisticsGroup = null;
-  if (CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false) {
-    this.logisticsGroup = new LogisticsGroup(this.room);
-  }
 }
 
 ControllerRoom.prototype.run = function () {
@@ -56,13 +49,20 @@ ControllerRoom.prototype.run = function () {
   if (Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
     this.planner.run();
   }
+  
+  // Draw visualization every tick if active (independent of planner.run())
+  // @ts-ignore - Memory object is dynamic at runtime
+  if (this.room.memory.planner && this.room.memory.planner.visualizeUntil && Game.time <= this.room.memory.planner.visualizeUntil) {
+    this.planner._drawVisualization();
+    // Auto-disable after 15 ticks
+    // @ts-ignore - Memory object is dynamic at runtime
+    if (Game.time >= this.room.memory.planner.visualizeUntil) {
+      // @ts-ignore - Memory object is dynamic at runtime
+      this.room.memory.planner.visualizeUntil = null;
+    }
+  }
 
   this.links.transferEnergy();
-
-  // Update LogisticsGroup (neues Logistiksystem)
-  if (this.logisticsGroup) {
-    this.updateLogisticsGroup();
-  }
 
   this.commandCreeps();
 
@@ -153,41 +153,350 @@ ControllerRoom.prototype.populate = function () {
 ControllerRoom.prototype.getTransportOrder = function (Creep) {
   let givesResources = this.givesResources();
   let needsResources = this.needsResources();
-
+  
+  // Get resources the creep is already carrying
+  const carriedResources = [];
+  if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
+    // New multi-resource format
+    for (const res of Creep.memory.resources) {
+      if (Creep.store[res.resourceType] > 0) {
+        carriedResources.push(res.resourceType);
+      }
+    }
+  } else if (Creep.memory.resourceType && Creep.store[Creep.memory.resourceType] > 0) {
+    // Old format - backward compatibility
+    carriedResources.push(Creep.memory.resourceType);
+  }
+  
+  // Check if creep is empty or has free capacity
+  const usedCapacity = Creep.store.getUsedCapacity();
+  const totalCapacity = Creep.store.getCapacity();
+  const freeCapacity = totalCapacity - usedCapacity;
+  const isEmpty = usedCapacity === 0;
+  
+  // Collect all possible transport orders with scores
+  const possibleOrders = [];
+  
   for (var g in givesResources) {
     let give = givesResources[g];
     for (var n in needsResources) {
       let need = needsResources[n];
-      // TODO getCreeps needs to be better. Should calculate if more amount is needed...
-      if (
-        give.resourceType === need.resourceType &&
-        give.priority > need.priority &&
-        need.id !== give.id &&
-        (this.getCreeps(null, give.id).length == 0 || need.id == Creep.room.controller.memory.containerID)
-      ) {
-        Log.debug(
-          `${this.room.name} ${need.structureType} (${need.priority}) needs ${_.min([need.amount, give.amount])} ${global.resourceImg(need.resourceType)} from ${give.structureType} (${
-            give.priority
-          }) which has ${give.amount}`,
-          "getTransportOrder"
-        );
-        return give;
+      
+      // Check basic compatibility
+      if (give.resourceType !== need.resourceType) continue;
+      if (give.priority <= need.priority) continue; // give.priority must be > need.priority
+      if (need.id === give.id) continue;
+      
+      // Check if another transporter is already assigned
+      const assignedCount = this.getAssignedTransporters(need.id, need.resourceType);
+      const targetObj = Game.getObjectById(need.id);
+      if (!targetObj) continue;
+      
+      // Calculate how much is still needed
+      let stillNeeded = need.amount;
+      // @ts-ignore - targetObj may have store property
+      if (targetObj.store) {
+        // @ts-ignore - store property exists on structures/creeps
+        const currentAmount = targetObj.store[need.resourceType] || 0;
+        // @ts-ignore - store property exists on structures/creeps
+        const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
+        stillNeeded = Math.min(need.amount, freeCap);
       }
+      
+      if (stillNeeded <= 0) continue;
+      
+      // Check assignment blocking
+      const isSpecialCase = need.id === Creep.room.controller.memory.containerID;
+      const hasOtherTransporters = this.getCreeps(null, give.id).length > 0;
+      
+      if (hasOtherTransporters && !isSpecialCase) {
+        // Another transporter is already going to source - skip to prevent blocking
+        continue;
+      }
+      
+      // Calculate distance for prioritization
+      // @ts-ignore - Game.getObjectById returns objects with pos
+      const sourceObj = Game.getObjectById(give.id);
+      if (!sourceObj) continue;
+      // @ts-ignore - sourceObj has pos property
+      const distanceToSource = Creep.pos.getRangeTo(sourceObj.pos);
+      // @ts-ignore - targetObj and sourceObj have pos property
+      const distanceToTarget = sourceObj.pos.getRangeTo(targetObj.pos);
+      const totalDistance = distanceToSource + distanceToTarget;
+      
+      // Calculate score: lower is better
+      // Priority: lower need.priority = higher priority
+      // Distance: shorter = better
+      // Already carrying: bonus if already carrying this resource type
+      const alreadyCarrying = carriedResources.includes(give.resourceType);
+      const priorityScore = need.priority;
+      const distanceScore = totalDistance * 0.1; // Distance has less weight
+      const carryingBonus = alreadyCarrying ? -5 : 0; // Bonus if already carrying
+      
+      const score = priorityScore + distanceScore + carryingBonus;
+      
+      possibleOrders.push({
+        give: give,
+        need: need,
+        score: score,
+        priority: need.priority,
+        distance: totalDistance,
+        alreadyCarrying: alreadyCarrying,
+        stillNeeded: stillNeeded
+      });
     }
   }
+  
+  if (possibleOrders.length === 0) {
+    return null;
+  }
+  
+  // Sort by score (lower = better)
+  possibleOrders.sort((a, b) => {
+    if (Math.abs(a.score - b.score) < 0.01) {
+      // Scores are very close, prioritize already carrying
+      if (a.alreadyCarrying !== b.alreadyCarrying) {
+        return a.alreadyCarrying ? -1 : 1;
+      }
+      // Same carrying status, use priority
+      return a.priority - b.priority;
+    }
+    return a.score - b.score;
+  });
+  
+  // Select best order
+  const bestOrder = possibleOrders[0];
+  
+  // If creep already has this resource type, prioritize filling up
+  if (bestOrder.alreadyCarrying && freeCapacity > 0) {
+    // Creep is already carrying this resource - good choice to continue
+    Log.debug(
+      `${this.room.name} ${bestOrder.need.structureType} (${bestOrder.need.priority}) needs ${bestOrder.stillNeeded} ${global.resourceImg(bestOrder.need.resourceType)} from ${bestOrder.give.structureType} (${
+        bestOrder.give.priority
+      }) which has ${bestOrder.give.amount}. Creep already carrying this resource.`,
+      "getTransportOrder"
+    );
+    return bestOrder.give;
+  }
+  
+  // If creep is empty, choose best order
+  if (isEmpty) {
+    Log.debug(
+      `${this.room.name} ${bestOrder.need.structureType} (${bestOrder.need.priority}) needs ${bestOrder.stillNeeded} ${global.resourceImg(bestOrder.need.resourceType)} from ${bestOrder.give.structureType} (${
+        bestOrder.give.priority
+      }) which has ${bestOrder.give.amount}`,
+      "getTransportOrder"
+    );
+    return bestOrder.give;
+  }
+  
+  // Creep has other resources - only take this order if it's very high priority
+  // or if we have significant free capacity
+  if (freeCapacity > totalCapacity * 0.5) {
+    // More than 50% free capacity - can take new resource type
+    Log.debug(
+      `${this.room.name} ${bestOrder.need.structureType} (${bestOrder.need.priority}) needs ${bestOrder.stillNeeded} ${global.resourceImg(bestOrder.need.resourceType)} from ${bestOrder.give.structureType}. Creep has free capacity.`,
+      "getTransportOrder"
+    );
+    return bestOrder.give;
+  }
+  
+  // Creep is mostly full with other resources - skip for now
   return null;
 };
 
-ControllerRoom.prototype.getDeliveryOrder = function (Creep) {
-  let needsResources = this.needsResources();
-
-  for (var n in needsResources) {
-    let need = needsResources[n];
-    if (need.resourceType === Creep.memory.resourceType && (this.getCreeps(null, need.id).length == 0 || need.id == Creep.room.controller.memory.containerID)) {
-      Log.debug(`${this.room.name} ${Creep.name} transports ${_.min([Creep.amount, need.amount])} ${global.resourceImg(need.resourceType)} to ${need.structureType}`, "getDeliveryOrder");
-      return need;
+/**
+ * Gets assigned transporters for a specific target and resource type
+ * @param {string} targetId - Target ID
+ * @param {string} resourceType - Resource type
+ * @returns {number} Number of transporters already assigned
+ */
+ControllerRoom.prototype.getAssignedTransporters = function (targetId, resourceType) {
+  const transporters = this.getAllCreeps("transporter");
+  let count = 0;
+  
+  for (const transporter of transporters) {
+    // Check if transporter has this resource type
+    const hasResource = transporter.store[resourceType] > 0;
+    if (!hasResource) continue;
+    
+    // Check if transporter is targeting this destination
+    const target = transporter.getTarget();
+    if (target && target.id === targetId) {
+      count++;
+    } else if (transporter.memory.resources) {
+      // Check new multi-resource format
+      const resourceEntry = transporter.memory.resources.find(r => r.resourceType === resourceType);
+      if (resourceEntry && resourceEntry.target === targetId) {
+        count++;
+      }
+    } else if (transporter.memory.resourceType === resourceType && transporter.target === targetId) {
+      // Check old format
+      count++;
     }
   }
+  
+  return count;
+};
+
+/**
+ * Gets delivery order(s) for a creep
+ * @param {Creep} Creep - The creep
+ * @param {string|null} resourceType - Specific resource type to find order for, or null for all
+ * @returns {Object|Array|null} Single order, array of orders, or null
+ */
+ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null) {
+  let needsResources = this.needsResources();
+  
+  // Get resources the creep is carrying
+  const carriedResources = [];
+  if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
+    // New multi-resource format
+    for (const res of Creep.memory.resources) {
+      if (Creep.store[res.resourceType] > 0) {
+        carriedResources.push(res.resourceType);
+      }
+    }
+  } else if (Creep.memory.resourceType && Creep.store[Creep.memory.resourceType] > 0) {
+    // Old format - backward compatibility
+    carriedResources.push(Creep.memory.resourceType);
+  } else {
+    // Fallback: find all resources in store
+    for (const resType in Creep.store) {
+      if (Creep.store[resType] > 0) {
+        carriedResources.push(resType);
+      }
+    }
+  }
+  
+  if (carriedResources.length === 0) {
+    return null;
+  }
+  
+  // Filter by specific resource type if requested
+  const resourcesToCheck = resourceType ? [resourceType] : carriedResources;
+  
+  // Find matching orders for all carried resources
+  const matchingOrders = [];
+  
+  for (const resType of resourcesToCheck) {
+    if (Creep.store[resType] <= 0) continue;
+    
+    for (var n in needsResources) {
+      let need = needsResources[n];
+      
+      // Check if resource type matches
+      if (need.resourceType !== resType) continue;
+      
+      // Check if target is different from source
+      if (need.id === Creep.id) continue;
+      
+      // Check assignment count (prevent blocking)
+      const assignedCount = this.getAssignedTransporters(need.id, resType);
+      // @ts-ignore - Game.getObjectById can return various types
+      const targetObj = Game.getObjectById(need.id);
+      if (!targetObj) continue;
+      
+      // Calculate how much is still needed
+      let stillNeeded = need.amount;
+      // @ts-ignore - targetObj may have store property
+      if (targetObj.store) {
+        // @ts-ignore - store property exists on structures/creeps
+        const currentAmount = targetObj.store[resType] || 0;
+        // @ts-ignore - store property exists on structures/creeps
+        const freeCapacity = targetObj.store.getFreeCapacity(resType) || 0;
+        stillNeeded = Math.min(need.amount, freeCapacity);
+      }
+      
+      // Skip if already enough transporters assigned or target is full
+      if (stillNeeded <= 0) continue;
+      
+      // Check if this is a special case (controller container)
+      const isSpecialCase = need.id === Creep.room.controller.memory.containerID;
+      
+      // Check if this is the creep's current target - if so, allow it even if other transporters are going there
+      // This prevents switching targets every tick
+      const isCurrentTarget = Creep.target === need.id;
+      
+      // Only check for other transporters if this is NOT the current target
+      // This allows the creep to keep its current target even if another transporter is also going there
+      if (!isCurrentTarget && !isSpecialCase) {
+        const hasOtherTransporters = this.getCreeps(null, need.id).length > 0;
+        if (hasOtherTransporters) {
+          // Another transporter is already going there - skip to prevent blocking
+          // BUT: if this is our current target, keep it to prevent switching
+          continue;
+        }
+      }
+      
+      // Calculate distance for prioritization
+      // @ts-ignore - targetObj has pos property
+      const distance = Creep.pos.getRangeTo(targetObj.pos);
+      
+      // Calculate score: lower priority number = higher priority, distance matters
+      // Score = priority / (distance + 1) - lower is better
+      // Use integer distance to make score more stable (less sensitive to small movements)
+      const intDistance = Math.floor(distance);
+      let score = need.priority / (intDistance + 1);
+      
+      // Bonus: If this is the current target, give it a significant bonus to keep it
+      // This prevents switching when scores are similar
+      if (isCurrentTarget) {
+        score = score * 0.5; // Halve the score (lower = better) to strongly prefer current target
+      }
+      
+      matchingOrders.push({
+        resourceType: resType,
+        need: need,
+        score: score,
+        priority: need.priority,
+        distance: intDistance,
+        stillNeeded: stillNeeded,
+        targetId: need.id, // Store target ID for stable comparison
+        orderIndex: matchingOrders.length // Store original index for stability
+      });
+    }
+  }
+  
+  // Sort by score (lower = better), then by priority, then by target ID for stability
+  // Use a larger threshold for score comparison to prevent switching due to small changes
+  // IMPORTANT: Use targetId as primary tie-breaker to ensure stable ordering
+  matchingOrders.sort((a, b) => {
+    const scoreDiff = Math.abs(a.score - b.score);
+    if (scoreDiff < 0.1) {
+      // Scores are very close (within 0.1), use priority
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      // Same priority AND same score - use target ID for stable ordering
+      // This ensures the same target is always chosen when scores are equal
+      if (a.targetId && b.targetId) {
+        return a.targetId.localeCompare(b.targetId);
+      }
+      // Fallback to distance if no IDs
+      return a.distance - b.distance;
+    }
+    return a.score - b.score;
+  });
+  
+  
+  // Return format: if resourceType specified, return single order; otherwise return array
+  if (matchingOrders.length > 0) {
+    if (resourceType !== null) {
+      // Specific resource type requested - return best matching order for this type
+      const bestForType = matchingOrders.find(o => o.resourceType === resourceType);
+      if (bestForType) {
+        Log.debug(`${this.room.name} ${Creep.name} transports ${bestForType.stillNeeded} ${global.resourceImg(bestForType.resourceType)} to ${bestForType.need.structureType}`, "getDeliveryOrder");
+        return bestForType.need;
+      }
+      // If specific type not found but other orders exist, return null (for backward compatibility)
+      return null;
+    } else {
+      // No specific resource type - return array of all matching orders
+      return matchingOrders.map(o => o.need);
+    }
+  }
+  
   return null;
 };
 
@@ -1057,145 +1366,5 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   return cfg.canBuild(this);
 };
 
-/**
- * Updates the LogisticsGroup system
- * Converts givesResources() and needsResources() to requests
- */
-ControllerRoom.prototype.updateLogisticsGroup = function () {
-  if (!this.logisticsGroup) return;
-  
-  // Register all transporters
-  const transporters = this.getAllCreeps("transporter");
-  for (const transporter of transporters) {
-    this.logisticsGroup.registerTransporter(transporter);
-  }
-  
-  // Remove transporters that no longer exist
-  const activeTransporterIds = transporters.map((t) => t.id);
-  const transportersToRemove = [];
-  for (const transporter of this.logisticsGroup.transporters) {
-    if (!activeTransporterIds.includes(transporter.id)) {
-      transportersToRemove.push(transporter.id);
-    }
-  }
-  for (const transporterId of transportersToRemove) {
-    this.logisticsGroup.unregisterTransporter(transporterId);
-  }
-  
-  // Collect current request IDs
-  const currentRequestIds = new Set();
-  
-  // Convert givesResources() to provide() requests
-  const givesResources = this.givesResources();
-  let provideCount = 0;
-  for (const give of givesResources) {
-    const target = Game.getObjectById(give.id);
-    if (!target || give.amount <= 0) continue;
-    
-    const requestId = `provide_${give.id}_${give.resourceType}`;
-    currentRequestIds.add(requestId);
-    
-    // Calculate dAmountdt based on type
-    let dAmountdt = 0;
-    if (give.structureType === STRUCTURE_CONTAINER) {
-      // Containers are filled by miners
-      dAmountdt = 10; // Estimate: ~10 per tick
-    } else if (give.structureType === STRUCTURE_LINK) {
-      // Links are filled by senders
-      dAmountdt = 0; // Manually transferred
-    }
-    
-    // Check if resource is actually available
-    let availableAmount = 0;
-    if (target.store) {
-      availableAmount = target.store[give.resourceType] || 0;
-    } else if (target.amount !== undefined) {
-      // Dropped Resource
-      availableAmount = target.amount;
-    }
-    
-    if (availableAmount > 0) {
-      this.logisticsGroup.provide({
-        target: target,
-        resourceType: give.resourceType,
-        amount: Math.min(give.amount, availableAmount),
-        dAmountdt: dAmountdt,
-        multiplier: 1,
-        id: requestId,
-      });
-      provideCount++;
-    }
-  }
-  
-  // Convert needsResources() to request() requests
-  const needsResources = this.needsResources();
-  let requestCount = 0;
-  for (const need of needsResources) {
-    const target = Game.getObjectById(need.id);
-    if (!target || need.amount <= 0) continue;
-    
-    // Check if target actually needs resource
-    let neededAmount = 0;
-    if (target.store) {
-      neededAmount = target.store.getFreeCapacity(need.resourceType) || 0;
-    } else if (target instanceof Creep) {
-      neededAmount = target.store.getFreeCapacity(need.resourceType) || 0;
-    }
-    
-    if (neededAmount <= 0) continue;
-    
-    const requestId = `request_${need.id}_${need.resourceType}`;
-    currentRequestIds.add(requestId);
-    
-    // Calculate dAmountdt based on type
-    let dAmountdt = 0;
-    if (need.structureType === STRUCTURE_TOWER) {
-      // Towers consume energy when shooting
-      const enemies = this.getEnemys();
-      dAmountdt = enemies.length > 0 ? -1 : 0; // Estimate: ~1 per tick when active
-    } else if (need.structureType === STRUCTURE_SPAWN || need.structureType === STRUCTURE_EXTENSION) {
-      // Spawns/Extensions consume when spawning
-      dAmountdt = 0; // Consumed when spawning
-    } else if (need.structureType === STRUCTURE_CONTROLLER) {
-      // Controller consumes when upgrading
-      const upgraders = this.getCreeps("upgrader");
-      dAmountdt = -upgraders.length * 2; // Estimate: ~2 per upgrader
-    }
-    
-    this.logisticsGroup.request({
-      target: target,
-      resourceType: need.resourceType,
-      amount: Math.min(need.amount, neededAmount),
-      dAmountdt: dAmountdt,
-      multiplier: 1 / (need.priority || 100), // Lower priority = higher multiplier
-      id: requestId,
-    });
-    requestCount++;
-  }
-  
-  // Remove old requests that no longer exist
-  const requestsToRemove = [];
-  for (const request of this.logisticsGroup.requests) {
-    if (!currentRequestIds.has(request.id)) {
-      requestsToRemove.push(request.id);
-    }
-  }
-  for (const requestId of requestsToRemove) {
-    this.logisticsGroup.removeRequest(requestId);
-  }
-  
-  // Run matching (only when needed, handled internally)
-  this.logisticsGroup.runMatching();
-};
-
-/**
- * Initializes the LogisticsGroup system (if not already done)
- */
-ControllerRoom.prototype.initLogisticsGroup = function () {
-  if (!this.logisticsGroup && CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false) {
-    this.logisticsGroup = new LogisticsGroup(this.room);
-  }
-  return this.logisticsGroup;
-};
 
 module.exports = ControllerRoom;

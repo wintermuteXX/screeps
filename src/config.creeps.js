@@ -108,10 +108,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    // Use new logistics system if enabled, otherwise old system
-    behaviors: (CONSTANTS.LOGISTICS && CONSTANTS.LOGISTICS.ENABLED !== false)
-      ? ["renew:emergency", "transporter_logistics", "renew"]
-      : ["renew:emergency", "get_resources", "transfer_resources", "renew"],
+    behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
 
     canBuild: function (rc) {
       const transporters = rc.getAllCreeps("transporter");
