@@ -117,18 +117,26 @@ module.exports = {
       const transporters = rc.getAllCreeps("transporter");
       const droppedAmount = rc.getDroppedResourcesAmount();
       let modifier = 0;
-      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * 50) { // 50x the minimum
-        Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`, "transporter");
-        modifier = 1;
-      }
       const level = rc.getLevel();
+      let limit;
+      
       if (level < 4) {
-        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_BASE + modifier;
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_BASE;
       } else if (level < 7) {
-        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_MID + modifier;
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_MID;
       } else {
-        return transporters.length < CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
       }
+      
+      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * 50) { // 50x the minimum
+        modifier = 1;
+        // Only warn if we can actually build an additional transporter
+        if (transporters.length < limit + modifier) {
+          Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`, "transporter");
+        }
+      }
+      
+      return transporters.length < limit + modifier;
     },
   },
 
@@ -294,9 +302,19 @@ module.exports = {
     body: generateBody([MOVE, RANGED_ATTACK], 25), // 25 MOVE, 25 RANGED_ATTACK
     behaviors: ["attack_enemy"],
 
-    // TODO only build if no tower or boosted creeps enter room
     canBuild: function (rc) {
-      return false;
+      // Only build if no tower OR boosted creeps enter room
+      const hasTowers = rc.room.towers && rc.room.towers.length > 0;
+      
+      // Check for boosted hostile creeps
+      const hostiles = rc.getEnemys();
+      const hasBoostedCreeps = hostiles.some(creep => {
+        // Check if creep has any boosted body parts
+        return creep.body.some(part => part.boost);
+      });
+      
+      // Build defender if: no towers OR boosted creeps present
+      return !hasTowers || hasBoostedCreeps;
     },
   },
 

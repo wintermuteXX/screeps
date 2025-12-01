@@ -150,7 +150,9 @@ ControllerFactory.prototype.produceInFactory = function (ResourcesArray, check =
     }
     // Check if all resources that are needed to produce, exist in factory
     for (var i in COMMODITIES[r].components) {
-      if ((this.factory.store[i] || 0) < COMMODITIES[r].components[i]) {
+      const ResourceManager = require("ResourceManager");
+      const currentAmount = ResourceManager.getResourceAmount(this.factory.room, i, "factory");
+      if (currentAmount < COMMODITIES[r].components[i]) {
         produce = false;
       }
     }

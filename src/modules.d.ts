@@ -42,9 +42,15 @@ declare module "_init" {
 }
 
 declare module "ControllerGame" {
-  class ControllerGame {
+  interface ControllerGame {
+    checkCpuBucket(): boolean;
+    updateBucketMemory(): void;
     processRooms(): void;
   }
+  interface ControllerGameConstructor {
+    new (): ControllerGame;
+  }
+  const ControllerGame: ControllerGameConstructor;
   export = ControllerGame;
 }
 
@@ -164,6 +170,18 @@ declare module "_behavior" {
     [key: string]: any;
   }
   export = Behavior;
+}
+
+declare module "ResourceManager" {
+  interface ResourceManager {
+    getResourceAmount(room: Room, resource: string, structure?: string): number;
+    getRoomThreshold(resource: string, structure?: string): number;
+    getGlobalResourceAmount(resource: string): number;
+    getRoomNeeds(room: Room): Array<{resourceType: string; amount: number; room: string}>;
+    hasEnoughResource(room: Room, resource: string, structure?: string): boolean;
+  }
+  const ResourceManager: ResourceManager;
+  export = ResourceManager;
 }
 
 // Extend CreepMemory interface

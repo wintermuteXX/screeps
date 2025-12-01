@@ -353,7 +353,8 @@ LogisticsGroup.prototype.bufferChoices = function (transporter, request) {
     let storageDq = 0;
     if (request.amount > 0) {
       // Request: get from storage, deliver to target
-      const storageAmount = this.room.storage.store[request.resourceType] || 0;
+      const ResourceManager = require("ResourceManager");
+      const storageAmount = ResourceManager.getResourceAmount(this.room, request.resourceType, "storage");
       // If transporter is full, must first deliver to storage, then pick up
       if (isFull && currentCarry === 0) {
         // Cannot fulfill - would need to drop off first, but storage might be full

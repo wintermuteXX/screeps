@@ -68,6 +68,7 @@ interface Source {
   defended?: boolean;
   memory?: any;
   _container?: StructureContainer | null;
+  readonly freeSpacesCount: number;
 }
 
 // Extend Structure prototype
@@ -89,6 +90,7 @@ interface RoomObject {
 interface Room {
   _checkRoomCache?(): void;
   getResourceAmount?(resource: string, structure?: string): number;
+  getRoomThreshold?(resource: string, structure?: string): number;
   roomNeedResources?(): Array<{ resourceType: string; amount: number; room: string }>;
   _needResources?: Array<{ resourceType: string; amount: number; room: string }>;
   mineral?: Mineral;

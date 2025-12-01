@@ -53,8 +53,20 @@ function createRenewBehavior(behaviorName) {
       return false;
     }
     
+    // Creep should not have CLAIM body parts (cannot be renewed)
+    const hasClaimParts = creep.body.some(part => part.type === CLAIM);
+    if (hasClaimParts) {
+      return false;
+    }
+    
     // Spawn must be available
-    if (!rc.getIdleSpawnObject()) {
+    const spawn = rc.getIdleSpawnObject();
+    if (!spawn) {
+      return false;
+    }
+    
+    // For normal renew: check if spawn has energy
+    if (config.checkEnergy && (!spawn.store || spawn.store[RESOURCE_ENERGY] <= 0)) {
       return false;
     }
     

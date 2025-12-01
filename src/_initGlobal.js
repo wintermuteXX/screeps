@@ -425,469 +425,108 @@ function initGlobal(g) {
   // Constants are now imported directly in each file that needs them
   // No need to assign them to global anymore
   // Resources - fillLevel is too large to move to constants.js, keeping it here
+  // Helper function to create fill level entries
+  const fillLevel = (storage, terminal = 0, factory = 0, extras = {}) => ({
+    storage,
+    terminal,
+    factory,
+    ...extras,
+  });
+
+  // Common fill level patterns
+  const BASE_RESOURCE = fillLevel(21000, 0, 2000); // Base resources (H, O, U, L, K, Z, catalyst, ghodium)
+  const COMMODITY = fillLevel(5000, 0, 2000); // Commodities (silicon, metal, biomass, mist)
+  const INTERMEDIATE = fillLevel(9000, 0, 0); // Intermediate compounds
+  const CATALYZED = fillLevel(21000, 0, 0); // Catalyzed resources
+  const BAR = fillLevel(5000, 0, 1000); // Bars and related
+  const NO_STORAGE = fillLevel(0, 0, 0); // No storage (many end products)
+  const SMALL_STORAGE = fillLevel(1000, 0, 0); // Small storage base (composite, crystal, liquid)
+
   global.fillLevel = {
-    [RESOURCE_ENERGY]: {
-      storage: 30000,
-      terminal: 50000,
-      factory: 5000,
-    },
-    [RESOURCE_POWER]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_HYDROGEN]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_OXYGEN]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_UTRIUM]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_LEMERGIUM]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_KEANIUM]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_ZYNTHIUM]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_CATALYST]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_GHODIUM]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_SILICON]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_METAL]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_BIOMASS]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_MIST]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 2000,
-    },
-    [RESOURCE_HYDROXIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ZYNTHIUM_KEANITE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_LEMERGITE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_HYDRIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_OXIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_KEANIUM_HYDRIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_KEANIUM_OXIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_LEMERGIUM_HYDRIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_LEMERGIUM_OXIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ZYNTHIUM_HYDRIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ZYNTHIUM_OXIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_GHODIUM_HYDRIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_GHODIUM_OXIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_ACID]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_ALKALIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_KEANIUM_ACID]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_KEANIUM_ALKALIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_LEMERGIUM_ACID]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_LEMERGIUM_ALKALIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ZYNTHIUM_ACID]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ZYNTHIUM_ALKALIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_GHODIUM_ACID]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_GHODIUM_ALKALIDE]: {
-      storage: 9000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_UTRIUM_ACID]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_KEANIUM_ACID]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_GHODIUM_ACID]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: {
-      storage: 21000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_OPS]: {
-      storage: 18000,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_UTRIUM_BAR]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_LEMERGIUM_BAR]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_ZYNTHIUM_BAR]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_KEANIUM_BAR]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_GHODIUM_MELT]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_OXIDANT]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_REDUCTANT]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_PURIFIER]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_BATTERY]: {
-      storage: 5000,
-      terminal: 0,
-      factory: 1000,
-    },
-    [RESOURCE_COMPOSITE]: {
-      storage: 1000,
-      terminal: 0,
-      factory2: 400,
-      factory3: 1000,
-    },
-    [RESOURCE_CRYSTAL]: {
-      storage: 1000,
-      terminal: 0,
-      factory5: 2200,
-    },
-    [RESOURCE_LIQUID]: {
-      storage: 1000,
-      terminal: 0,
-      factory4: 3000,
-      factory5: 3000,
-    },
-    [RESOURCE_WIRE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory1: 800,
-      factory2: 300,
-      factory3: 234,
-    },
-    [RESOURCE_SWITCH]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory2: 80,
-      factory4: 80,
-    },
-    [RESOURCE_TRANSISTOR]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory3: 40,
-      factory4: 100,
-    },
-    [RESOURCE_MICROCHIP]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory4: 20,
-      factory5: 60,
-    },
-    [RESOURCE_CIRCUIT]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory5: 20,
-    },
-    [RESOURCE_DEVICE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CELL]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory1: 400,
-      factory2: 200,
-      factory5: 620,
-    },
-    [RESOURCE_PHLEGM]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory2: 200,
-      factory3: 60,
-    },
-    [RESOURCE_TISSUE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory3: 60,
-      factory4: 100,
-      factory5: 120,
-    },
-    [RESOURCE_MUSCLE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory4: 20,
-    },
-    [RESOURCE_ORGANOID]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory5: 20,
-    },
-    [RESOURCE_ORGANISM]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_ALLOY]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory1: 800,
-      factory2: 820,
-    },
-    [RESOURCE_TUBE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory3: 80,
-      factory4: 300,
-      factory5: 240,
-    },
-    [RESOURCE_FIXTURES]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory3: 40,
-      factory4: 60,
-      factory5: 240,
-    },
-    [RESOURCE_FRAME]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory5: 40,
-    },
-    [RESOURCE_HYDRAULICS]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory5: 20,
-    },
-    [RESOURCE_MACHINE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-    },
-    [RESOURCE_CONDENSATE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory1: 600,
-      factory2: 600,
-    },
-    [RESOURCE_CONCENTRATE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory2: 200,
-      factory3: 120,
-      factory4: 60,
-    },
-    [RESOURCE_EXTRACT]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory3: 40,
-      factory4: 40,
-    },
-    [RESOURCE_SPIRIT]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory4: 40,
-      factory5: 60,
-    },
-    [RESOURCE_EMANATION]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-      factory5: 20,
-    },
-    [RESOURCE_ESSENCE]: {
-      storage: 0,
-      terminal: 0,
-      factory: 0,
-    },
+    [RESOURCE_ENERGY]: fillLevel(30000, 50000, 5000),
+    [RESOURCE_POWER]: fillLevel(5000, 0, 0),
+    [RESOURCE_HYDROGEN]: BASE_RESOURCE,
+    [RESOURCE_OXYGEN]: BASE_RESOURCE,
+    [RESOURCE_UTRIUM]: BASE_RESOURCE,
+    [RESOURCE_LEMERGIUM]: BASE_RESOURCE,
+    [RESOURCE_KEANIUM]: BASE_RESOURCE,
+    [RESOURCE_ZYNTHIUM]: BASE_RESOURCE,
+    [RESOURCE_CATALYST]: BASE_RESOURCE,
+    [RESOURCE_GHODIUM]: BASE_RESOURCE,
+    [RESOURCE_SILICON]: COMMODITY,
+    [RESOURCE_METAL]: COMMODITY,
+    [RESOURCE_BIOMASS]: COMMODITY,
+    [RESOURCE_MIST]: COMMODITY,
+    [RESOURCE_HYDROXIDE]: CATALYZED,
+    [RESOURCE_ZYNTHIUM_KEANITE]: INTERMEDIATE,
+    [RESOURCE_UTRIUM_LEMERGITE]: INTERMEDIATE,
+    [RESOURCE_UTRIUM_HYDRIDE]: INTERMEDIATE,
+    [RESOURCE_UTRIUM_OXIDE]: INTERMEDIATE,
+    [RESOURCE_KEANIUM_HYDRIDE]: INTERMEDIATE,
+    [RESOURCE_KEANIUM_OXIDE]: INTERMEDIATE,
+    [RESOURCE_LEMERGIUM_HYDRIDE]: INTERMEDIATE,
+    [RESOURCE_LEMERGIUM_OXIDE]: INTERMEDIATE,
+    [RESOURCE_ZYNTHIUM_HYDRIDE]: INTERMEDIATE,
+    [RESOURCE_ZYNTHIUM_OXIDE]: INTERMEDIATE,
+    [RESOURCE_GHODIUM_HYDRIDE]: INTERMEDIATE,
+    [RESOURCE_GHODIUM_OXIDE]: INTERMEDIATE,
+    [RESOURCE_UTRIUM_ACID]: INTERMEDIATE,
+    [RESOURCE_UTRIUM_ALKALIDE]: INTERMEDIATE,
+    [RESOURCE_KEANIUM_ACID]: INTERMEDIATE,
+    [RESOURCE_KEANIUM_ALKALIDE]: INTERMEDIATE,
+    [RESOURCE_LEMERGIUM_ACID]: INTERMEDIATE,
+    [RESOURCE_LEMERGIUM_ALKALIDE]: INTERMEDIATE,
+    [RESOURCE_ZYNTHIUM_ACID]: INTERMEDIATE,
+    [RESOURCE_ZYNTHIUM_ALKALIDE]: INTERMEDIATE,
+    [RESOURCE_GHODIUM_ACID]: INTERMEDIATE,
+    [RESOURCE_GHODIUM_ALKALIDE]: INTERMEDIATE,
+    [RESOURCE_CATALYZED_UTRIUM_ACID]: CATALYZED,
+    [RESOURCE_CATALYZED_UTRIUM_ALKALIDE]: CATALYZED,
+    [RESOURCE_CATALYZED_KEANIUM_ACID]: CATALYZED,
+    [RESOURCE_CATALYZED_KEANIUM_ALKALIDE]: CATALYZED,
+    [RESOURCE_CATALYZED_LEMERGIUM_ACID]: CATALYZED,
+    [RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE]: CATALYZED,
+    [RESOURCE_CATALYZED_ZYNTHIUM_ACID]: CATALYZED,
+    [RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE]: CATALYZED,
+    [RESOURCE_CATALYZED_GHODIUM_ACID]: CATALYZED,
+    [RESOURCE_CATALYZED_GHODIUM_ALKALIDE]: CATALYZED,
+    [RESOURCE_OPS]: fillLevel(18000, 0, 0),
+    [RESOURCE_UTRIUM_BAR]: BAR,
+    [RESOURCE_LEMERGIUM_BAR]: BAR,
+    [RESOURCE_ZYNTHIUM_BAR]: BAR,
+    [RESOURCE_KEANIUM_BAR]: BAR,
+    [RESOURCE_GHODIUM_MELT]: BAR,
+    [RESOURCE_OXIDANT]: BAR,
+    [RESOURCE_REDUCTANT]: BAR,
+    [RESOURCE_PURIFIER]: BAR,
+    [RESOURCE_BATTERY]: BAR,
+    [RESOURCE_COMPOSITE]: fillLevel(1000, 0, 0, { factory2: 400, factory3: 1000 }),
+    [RESOURCE_CRYSTAL]: fillLevel(1000, 0, 0, { factory5: 2200 }),
+    [RESOURCE_LIQUID]: fillLevel(1000, 0, 0, { factory4: 3000, factory5: 3000 }),
+    [RESOURCE_WIRE]: fillLevel(0, 0, 0, { factory1: 800, factory2: 300, factory3: 234 }),
+    [RESOURCE_SWITCH]: fillLevel(0, 0, 0, { factory2: 80, factory4: 80 }),
+    [RESOURCE_TRANSISTOR]: fillLevel(0, 0, 0, { factory3: 40, factory4: 100 }),
+    [RESOURCE_MICROCHIP]: fillLevel(0, 0, 0, { factory4: 20, factory5: 60 }),
+    [RESOURCE_CIRCUIT]: fillLevel(0, 0, 0, { factory5: 20 }),
+    [RESOURCE_DEVICE]: NO_STORAGE,
+    [RESOURCE_CELL]: fillLevel(0, 0, 0, { factory1: 400, factory2: 200, factory5: 620 }),
+    [RESOURCE_PHLEGM]: fillLevel(0, 0, 0, { factory2: 200, factory3: 60 }),
+    [RESOURCE_TISSUE]: fillLevel(0, 0, 0, { factory3: 60, factory4: 100, factory5: 120 }),
+    [RESOURCE_MUSCLE]: fillLevel(0, 0, 0, { factory4: 20 }),
+    [RESOURCE_ORGANOID]: fillLevel(0, 0, 0, { factory5: 20 }),
+    [RESOURCE_ORGANISM]: NO_STORAGE,
+    [RESOURCE_ALLOY]: fillLevel(0, 0, 0, { factory1: 800, factory2: 820 }),
+    [RESOURCE_TUBE]: fillLevel(0, 0, 0, { factory3: 80, factory4: 300, factory5: 240 }),
+    [RESOURCE_FIXTURES]: fillLevel(0, 0, 0, { factory3: 40, factory4: 60, factory5: 240 }),
+    [RESOURCE_FRAME]: fillLevel(0, 0, 0, { factory5: 40 }),
+    [RESOURCE_HYDRAULICS]: fillLevel(0, 0, 0, { factory5: 20 }),
+    [RESOURCE_MACHINE]: NO_STORAGE,
+    [RESOURCE_CONDENSATE]: fillLevel(0, 0, 0, { factory1: 600, factory2: 600 }),
+    [RESOURCE_CONCENTRATE]: fillLevel(0, 0, 0, { factory2: 200, factory3: 120, factory4: 60 }),
+    [RESOURCE_EXTRACT]: fillLevel(0, 0, 0, { factory3: 40, factory4: 40 }),
+    [RESOURCE_SPIRIT]: fillLevel(0, 0, 0, { factory4: 40, factory5: 60 }),
+    [RESOURCE_EMANATION]: fillLevel(0, 0, 0, { factory5: 20 }),
+    [RESOURCE_ESSENCE]: NO_STORAGE,
   };
 
   g._behaviors = {};
@@ -988,27 +627,10 @@ function initGlobal(g) {
     return numberOfTerminals;
   };
 
+  const ResourceManager = require("ResourceManager");
+  
   global.globalResourcesAmount = function (resource) {
-    let amount = 0;
-    let allStr = [];
-
-    for (var i in Game.rooms) {
-      var room = Game.rooms[i];
-
-      var storeStr = room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return 'store' in structure;
-        },
-      });
-
-      allStr = allStr.concat(storeStr);
-    }
-
-    for (var i in allStr) {
-      if (allStr[i].store[resource] > 0) amount += allStr[i].store[resource];
-    }
-
-    return amount;
+    return ResourceManager.getGlobalResourceAmount(resource);
   };
 
   global.reorderResources = () => {

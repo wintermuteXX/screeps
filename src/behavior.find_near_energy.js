@@ -14,7 +14,7 @@ function findEnergy(obj, rc) {
 function findNearLink(obj, rc) {
   const links = rc.links.receivers;
   const [thelink] = obj.pos.findInRange(links, 3);
-  if (thelink && thelink.energy != 0) return thelink;
+  if (thelink && thelink.energy !== 0) return thelink;
 }
 
 const b = new Behavior("find_near_energy");
@@ -39,7 +39,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  Log.info(`${creep.room.name} ${creep.name} is is performing "work" condition`, "find_near_energy");
+  Log.info(`${creep.room.name} ${creep.name} is performing "work" condition`, "find_near_energy");
   let target = creep.getTarget();
   const controller = rc.room.controller;
 
@@ -49,33 +49,43 @@ b.work = function (creep, rc) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Link: ${link}`, "find_near_energy");
       creep.target = link.id;
       target = creep.getTarget();
-    } else if (creep.room.controller.container && creep.room.controller.container.store && creep.room.controller.container.store[RESOURCE_ENERGY] > 0) {
-      Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${creep.room.controller.container}`, "find_near_energy");
-      creep.target = creep.room.controller.container.id;
-      target = creep.getTarget();
     } else {
-      const dropped = findEnergy(controller, rc);
-      if (dropped.length) {
-        Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from ground: ${dropped}`, "find_near_energy");
-        target = dropped[0];
-        creep.target = target.id;
-      } else {
-        Log.debug(`${creep.room.name} ${creep.name} found no energy around Controller`, "find_near_energy");
-        target = null;
+      const container = creep.room.controller.container;
+      if (container && container.store && container.store[RESOURCE_ENERGY] > 0) {
+        Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${container}`, "find_near_energy");
+        creep.target = container.id;
+        target = creep.getTarget();
+      }
+      if (!target) {
+        const dropped = findEnergy(controller, rc);
+        if (dropped.length) {
+          Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from ground: ${dropped}`, "find_near_energy");
+          target = dropped[0];
+          creep.target = target.id;
+        } else {
+          Log.debug(`${creep.room.name} ${creep.name} found no energy around Controller`, "find_near_energy");
+          target = null;
+        }
       }
     }
   }
 
   if (target && controller) {
-    // TODO Add a check if withdraw/pickup is successful (and delete target if not)
     if (!creep.pos.isNearTo(target)) {
       Log.debug(`${creep.room.name} ${creep.name} is moving to target: ${target}`, "find_near_energy");
       creep.travelTo(target);
     } else {
+      let result;
       if (target.structureType) {
-        creep.withdraw(target, RESOURCE_ENERGY);
+        result = creep.withdraw(target, RESOURCE_ENERGY);
       } else {
-        creep.pickup(target);
+        result = creep.pickup(target);
+      }
+      
+      // Check if withdraw/pickup was successful, delete target if not
+      if (result !== OK) {
+        Log.debug(`${creep.room.name} ${creep.name} failed to get energy from ${target} (result: ${result}), clearing target`, "find_near_energy");
+        creep.target = null;
       }
     }
   } else if (controller && !target) {

@@ -1,5 +1,6 @@
 const CONSTANTS = require("./constants");
 const Log = require("Log");
+const ResourceManager = require("ResourceManager");
 
 function ControllerTerminal(rc) {
   this.room = rc;
@@ -131,7 +132,8 @@ ControllerTerminal.prototype.adjustWallHits = function () {
   if (!terminal || !terminal.my) {
     return null;
   }
-  if (terminal.store[RESOURCE_ENERGY] > terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
+  const ResourceManager = require("ResourceManager");
+  if (ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "terminal") > terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
     Log.success(`Increased the wallHits in room ${terminal.room.name}`);
     terminal.room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
   }
@@ -163,7 +165,7 @@ ControllerTerminal.prototype.internalTrade = function () {
       if (needed > 0) {
         // Amount of resource that will be send
         if (resourceType == RESOURCE_ENERGY) {
-          var sendAmount = Math.min(terminal.room.storage.store[RESOURCE_ENERGY] - terminal.room.getRoomThreshold(resourceType, "storage"), needed);
+          var sendAmount = Math.min(ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "storage") - terminal.room.getRoomThreshold(resourceType, "storage"), needed);
         } else {
           var sendAmount = Math.min(amount, needed);
         }
@@ -206,7 +208,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
   if (!ter || !ter.isActive() || !ter.my) {
     return null;
   }
-  let energyInTerminal = ter.store[RESOURCE_ENERGY];
+  let energyInTerminal = ResourceManager.getResourceAmount(ter.room, RESOURCE_ENERGY, "terminal");
   let orderExists = false;
 
   if (Game.market.credits < ter.room.getRoomThreshold(RESOURCE_ENERGY, "terminal")) {

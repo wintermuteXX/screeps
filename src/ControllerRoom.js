@@ -2,6 +2,7 @@ const ControllerSpawn = require("ControllerSpawn");
 const ControllerCreep = require("ControllerCreep");
 const ControllerLink = require("ControllerLink");
 const ControllerTower = require("ControllerTower");
+const ResourceManager = require("ResourceManager");
 const ControllerTerminal = require("ControllerTerminal");
 const ControllerFactory = require("ControllerFactory");
 const ControllerLab = require("ControllerLab");
@@ -351,7 +352,7 @@ ControllerRoom.prototype._processFactory = function () {
   
   for (var resourceType of RESOURCES_ALL) {
     var fillLevel = this.room.getRoomThreshold(resourceType, "factory");
-    var amount = factory.store[resourceType] || 0;
+    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "factory");
     
     if (amount > fillLevel) {
       this._addGivesResource({
@@ -374,7 +375,7 @@ ControllerRoom.prototype._processStorage = function () {
   if (!storage) return;
   
   for (var resourceType of RESOURCES_ALL) {
-    var amount = storage.store[resourceType] || 0;
+    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
     if (amount === 0) continue;
     
     var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
@@ -421,7 +422,7 @@ ControllerRoom.prototype._processTerminal = function () {
   var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
   
   for (var resourceType of RESOURCES_ALL) {
-    var amount = terminal.store[resourceType] || 0;
+    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
     var priority;
     var giveAmount;
     
@@ -691,7 +692,7 @@ ControllerRoom.prototype._processStorageNeeds = function () {
   
   for (var resourceType of RESOURCES_ALL) {
     var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
-    var currentAmount = storage.store[resourceType] || 0;
+    var currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
     var priority;
     var neededAmount;
     
@@ -736,7 +737,7 @@ ControllerRoom.prototype._processTerminalNeeds = function () {
   var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
   
   for (var resourceType of RESOURCES_ALL) {
-    var currentAmount = terminal.store[resourceType] || 0;
+    var currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
     var priority;
     var neededAmount;
     

@@ -22,12 +22,6 @@ Object.defineProperty(Creep.prototype, "behavior", {
   },
 });
 
-Object.defineProperty(Creep.prototype, "energy", {
-  get: function () {
-    return this.store.getUsedCapacity();
-  },
-});
-
 Object.defineProperty(Creep.prototype, "role", {
   get: function () {
     return this.memory.role || null;
@@ -281,72 +275,26 @@ Structure.prototype.getFirstMineral = function () {
   return { amount: 0 };
 };
 
+const ResourceManager = require("ResourceManager");
+
 Room.prototype.getResourceAmount = function (res, structure = "all") {
-  var amount = 0;
-  if ((structure == "all" || structure == "storage") && this.storage && this.storage.store[res]) {
-    amount += this.storage.store[res];
-  }
-  if ((structure == "all" || structure == "terminal") && this.terminal && this.terminal.store[res]) {
-    amount += this.terminal.store[res];
-  }
-  if ((structure == "all" || structure == "factory") && this.factory && this.factory.store[res]) {
-    amount += this.factory.store[res];
-  }
-  return amount;
+  return ResourceManager.getResourceAmount(this, res, structure);
 };
 
 Room.prototype.roomNeedResources = function () {
   if (!this._needResources) {
-    this._needResources = [];
-    if (this.terminal) {
-      for (let res of RESOURCES_ALL) {
-        let has = this.getResourceAmount(res);
-        let want = this.getRoomThreshold(res);
-        if (has < want) {
-          this._needResources.push({
-            resourceType: res,
-            amount: has - want,
-            room: this.name,
-          });
-        }
-      }
-    }
+    this._needResources = ResourceManager.getRoomNeeds(this);
   }
   return this._needResources;
 };
 
 Room.prototype.getRoomThreshold = function (resource, structure = "all") {
-  let amount = 0;
-  if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0;
-  if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0;
-  if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory || 0;
-  if (structure == "factory1") amount += global.fillLevel[resource].factory1 || 0;
-  if (structure == "factory2") amount += global.fillLevel[resource].factory2 || 0;
-  if (structure == "factory3") amount += global.fillLevel[resource].factory3 || 0;
-  if (structure == "factory4") amount += global.fillLevel[resource].factory4 || 0;
-  if (structure == "factory5") amount += global.fillLevel[resource].factory5 || 0;
-
-  return amount;
+  return ResourceManager.getRoomThreshold(resource, structure);
 };
 
 // Wrapper für Fälle ohne Room-Kontext (z.B. in _initGlobal.js)
 global.getRoomThreshold = function (resource, structure = "all") {
-  // Verwende einen beliebigen Room, da die Funktion keinen Room-spezifischen Kontext benötigt
-  const rooms = Object.values(Game.rooms).filter(r => r.controller && r.controller.my);
-  if (rooms.length > 0) {
-    return rooms[0].getRoomThreshold(resource, structure);
-  }
-  // Fallback falls kein Room verfügbar ist
-  let amount = 0;
-  if (structure == "all" || structure == "storage") amount += global.fillLevel[resource].storage || 0;
-  if (structure == "all" || structure == "terminal") amount += global.fillLevel[resource].terminal || 0;
-  if (structure == "all" || structure == "factory") amount += global.fillLevel[resource].factory || 0;
-  if (structure == "factory1") amount += global.fillLevel[resource].factory1 || 0;
-  if (structure == "factory2") amount += global.fillLevel[resource].factory2 || 0;
-  if (structure == "factory3") amount += global.fillLevel[resource].factory3 || 0;
-  if (structure == "factory4") amount += global.fillLevel[resource].factory4 || 0;
-  if (structure == "factory5") amount += global.fillLevel[resource].factory5 || 0;
-  return amount;
+  return ResourceManager.getRoomThreshold(resource, structure);
 };
 
 Object.defineProperty(Room.prototype, "mineral", {
@@ -400,6 +348,48 @@ Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
       }
     }
     return freeSpaceCount;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+/**
+ * Counts free spaces around a source (excluding walls and blocking structures)
+ * Roads and containers are allowed as they don't block harvesting
+ */
+Object.defineProperty(Source.prototype, "freeSpacesCount", {
+  get: function () {
+    const terrain = Game.map.getRoomTerrain(this.room.name);
+    let freeSpaces = 0;
+    
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (dx === 0 && dy === 0) continue; // Skip the source position itself
+        
+        const x = this.pos.x + dx;
+        const y = this.pos.y + dy;
+        
+        // Check bounds
+        if (x < 0 || x > 49 || y < 0 || y > 49) continue;
+        
+        // Check if terrain is walkable (not a wall)
+        if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
+        
+        // Check if there's a structure blocking the position
+        // @ts-ignore - lookForAt works correctly at runtime
+        const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+        const hasBlockingStructure = structures.some(s => 
+          s.structureType !== STRUCTURE_ROAD && 
+          s.structureType !== STRUCTURE_CONTAINER
+        );
+        
+        if (!hasBlockingStructure) {
+          freeSpaces++;
+        }
+      }
+    }
+    
+    return freeSpaces;
   },
   enumerable: false,
   configurable: true,
