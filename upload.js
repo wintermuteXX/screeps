@@ -9,12 +9,39 @@
  *      password=yourpassword
  *      branch=default
  *   
- *   2. Run: node upload.js
+ *   2. Run: node upload.js [--branch=<branch>]
+ *   
+ *   Examples:
+ *     node upload.js                    # Uses branch from .screepsrc
+ *     node upload.js --branch=dev       # Uploads to 'dev' branch
+ *     node upload.js --branch=main      # Uploads to 'main' branch
  */
 
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+
+// Parse command line arguments
+function parseArgs() {
+  const args = {};
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    // Support --branch=value or --branch value
+    if (arg.startsWith('--branch=')) {
+      args.branch = arg.split('=')[1];
+    } else if (arg === '--branch' && i + 1 < process.argv.length) {
+      args.branch = process.argv[++i];
+    } else if (arg.startsWith('-b=')) {
+      args.branch = arg.split('=')[1];
+    } else if (arg === '-b' && i + 1 < process.argv.length) {
+      args.branch = process.argv[++i];
+    } else if (!arg.startsWith('-') && !args.branch) {
+      // If it's not a flag and we don't have a branch yet, treat it as branch name
+      args.branch = arg;
+    }
+  }
+  return args;
+}
 
 // Load configuration
 function loadConfig() {
@@ -41,6 +68,13 @@ function loadConfig() {
   if (!config.email || !config.password) {
     console.error('Error: email and password required in .screepsrc');
     process.exit(1);
+  }
+  
+  // Override branch from command line if provided
+  const args = parseArgs();
+  if (args.branch) {
+    config.branch = args.branch;
+    console.log(`Using branch from command line: ${config.branch}`);
   }
   
   return config;

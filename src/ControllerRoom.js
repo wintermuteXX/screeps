@@ -7,6 +7,7 @@ const ControllerTerminal = require("ControllerTerminal");
 const ControllerFactory = require("ControllerFactory");
 const ControllerLab = require("ControllerLab");
 const RoomPlanner = require("RoomPlanner");
+const LogisticsManager = require("LogisticsManager");
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 
@@ -36,6 +37,7 @@ function ControllerRoom(room, ControllerGame) {
   this.factory = new ControllerFactory(this);
   this.labs = new ControllerLab(this);
   this.planner = new RoomPlanner(this.room);
+  this.logistics = new LogisticsManager(this.room);
 }
 
 ControllerRoom.prototype.run = function () {
@@ -63,6 +65,9 @@ ControllerRoom.prototype.run = function () {
   }
 
   this.links.transferEnergy();
+
+  // Run logistics manager to assign transport jobs
+  this.logistics.run(this);
 
   this.commandCreeps();
 
@@ -150,6 +155,10 @@ ControllerRoom.prototype.populate = function () {
   }
 };
 
+/**
+ * @deprecated - Only used by LogisticsManager fallback mechanism
+ * Use LogisticsManager.getJob() instead
+ */
 ControllerRoom.prototype.getTransportOrder = function (Creep) {
   let givesResources = this.givesResources();
   let needsResources = this.needsResources();
@@ -341,6 +350,8 @@ ControllerRoom.prototype.getAssignedTransporters = function (targetId, resourceT
 
 /**
  * Gets delivery order(s) for a creep
+ * @deprecated - Only used by LogisticsManager fallback mechanism for orphaned transporters
+ * Use LogisticsManager.getJob() instead
  * @param {Creep} Creep - The creep
  * @param {string|null} resourceType - Specific resource type to find order for, or null for all
  * @returns {Object|Array|null} Single order, array of orders, or null

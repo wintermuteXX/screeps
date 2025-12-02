@@ -21,7 +21,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: false,
     body: [MOVE, WORK, CARRY, MOVE],
-    behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
+    behaviors: ["transport", "harvest", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
@@ -108,7 +108,7 @@ module.exports = {
     minParts: 6,
     wait4maxEnergy: false,
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
+    behaviors: ["renew:emergency", "transport", "renew"],
 
     canBuild: function (rc) {
       const transporters = rc.getAllCreeps("transporter");
@@ -324,7 +324,7 @@ module.exports = {
     wait4maxEnergy: true,
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_flag:white", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
+    behaviors: ["goto_flag:white", "clear_enemy_buildings", "transport", "harvest", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });
