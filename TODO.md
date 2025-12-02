@@ -2,16 +2,21 @@
 
 ## General
 
-- [ ] Test and implement new logistic system
-- [ ] Check if all Structure Prototypes are used in the code and replace finds()
+- [x] Check Caching in general
 - [ ] Activate Powercreeps and code autorenew (and ops if needed) (Line 58)
 - [ ] Powercreeps - Auto set Factory Level (move away from ControllerFactory.js)
+- [x] Measure Performance. RCL Upgrade Time
+- [ ] Consolidate Transport Behavior
+- [ ] Wall/Rampart Building
+- [ ] Roads to Sources/Controller
+- [ ] Remote Mining
 
-## config.creeps.js
-
+## New Room
+- [ ] Scouts should not visit hostile rooms
+- [ ] Check "Conquer new room behavior"
 - [ ] Supporter help rooms with RCL <= 3 (Line 302)
-- [ ] Builder/Supporter calculation is not dynamic enough. Supporters have a long way. Usually there are too many builders. Take FreeSpaces into account (Line 29)
 
 ## ControllerSpawn.js
 
 - [ ] `createCreep` - Calculate Move parts dynamically (Line 15)
+- [ ] Builder/Supporter calculation is not dynamic enough. Supporters have a long way. Usually there are too many builders. Take FreeSpaces into account (Line 29)

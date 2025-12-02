@@ -6,6 +6,7 @@
  */
 const CONSTANTS = require("./constants");
 const Log = require("Log");
+const scoutBehavior = require("./behavior.scout");
 
 function generateBody(pattern, count) {
   const body = [];
@@ -359,7 +360,7 @@ module.exports = {
     behaviors: ["scout"],
 
     canBuild: function (rc) {
-      return false
+      return false;
       // Don't spawn scouts if room has an Observer
       const observers = rc.room.find(FIND_MY_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_OBSERVER
@@ -373,7 +374,18 @@ module.exports = {
       const existingScouts = _.filter(Game.creeps, (c) => {
         return c.memory.role === "scout" && c.memory.home === homeRoom;
       });
-      return existingScouts.length < 1;
+      if (existingScouts.length >= 1) {
+        return false;
+      }
+      
+      // Prüfe ob überhaupt ein Raum besucht werden muss
+      // Erstelle ein Mock-Creep-Objekt für findUnvisitedRoom
+      const mockCreep = {
+        room: rc.room,
+        memory: { home: homeRoom }
+      };
+      const unvisitedRoom = scoutBehavior.findUnvisitedRoom(mockCreep);
+      return unvisitedRoom !== null;
     },
   },
 };

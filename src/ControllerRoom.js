@@ -42,6 +42,13 @@ ControllerRoom.prototype.run = function () {
   // Reset caches at the start of each tick
   this._creepsByRole = null;
   this._find = {};
+  this._givesResources = null;
+  this._needsResources = null;
+  this._enemies = undefined;
+  this._structuresToRepair = undefined;
+  this._sources = null;
+  this._sourcesNE = null;
+  this._controllerNF = undefined;
   
   this.populate();
 
@@ -63,6 +70,8 @@ ControllerRoom.prototype.run = function () {
   }
 
   this.links.transferEnergy();
+
+  this.measureRclUpgradeTime();
 
   this.commandCreeps();
 
@@ -1364,6 +1373,61 @@ ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
   }
 
   return cfg.canBuild(this);
+};
+
+/**
+ * Measures the time it takes to upgrade from one RCL level to the next
+ * Stores upgrade times in Memory.rooms[roomName].rclUpgradeTimes
+ * Format: { "1": 1234, "2": 2345, ... } where key is the level reached and value is ticks taken
+ */
+ControllerRoom.prototype.measureRclUpgradeTime = function () {
+  // Only measure for owned rooms with controller
+  if (!this.room.controller || !this.room.controller.my) {
+    return;
+  }
+
+  const currentLevel = this.room.controller.level;
+  const roomName = this.room.name;
+
+  // Initialize memory structure if not exists
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+  if (!Memory.rooms[roomName]) {
+    Memory.rooms[roomName] = {};
+  }
+  if (!Memory.rooms[roomName].rclUpgradeTimes) {
+    Memory.rooms[roomName].rclUpgradeTimes = {};
+  }
+  if (Memory.rooms[roomName].rclLastLevel === undefined) {
+    Memory.rooms[roomName].rclLastLevel = currentLevel;
+  }
+  if (Memory.rooms[roomName].rclLastLevelTick === undefined) {
+    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+  }
+
+  const lastLevel = Memory.rooms[roomName].rclLastLevel;
+  const lastLevelTick = Memory.rooms[roomName].rclLastLevelTick;
+
+  // Check if RCL level increased
+  if (currentLevel > lastLevel) {
+    // Calculate upgrade time for the previous level (time from lastLevel to currentLevel)
+    const upgradeTime = Game.time - lastLevelTick;
+    
+    // Store upgrade time for the level we just reached
+    // Key is the level reached (e.g., "2" means time from RCL 1 to RCL 2)
+    Memory.rooms[roomName].rclUpgradeTimes[currentLevel.toString()] = upgradeTime;
+
+    // Update tracking
+    Memory.rooms[roomName].rclLastLevel = currentLevel;
+    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+  } else if (currentLevel < lastLevel) {
+    // Level decreased (shouldn't happen normally, but handle it)
+    // Reset tracking
+    Memory.rooms[roomName].rclLastLevel = currentLevel;
+    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+  }
+  // If level is the same, do nothing - tracking continues
 };
 
 

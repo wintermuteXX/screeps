@@ -184,6 +184,63 @@ declare module "ResourceManager" {
   export = ResourceManager;
 }
 
+declare module "utils.username" {
+  export function getMyUsername(): string | null;
+  export function isHostileUsername(username: string): boolean;
+}
+
+declare module "utils.roomAnalysis" {
+  export function analyzeRoom(room: Room, fullAnalysis?: boolean): void;
+  export function logAnalysisSummary(room: Room, memory: any, fullAnalysis: boolean): void;
+}
+
+declare module "utils.resources" {
+  export const fillLevelConfig: { [resource: string]: any };
+  export function resourceImg(resourceType: string): string;
+  export function globalResourcesAmount(resource: string): number;
+  export function reorderResources(): void;
+}
+
+declare module "utils.console" {
+  export function whatsInTerminals(): void;
+  export function numberOfTerminals(): number;
+  export function showLabs(): string;
+  export function myResources(hide?: boolean): string;
+  export function marketInfo(): string;
+  export function json(x: any): string;
+  export function help(category?: string): string;
+  export function voiceConsole(text: string): void;
+}
+
+declare module "utils.roomPlanner" {
+  export function plannerVisualize(roomName: string): void;
+  export function plannerStats(roomName: string): any;
+  export function plannerReset(roomName: string): void;
+  export function plannerRun(roomName: string): void;
+  export function plannerSetCenter(roomName: string, x: number, y: number): void;
+}
+
+declare module "utils.behaviors" {
+  function createBehaviorRegistry(): {
+    getBehavior(key: string): any;
+    _registerBehavior(n: string): any;
+  };
+  export = createBehaviorRegistry;
+}
+
+declare module "utils.creeps" {
+  function createCreepConfigUtils(): {
+    getCreepConfig(role: string): any;
+    getCreepsConfig(): any;
+    getCreepRoles(): string[];
+  };
+  export = createCreepConfigUtils;
+}
+
+declare module "utils.roomPrototypes" {
+  // Extends Room prototype
+}
+
 // Extend CreepMemory interface
 interface CreepMemory {
   role?: string;

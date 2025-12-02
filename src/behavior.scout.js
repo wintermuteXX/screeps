@@ -23,24 +23,13 @@ function needsAnalysis(roomName) {
 }
 
 /**
- * Checks if a room has been visited by scout
- */
-function hasBeenVisited(roomName) {
-  if (!Memory.rooms || !Memory.rooms[roomName]) {
-    return false;
-  }
-  return Memory.rooms[roomName].scoutVisited !== undefined;
-}
-
-/**
  * Finds an unvisited room within 2 hops from the start room that needs analysis
  */
 function findUnvisitedRoom(creep) {
   const currentRoom = creep.room.name;
   
-  // Find start room (spawn room)
-  const spawns = Object.keys(Game.spawns);
-  const startRoom = spawns.length > 0 ? Game.spawns[spawns[0]].room.name : currentRoom;
+  // Find start room (home room from memory, fallback to current room)
+  const startRoom = creep.memory.home || currentRoom;
   
   // Calculate distance from start room
   const distanceFromStart = Game.map.getRoomLinearDistance(startRoom, currentRoom);
@@ -55,7 +44,7 @@ function findUnvisitedRoom(creep) {
     const roomName = exits[direction];
     const roomStatus = Game.map.getRoomStatus(roomName);
     const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
-    if (roomStatus.status === 'normal' && distFromStart <= 2 && needsAnalysis(roomName) && !hasBeenVisited(roomName)) {
+    if (roomStatus.status === 'normal' && distFromStart <= 2 && needsAnalysis(roomName)) {
       candidates.push({ roomName, distance: distFromStart });
     }
   }
@@ -73,7 +62,7 @@ function findUnvisitedRoom(creep) {
           const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
           // Don't go back to current room and max 2 hops from start
           if (roomName !== currentRoom && roomStatus.status === 'normal' && 
-              distFromStart <= 2 && needsAnalysis(roomName) && !hasBeenVisited(roomName)) {
+              distFromStart <= 2 && needsAnalysis(roomName)) {
             candidates.push({ roomName, distance: distFromStart });
           }
         }
@@ -112,10 +101,19 @@ b.work = function (creep, rc) {
   if (!Memory.rooms[roomName]) {
     Memory.rooms[roomName] = {};
   }
+  const lastScoutVisit = Memory.rooms[roomName].scoutVisited;
   Memory.rooms[roomName].scoutVisited = Game.time;
   
-  // Analyze current room
-  global.analyzeRoom(creep.room, true);
+  // Analyze current room only if:
+  // 1. Scout just entered this room (wasn't here last tick), or
+  // 2. Room needs analysis (never checked or last check was more than 100000 ticks ago)
+  const shouldAnalyze = !lastScoutVisit || 
+                        lastScoutVisit < Game.time - 1 || 
+                        needsAnalysis(roomName);
+  
+  if (shouldAnalyze) {
+    global.analyzeRoom(creep.room, true);
+  }
   
   // Check if we have a target
   let targetRoom = creep.memory.scoutTarget;
@@ -128,20 +126,14 @@ b.work = function (creep, rc) {
       creep.memory.scoutTarget = targetRoom;
       Log.success(`🔍 Scout ${creep.name} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
     } else {
-      // No more unvisited rooms within 2 hops - return to spawn room
-      const spawns = Object.keys(Game.spawns);
-      if (spawns.length > 0) {
-        const spawnRoom = Game.spawns[spawns[0]].room.name;
-        if (spawnRoom !== creep.room.name) {
-          targetRoom = spawnRoom;
-          creep.memory.scoutTarget = targetRoom;
-          Log.debug(`Scout ${creep.name} returning to spawn room ${spawnRoom}`, "scout");
-        } else {
-          // Already in spawn room - wait
-          return;
-        }
+      // No more unvisited rooms within 2 hops - return to home room
+      const homeRoom = creep.memory.home;
+      if (homeRoom && homeRoom !== creep.room.name) {
+        targetRoom = homeRoom;
+        creep.memory.scoutTarget = targetRoom;
+        Log.debug(`Scout ${creep.name} returning to home room ${homeRoom}`, "scout");
       } else {
-        // No spawn found - stay in current room
+        // Already in home room or no home room set - wait
         return;
       }
     }
@@ -160,4 +152,5 @@ b.work = function (creep, rc) {
 };
 
 module.exports = b;
+module.exports.findUnvisitedRoom = findUnvisitedRoom;
 

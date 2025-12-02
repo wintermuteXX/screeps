@@ -28,5 +28,5 @@ module.exports.loop = function () {
   }
   
   gc.updateBucketMemory();
-  // stats.doStats();
+  stats.doStats();
 };
