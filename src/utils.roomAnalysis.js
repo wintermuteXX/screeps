@@ -2,6 +2,112 @@ const Log = require("Log");
 const CONSTANTS = require("./constants");
 
 /**
+ * Calculates a score for a room based on various factors
+ * Higher score = better room for claiming
+ * @param {Room} room - The room to score
+ * @param {Object} memory - The room's memory
+ * @returns {Object} Score object with total and breakdown
+ */
+function calculateRoomScore(room, memory) {
+  let score = 0;
+  const breakdown = {};
+  
+  // 1. Is the room free? (highest priority - 1000 points)
+  const isFree = !memory.controller || 
+                 (!memory.controller.owner && !memory.controller.reservation);
+  if (isFree) {
+    score += 1000;
+    breakdown.isFree = 1000;
+  } else {
+    breakdown.isFree = 0;
+  }
+  
+  // 2. Has 2 sources? (500 points)
+  if (memory.sources && memory.sources.length === 2) {
+    score += 500;
+    breakdown.hasTwoSources = 500;
+  } else {
+    breakdown.hasTwoSources = 0;
+  }
+  
+  // 3. Little swamp in room? (max 300 points, less swamp = more points)
+  const terrain = Game.map.getRoomTerrain(room.name);
+  let swampCount = 0;
+  let freeSpaceCount = 0;
+  const totalTiles = 50 * 50; // Room is 50x50
+  
+  for (let x = 0; x < 50; x++) {
+    for (let y = 0; y < 50; y++) {
+      const terrainType = terrain.get(x, y);
+      if (terrainType === TERRAIN_MASK_SWAMP) {
+        swampCount++;
+      } else if (terrainType !== TERRAIN_MASK_WALL) {
+        freeSpaceCount++;
+      }
+    }
+  }
+  
+  const swampPercentage = (swampCount / totalTiles) * 100;
+  // Less swamp = more points (0% swamp = 300 points, 50% swamp = 0 points)
+  const swampScore = Math.max(0, 300 * (1 - swampPercentage / 50));
+  score += swampScore;
+  breakdown.lowSwamp = Math.round(swampScore);
+  breakdown.swampPercentage = Math.round(swampPercentage * 10) / 10;
+  
+  // 4. Much free space in room? (max 200 points, more space = more points)
+  const freeSpacePercentage = (freeSpaceCount / totalTiles) * 100;
+  // More free space = more points (100% free = 200 points, 50% free = 0 points)
+  const freeSpaceScore = Math.max(0, 200 * ((freeSpacePercentage - 50) / 50));
+  score += freeSpaceScore;
+  breakdown.highFreeSpace = Math.round(freeSpaceScore);
+  breakdown.freeSpacePercentage = Math.round(freeSpacePercentage * 10) / 10;
+  
+  // 5. Has a mineral we don't have in other rooms? (400 points)
+  if (memory.mineral && memory.mineral.type) {
+    const existingMinerals = new Set();
+    
+    // Check all rooms in memory for existing minerals
+    if (Memory.rooms) {
+      for (const roomName in Memory.rooms) {
+        const roomMemory = Memory.rooms[roomName];
+        // Only count rooms we own or have claimed
+        if (roomMemory.controller && roomMemory.controller.my) {
+          if (roomMemory.mineral && roomMemory.mineral.type) {
+            existingMinerals.add(roomMemory.mineral.type);
+          }
+        }
+      }
+    }
+    
+    // Check current Game.rooms for owned rooms
+    for (const roomName in Game.rooms) {
+      const gameRoom = Game.rooms[roomName];
+      if (gameRoom.controller && gameRoom.controller.my) {
+        if (gameRoom.mineral) {
+          existingMinerals.add(gameRoom.mineral.mineralType);
+        }
+      }
+    }
+    
+    if (!existingMinerals.has(memory.mineral.type)) {
+      score += 400;
+      breakdown.newMineral = 400;
+      breakdown.mineralType = memory.mineral.type;
+    } else {
+      breakdown.newMineral = 0;
+      breakdown.mineralType = memory.mineral.type;
+    }
+  } else {
+    breakdown.newMineral = 0;
+  }
+  
+  return {
+    total: Math.round(score),
+    breakdown: breakdown
+  };
+}
+
+/**
  * Analyse a room and store comprehensive data in memory
  * Can be called from ControllerRoom or Scout
  * @param {Room} room - The room to analyse
@@ -12,8 +118,18 @@ function analyzeRoom(room, fullAnalysis = false) {
   
   const memory = room.memory;
   
+  // Initialize Memory.rooms if needed
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+  if (!Memory.rooms[room.name]) {
+    Memory.rooms[room.name] = {};
+  }
+  
+  // Set lastCheck in Memory.rooms (works even without vision)
+  Memory.rooms[room.name].lastCheck = Game.time;
+  
   try {
-    memory.lastCheck = Game.time;
 
     // ===== Static Data (only set once) =====
     if (!memory.roomType) {
@@ -42,8 +158,8 @@ function analyzeRoom(room, fullAnalysis = false) {
         id: s.id,
         x: s.pos.x,
         y: s.pos.y,
+        freeSpaces: s.freeSpacesCount,
       }));
-      memory.sourceCount = sources.length;
 
       // Mineral information (static)
       if (room.mineral) {
@@ -172,6 +288,9 @@ function analyzeRoom(room, fullAnalysis = false) {
         available: room.energyAvailable,
         capacity: room.energyCapacityAvailable,
       };
+      
+      // Calculate room score for claiming priority
+      memory.score = calculateRoomScore(room, memory);
     }
 
     // Log summary of analysis
@@ -194,8 +313,8 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   parts.push(`Type: ${memory.roomType}`);
   
   // Sources
-  if (memory.sourceCount !== undefined) {
-    parts.push(`Sources: ${memory.sourceCount}`);
+  if (memory.sources && memory.sources.length > 0) {
+    parts.push(`Sources: ${memory.sources.length}`);
   }
   
   // Mineral
@@ -270,12 +389,34 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
     }
   }
   
+  // Room score (if full analysis and room is not owned)
+  if (fullAnalysis && memory.score && (!memory.controller || !memory.controller.my)) {
+    const scoreParts = [];
+    if (memory.score.breakdown.isFree > 0) scoreParts.push('✅ Free');
+    if (memory.score.breakdown.hasTwoSources > 0) scoreParts.push('2 Sources');
+    if (memory.score.breakdown.lowSwamp > 0) scoreParts.push(`Low Swamp (${memory.score.breakdown.swampPercentage}%)`);
+    if (memory.score.breakdown.highFreeSpace > 0) scoreParts.push(`Free Space (${memory.score.breakdown.freeSpacePercentage}%)`);
+    if (memory.score.breakdown.newMineral > 0) {
+      const utilsResources = require("utils.resources");
+      const resourceImg = utilsResources.resourceImg 
+        ? utilsResources.resourceImg(memory.score.breakdown.mineralType) 
+        : memory.score.breakdown.mineralType;
+      scoreParts.push(`New Mineral: ${resourceImg}`);
+    }
+    if (scoreParts.length > 0) {
+      parts.push(`⭐ Score: ${memory.score.total} (${scoreParts.join(', ')})`);
+    } else {
+      parts.push(`⭐ Score: ${memory.score.total}`);
+    }
+  }
+  
   const summary = `📊 ${room.name}: ${parts.join(' | ')}`;
   Log.success(summary, "analyzeRoom");
 }
 
 module.exports = {
   analyzeRoom,
-  logAnalysisSummary
+  logAnalysisSummary,
+  calculateRoomScore
 };
 

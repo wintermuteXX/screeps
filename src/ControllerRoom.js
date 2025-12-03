@@ -1399,15 +1399,15 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
   if (!Memory.rooms[roomName].rclUpgradeTimes) {
     Memory.rooms[roomName].rclUpgradeTimes = {};
   }
-  if (Memory.rooms[roomName].rclLastLevel === undefined) {
-    Memory.rooms[roomName].rclLastLevel = currentLevel;
+  if (Memory.rooms[roomName].rclUpgradeTimes.lastLevel === undefined) {
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
   }
-  if (Memory.rooms[roomName].rclLastLevelTick === undefined) {
-    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+  if (Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick === undefined) {
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
   }
 
-  const lastLevel = Memory.rooms[roomName].rclLastLevel;
-  const lastLevelTick = Memory.rooms[roomName].rclLastLevelTick;
+  const lastLevel = Memory.rooms[roomName].rclUpgradeTimes.lastLevel;
+  const lastLevelTick = Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick;
 
   // Check if RCL level increased
   if (currentLevel > lastLevel) {
@@ -1419,13 +1419,13 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
     Memory.rooms[roomName].rclUpgradeTimes[currentLevel.toString()] = upgradeTime;
 
     // Update tracking
-    Memory.rooms[roomName].rclLastLevel = currentLevel;
-    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
   } else if (currentLevel < lastLevel) {
     // Level decreased (shouldn't happen normally, but handle it)
     // Reset tracking
-    Memory.rooms[roomName].rclLastLevel = currentLevel;
-    Memory.rooms[roomName].rclLastLevelTick = Game.time;
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
+    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
   }
   // If level is the same, do nothing - tracking continues
 };

@@ -9,17 +9,74 @@ const b = new Behavior("scout");
  * @returns {boolean} True if room needs analysis
  */
 function needsAnalysis(roomName) {
-  const room = Game.rooms[roomName];
-  
-  // If we have vision, check room.memory
-  if (room && room.memory) {
-    const lastCheck = room.memory.lastCheck;
+  // Check Memory.rooms[roomName].lastCheck (works even without vision)
+  if (Memory.rooms && Memory.rooms[roomName]) {
+    const lastCheck = Memory.rooms[roomName].lastCheck;
     // Needs analysis if never checked or last check was more than 100000 ticks ago
     return !lastCheck || (Game.time - lastCheck > 100000);
   }
   
-  // If no vision, we need to visit it
+  // If no memory entry, we need to visit it
   return true;
+}
+
+/**
+ * Checks if a room is hostile and should be avoided
+ * Uses multiple sources: Traveler memory, room memory, and direct controller check
+ * @param {string} roomName - Name of the room to check
+ * @returns {boolean} True if room should be avoided
+ */
+function isHostileRoom(roomName) {
+  // 1. Check Traveler memory (most reliable, updated by Traveler.updateRoomStatus)
+  if (Memory.Traveler && Memory.Traveler.rooms && Memory.Traveler.rooms[roomName]) {
+    if (Memory.Traveler.rooms[roomName].avoid === 1) {
+      return true;
+    }
+  }
+  
+  // 2. Check room memory (from previous analysis)
+  if (Memory.rooms && Memory.rooms[roomName]) {
+    const roomMemory = Memory.rooms[roomName];
+    // If we previously marked it as hostile
+    if (roomMemory.isHostile === true) {
+      return true;
+    }
+  }
+  
+  // 3. If we have vision, check controller directly and update Traveler
+  const room = Game.rooms[roomName];
+  if (room && room.controller) {
+    // Update Traveler memory (same logic as Traveler.updateRoomStatus)
+    if (!Memory.Traveler) {
+      Memory.Traveler = {};
+    }
+    if (!Memory.Traveler.rooms) {
+      Memory.Traveler.rooms = {};
+    }
+    if (!Memory.Traveler.rooms[roomName]) {
+      Memory.Traveler.rooms[roomName] = {};
+    }
+    
+    const myUsername = global.getMyUsername();
+    const isHostile = (room.controller.owner && !room.controller.my) || 
+                     (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
+    
+    // Update Traveler memory
+    if (isHostile) {
+      Memory.Traveler.rooms[roomName].avoid = 1;
+    } else {
+      delete Memory.Traveler.rooms[roomName].avoid;
+    }
+    
+    // Also update room memory for future reference
+    if (isHostile && Memory.rooms && Memory.rooms[roomName]) {
+      Memory.rooms[roomName].isHostile = true;
+    }
+    
+    return isHostile;
+  }
+  
+  return false;
 }
 
 /**
@@ -44,7 +101,12 @@ function findUnvisitedRoom(creep) {
     const roomName = exits[direction];
     const roomStatus = Game.map.getRoomStatus(roomName);
     const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
-    if (roomStatus.status === 'normal' && distFromStart <= 2 && needsAnalysis(roomName)) {
+    
+    // Check if room is normal AND not hostile AND needs analysis
+    if (roomStatus.status === 'normal' && 
+        distFromStart <= 2 && 
+        !isHostileRoom(roomName) && 
+        needsAnalysis(roomName)) {
       candidates.push({ roomName, distance: distFromStart });
     }
   }
@@ -54,15 +116,18 @@ function findUnvisitedRoom(creep) {
     for (const direction in exits) {
       const level1Room = exits[direction];
       const level1Status = Game.map.getRoomStatus(level1Room);
-      if (level1Status.status === 'normal') {
+      if (level1Status.status === 'normal' && !isHostileRoom(level1Room)) {
         const level1Exits = Game.map.describeExits(level1Room);
         for (const dir2 in level1Exits) {
           const roomName = level1Exits[dir2];
           const roomStatus = Game.map.getRoomStatus(roomName);
           const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
           // Don't go back to current room and max 2 hops from start
-          if (roomName !== currentRoom && roomStatus.status === 'normal' && 
-              distFromStart <= 2 && needsAnalysis(roomName)) {
+          if (roomName !== currentRoom && 
+              roomStatus.status === 'normal' && 
+              distFromStart <= 2 && 
+              !isHostileRoom(roomName) && 
+              needsAnalysis(roomName)) {
             candidates.push({ roomName, distance: distFromStart });
           }
         }
@@ -83,32 +148,56 @@ function findUnvisitedRoom(creep) {
 
 
 b.when = function (creep, rc) {
-  // Scout should always be active
-  return true;
+  // Scout is active only if there are still rooms to scout
+  return findUnvisitedRoom(creep) !== null;
 };
 
 b.completed = function (creep, rc) {
-  // Never completed - scout runs continuously
+  // Check if there are any more rooms to scout
+  if (!findUnvisitedRoom(creep)) {
+    Log.success(`✅ Scout ${creep.name} completed scouting - no more rooms to analyze within 2 hops`, "scout");
+    creep.memory.scoutCompleted = true;
+    return true;
+  }
   return false;
 };
 
 b.work = function (creep, rc) {
   // Mark current room as visited
   const roomName = creep.room.name;
+  
+  // Safety check: If we entered a hostile room, immediately leave
+  if (isHostileRoom(roomName)) {
+    Log.warn(`⚠️ Scout ${creep.name} entered hostile room ${roomName}, retreating!`, "scout");
+    const homeRoom = creep.memory.home;
+    if (homeRoom && homeRoom !== creep.room.name) {
+      creep.memory.scoutTarget = homeRoom;
+      const targetPos = new RoomPosition(25, 25, homeRoom);
+      creep.travelTo(targetPos, {
+        preferHighway: true,
+        ensurePath: true,
+        useFindRoute: true,
+      });
+      return;
+    }
+  }
+  
   if (!Memory.rooms) {
     Memory.rooms = {};
   }
   if (!Memory.rooms[roomName]) {
     Memory.rooms[roomName] = {};
   }
-  const lastScoutVisit = Memory.rooms[roomName].scoutVisited;
-  Memory.rooms[roomName].scoutVisited = Game.time;
+  
+  // Set lastCheck when scout enters room (before analysis)
+  const lastCheck = Memory.rooms[roomName].lastCheck;
+  Memory.rooms[roomName].lastCheck = Game.time;
   
   // Analyze current room only if:
   // 1. Scout just entered this room (wasn't here last tick), or
   // 2. Room needs analysis (never checked or last check was more than 100000 ticks ago)
-  const shouldAnalyze = !lastScoutVisit || 
-                        lastScoutVisit < Game.time - 1 || 
+  const shouldAnalyze = !lastCheck || 
+                        lastCheck < Game.time - 1 || 
                         needsAnalysis(roomName);
   
   if (shouldAnalyze) {

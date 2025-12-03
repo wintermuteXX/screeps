@@ -357,10 +357,9 @@ module.exports = {
     minParts: 1,
     wait4maxEnergy: false,
     body: [MOVE], // Nur 1 MOVE part
-    behaviors: ["scout"],
+    behaviors: ["scout", "recycle"],
 
     canBuild: function (rc) {
-      return false;
       // Don't spawn scouts if room has an Observer
       const observers = rc.room.find(FIND_MY_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_OBSERVER

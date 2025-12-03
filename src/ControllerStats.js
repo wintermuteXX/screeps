@@ -35,48 +35,41 @@ module.exports = {
         Memory.stats["rooms." + roomName + ".rcl.progress"] = currentProgress;
         Memory.stats["rooms." + roomName + ".rcl.progressTotal"] = currentProgressTotal;
         
-        // Initialize RCL tracking memory if not exists
+        // Use rclUpgradeTimes from ControllerRoom.measureRclUpgradeTime()
         if (!Memory.rooms) {
           Memory.rooms = {};
         }
         if (!Memory.rooms[roomName]) {
           Memory.rooms[roomName] = {};
         }
-        if (!Memory.rooms[roomName].rclTracking) {
-          Memory.rooms[roomName].rclTracking = {
-            lastLevel: currentLevel,
-            lastLevelTick: Game.time,
-            upgradeTimes: {} // Stores upgrade time for each level (level -> ticks)
-          };
-        }
         
-        const rclTracking = Memory.rooms[roomName].rclTracking;
+        const rclUpgradeTimes = Memory.rooms[roomName].rclUpgradeTimes;
         
-        // Check if RCL level increased
-        if (currentLevel > rclTracking.lastLevel) {
-          // Calculate upgrade time for the previous level
-          const upgradeTime = Game.time - rclTracking.lastLevelTick;
-          rclTracking.upgradeTimes[rclTracking.lastLevel] = upgradeTime;
-          
-          // Store upgrade time in stats
-          Memory.stats["rooms." + roomName + ".rcl.upgradeTime." + rclTracking.lastLevel] = upgradeTime;
-          
-          // Update tracking
-          rclTracking.lastLevel = currentLevel;
-          rclTracking.lastLevelTick = Game.time;
-          
-          // Store current level upgrade time (time since reaching current level)
-          Memory.stats["rooms." + roomName + ".rcl.currentLevelTime"] = 0;
-        } else {
+        if (rclUpgradeTimes) {
           // Calculate time since reaching current level
-          const timeSinceLevelUp = Game.time - rclTracking.lastLevelTick;
-          Memory.stats["rooms." + roomName + ".rcl.currentLevelTime"] = timeSinceLevelUp;
+          if (rclUpgradeTimes.lastLevelTick !== undefined) {
+            const timeSinceLevelUp = Game.time - rclUpgradeTimes.lastLevelTick;
+            Memory.stats["rooms." + roomName + ".rcl.currentLevelTime"] = timeSinceLevelUp;
+          }
+          
+          // Store all upgrade times in stats for easy access
+          // Note: rclUpgradeTimes stores level as key (e.g., "2" = time from level 1 to 2)
+          // For stats, we want to store it as "upgradeTime.fromLevel" (e.g., "1" = time from level 1 to 2)
+          _.forEach(rclUpgradeTimes, function (value, key) {
+            // Skip metadata fields
+            if (key === "lastLevel" || key === "lastLevelTick") {
+              return;
+            }
+            // Convert level key to "fromLevel" for stats (e.g., "2" -> "1" means time from 1 to 2)
+            const fromLevel = parseInt(key) - 1;
+            if (!isNaN(fromLevel) && fromLevel > 0) {
+              Memory.stats["rooms." + roomName + ".rcl.upgradeTime." + fromLevel] = value;
+            }
+          });
+        } else {
+          // Fallback if rclUpgradeTimes doesn't exist yet
+          Memory.stats["rooms." + roomName + ".rcl.currentLevelTime"] = 0;
         }
-        
-        // Store all upgrade times in stats for easy access
-        _.forEach(rclTracking.upgradeTimes, function (upgradeTime, level) {
-          Memory.stats["rooms." + roomName + ".rcl.upgradeTime." + level] = upgradeTime;
-        });
         
         Memory.stats["rooms." + roomName + ".spawn.energy"] =
           room.energyAvailable;

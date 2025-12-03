@@ -14,20 +14,27 @@ var b = new Behavior("recycle");
 
 b.when = function (creep, rc) {
   // Recycle when:
-  // 1. No other behaviors are active anymore (this is the last one)
-  // 2. Or when creep is about to die and recycling is still worthwhile
-  
-  // Check if there is a spawn in the room
-  const spawn = rc.getIdleSpawnObject() || rc.room.find(FIND_MY_SPAWNS)[0];
-  if (!spawn) return false;
-  
-  // Recycling makes sense when:
-  // - The mineral is depleted (for mineral miner)
-  // - Or the creep has few ticks left
+  // 1. Scout has nothing more to scout
+  if (creep.memory.role === "scout" && creep.memory.scoutCompleted) {
+    Log.info(`♻️ Scout ${creep.name} ready for recycling - scouting completed`, "recycle");
+    return true;
+  }
+
+  // 2. Miner_mineral has depleted mineral
   const mineralDepleted = creep.room.mineral && creep.room.mineral.mineralAmount === 0;
+  if (creep.memory.role === "miner_mineral" && mineralDepleted) {
+    Log.info(`♻️ Miner ${creep.name} ready for recycling - mineral depleted`, "recycle");
+    return true;
+  }
+
+  // 3. Creep has few ticks left (always recycle before death)
   const lowTicks = creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RECYCLE_THRESHOLD;
-  
-  return mineralDepleted || lowTicks;
+  if (lowTicks) {
+    Log.info(`♻️ ${creep.name} ready for recycling - low ticks remaining (${creep.ticksToLive})`, "recycle");
+    return true;
+  }
+  Log.warn(`♻️ ${creep.name} not ready for recycling - no reason found`, "recycle");
+  return false;
 };
 
 b.completed = function (creep, rc) {
@@ -36,38 +43,30 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  // Zuerst: Ressourcen im Store abgeben (falls vorhanden)
-  if (creep.store.getUsedCapacity() > 0) {
-    const storage = creep.room.storage;
-    const terminal = creep.room.terminal;
-    const dropTarget = storage || terminal;
-    
-    if (dropTarget) {
-      if (creep.pos.isNearTo(dropTarget)) {
-        // Alle Ressourcen abgeben
-        for (const resourceType in creep.store) {
-          if (creep.store[resourceType] > 0) {
-            creep.transfer(dropTarget, resourceType);
-            return; // Ein Transfer pro Tick
-          }
-        }
-      } else {
-        creep.travelTo(dropTarget);
-        return;
-      }
-    } else {
-      // Kein Storage/Terminal - Ressourcen droppen
-      for (const resourceType in creep.store) {
-        if (creep.store[resourceType] > 0) {
-          creep.drop(resourceType);
+  // First: Try to find spawn in current room
+  let spawn = rc.getIdleSpawnObject() || creep.pos.findClosestByRange(FIND_MY_SPAWNS);
+  
+  // If no spawn in current room, go to home room
+  if (!spawn) {
+    const homeRoom = Game.rooms[creep.memory.home];
+    if (homeRoom) {
+      const homeSpawn = homeRoom.find(FIND_MY_SPAWNS)[0];
+      if (homeSpawn) {
+        // If we're not in home room, travel there first
+        if (creep.room.name !== creep.memory.home) {
+          Log.info(`♻️ ${creep.name} returning to home room ${creep.memory.home} for recycling`, "recycle");
+          creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
+            preferHighway: true,
+            ensurePath: true,
+            useFindRoute: true,
+          });
+          creep.say("🏠♻️");
           return;
         }
+        spawn = homeSpawn;
       }
     }
   }
-  
-  // Then: Go to spawn and recycle
-  const spawn = rc.getIdleSpawnObject() || creep.pos.findClosestByRange(FIND_MY_SPAWNS);
   
   if (!spawn) {
     Log.warn(`${creep} cannot be recycled - no spawn found`, "recycle");
@@ -79,7 +78,7 @@ b.work = function (creep, rc) {
     
     switch (result) {
       case OK:
-        Log.info(`${creep} is being recycled at ${spawn}`, "recycle");
+        Log.success(`♻️ ${creep.name} is being recycled at ${spawn.name} in ${creep.room.name}`, "recycle");
         break;
       case ERR_BUSY:
         // Spawn is busy, waiting

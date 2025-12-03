@@ -41,7 +41,6 @@ interface RoomMemory {
     }>;
     visualizeUntil?: number | null;
   };
-  scoutVisited?: number;
   [key: string]: any;
 }
 
