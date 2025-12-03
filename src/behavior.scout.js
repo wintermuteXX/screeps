@@ -153,22 +153,58 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep, rc) {
+  const roomName = creep.room.name;
+  
+  // Check if current room still needs analysis - don't complete if it does
+  // Only check lastCheck criteria, not justEntered
+  const lastCheck = Memory.rooms[roomName] ? Memory.rooms[roomName].lastCheck : undefined;
+  const needsCurrentAnalysis = needsAnalysis(roomName);
+  
+  // If current room needs analysis, don't complete yet - let work() analyze it first
+  if (needsCurrentAnalysis) {
+    return false;
+  }
+  
   // Check if there are any more rooms to scout
   if (!findUnvisitedRoom(creep)) {
-    Log.success(`✅ Scout ${creep.name} completed scouting - no more rooms to analyze within 2 hops`, "scout");
-    creep.memory.scoutCompleted = true;
-    return true;
+    // Only mark as completed if we're in home room or have been in current room for at least 1 tick
+    const homeRoom = creep.memory.home;
+    const isInHomeRoom = homeRoom && roomName === homeRoom;
+    const lastRoom = creep.memory.lastRoom;
+    const justEntered = lastRoom !== roomName;
+    const hasBeenInRoom = !justEntered && lastCheck !== undefined;
+    
+    if (isInHomeRoom || hasBeenInRoom) {
+      // Only log once to avoid spam
+      if (!creep.memory.scoutCompleted) {
+        Log.success(`✅ ${creep} completed scouting - no more rooms to analyze within 2 hops`, "scout");
+        creep.memory.scoutCompleted = true;
+      }
+      return true;
+    }
   }
+  
   return false;
 };
 
 b.work = function (creep, rc) {
-  // Mark current room as visited
   const roomName = creep.room.name;
+  
+  // Initialize Memory.rooms if needed
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+  if (!Memory.rooms[roomName]) {
+    Memory.rooms[roomName] = {};
+  }
+  
+  // Track current room for next tick
+  const lastRoom = creep.memory.lastRoom;
+  creep.memory.lastRoom = roomName;
   
   // Safety check: If we entered a hostile room, immediately leave
   if (isHostileRoom(roomName)) {
-    Log.warn(`⚠️ Scout ${creep.name} entered hostile room ${roomName}, retreating!`, "scout");
+    Log.warn(`⚠️ ${creep} entered hostile room ${creep.room}, retreating!`, "scout");
     const homeRoom = creep.memory.home;
     if (homeRoom && homeRoom !== creep.room.name) {
       creep.memory.scoutTarget = homeRoom;
@@ -182,24 +218,10 @@ b.work = function (creep, rc) {
     }
   }
   
-  if (!Memory.rooms) {
-    Memory.rooms = {};
-  }
-  if (!Memory.rooms[roomName]) {
-    Memory.rooms[roomName] = {};
-  }
-  
-  // Set lastCheck when scout enters room (before analysis)
-  const lastCheck = Memory.rooms[roomName].lastCheck;
-  Memory.rooms[roomName].lastCheck = Game.time;
-  
-  // Analyze current room only if:
-  // 1. Scout just entered this room (wasn't here last tick), or
-  // 2. Room needs analysis (never checked or last check was more than 100000 ticks ago)
-  const shouldAnalyze = !lastCheck || 
-                        lastCheck < Game.time - 1 || 
-                        needsAnalysis(roomName);
-  
+  // Analyze current room only if lastCheck criteria is met:
+  // Room needs analysis (never checked or last check was more than 100000 ticks ago)
+  // First entry of a room does NOT trigger analysis
+  const shouldAnalyze = needsAnalysis(roomName);
   if (shouldAnalyze) {
     global.analyzeRoom(creep.room, true);
   }
@@ -213,14 +235,13 @@ b.work = function (creep, rc) {
     if (nextRoom) {
       targetRoom = nextRoom.roomName;
       creep.memory.scoutTarget = targetRoom;
-      Log.success(`🔍 Scout ${creep.name} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
+      Log.success(`🔍 Scout ${creep} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
     } else {
       // No more unvisited rooms within 2 hops - return to home room
       const homeRoom = creep.memory.home;
       if (homeRoom && homeRoom !== creep.room.name) {
         targetRoom = homeRoom;
         creep.memory.scoutTarget = targetRoom;
-        Log.debug(`Scout ${creep.name} returning to home room ${homeRoom}`, "scout");
       } else {
         // Already in home room or no home room set - wait
         return;

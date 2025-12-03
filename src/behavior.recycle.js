@@ -16,24 +16,24 @@ b.when = function (creep, rc) {
   // Recycle when:
   // 1. Scout has nothing more to scout
   if (creep.memory.role === "scout" && creep.memory.scoutCompleted) {
-    Log.info(`♻️ Scout ${creep.name} ready for recycling - scouting completed`, "recycle");
+    Log.info(`♻️ Scout ${creep} ready for recycling - scouting completed`, "recycle");
     return true;
   }
 
   // 2. Miner_mineral has depleted mineral
   const mineralDepleted = creep.room.mineral && creep.room.mineral.mineralAmount === 0;
   if (creep.memory.role === "miner_mineral" && mineralDepleted) {
-    Log.info(`♻️ Miner ${creep.name} ready for recycling - mineral depleted`, "recycle");
+    Log.info(`♻️ Miner ${creep} ready for recycling - mineral depleted`, "recycle");
     return true;
   }
 
   // 3. Creep has few ticks left (always recycle before death)
   const lowTicks = creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RECYCLE_THRESHOLD;
   if (lowTicks) {
-    Log.info(`♻️ ${creep.name} ready for recycling - low ticks remaining (${creep.ticksToLive})`, "recycle");
+    Log.info(`♻️ ${creep} ready for recycling - low ticks remaining (${creep.ticksToLive})`, "recycle");
     return true;
   }
-  Log.warn(`♻️ ${creep.name} not ready for recycling - no reason found`, "recycle");
+  Log.warn(`♻️ ${creep} not ready for recycling - no reason found`, "recycle");
   return false;
 };
 
@@ -54,7 +54,7 @@ b.work = function (creep, rc) {
       if (homeSpawn) {
         // If we're not in home room, travel there first
         if (creep.room.name !== creep.memory.home) {
-          Log.info(`♻️ ${creep.name} returning to home room ${creep.memory.home} for recycling`, "recycle");
+          Log.info(`♻️ ${creep} returning to home room ${creep.memory.home} for recycling`, "recycle");
           creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
             preferHighway: true,
             ensurePath: true,
@@ -78,7 +78,7 @@ b.work = function (creep, rc) {
     
     switch (result) {
       case OK:
-        Log.success(`♻️ ${creep.name} is being recycled at ${spawn.name} in ${creep.room.name}`, "recycle");
+        Log.success(`♻️ ${creep} is being recycled at ${spawn} in ${creep.room}`, "recycle");
         break;
       case ERR_BUSY:
         // Spawn is busy, waiting
