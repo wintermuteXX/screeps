@@ -59,26 +59,22 @@ b.work = function (creep, rc) {
 
 /**
  * Helper: Update creep memory with resource information
- * Supports both old and new memory formats
  */
 b._updateMemory = function (creep, resourceType, amount, targetId) {
-  if (creep.memory.resources && Array.isArray(creep.memory.resources)) {
-    // New multi-resource format
-    const existingEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
-    if (existingEntry) {
-      existingEntry.target = targetId;
-      existingEntry.amount = amount;
-    } else {
-      creep.memory.resources.push({
-        resourceType: resourceType,
-        amount: amount,
-        target: targetId
-      });
-    }
+  if (!creep.memory.resources) {
+    creep.memory.resources = [];
+  }
+  
+  const existingEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
+  if (existingEntry) {
+    existingEntry.target = targetId;
+    existingEntry.amount = amount;
   } else {
-    // Old format - backward compatibility
-    creep.memory.resourceType = resourceType;
-    creep.memory.amount = amount;
+    creep.memory.resources.push({
+      resourceType: resourceType,
+      amount: amount,
+      target: targetId
+    });
   }
 };
 
@@ -87,21 +83,18 @@ b._updateMemory = function (creep, resourceType, amount, targetId) {
  * Returns { resourceType, amount } or null
  */
 b._getResourceFromMemory = function (creep, targetId) {
-  if (creep.memory.resources && Array.isArray(creep.memory.resources)) {
-    const resourceEntry = creep.memory.resources.find(r => r.target === targetId);
-    if (resourceEntry) {
-      return {
-        resourceType: resourceEntry.resourceType,
-        amount: resourceEntry.amount
-      };
-    }
-  } else if (creep.memory.resourceType) {
-    // Old format
+  if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
+    return null;
+  }
+  
+  const resourceEntry = creep.memory.resources.find(r => r.target === targetId);
+  if (resourceEntry) {
     return {
-      resourceType: creep.memory.resourceType,
-      amount: creep.memory.amount
+      resourceType: resourceEntry.resourceType,
+      amount: resourceEntry.amount
     };
   }
+  
   return null;
 };
 
@@ -210,11 +203,13 @@ b._handleCollectionResult = function (creep, target, resourceType, result) {
  * Helper: Update memory with actual amount collected
  */
 b._updateMemoryWithActualAmount = function (creep, resourceType) {
-  if (creep.memory.resources && Array.isArray(creep.memory.resources)) {
-    const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
-    if (resourceEntry) {
-      resourceEntry.amount = creep.store[resourceType] || 0;
-    }
+  if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
+    return;
+  }
+  
+  const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
+  if (resourceEntry) {
+    resourceEntry.amount = creep.store[resourceType] || 0;
   }
 };
 

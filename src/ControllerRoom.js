@@ -166,15 +166,11 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
   // Get resources the creep is already carrying
   const carriedResources = [];
   if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
-    // New multi-resource format
     for (const res of Creep.memory.resources) {
       if (Creep.store[res.resourceType] > 0) {
         carriedResources.push(res.resourceType);
       }
     }
-  } else if (Creep.memory.resourceType && Creep.store[Creep.memory.resourceType] > 0) {
-    // Old format - backward compatibility
-    carriedResources.push(Creep.memory.resourceType);
   }
   
   // Check if creep is empty or has free capacity
@@ -333,15 +329,11 @@ ControllerRoom.prototype.getAssignedTransporters = function (targetId, resourceT
     const target = transporter.getTarget();
     if (target && target.id === targetId) {
       count++;
-    } else if (transporter.memory.resources) {
-      // Check new multi-resource format
+    } else if (transporter.memory.resources && Array.isArray(transporter.memory.resources)) {
       const resourceEntry = transporter.memory.resources.find(r => r.resourceType === resourceType);
       if (resourceEntry && resourceEntry.target === targetId) {
         count++;
       }
-    } else if (transporter.memory.resourceType === resourceType && transporter.target === targetId) {
-      // Check old format
-      count++;
     }
   }
   
@@ -360,17 +352,13 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
   // Get resources the creep is carrying
   const carriedResources = [];
   if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
-    // New multi-resource format
     for (const res of Creep.memory.resources) {
       if (Creep.store[res.resourceType] > 0) {
         carriedResources.push(res.resourceType);
       }
     }
-  } else if (Creep.memory.resourceType && Creep.store[Creep.memory.resourceType] > 0) {
-    // Old format - backward compatibility
-    carriedResources.push(Creep.memory.resourceType);
   } else {
-    // Fallback: find all resources in store
+    // Fallback: find all resources in store if memory.resources not set
     for (const resType in Creep.store) {
       if (Creep.store[resType] > 0) {
         carriedResources.push(resType);

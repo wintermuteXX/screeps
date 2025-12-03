@@ -140,6 +140,11 @@ module.exports = {
     RANGE_TO_SOURCE: 3,               // Range from source to be considered sender
   },
 
+  // Lab Configuration
+  LAB: {
+    RANGE: 2,                          // Maximum range between labs for reactions
+  },
+
   // Container Placement
   CONTAINER: {
     RANGE_TO_CONTROLLER: 2,           // Range for controller container

@@ -2,17 +2,14 @@
 
 ## General
 
-- [x] Check Caching in general
 - [ ] Activate Powercreeps and code autorenew (and ops if needed) (Line 58)
 - [ ] Powercreeps - Auto set Factory Level (move away from ControllerFactory.js)
-- [x] Measure Performance. RCL Upgrade Time
 - [ ] Consolidate Transport Behavior
 - [ ] Wall/Rampart Building
 - [ ] Roads to Sources/Controller
 - [ ] Remote Mining
 
 ## New Room
-- [ ] Scouts should not visit hostile rooms
 - [ ] Check "Conquer new room behavior"
 - [ ] Supporter help rooms with RCL <= 3 (Line 302)
 

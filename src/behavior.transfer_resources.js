@@ -3,27 +3,6 @@ const Log = require("Log");
 const b = new Behavior("transfer_resources");
 
 /**
- * Helper: Converts old memory format (resourceType) to new format (resources array)
- */
-b._migrateMemoryFormat = function (creep) {
-  if (creep.memory.resourceType && !creep.memory.resources) {
-    const resourceType = creep.memory.resourceType;
-    const amount = creep.store[resourceType] || 0;
-    if (amount > 0) {
-      creep.memory.resources = [{
-        resourceType: resourceType,
-        amount: amount,
-        target: creep.target || null
-      }];
-    }
-  }
-  
-  if (!creep.memory.resources) {
-    creep.memory.resources = [];
-  }
-};
-
-/**
  * Helper: Gets all resource types currently in creep's store
  */
 b._getCarriedResources = function (creep) {
@@ -45,6 +24,10 @@ b._getCarriedResources = function (creep) {
  */
 b._updateMemoryWithCarriedResources = function (creep) {
   const carriedResources = this._getCarriedResources(creep);
+  if (!creep.memory.resources) {
+    creep.memory.resources = [];
+  }
+  
   if (carriedResources.length > 0) {
     creep.memory.resources = carriedResources.map(res => {
       const existing = creep.memory.resources.find(r => r.resourceType === res.resourceType);
@@ -58,18 +41,11 @@ b._updateMemoryWithCarriedResources = function (creep) {
 };
 
 /**
- * Helper: Gets delivery orders for creep (handles old and new format)
+ * Helper: Gets delivery orders for creep
  */
 b._getDeliveryOrders = function (creep, rc) {
-  if (creep.memory.resourceType && !creep.memory.resources) {
-    // Old format
-    const order = rc.getDeliveryOrder(creep, creep.memory.resourceType);
-    return order ? [order] : [];
-  } else {
-    // New format
-    const orders = rc.getDeliveryOrder(creep, null);
-    return Array.isArray(orders) ? orders : (orders ? [orders] : []);
-  }
+  const orders = rc.getDeliveryOrder(creep, null);
+  return Array.isArray(orders) ? orders : (orders ? [orders] : []);
 };
 
 /**
@@ -119,49 +95,20 @@ b._findBestTargetFromOrders = function (ordersByTarget, carriedResources, curren
   let bestTargetOrders = null;
   let bestPriority = Infinity;
   
-  // First, try to keep current target if it's still valid
-  if (currentTargetId && ordersByTarget[currentTargetId]) {
-    const currentTargetObj = Game.getObjectById(currentTargetId);
-    if (currentTargetObj) {
-      // Check if it still needs resources
-      for (const resource of carriedResources) {
-        // @ts-ignore - currentTargetObj may have store property
-        if (currentTargetObj.store) {
-          // @ts-ignore - store property exists on structures/creeps
-          const freeCapacity = currentTargetObj.store.getFreeCapacity(resource.resourceType) || 0;
-          if (freeCapacity > 0) {
-            // Create pseudo-order for current target
-            const pseudoOrder = {
-              id: currentTargetId,
-              resourceType: resource.resourceType,
-              priority: 20,
-              amount: freeCapacity,
-              exact: false
-            };
-            if (!ordersByTarget[currentTargetId]) {
-              ordersByTarget[currentTargetId] = [];
-            }
-            ordersByTarget[currentTargetId].push(pseudoOrder);
-            bestTarget = currentTargetObj;
-            bestTargetOrders = ordersByTarget[currentTargetId];
-            bestPriority = 20;
-            break;
-          }
-        }
-      }
-    }
-  }
-  
   // Find best target from available orders
-  if (!bestTarget) {
-    for (const targetId in ordersByTarget) {
-      const targetOrders = ordersByTarget[targetId];
-      const minPriority = Math.min(...targetOrders.map(o => o.priority));
-      if (minPriority < bestPriority) {
-        bestPriority = minPriority;
-        bestTarget = Game.getObjectById(targetId);
-        bestTargetOrders = targetOrders;
-      }
+  for (const targetId in ordersByTarget) {
+    const targetOrders = ordersByTarget[targetId];
+    const minPriority = Math.min(...targetOrders.map(o => o.priority));
+    
+    // Prefer current target if priorities are similar
+    if (targetId === currentTargetId && minPriority < bestPriority + 5) {
+      bestPriority = minPriority;
+      bestTarget = Game.getObjectById(targetId);
+      bestTargetOrders = targetOrders;
+    } else if (minPriority < bestPriority) {
+      bestPriority = minPriority;
+      bestTarget = Game.getObjectById(targetId);
+      bestTargetOrders = targetOrders;
     }
   }
   
@@ -215,9 +162,11 @@ b._findMatchingNeed = function (creep, rc, carriedResources) {
     if (!creep.memory.resources) {
       creep.memory.resources = [];
     }
-    const resourceEntry = creep.memory.resources.find(r => r.resourceType === bestNeed.resourceType);
+    
+    let resourceEntry = creep.memory.resources.find(r => r.resourceType === bestNeed.resourceType);
     if (resourceEntry) {
       resourceEntry.target = bestTarget.id;
+      resourceEntry.amount = creep.store[bestNeed.resourceType] || 0;
     } else {
       creep.memory.resources.push({
         resourceType: bestNeed.resourceType,
@@ -225,6 +174,7 @@ b._findMatchingNeed = function (creep, rc, carriedResources) {
         target: bestTarget.id
       });
     }
+    
     creep.target = bestTarget.id;
     Log.debug(`${creep} found matching need for ${bestNeed.resourceType} to ${bestTarget}`, "transfer_resources");
     return { target: bestTarget, orders: [bestNeed] };
@@ -278,20 +228,15 @@ b._dropAllResources = function (creep, carriedResources, reason) {
  * Helper: Updates memory after successful transfer
  */
 b._updateMemoryAfterTransfer = function (creep, resourceType, transferAmount) {
-  if (creep.memory.resources && Array.isArray(creep.memory.resources)) {
-    const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
-    if (resourceEntry) {
-      resourceEntry.amount = Math.max(0, resourceEntry.amount - transferAmount);
-      if (resourceEntry.amount <= 0) {
-        creep.memory.resources = creep.memory.resources.filter(r => r.resourceType !== resourceType);
-      }
-    }
-  } else if (creep.memory.resourceType === resourceType) {
-    // Old format
-    creep.memory.amount = Math.max(0, (creep.memory.amount || 0) - transferAmount);
-    if (creep.memory.amount <= 0) {
-      creep.memory.resourceType = null;
-      creep.memory.amount = 0;
+  if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
+    return;
+  }
+  
+  const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
+  if (resourceEntry) {
+    resourceEntry.amount = Math.max(0, resourceEntry.amount - transferAmount);
+    if (resourceEntry.amount <= 0) {
+      creep.memory.resources = creep.memory.resources.filter(r => r.resourceType !== resourceType);
     }
   }
 };
@@ -392,61 +337,6 @@ b._performBatchDelivery = function (creep, target, orders) {
 };
 
 /**
- * Helper: Handles old format fallback
- */
-b._handleOldFormatFallback = function (creep, rc) {
-  if (!creep.memory.resourceType || creep.memory.resources) {
-    return;
-  }
-  
-  const oldOrder = rc.getDeliveryOrder(creep, creep.memory.resourceType);
-  if (!oldOrder || !oldOrder.id) {
-    return;
-  }
-  
-  const oldTarget = Game.getObjectById(oldOrder.id);
-  if (!oldTarget) {
-    return;
-  }
-  
-  const resourceType = creep.memory.resourceType;
-  const amount = creep.store[resourceType] || 0;
-  
-  if (amount <= 0) {
-    return;
-  }
-  
-  const transferAmount = oldOrder.exact === true
-    ? Math.min(oldOrder.amount, amount)
-    : amount;
-  
-  const result = oldOrder.exact === true
-    ? creep.transfer(oldTarget, resourceType, transferAmount)
-    : creep.transfer(oldTarget, resourceType);
-  
-  switch (result) {
-    case OK:
-      Log.info(`${creep} successfully transfers ${resourceType} to ${oldTarget}`, "transfer_resources");
-      creep.target = null;
-      creep.exact = false;
-      creep.amount = 0;
-      if (creep.store.getUsedCapacity() === 0) {
-        creep.memory.resourceType = null;
-      }
-      break;
-    case ERR_NOT_IN_RANGE:
-      creep.travelTo(oldTarget, { maxRooms: 0 });
-      break;
-    case ERR_FULL:
-      Log.info(`${creep} ${oldTarget} is full`, "transfer_resources");
-      creep.target = null;
-      break;
-    default:
-      Log.warn(`${creep} transfer error: ${result}`, "transfer_resources");
-  }
-};
-
-/**
  * When: Behavior is active if creep has resources
  */
 b.when = function (creep, rc) {
@@ -454,7 +344,10 @@ b.when = function (creep, rc) {
     return false;
   }
   
-  this._migrateMemoryFormat(creep);
+  // Ensure memory.resources exists
+  if (!creep.memory.resources) {
+    creep.memory.resources = [];
+  }
   this._updateMemoryWithCarriedResources(creep);
   
   // Check if there's a delivery order
@@ -478,7 +371,10 @@ b.completed = function (creep, rc) {
  * Work: Main logic for transferring resources to targets
  */
 b.work = function (creep, rc) {
-  this._migrateMemoryFormat(creep);
+  // Ensure memory.resources exists
+  if (!creep.memory.resources) {
+    creep.memory.resources = [];
+  }
   
   const carriedResources = this._getCarriedResources(creep);
   if (carriedResources.length === 0) {
@@ -545,10 +441,7 @@ b.work = function (creep, rc) {
   // Perform batch delivery
   if (bestTarget && bestTargetOrders && bestTargetOrders.length > 0) {
     this._performBatchDelivery(creep, bestTarget, bestTargetOrders);
-  } else {
-    // Fallback: old format
-    this._handleOldFormatFallback(creep, rc);
-  }
+  } 
 };
 
 module.exports = b;
