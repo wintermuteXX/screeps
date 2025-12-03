@@ -244,7 +244,6 @@ function help(category = 'all') {
       { name: 'showLabs()', desc: 'Table showing lab status and reactions', example: 'showLabs()' },
       { name: 'globalResourcesAmount(res)', desc: 'Total amount of resource across all rooms', example: 'globalResourcesAmount(RESOURCE_ENERGY)' },
       { name: 'getRoomThreshold(res, struct)', desc: 'Threshold (fill level) for resource', example: 'getRoomThreshold(RESOURCE_ENERGY, "storage")' },
-      { name: 'resourceImg(resourceType)', desc: 'Emoji image for resource type', example: 'resourceImg(RESOURCE_ENERGY)' },
       { name: 'reorderResources()', desc: 'Reorders resources in terminal/storage', example: 'reorderResources()' }
     ],
     planner: [
@@ -259,9 +258,7 @@ function help(category = 'all') {
       { name: 'MarketCal', desc: 'Market Calculator object', example: 'MarketCal.calculateBestPrice(...)' }
     ],
     utils: [
-      { name: 'json(x)', desc: 'Pretty-prints JSON object', example: 'json(Game.rooms["W1N1"])' },
       { name: 'voiceConsole(text)', desc: 'Text-to-speech (Chrome/Firefox only)', example: 'voiceConsole("Hello")' },
-      { name: 'getMyUsername()', desc: 'Returns current player username', example: 'getMyUsername()' },
       { name: 'isHostileUsername(user)', desc: 'Checks if username is hostile', example: 'isHostileUsername("Player")' }
     ]
   };
