@@ -210,6 +210,7 @@ declare module "utils.console" {
   export function json(x: any): string;
   export function help(category?: string): string;
   export function voiceConsole(text: string): void;
+  export function visualizeLogistic(roomName?: string | null): string;
 }
 
 declare module "utils.roomPlanner" {

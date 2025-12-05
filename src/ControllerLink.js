@@ -7,7 +7,8 @@ function ControllerLink(rc) {
 
 Object.defineProperty(ControllerLink.prototype, "senders", {
   get: function () {
-    var sources = this.room.getSources();
+    // Nutzt gecachten find() Cache statt getSources()
+    var sources = this.room.find(FIND_SOURCES);
     return _.filter(this.links, function (link) {
       return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length > 0;
     });
@@ -16,7 +17,8 @@ Object.defineProperty(ControllerLink.prototype, "senders", {
 
 Object.defineProperty(ControllerLink.prototype, "receivers", {
   get: function () {
-    var sources = this.room.getSources();
+    // Nutzt gecachten find() Cache statt getSources()
+    var sources = this.room.find(FIND_SOURCES);
     return _.filter(this.links, function (link) {
       return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length === 0;
     });

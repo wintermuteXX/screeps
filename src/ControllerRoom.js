@@ -18,18 +18,18 @@ function ControllerRoom(room, ControllerGame) {
   this._creepsByRole = null;  // Cache for getAllCreeps
 
   // Nutze gecachten room.spawns Getter (filtert nach my)
-  var spawns = this.room.spawns.filter(s => s.my);
-  for (var s in spawns) {
-    var spawn = spawns[s];
+  const spawns = this.room.spawns.filter(s => s.my);
+  for (const s in spawns) {
+    const spawn = spawns[s];
     this._spawns.push(new ControllerSpawn(spawn, this));
   }
 
   this.links = new ControllerLink(this);
 
-  var towers = this.room.towers;
+  const towers = this.room.towers;
 
-  for (var t in towers) {
-    var tower = towers[t];
+  for (const t in towers) {
+    const tower = towers[t];
     this._towers.push(new ControllerTower(tower, this));
   }
 
@@ -47,7 +47,6 @@ ControllerRoom.prototype.run = function () {
   this._needsResources = null;
   this._enemies = undefined;
   this._structuresToRepair = undefined;
-  this._sources = null;
   this._sourcesNE = null;
   this._controllerNF = undefined;
   
@@ -104,34 +103,34 @@ ControllerRoom.prototype.run = function () {
     this.terminal.adjustWallHits();
   }
 
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
+  if (this._hasCpuAvailable()) {
     if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
       this.room.powerSpawn.processPower();
     }
   }
 
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
+  if (this._hasCpuAvailable()) {
     if (Game.time % CONSTANTS.TICKS.LAB_CHECK_STATUS === 0) {
       this.labs.checkStatus();
     }
   }
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_MEDIUM) {
+  if (this._hasCpuAvailable()) {
     this.labs.produce();
   }
   // Automatically assign factory levels (each level 1-5 only once)
   if (this.room.factory) {
     this.factory.assignLevel();
   }
-  if (Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > CONSTANTS.CPU.BUCKET_LOW) {
+  if (this._hasCpuAvailable(CONSTANTS.CPU.BUCKET_LOW)) {
     this.factory.produce();
   }
 };
 
 ControllerRoom.prototype.commandCreeps = function () {
-  var cc = new ControllerCreep(this);
-  var creeps = this.find(FIND_MY_CREEPS);
+  const cc = new ControllerCreep(this);
+  const creeps = this.find(FIND_MY_CREEPS);
 
-  for (var c in creeps) {
+  for (const c in creeps) {
     cc.run(creeps[c]);
   }
 };
@@ -139,21 +138,21 @@ ControllerRoom.prototype.commandCreeps = function () {
 ControllerRoom.prototype.populate = function () {
   if (Game.time % CONSTANTS.TICKS.CHECK_POPULATION !== 0) return;
 
-  var spawn = null;
+  let spawn = null;
 
-  var roles = global.getCreepRoles();
-  var cfgCreeps = global.getCreepsConfig();
+  const roles = global.getCreepRoles();
+  const cfgCreeps = global.getCreepsConfig();
 
   if (spawn === null) spawn = this.getIdleSpawn();
   if (spawn === null) return;
 
-  for (var i in roles) {
-    var role = roles[i];
+  for (const i in roles) {
+    const role = roles[i];
 
-    var cfg = cfgCreeps[role];
+    const cfg = cfgCreeps[role];
     if (!cfg.produceGlobal || cfg.produceGlobal === false) {
       if (this._shouldCreateCreep(role, cfg)) {
-        var result = spawn.createCreep(role, cfg);
+        spawn.createCreep(role, cfg);
         return;
       }
     }
@@ -173,48 +172,28 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
   }
   
   // Find first matching pair (same resourceType, different IDs)
-  for (var g in givesResources) {
-    let give = givesResources[g];
-    for (var n in needsResources) {
-      let need = needsResources[n];
+  for (const g in givesResources) {
+    const give = givesResources[g];
+    for (const n in needsResources) {
+      const need = needsResources[n];
       
       // Basic compatibility check
       if (give.resourceType !== need.resourceType) continue;
       if (need.id === give.id) continue;
       
       // Check if target still exists and has capacity
-      const targetObj = Game.getObjectById(need.id);
-      if (!targetObj) continue;
-      
-      // @ts-ignore - targetObj may have store property
-      if (targetObj.store) {
-        // @ts-ignore - store property exists on structures/creeps
-        const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
-        if (freeCap <= 0) continue;
-      }
+      const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
+      if (!targetValidation) continue;
       
       // Check if source still exists
-      const sourceObj = Game.getObjectById(give.id);
-      if (!sourceObj) continue;
+      const sourceValidation = this._validateResourceTarget(give.id, give.resourceType);
+      if (!sourceValidation) continue;
       
       // Found matching order - set orderType in memory and return
       give.orderType = "G";
       
       // Update Creep.memory.resources with orderType
-      if (!Creep.memory.resources) {
-        Creep.memory.resources = [];
-      }
-      let resourceEntry = Creep.memory.resources.find(r => r.resourceType === give.resourceType);
-      if (resourceEntry) {
-        resourceEntry.orderType = "G";
-      } else {
-        Creep.memory.resources.push({
-          resourceType: give.resourceType,
-          amount: 0,
-          target: give.id,
-          orderType: "G"
-        });
-      }
+      this._updateCreepResourceMemory(Creep, give.resourceType, give.id, "G", 0);
       
       return give;
     }
@@ -262,44 +241,22 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
   for (const resType of resourcesToCheck) {
     if (Creep.store[resType] <= 0) continue;
     
-    for (var n in needsResources) {
-      let need = needsResources[n];
+    for (const n in needsResources) {
+      const need = needsResources[n];
       
       // Basic compatibility check
       if (need.resourceType !== resType) continue;
       if (need.id === Creep.id) continue;
       
       // Check if target still exists and has capacity
-      // @ts-ignore - Game.getObjectById can return various types
-      const targetObj = Game.getObjectById(need.id);
-      if (!targetObj) continue;
-      
-      // @ts-ignore - targetObj may have store property
-      if (targetObj.store) {
-        // @ts-ignore - store property exists on structures/creeps
-        const freeCap = targetObj.store.getFreeCapacity(resType) || 0;
-        if (freeCap <= 0) continue;
-      }
+      const targetValidation = this._validateResourceTarget(need.id, resType);
+      if (!targetValidation) continue;
       
       // Found matching order - set orderType and add to list
       need.orderType = "D";
       
       // Update Creep.memory.resources with orderType
-      if (!Creep.memory.resources) {
-        Creep.memory.resources = [];
-      }
-      let resourceEntry = Creep.memory.resources.find(r => r.resourceType === resType);
-      if (resourceEntry) {
-        resourceEntry.orderType = "D";
-        resourceEntry.target = need.id;
-      } else {
-        Creep.memory.resources.push({
-          resourceType: resType,
-          amount: Creep.store[resType] || 0,
-          target: need.id,
-          orderType: "D"
-        });
-      }
+      this._updateCreepResourceMemory(Creep, resType, need.id, "D", Creep.store[resType] || 0);
       
       matchingOrders.push(need);
     }
@@ -321,6 +278,81 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
 };
 
 /**
+ * Helper function to check if CPU is available for optional operations
+ * @param {number} [bucketThreshold] - Minimum CPU bucket required (default: BUCKET_MEDIUM)
+ * @returns {boolean} True if CPU is available
+ */
+ControllerRoom.prototype._hasCpuAvailable = function (bucketThreshold) {
+  // @ts-ignore - bucketThreshold is optional
+  const threshold = bucketThreshold || CONSTANTS.CPU.BUCKET_MEDIUM;
+  return Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > threshold;
+};
+
+/**
+ * Helper function to ensure Memory.rooms[roomName] exists
+ * @returns {Object} Room memory object
+ */
+ControllerRoom.prototype._ensureRoomMemory = function () {
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+  if (!Memory.rooms[this.room.name]) {
+    Memory.rooms[this.room.name] = {};
+  }
+  return Memory.rooms[this.room.name];
+};
+
+/**
+ * Helper function to validate a resource target (exists and has capacity)
+ * @param {string} targetId - Target object ID
+ * @param {string} resourceType - Resource type to check
+ * @returns {Object|null} { obj, freeCapacity } or null if invalid
+ */
+ControllerRoom.prototype._validateResourceTarget = function (targetId, resourceType) {
+  const targetObj = Game.getObjectById(targetId);
+  if (!targetObj) return null;
+  
+  // @ts-ignore - targetObj may have store property
+  if (targetObj.store) {
+    // @ts-ignore - store property exists on structures/creeps
+    const freeCap = targetObj.store.getFreeCapacity(resourceType) || 0;
+    if (freeCap <= 0) return null;
+    return { obj: targetObj, freeCapacity: freeCap };
+  }
+  
+  // No store (e.g., controller) - assume valid
+  return { obj: targetObj, freeCapacity: Infinity };
+};
+
+/**
+ * Helper function to update creep memory with resource information
+ * @param {Creep} creep - The creep
+ * @param {string} resourceType - Resource type
+ * @param {string|null} targetId - Target object ID (optional)
+ * @param {string} orderType - Order type ("G" or "D")
+ * @param {number} amount - Amount (optional)
+ */
+ControllerRoom.prototype._updateCreepResourceMemory = function (creep, resourceType, targetId, orderType, amount) {
+  if (!creep.memory.resources) {
+    creep.memory.resources = [];
+  }
+  
+  let resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
+  if (resourceEntry) {
+    resourceEntry.orderType = orderType;
+    if (targetId) resourceEntry.target = targetId;
+    if (amount !== undefined) resourceEntry.amount = amount;
+  } else {
+    creep.memory.resources.push({
+      resourceType: resourceType,
+      amount: amount !== undefined ? amount : 0,
+      target: targetId || null,
+      orderType: orderType
+    });
+  }
+};
+
+/**
  * Helper function to add a resource entry to givesResources array
  */
 ControllerRoom.prototype._addGivesResource = function (entry) {
@@ -334,27 +366,149 @@ ControllerRoom.prototype._addGivesResource = function (entry) {
  * Helper function to check if position is too close to controller
  */
 ControllerRoom.prototype._isTooCloseToController = function (pos) {
+  if (!this.room.controller) {
+    return false;
+  }
   return pos.inRangeTo(this.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
+};
+
+/**
+ * Helper function to get priority and amount for storage resources (gives)
+ * @param {string} resourceType - Resource type
+ * @param {number} amount - Current amount
+ * @param {number} fillLevel - Fill level threshold
+ * @returns {Object|null} { priority, amount } or null if should skip
+ */
+ControllerRoom.prototype._getStorageGivesPriority = function (resourceType, amount, fillLevel) {
+  if (resourceType === RESOURCE_ENERGY) {
+    if (amount <= fillLevel) {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW,
+        amount: amount
+      };
+    } else {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
+        amount: amount - fillLevel
+      };
+    }
+  } else {
+    // Minerals
+    if (amount > fillLevel) {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW,
+        amount: amount - fillLevel
+      };
+    } else {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH,
+        amount: amount
+      };
+    }
+  }
+};
+
+/**
+ * Helper function to get priority and amount for storage needs
+ * @param {string} resourceType - Resource type
+ * @param {number} currentAmount - Current amount
+ * @param {number} fillLevel - Fill level threshold
+ * @returns {Object|null} { priority, amount } or null if should skip
+ */
+ControllerRoom.prototype._getStorageNeedsPriority = function (resourceType, currentAmount, fillLevel) {
+  if (resourceType === RESOURCE_ENERGY) {
+    if (currentAmount < fillLevel) {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
+        amount: fillLevel - currentAmount
+      };
+    } else if (currentAmount < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
+        amount: CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount
+      };
+    }
+    return null; // Skip if already at max
+  } else {
+    // Minerals
+    if (currentAmount < fillLevel) {
+      return {
+        priority: CONSTANTS.PRIORITY.STORAGE_MINERAL,
+        amount: fillLevel - currentAmount
+      };
+    }
+    return null; // Skip if already at fill level
+  }
+};
+
+/**
+ * Helper function to get priority and amount for terminal resources (gives)
+ * @param {string} resourceType - Resource type
+ * @param {number} amount - Current amount
+ * @param {number} energyThreshold - Energy threshold
+ * @returns {Object|null} { priority, amount } or null if should skip
+ */
+ControllerRoom.prototype._getTerminalGivesPriority = function (resourceType, amount, energyThreshold) {
+  if (resourceType === RESOURCE_ENERGY) {
+    if (amount <= energyThreshold) {
+      return {
+        priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW,
+        amount: amount
+      };
+    } else {
+      return {
+        priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH,
+        amount: amount - energyThreshold
+      };
+    }
+  } else {
+    // Minerals
+    if (amount > 0) {
+      return {
+        priority: CONSTANTS.PRIORITY.TERMINAL_MINERAL,
+        amount: amount
+      };
+    }
+    return null; // Skip if no minerals
+  }
+};
+
+/**
+ * Process store-based resources (tombstones, ruins, etc.)
+ * @param {number} findType - FIND_TOMBSTONES or FIND_RUINS
+ * @param {number} minAmount - Minimum amount threshold
+ * @param {number} priority - Priority constant
+ * @param {string} defaultStructureType - Default structure type if not found
+ */
+ControllerRoom.prototype._processStoreResources = function (findType, minAmount, priority, defaultStructureType) {
+  this.find(findType).forEach((item) => {
+    for (const resourceType in item.store) {
+      const amount = item.store[resourceType];
+      if (amount > minAmount) {
+        const structureType = item.structureType || 
+                            (item.structure ? item.structure.structureType : defaultStructureType);
+        this._addGivesResource({
+          priority: priority,
+          resourceType: resourceType,
+          structureType: structureType,
+          amount: amount,
+          id: item.id,
+        });
+      }
+    }
+  });
 };
 
 /**
  * Process tombstones that can give resources
  */
 ControllerRoom.prototype._processTombstones = function () {
-  this.find(FIND_TOMBSTONES).forEach((tombstone) => {
-    for (var resourceType in tombstone.store) {
-      var amount = tombstone.store[resourceType];
-      if (amount > CONSTANTS.RESOURCES.TOMBSTONE_MIN) {
-        this._addGivesResource({
-          priority: CONSTANTS.PRIORITY.TOMBSTONE,
-          resourceType: resourceType,
-          structureType: tombstone.structureType,
-          amount: amount,
-          id: tombstone.id,
-        });
-      }
-    }
-  });
+  this._processStoreResources(
+    FIND_TOMBSTONES,
+    CONSTANTS.RESOURCES.TOMBSTONE_MIN,
+    CONSTANTS.PRIORITY.TOMBSTONE,
+    "tombstone"
+  );
 };
 
 /**
@@ -362,20 +516,12 @@ ControllerRoom.prototype._processTombstones = function () {
  * Ruins contain resources from destroyed structures
  */
 ControllerRoom.prototype._processRuins = function () {
-  this.find(FIND_RUINS).forEach((ruin) => {
-    for (var resourceType in ruin.store) {
-      var amount = ruin.store[resourceType];
-      if (amount > 0) {
-        this._addGivesResource({
-          priority: CONSTANTS.PRIORITY.RUIN,
-          resourceType: resourceType,
-          structureType: ruin.structure ? ruin.structure.structureType : "ruin",
-          amount: amount,
-          id: ruin.id,
-        });
-      }
-    }
-  });
+  this._processStoreResources(
+    FIND_RUINS,
+    0,
+    CONSTANTS.PRIORITY.RUIN,
+    "ruin"
+  );
 };
 
 /**
@@ -384,7 +530,7 @@ ControllerRoom.prototype._processRuins = function () {
 ControllerRoom.prototype._processLinks = function () {
   if (!this.links.receivers) return;
   
-  for (var link of this.links.receivers) {
+  for (const link of this.links.receivers) {
     if (link.energy > 0 && !this._isTooCloseToController(link.pos)) {
       this._addGivesResource({
         priority: CONSTANTS.PRIORITY.LINK,
@@ -401,7 +547,7 @@ ControllerRoom.prototype._processLinks = function () {
  * Process dropped resources
  */
 ControllerRoom.prototype._processDroppedResources = function () {
-  for (var resource of this.find(FIND_DROPPED_RESOURCES)) {
+  for (const resource of this.find(FIND_DROPPED_RESOURCES)) {
     if (resource.amount > CONSTANTS.RESOURCES.DROPPED_MIN && !this._isTooCloseToController(resource.pos)) {
       this._addGivesResource({
         priority: CONSTANTS.PRIORITY.DROPPED_RESOURCE,
@@ -417,11 +563,11 @@ ControllerRoom.prototype._processDroppedResources = function () {
  * Process containers that can give resources
  */
 ControllerRoom.prototype._processContainers = function () {
-  var containers = [];
+  const containers = [];
   
-  // Get containers from sources
-  var sources = this.getSources();
-  for (var source of sources) {
+  // Get containers from sources (nutzt gecachten find() Cache)
+  const sources = this.find(FIND_SOURCES);
+  for (const source of sources) {
     if (source && source.container) {
       containers.push(source.container);
     }
@@ -432,11 +578,11 @@ ControllerRoom.prototype._processContainers = function () {
     containers.push(this.room.extractor.container);
   }
   
-  for (var container of containers) {
+  for (const container of containers) {
     if (!container || !container.store) continue;
     
-    for (var resourceType in container.store) {
-      var amount = container.store[resourceType];
+    for (const resourceType in container.store) {
+      const amount = container.store[resourceType];
       if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
         this._addGivesResource({
           priority: CONSTANTS.PRIORITY.CONTAINER,
@@ -456,10 +602,10 @@ ControllerRoom.prototype._processContainers = function () {
 ControllerRoom.prototype._processLabs = function () {
   if (!this.room.labs) return;
   
-  for (var lab of this.room.labs) {
+  for (const lab of this.room.labs) {
     if (!lab.memory || lab.memory.status !== "empty") continue;
     
-    var result = lab.getFirstMineral();
+    const result = lab.getFirstMineral();
     if (result && result.amount > 0) {
       this._addGivesResource({
         priority: CONSTANTS.PRIORITY.LAB_EMPTY,
@@ -476,12 +622,12 @@ ControllerRoom.prototype._processLabs = function () {
  * Process factory overflow resources
  */
 ControllerRoom.prototype._processFactory = function () {
-  var factory = this.room.factory;
+  const factory = this.room.factory;
   if (!factory) return;
   
-  for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = this.room.getRoomThreshold(resourceType, "factory");
-    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "factory");
+  for (const resourceType of RESOURCES_ALL) {
+    const fillLevel = this.room.getRoomThreshold(resourceType, "factory");
+    const amount = ResourceManager.getResourceAmount(this.room, resourceType, "factory");
     
     if (amount > fillLevel) {
       this._addGivesResource({
@@ -500,44 +646,26 @@ ControllerRoom.prototype._processFactory = function () {
  * Process storage resources
  */
 ControllerRoom.prototype._processStorage = function () {
-  var storage = this.room.storage;
+  const storage = this.room.storage;
   if (!storage) return;
   
-  for (var resourceType of RESOURCES_ALL) {
-    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
+  for (const resourceType of RESOURCES_ALL) {
+    const amount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
     if (amount === 0) continue;
     
-    var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
-    var priority;
-    var giveAmount;
+    const fillLevel = this.room.getRoomThreshold(resourceType, "storage");
+    const priorityInfo = this._getStorageGivesPriority(resourceType, amount, fillLevel);
     
-    if (resourceType === RESOURCE_ENERGY) {
-      if (amount <= fillLevel) {
-        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW;
-        giveAmount = amount;
-      } else {
-        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
-        giveAmount = amount - fillLevel;
-      }
-    } else {
-      // Minerals
-      if (amount > fillLevel) {
-        priority = CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW;
-        giveAmount = amount - fillLevel;
-      } else {
-        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
-        giveAmount = amount;
-      }
+    if (priorityInfo) {
+      this._addGivesResource({
+        priority: priorityInfo.priority,
+        structureType: storage.structureType,
+        resourceType: resourceType,
+        amount: priorityInfo.amount,
+        id: storage.id,
+        exact: true,
+      });
     }
-    
-    this._addGivesResource({
-      priority: priority,
-      structureType: storage.structureType,
-      resourceType: resourceType,
-      amount: giveAmount,
-      id: storage.id,
-      exact: true,
-    });
   }
 };
 
@@ -545,41 +673,24 @@ ControllerRoom.prototype._processStorage = function () {
  * Process terminal resources
  */
 ControllerRoom.prototype._processTerminal = function () {
-  var terminal = this.room.terminal;
+  const terminal = this.room.terminal;
   if (!terminal) return;
   
-  var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  const energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
   
-  for (var resourceType of RESOURCES_ALL) {
-    var amount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
-    var priority;
-    var giveAmount;
+  for (const resourceType of RESOURCES_ALL) {
+    const amount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
+    const priorityInfo = this._getTerminalGivesPriority(resourceType, amount, energyThreshold);
     
-    if (resourceType === RESOURCE_ENERGY) {
-      if (amount <= energyThreshold) {
-        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
-        giveAmount = amount;
-      } else {
-        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH;
-        giveAmount = amount - energyThreshold;
-      }
-    } else {
-      // Minerals
-      if (amount > 0) {
-        priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-        giveAmount = amount;
-      } else {
-        continue;
-      }
+    if (priorityInfo) {
+      this._addGivesResource({
+        priority: priorityInfo.priority,
+        structureType: terminal.structureType,
+        resourceType: resourceType,
+        amount: priorityInfo.amount,
+        id: terminal.id,
+      });
     }
-    
-    this._addGivesResource({
-      priority: priority,
-      structureType: terminal.structureType,
-      resourceType: resourceType,
-      amount: giveAmount,
-      id: terminal.id,
-    });
   }
 };
 
@@ -627,9 +738,10 @@ ControllerRoom.prototype._getControllerPriority = function () {
     return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
   }
   
-  if (this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
+  const ticksToDowngrade = this.room.controller.ticksToDowngrade;
+  if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
     return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
-  } else if (this.room.controller.ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
+  } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
     return CONSTANTS.PRIORITY.CONTROLLER_LOW;
   }
   
@@ -642,9 +754,9 @@ ControllerRoom.prototype._getControllerPriority = function () {
 ControllerRoom.prototype._processUpgraders = function (priority) {
   if (!this.room.controller || this.room.controller.container) return;
   
-  var upgraders = this.getCreeps("upgrader");
-  for (var upgrader of upgraders) {
-    var freeCapacity = upgrader.store.getFreeCapacity(RESOURCE_ENERGY);
+  const upgraders = this.getCreeps("upgrader");
+  for (const upgrader of upgraders) {
+    const freeCapacity = upgrader.store.getFreeCapacity(RESOURCE_ENERGY);
     if (freeCapacity > 0) {
       this._addNeedsResource({
         priority: priority,
@@ -660,9 +772,9 @@ ControllerRoom.prototype._processUpgraders = function (priority) {
  * Process controller container that needs energy
  */
 ControllerRoom.prototype._processController = function (priority) {
-  var controllerContainer = this.getControllerNotFull();
+  const controllerContainer = this.getControllerNotFull();
   if (controllerContainer) {
-    var freeCapacity = controllerContainer.store.getFreeCapacity(RESOURCE_ENERGY);
+    const freeCapacity = controllerContainer.store.getFreeCapacity(RESOURCE_ENERGY);
     if (freeCapacity > 0) {
       this._addNeedsResource({
         priority: priority,
@@ -679,10 +791,10 @@ ControllerRoom.prototype._processController = function (priority) {
  * Process constructor creeps that need energy
  */
 ControllerRoom.prototype._processConstructors = function () {
-  var constructors = this.getCreeps("constructor");
-  for (var constructor of constructors) {
-    var freeCapacity = constructor.store.getFreeCapacity(RESOURCE_ENERGY);
-    var capacity = constructor.store.getCapacity();
+  const constructors = this.getCreeps("constructor");
+  for (const constructor of constructors) {
+    const freeCapacity = constructor.store.getFreeCapacity(RESOURCE_ENERGY);
+    const capacity = constructor.store.getCapacity();
     
     // Only add if more than half capacity is free
     if (freeCapacity > capacity / 2) {
@@ -703,13 +815,13 @@ ControllerRoom.prototype._processConstructors = function () {
 ControllerRoom.prototype._processLabsNeeds = function () {
   if (!this.room.labs) return;
   
-  for (var lab of this.room.labs) {
+  for (const lab of this.room.labs) {
     if (!lab.memory || lab.memory.status !== "fill" || !lab.memory.usedBy) continue;
     
-    var resourceType = lab.memory.resource;
+    const resourceType = lab.memory.resource;
     if (!resourceType) continue;
     
-    var freeCapacity = lab.store.getFreeCapacity(resourceType);
+    const freeCapacity = lab.store.getFreeCapacity(resourceType);
     if (freeCapacity > 0) {
       this._addNeedsResource({
         priority: CONSTANTS.PRIORITY.LAB_FILL,
@@ -729,56 +841,56 @@ ControllerRoom.prototype._processStructures = function () {
   if (!this.room.controller || !this.room.controller.my) return;
   
   // Determine tower priority based on enemies
-  var towerPriority = this.getEnemys().length > 0 
+  const towerPriority = this.getEnemys().length > 0 
     ? CONSTANTS.PRIORITY.TOWER_ENEMY 
     : CONSTANTS.PRIORITY.TOWER_NORMAL;
   
   // Process towers
-  var towerNeeds = this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, towerPriority, 400);
-  for (var need of towerNeeds) {
+  const towerNeeds = this.structuresNeedResource(this.room.towers, RESOURCE_ENERGY, towerPriority, 400);
+  for (const need of towerNeeds) {
     this._addNeedsResource(need);
   }
   
   // Process spawns
-  var spawnNeeds = this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
-  for (var need of spawnNeeds) {
+  const spawnNeeds = this.structuresNeedResource(this.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
+  for (const need of spawnNeeds) {
     this._addNeedsResource(need);
   }
   
   // Process extensions
-  var extensionNeeds = this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
-  for (var need of extensionNeeds) {
+  const extensionNeeds = this.structuresNeedResource(this.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
+  for (const need of extensionNeeds) {
     this._addNeedsResource(need);
   }
   
   // Process labs (for energy)
-  var labNeeds = this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
-  for (var need of labNeeds) {
+  const labNeeds = this.structuresNeedResource(this.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
+  for (const need of labNeeds) {
     this._addNeedsResource(need);
   }
   
   // Process power spawn
   if (this.room.powerSpawn) {
-    var powerSpawnEnergyNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
-    for (var need of powerSpawnEnergyNeeds) {
+    const powerSpawnEnergyNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
+    for (const need of powerSpawnEnergyNeeds) {
       this._addNeedsResource(need);
     }
     
-    var powerSpawnPowerNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
-    for (var need of powerSpawnPowerNeeds) {
+    const powerSpawnPowerNeeds = this.structuresNeedResource([this.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
+    for (const need of powerSpawnPowerNeeds) {
       this._addNeedsResource(need);
     }
   }
   
   // Process nuker
   if (this.room.nuker) {
-    var nukerEnergyNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
-    for (var need of nukerEnergyNeeds) {
+    const nukerEnergyNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
+    for (const need of nukerEnergyNeeds) {
       this._addNeedsResource(need);
     }
     
-    var nukerGhodiumNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
-    for (var need of nukerGhodiumNeeds) {
+    const nukerGhodiumNeeds = this.structuresNeedResource([this.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
+    for (const need of nukerGhodiumNeeds) {
       this._addNeedsResource(need);
     }
   }
@@ -788,15 +900,15 @@ ControllerRoom.prototype._processStructures = function () {
  * Process factory that needs resources
  */
 ControllerRoom.prototype._processFactoryNeeds = function () {
-  var factory = this.room.factory;
+  const factory = this.room.factory;
   if (!factory || factory.store.getFreeCapacity() === 0) return;
   
-  for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = this.room.getRoomThreshold(resourceType, "factory");
-    var currentAmount = factory.store[resourceType] || 0;
+  for (const resourceType of RESOURCES_ALL) {
+    const fillLevel = this.room.getRoomThreshold(resourceType, "factory");
+    const currentAmount = factory.store[resourceType] || 0;
     
     if (currentAmount < fillLevel) {
-      var priority = resourceType === RESOURCE_ENERGY 
+      const priority = resourceType === RESOURCE_ENERGY 
         ? CONSTANTS.PRIORITY.FACTORY_ENERGY 
         : CONSTANTS.PRIORITY.FACTORY_MINERAL;
       
@@ -816,43 +928,24 @@ ControllerRoom.prototype._processFactoryNeeds = function () {
  * Process storage that needs resources
  */
 ControllerRoom.prototype._processStorageNeeds = function () {
-  var storage = this.room.storage;
+  const storage = this.room.storage;
   if (!storage || storage.store.getFreeCapacity() === 0) return;
   
-  for (var resourceType of RESOURCES_ALL) {
-    var fillLevel = this.room.getRoomThreshold(resourceType, "storage");
-    var currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
-    var priority;
-    var neededAmount;
+  for (const resourceType of RESOURCES_ALL) {
+    const fillLevel = this.room.getRoomThreshold(resourceType, "storage");
+    const currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "storage");
+    const priorityInfo = this._getStorageNeedsPriority(resourceType, currentAmount, fillLevel);
     
-    if (resourceType === RESOURCE_ENERGY) {
-      if (currentAmount < fillLevel) {
-        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_MID;
-        neededAmount = fillLevel - currentAmount;
-      } else if (currentAmount < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
-        priority = CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW;
-        neededAmount = CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount;
-      } else {
-        continue;
-      }
-    } else {
-      // Minerals
-      if (currentAmount < fillLevel) {
-        priority = CONSTANTS.PRIORITY.STORAGE_MINERAL;
-        neededAmount = fillLevel - currentAmount;
-      } else {
-        continue;
-      }
+    if (priorityInfo) {
+      this._addNeedsResource({
+        priority: priorityInfo.priority,
+        structureType: storage.structureType,
+        resourceType: resourceType,
+        amount: priorityInfo.amount,
+        id: storage.id,
+        exact: true,
+      });
     }
-    
-    this._addNeedsResource({
-      priority: priority,
-      structureType: storage.structureType,
-      resourceType: resourceType,
-      amount: neededAmount,
-      id: storage.id,
-      exact: true,
-    });
   }
 };
 
@@ -860,38 +953,57 @@ ControllerRoom.prototype._processStorageNeeds = function () {
  * Process terminal that needs resources
  */
 ControllerRoom.prototype._processTerminalNeeds = function () {
-  var terminal = this.room.terminal;
+  const terminal = this.room.terminal;
   if (!terminal || terminal.store.getFreeCapacity() === 0) return;
   
-  var energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  const energyThreshold = this.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  const freeCapacity = terminal.store.getFreeCapacity();
   
-  for (var resourceType of RESOURCES_ALL) {
-    var currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
-    var priority;
-    var neededAmount;
+  for (const resourceType of RESOURCES_ALL) {
+    const currentAmount = ResourceManager.getResourceAmount(this.room, resourceType, "terminal");
+    let priority;
+    let neededAmount;
     
     if (resourceType === RESOURCE_ENERGY) {
       if (currentAmount < energyThreshold) {
         priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
-        neededAmount = energyThreshold - currentAmount;
+        neededAmount = Math.min(energyThreshold - currentAmount, freeCapacity);
       } else {
-        priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_OVERFLOW;
-        neededAmount = terminal.store.getFreeCapacity();
+        // Only add overflow need if there's actually free capacity
+        if (freeCapacity > 0) {
+          priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_OVERFLOW;
+          neededAmount = freeCapacity;
+        } else {
+          continue; // Skip if no free capacity
+        }
       }
     } else {
-      // Minerals
-      priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-      neededAmount = terminal.store.getFreeCapacity();
+      // Minerals - only add need if terminal has free capacity and we actually need this mineral
+      // Skip if terminal is full or if we don't need this specific mineral
+      if (freeCapacity <= 0) {
+        continue;
+      }
+      // Only add mineral need if we're below fill level or terminal is empty
+      const fillLevel = this.room.getRoomThreshold(resourceType, "terminal");
+      if (currentAmount < fillLevel || currentAmount === 0) {
+        priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+        neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
+      } else {
+        continue; // Skip if already at fill level
+      }
     }
     
-    this._addNeedsResource({
-      priority: priority,
-      structureType: terminal.structureType,
-      resourceType: resourceType,
-      amount: neededAmount,
-      id: terminal.id,
-      exact: true,
-    });
+    // Only add if we actually need something
+    if (neededAmount > 0) {
+      this._addNeedsResource({
+        priority: priority,
+        structureType: terminal.structureType,
+        resourceType: resourceType,
+        amount: neededAmount,
+        id: terminal.id,
+        exact: true,
+      });
+    }
   }
 };
 
@@ -904,7 +1016,7 @@ ControllerRoom.prototype.needsResources = function () {
     this._needsResources = [];
     
     // Get controller priority
-    var controllerPriority = this._getControllerPriority();
+    const controllerPriority = this._getControllerPriority();
     
     // Process creeps and controller
     this._processUpgraders(controllerPriority);
@@ -941,10 +1053,10 @@ ControllerRoom.prototype.find = function (type) {
  * role + target = all Creeps with role + target
  */
 ControllerRoom.prototype.getCreeps = function (role, target) {
-  var creeps = this.find(FIND_MY_CREEPS);
+  let creeps = this.find(FIND_MY_CREEPS);
 
   if (role || target) {
-    var filter = {
+    const filter = {
       memory: {},
     };
 
@@ -993,11 +1105,10 @@ ControllerRoom.prototype.getAllCreeps = function (role) {
 };
 
 ControllerRoom.prototype.findNearLink = function (obj) {
-  let allLinks = this.room.links;
-  let thelink = obj.pos.findInRange(allLinks, 3);
+  const allLinks = this.room.links;
+  const thelink = obj.pos.findInRange(allLinks, 3);
   if (thelink.length > 0) {
-    let link = thelink[0];
-    return link;
+    return thelink[0];
   }
   return null;
 };
@@ -1016,7 +1127,7 @@ ControllerRoom.prototype.getEnemys = function () {
 };
 
 ControllerRoom.prototype.getLevel = function () {
-  var controller = this.room.controller;
+  const controller = this.room.controller;
   if (controller && controller.my) {
     return controller.level;
   }
@@ -1048,21 +1159,21 @@ ControllerRoom.prototype.structuresNeedResource = function (structures, resource
 
 ControllerRoom.prototype.getDroppedResourcesAmount = function () {
   let amount = 0;
-  for (var s of this.find(FIND_DROPPED_RESOURCES)) {
+  for (const s of this.find(FIND_DROPPED_RESOURCES)) {
     amount += s.amount;
   }
   return amount;
 };
 
 ControllerRoom.prototype.getControllerNotFull = function () {
-  if (!this._controllerNF) {
+  if (this._controllerNF === undefined) {
     this._controllerNF = null;
 
-    let controllerz = this.room.controller;
+    const controllerz = this.room.controller;
     if (controllerz) {
-      let containerId = controllerz.memory.containerID || null;
+      const containerId = controllerz.memory.containerID || null;
       if (containerId != null) {
-        var container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));
+        const container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));
         if (container != null) {
           if (container.store && container.store[RESOURCE_ENERGY] + CONSTANTS.RESOURCES.CONTROLLER_ENERGY_BUFFER < container.store.getCapacity(RESOURCE_ENERGY)) {
             this._controllerNF = container;
@@ -1070,15 +1181,14 @@ ControllerRoom.prototype.getControllerNotFull = function () {
         }
       }
     }
-    return this._controllerNF;
   }
+  return this._controllerNF;
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
-  for (var i in this._spawns) {
-    var sc = this._spawns[i];
-    var idleSpawn = sc.isIdle();
-    if (idleSpawn) {
+  for (const i in this._spawns) {
+    const sc = this._spawns[i];
+    if (sc.isIdle()) {
       return sc;
     }
   }
@@ -1087,9 +1197,9 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 
 ControllerRoom.prototype.getIdleSpawnObject = function () {
   // Nutze gecachten room.spawns Getter (filtert nach my)
-  var spawns = this.room.spawns.filter(s => s.my);
-  for (var i in spawns) {
-    var sc = spawns[i];
+  const spawns = this.room.spawns.filter(s => s.my);
+  for (const i in spawns) {
+    const sc = spawns[i];
     if (!sc.spawning) {
       return sc;
     }
@@ -1098,53 +1208,34 @@ ControllerRoom.prototype.getIdleSpawnObject = function () {
 };
 
 ControllerRoom.prototype.getMineralAmount = function () {
-  var minerals = this.find(FIND_MINERALS);
-  return minerals[0].mineralAmount;
-};
-
-ControllerRoom.prototype.getSources = function () {
-  if (!this._sources) {
-    this._sources = this.find(FIND_SOURCES);
+  const minerals = this.find(FIND_MINERALS);
+  if (!minerals || minerals.length === 0) {
+    return 0;
   }
-  return this._sources;
+  return minerals[0].mineralAmount;
 };
 
 ControllerRoom.prototype.getSourcesNotEmpty = function () {
   if (!this._sourcesNE) {
-    let sources = this.getSources();
-    if (sources) {
+    // Nutzt gecachten find() Cache statt getSources()
+    const sources = this.find(FIND_SOURCES);
+    if (sources && sources.length > 0) {
       this._sourcesNE = _.filter(sources, function (s) {
-        // TODO Calculate free spaces around source
         return s.energy > 0;
       });
     } else {
-      return null;
+      this._sourcesNE = [];
     }
   }
   return this._sourcesNE;
 };
 
-/* ControllerRoom.prototype.getSourcesUndefended = function (defended) {
-	if (!this._sourcesUD) {
-		let sources = this.getSources();
-		if (sources) {
-			this._sourcesUD = _.filter(sources, function (s) {
-				return (defended || false) == s.defended;
-			});
-		} else {
-			return null;
-		}
-	}
-	return this._sourcesUD;
-}; */
-
 ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
-  for (var key in REACTIONS) {
+  for (const key in REACTIONS) {
     if (REACTIONS.hasOwnProperty(key)) {
-      var obj = REACTIONS[key];
-      for (var prop in obj) {
+      const obj = REACTIONS[key];
+      for (const prop in obj) {
         if (obj.hasOwnProperty(prop)) {
-          // TODO RESOURCES.LAB_REACTION_MIN should be dynamic based on number of labs, or complete new system
           if (
             this.room.getResourceAmount(key, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
             this.room.getResourceAmount(prop, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
@@ -1174,9 +1265,9 @@ ControllerRoom.prototype.findStructuresToRepair = function () {
 };
 
 ControllerRoom.prototype._shouldCreateCreep = function (role, cfg) {
-  var level = this.getLevel();
-  var lReq = cfg.levelMin || 1;
-  var lMax = cfg.levelMax || 10;
+  const level = this.getLevel();
+  const lReq = cfg.levelMin || 1;
+  const lMax = cfg.levelMax || 10;
   if (level < lReq) return false;
   if (lMax < level) return false;
   if (cfg.wait4maxEnergy == true && this.room.energyCapacityAvailable > this.room.energyAvailable) return false;
@@ -1200,27 +1291,21 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
   }
 
   const currentLevel = this.room.controller.level;
-  const roomName = this.room.name;
-
-  // Initialize memory structure if not exists
-  if (!Memory.rooms) {
-    Memory.rooms = {};
+  const roomMemory = this._ensureRoomMemory();
+  
+  // Initialize rclUpgradeTimes if not exists
+  if (!roomMemory.rclUpgradeTimes) {
+    roomMemory.rclUpgradeTimes = {};
   }
-  if (!Memory.rooms[roomName]) {
-    Memory.rooms[roomName] = {};
+  if (roomMemory.rclUpgradeTimes.lastLevel === undefined) {
+    roomMemory.rclUpgradeTimes.lastLevel = currentLevel;
   }
-  if (!Memory.rooms[roomName].rclUpgradeTimes) {
-    Memory.rooms[roomName].rclUpgradeTimes = {};
-  }
-  if (Memory.rooms[roomName].rclUpgradeTimes.lastLevel === undefined) {
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
-  }
-  if (Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick === undefined) {
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
+  if (roomMemory.rclUpgradeTimes.lastLevelTick === undefined) {
+    roomMemory.rclUpgradeTimes.lastLevelTick = Game.time;
   }
 
-  const lastLevel = Memory.rooms[roomName].rclUpgradeTimes.lastLevel;
-  const lastLevelTick = Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick;
+  const lastLevel = roomMemory.rclUpgradeTimes.lastLevel;
+  const lastLevelTick = roomMemory.rclUpgradeTimes.lastLevelTick;
 
   // Check if RCL level increased
   if (currentLevel > lastLevel) {
@@ -1229,16 +1314,16 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
     
     // Store upgrade time for the level we just reached
     // Key is the level reached (e.g., "2" means time from RCL 1 to RCL 2)
-    Memory.rooms[roomName].rclUpgradeTimes[currentLevel.toString()] = upgradeTime;
+    roomMemory.rclUpgradeTimes[currentLevel.toString()] = upgradeTime;
 
     // Update tracking
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
+    roomMemory.rclUpgradeTimes.lastLevel = currentLevel;
+    roomMemory.rclUpgradeTimes.lastLevelTick = Game.time;
   } else if (currentLevel < lastLevel) {
     // Level decreased (shouldn't happen normally, but handle it)
     // Reset tracking
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevel = currentLevel;
-    Memory.rooms[roomName].rclUpgradeTimes.lastLevelTick = Game.time;
+    roomMemory.rclUpgradeTimes.lastLevel = currentLevel;
+    roomMemory.rclUpgradeTimes.lastLevelTick = Game.time;
   }
   // If level is the same, do nothing - tracking continues
 };

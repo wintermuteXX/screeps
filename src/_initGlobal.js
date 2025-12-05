@@ -54,6 +54,7 @@ function initGlobal(g) {
   global.json = utilsConsole.json;
   global.help = utilsConsole.help;
   global.voiceConsole = utilsConsole.voiceConsole;
+  global.visualizeLogistic = utilsConsole.visualizeLogistic;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;

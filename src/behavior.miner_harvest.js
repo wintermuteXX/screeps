@@ -17,7 +17,8 @@ b.completed = function () {
 function getSource(creep, rc) {
   let source = creep.getTarget();
   if (source === null) {
-    source = _.find(rc.getSources(), function (s) {
+    // Nutzt gecachten find() Cache statt getSources()
+    source = _.find(rc.find(FIND_SOURCES), function (s) {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }

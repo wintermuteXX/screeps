@@ -46,7 +46,8 @@ module.exports = {
 
     canBuild: function (rc) {
       const miners = rc.getAllCreeps("miner");
-      const sources = rc.getSources();
+      // Nutzt gecachten find() Cache statt getSources()
+      const sources = rc.find(FIND_SOURCES);
       // Count how many sources already have a miner assigned
       let assignedSources = 0;
       for (const source of sources) {

@@ -1,6 +1,14 @@
 const Log = require("Log");
 const utilsUsername = require("utils.username");
 const utilsResources = require("utils.resources");
+// @ts-ignore - ControllerRoom and ControllerGame are runtime modules
+const ControllerRoom = require("ControllerRoom");
+// @ts-ignore - ControllerRoom and ControllerGame are runtime modules
+const ControllerGame = require("ControllerGame");
+
+
+
+
 
 /**
  * Show what's in all terminals
@@ -308,56 +316,170 @@ function help(category = 'all') {
 }
 
 /**
- * Text-to-speech console function
- * @param {string} text - Text to speak
+ * Visualize all transport orders (givesResources and needsResources) for a room
+ * @param {string|null} roomName - Room name to visualize, or null for all rooms
+ * @returns {string} HTML table string
  */
-function voiceConsole(text) {
-  // The function below was developed late last year by @stybbe, published in
-  //  Screeps Slack's #share-thy-code channel. No license was applied; all
-  //  rights remain with the author. Minor fixes were made by @SemperRabbit
-  //  to get it working again.
-
-  // NOTE: that this code works in chrome and firefox (albiet quietly
-  //  in firefox) but not the steam client.
-
-  let defaultVoice = "Deutsch Female"; // can be changed
-  // see https://responsivevoice.org/text-to-speech-languages/
-
-  console.log(
-    `<span style="color:green; font-style: italic;">${text}</span>
-                 <script>
-                    if (!window.speakText){
-                        window.speakText = function(gameTime, text) {
-                            var id = gameTime + "-" + text;
-                            if(!window.voiceHash){
-                                window.voiceHash={};
-                            } 
-                            
-                            if (!window.voiceHash[id]){
-                                window.voiceHash[id]=true;
-                            responsiveVoice.setDefaultVoice("${defaultVoice}");
-                                responsiveVoice.speak(text);
-                            }
-                        }
-                    }
-                 
-                    if (document.getElementById("responsiveVoice")){
-                        window.speakText("${Game.time}", "${text}");
-                    }else{
-                        var script = document.createElement("script");
-                        script.type = "text/javascript";
-                        script.id = "responsiveVoice";
-                        script.onload = function() {
-                            responsiveVoice.setDefaultVoice("${defaultVoice}");
-                            console.log("responsiveVoice has initialized");
-                            window.speakText("${Game.time}", "${text}");
-                        };
-                        script.src = "https://code.responsivevoice.org/responsivevoice.js";
-                        document.getElementsByTagName("head")[0].appendChild(script);
-                        setTimeout("responsiveVoice.init()", 1000);
-                    }
-                </script>`.replace(/(\r\n|\n|\r)\t+|(\r\n|\n|\r) +|(\r\n|\n|\r)/gm, "")
-  );
+function visualizeLogistic(roomName = null) {
+  const result = [];
+  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
+  result.push('<caption><strong>TRANSPORT ORDERS (LOGISTICS)</strong></caption>');
+  
+  // Get rooms to process
+  const roomsToProcess = [];
+  if (roomName) {
+    const room = Game.rooms[roomName];
+    if (room && room.controller && room.controller.my) {
+      roomsToProcess.push(room);
+    } else {
+      result.push(`<tr><td colspan="8" style="color: #ff0000;">Room "${roomName}" not found or not owned</td></tr>`);
+      result.push('</table>');
+      return result.join('');
+    }
+  } else {
+    // All owned rooms
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      if (room && room.controller && room.controller.my) {
+        roomsToProcess.push(room);
+      }
+    }
+  }
+  
+  if (roomsToProcess.length === 0) {
+    result.push('<tr><td colspan="8" style="color: #ff0000;">No owned rooms found</td></tr>');
+    result.push('</table>');
+    return result.join('');
+  }
+  
+  // Create a temporary ControllerGame instance to create ControllerRoom instances
+  const tempControllerGame = new ControllerGame();
+  
+  for (const room of roomsToProcess) {
+    // @ts-ignore - _rooms is a private property but we need it for console visualization
+    const rc = tempControllerGame._rooms[room.name];
+    if (!rc) continue;
+    
+    // Room header
+    result.push(`<tr><td colspan="10" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">ROOM: ${room.name}</td></tr>`);
+    
+    // Table headers
+    result.push('<tr style="background-color: #333;">');
+    result.push('<th style="padding: 5px;">RESOURCE</th>');
+    result.push('<th style="padding: 5px;">FROM (SOURCE)</th>');
+    result.push('<th style="padding: 5px;">AMOUNT</th>');
+    result.push('<th style="padding: 5px;">PRIORITY</th>');
+    result.push('<th style="padding: 5px;">TO (TARGET)</th>');
+    result.push('<th style="padding: 5px;">AMOUNT</th>');
+    result.push('<th style="padding: 5px;">PRIORITY</th>');
+    result.push('<th style="padding: 5px;">SOURCE OBJ</th>');
+    result.push('<th style="padding: 5px;">TARGET OBJ</th>');
+    result.push('<th style="padding: 5px;">STATUS</th>');
+    result.push('</tr>');
+    
+    // Get givesResources and needsResources
+    const givesResources = rc.givesResources();
+    const needsResources = rc.needsResources();
+    
+    // Find matching transport orders (need.priority < give.priority)
+    const transportOrders = [];
+    for (const give of givesResources) {
+      for (const need of needsResources) {
+        // Check if same resource type and need priority is less than give priority
+        if (give.resourceType === need.resourceType && need.priority < give.priority && need.id !== give.id) {
+          // Verify target still exists and has capacity
+          const targetObj = Game.getObjectById(need.id);
+          if (!targetObj) continue;
+          
+          // @ts-ignore - targetObj may have store property
+          if (targetObj.store) {
+            // @ts-ignore - store property exists on structures/creeps
+            const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
+            if (freeCap <= 0) continue;
+          }
+          
+          // Verify source still exists
+          const sourceObj = Game.getObjectById(give.id);
+          if (!sourceObj) continue;
+          
+          transportOrders.push({ give, need });
+        }
+      }
+    }
+    
+    // Sort by priority (need.priority) from smallest to largest
+    transportOrders.sort((a, b) => (a.need.priority || 0) - (b.need.priority || 0));
+    
+    if (transportOrders.length > 0) {
+      for (const order of transportOrders) {
+        const { give, need } = order;
+        
+        const sourceObj = Game.getObjectById(give.id);
+        const targetObj = Game.getObjectById(need.id);
+        const sourceName = sourceObj ? sourceObj.toString() : 'NOT FOUND';
+        const targetName = targetObj ? targetObj.toString() : 'NOT FOUND';
+        
+        let status = 'OK';
+        if (!sourceObj || !targetObj) {
+          status = 'INVALID';
+        } else {
+          // Calculate source available amount
+          let sourceAvailable = 0;
+          if (sourceObj.store) {
+            // Structure with store (container, storage, terminal, etc.)
+            sourceAvailable = sourceObj.store[give.resourceType] || 0;
+          } else if (sourceObj.amount !== undefined && sourceObj.resourceType === give.resourceType) {
+            // Dropped resource
+            sourceAvailable = sourceObj.amount || 0;
+          } else if (sourceObj.store && sourceObj.store.getUsedCapacity) {
+            // Tombstone or ruin
+            sourceAvailable = sourceObj.store[give.resourceType] || 0;
+          }
+          
+          // Calculate target free capacity
+          let targetFreeStr = '0';
+          if (targetObj.store) {
+            // Structure with store
+            const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
+            targetFreeStr = String(freeCap);
+          } else if (targetObj.store && targetObj.store.getFreeCapacity) {
+            // Tombstone or ruin (can't receive, but has store)
+            targetFreeStr = '0';
+          } else {
+            // Object without store (e.g., Controller) - assume it can receive
+            targetFreeStr = '∞';
+          }
+          
+          status = `${sourceAvailable} available → ${targetFreeStr} free`;
+        }
+        
+        result.push('<tr style="background-color: #1a1a1a;">');
+        result.push(`<td style="padding: 5px;">${utilsResources.resourceImg(give.resourceType)}</td>`);
+        result.push(`<td style="padding: 5px; color: #00ff00;">${sourceName}</td>`);
+        result.push(`<td style="padding: 5px; text-align: right;">${give.amount || 0}</td>`);
+        result.push(`<td style="padding: 5px; text-align: right;">${give.priority || 0}</td>`);
+        result.push(`<td style="padding: 5px; color: #ff8800;">${targetName}</td>`);
+        result.push(`<td style="padding: 5px; text-align: right;">${need.amount || 0}</td>`);
+        result.push(`<td style="padding: 5px; text-align: right;">${need.priority || 0}</td>`);
+        result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${give.id}</td>`);
+        result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${need.id}</td>`);
+        result.push(`<td style="padding: 5px;">${status}</td>`);
+        result.push('</tr>');
+      }
+    } else {
+      result.push('<tr><td colspan="10" style="padding: 5px; color: #888;">No transport orders available (no matching pairs with need.priority < give.priority)</td></tr>');
+    }
+    
+    // Summary row
+    result.push('<tr style="background-color: #333;">');
+    result.push(`<td colspan="10" style="padding: 5px; color: #cccccc;">Summary: ${transportOrders.length} transport order(s) from ${givesResources.length} gives and ${needsResources.length} needs</td>`);
+    result.push('</tr>');
+  }
+  
+  result.push('</table>');
+  const resultString = result.join('');
+  console.log(resultString);
+  return resultString;
 }
 
 module.exports = {
@@ -368,6 +490,6 @@ module.exports = {
   marketInfo,
   json,
   help,
-  voiceConsole
+  visualizeLogistic
 };
 

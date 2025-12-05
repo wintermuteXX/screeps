@@ -43,33 +43,41 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  // First: Try to find spawn in current room
-  let spawn = rc.getIdleSpawnObject() || creep.pos.findClosestByRange(FIND_MY_SPAWNS);
-  
+  // First: Try to find spawn in current room (only own spawns)
+  let spawn = rc.getIdleSpawnObject();
+  if (spawn && !spawn.my) {
+    spawn = null; // Not our spawn, ignore it
+  }
+    
   // If no spawn in current room, go to home room
   if (!spawn) {
     const homeRoom = Game.rooms[creep.memory.home];
     if (homeRoom) {
-      const homeSpawn = homeRoom.find(FIND_MY_SPAWNS)[0];
-      if (homeSpawn) {
-        // If we're not in home room, travel there first
-        if (creep.room.name !== creep.memory.home) {
-          Log.info(`♻️ ${creep} returning to home room ${creep.memory.home} for recycling`, "recycle");
-          creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
-            preferHighway: true,
-            ensurePath: true,
-            useFindRoute: true,
-          });
-          creep.say("🏠♻️");
-          return;
+      const homeSpawns = homeRoom.find(FIND_MY_SPAWNS);
+      if (homeSpawns.length > 0) {
+        const homeSpawn = homeSpawns[0];
+        // Verify it's our spawn
+        if (homeSpawn && homeSpawn.my) {
+          // If we're not in home room, travel there first
+          if (creep.room.name !== creep.memory.home) {
+            Log.info(`♻️ ${creep} returning to home room ${creep.memory.home} for recycling`, "recycle");
+            creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
+              preferHighway: true,
+              ensurePath: true,
+              useFindRoute: true,
+            });
+            creep.say("🏠♻️");
+            return;
+          }
+          spawn = homeSpawn;
         }
-        spawn = homeSpawn;
       }
     }
   }
   
-  if (!spawn) {
-    Log.warn(`${creep} cannot be recycled - no spawn found`, "recycle");
+  // Verify spawn is ours before proceeding
+  if (!spawn || !spawn.my) {
+    Log.warn(`${creep} cannot be recycled - no own spawn found in current room or home room`, "recycle");
     return;
   }
   
