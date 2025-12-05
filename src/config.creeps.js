@@ -357,7 +357,7 @@ module.exports = {
     minParts: 1,
     wait4maxEnergy: false,
     body: [MOVE], // Nur 1 MOVE part
-    behaviors: ["scout", "recycle"],
+    behaviors: ["scout", "sign_controller", "recycle"],
 
     canBuild: function (rc) {
       // Don't spawn scouts if room has an Observer

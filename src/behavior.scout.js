@@ -21,6 +21,19 @@ function needsAnalysis(roomName) {
 }
 
 /**
+ * Ensures Memory.rooms[roomName] exists and is initialized
+ * @param {string} roomName - Name of the room
+ */
+function ensureRoomMemory(roomName) {
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+  if (!Memory.rooms[roomName]) {
+    Memory.rooms[roomName] = {};
+  }
+}
+
+/**
  * Checks if a room is hostile and should be avoided
  * Uses multiple sources: Traveler memory, room memory, and direct controller check
  * @param {string} roomName - Name of the room to check
@@ -30,12 +43,7 @@ function isHostileRoom(roomName) {
   // 1. Check room memory (most reliable, updated by Traveler.updateRoomStatus)
   if (Memory.rooms && Memory.rooms[roomName]) {
     const roomMemory = Memory.rooms[roomName];
-    // Check avoid flag (set by Traveler.updateRoomStatus)
-    if (roomMemory.avoid === 1) {
-      return true;
-    }
-    // If we previously marked it as hostile
-    if (roomMemory.isHostile === true) {
+    if (roomMemory.avoid === 1 || roomMemory.isHostile === true) {
       return true;
     }
   }
@@ -43,13 +51,7 @@ function isHostileRoom(roomName) {
   // 2. If we have vision, check controller directly and update memory
   const room = Game.rooms[roomName];
   if (room && room.controller) {
-    // Initialize Memory.rooms if needed
-    if (!Memory.rooms) {
-      Memory.rooms = {};
-    }
-    if (!Memory.rooms[roomName]) {
-      Memory.rooms[roomName] = {};
-    }
+    ensureRoomMemory(roomName);
     
     const myUsername = global.getMyUsername();
     const isHostile = (room.controller.owner && !room.controller.my) || 
@@ -136,7 +138,6 @@ function findUnvisitedRoom(creep) {
   return null;
 }
 
-
 b.when = function (creep, rc) {
   // Scout is active only if there are still rooms to scout
   return findUnvisitedRoom(creep) !== null;
@@ -145,27 +146,22 @@ b.when = function (creep, rc) {
 b.completed = function (creep, rc) {
   const roomName = creep.room.name;
   
-  // Check if current room still needs analysis - don't complete if it does
-  // Only check lastCheck criteria, not justEntered
-  const lastCheck = Memory.rooms[roomName] ? Memory.rooms[roomName].lastCheck : undefined;
-  const needsCurrentAnalysis = needsAnalysis(roomName);
-  
-  // If current room needs analysis, don't complete yet - let work() analyze it first
-  if (needsCurrentAnalysis) {
+  // Don't complete if current room still needs analysis
+  if (needsAnalysis(roomName)) {
     return false;
   }
   
   // Check if there are any more rooms to scout
   if (!findUnvisitedRoom(creep)) {
-    // Only mark as completed if we're in home room or have been in current room for at least 1 tick
     const homeRoom = creep.memory.home;
     const isInHomeRoom = homeRoom && roomName === homeRoom;
-    const lastRoom = creep.memory.lastRoom;
-    const justEntered = lastRoom !== roomName;
-    const hasBeenInRoom = !justEntered && lastCheck !== undefined;
+    
+    // Check if we've been in this room before (has lastCheck in memory)
+    ensureRoomMemory(roomName);
+    const roomMemory = Memory.rooms[roomName];
+    const hasBeenInRoom = creep.memory.lastRoom === roomName && roomMemory.lastCheck !== undefined;
     
     if (isInHomeRoom || hasBeenInRoom) {
-      // Only log once to avoid spam
       if (!creep.memory.scoutCompleted) {
         Log.success(`✅ ${creep} completed scouting - no more rooms to analyze within 2 hops`, "scout");
         creep.memory.scoutCompleted = true;
@@ -179,18 +175,29 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   const roomName = creep.room.name;
-  
-  // Initialize Memory.rooms if needed
-  if (!Memory.rooms) {
-    Memory.rooms = {};
-  }
-  if (!Memory.rooms[roomName]) {
-    Memory.rooms[roomName] = {};
-  }
+  ensureRoomMemory(roomName);
   
   // Track current room for next tick
   const lastRoom = creep.memory.lastRoom;
+  const justEnteredRoom = lastRoom !== roomName;
   creep.memory.lastRoom = roomName;
+  
+  // CRITICAL: Prevent blinking - if we just entered a room or are on an exit tile, move into the room center first
+  const isOnExitTile = creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49;
+  if (justEnteredRoom || isOnExitTile) {
+    // Move to center of room to get off exit tile immediately
+    const centerPos = new RoomPosition(25, 25, roomName);
+    const moveResult = creep.travelTo(centerPos, { 
+      range: 20,  // Move within 20 tiles of center (away from exit tiles)
+      maxRooms: 1,
+      preferHighway: false  // Don't use highways when moving within room
+    });
+    
+    // If we just entered and are moving, don't do other logic this tick
+    if (justEnteredRoom && moveResult === OK) {
+      return;
+    }
+  }
   
   // Safety check: If we entered a hostile room, immediately leave
   if (isHostileRoom(roomName)) {
@@ -198,8 +205,7 @@ b.work = function (creep, rc) {
     const homeRoom = creep.memory.home;
     if (homeRoom && homeRoom !== creep.room.name) {
       creep.memory.scoutTarget = homeRoom;
-      const targetPos = new RoomPosition(25, 25, homeRoom);
-      creep.travelTo(targetPos, {
+      creep.travelTo(new RoomPosition(25, 25, homeRoom), {
         preferHighway: true,
         ensurePath: true,
         useFindRoute: true,
@@ -208,42 +214,39 @@ b.work = function (creep, rc) {
     }
   }
   
-  // Analyze current room only if lastCheck criteria is met:
-  // Room needs analysis (never checked or last check was more than 100000 ticks ago)
-  // First entry of a room does NOT trigger analysis
-  const shouldAnalyze = needsAnalysis(roomName);
-  if (shouldAnalyze) {
+  // Analyze room if it needs analysis (only if we're not on exit tile)
+  if (!isOnExitTile && needsAnalysis(roomName)) {
+    Log.success(`🔍 ${creep} Analyzing room ${roomName}`, "scout");
     global.analyzeRoom(creep.room, true);
   }
   
-  // Check if we have a target
+  // Determine target room
   let targetRoom = creep.memory.scoutTarget;
   
-  // If no target or target already reached
+  // Update target if we've reached it or don't have one
   if (!targetRoom || targetRoom === creep.room.name) {
     const nextRoom = findUnvisitedRoom(creep);
     if (nextRoom) {
       targetRoom = nextRoom.roomName;
       creep.memory.scoutTarget = targetRoom;
-      Log.success(`🔍 Scout ${creep} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
+      const targetPos = new RoomPosition(25, 25, targetRoom);
+      Log.success(`🔍 Scout ${creep} starting analysis journey to ${targetPos} (${nextRoom.distance} hops away)`, "scout");
     } else {
-      // No more unvisited rooms within 2 hops - return to home room
+      // No more unvisited rooms - return to home room
       const homeRoom = creep.memory.home;
       if (homeRoom && homeRoom !== creep.room.name) {
         targetRoom = homeRoom;
         creep.memory.scoutTarget = targetRoom;
       } else {
-        // Already in home room or no home room set - wait
+        // Already at home and no more rooms to scout
         return;
       }
     }
   }
   
-  // Move to target room
-  if (targetRoom !== creep.room.name) {
-    // Use travelTo with RoomPosition in target room - Traveler will handle room transitions
-    const targetPos = new RoomPosition(25, 25, targetRoom);
-    creep.travelTo(targetPos, {
+  // Move to target room (only if we're not on exit tile)
+  if (!isOnExitTile && targetRoom !== creep.room.name) {
+    creep.travelTo(new RoomPosition(25, 25, targetRoom), {
       preferHighway: true,
       ensurePath: true,
       useFindRoute: true,
@@ -253,4 +256,3 @@ b.work = function (creep, rc) {
 
 module.exports = b;
 module.exports.findUnvisitedRoom = findUnvisitedRoom;
-

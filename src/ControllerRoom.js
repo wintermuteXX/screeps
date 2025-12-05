@@ -17,7 +17,8 @@ function ControllerRoom(room, ControllerGame) {
   this._towers = [];
   this._creepsByRole = null;  // Cache for getAllCreeps
 
-  var spawns = this.find(FIND_MY_SPAWNS);
+  // Nutze gecachten room.spawns Getter (filtert nach my)
+  var spawns = this.room.spawns.filter(s => s.my);
   for (var s in spawns) {
     var spawn = spawns[s];
     this._spawns.push(new ControllerSpawn(spawn, this));
@@ -1085,8 +1086,10 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 };
 
 ControllerRoom.prototype.getIdleSpawnObject = function () {
-  for (var i in this.room.spawns) {
-    var sc = this.room.spawns[i];
+  // Nutze gecachten room.spawns Getter (filtert nach my)
+  var spawns = this.room.spawns.filter(s => s.my);
+  for (var i in spawns) {
+    var sc = spawns[i];
     if (!sc.spawning) {
       return sc;
     }
