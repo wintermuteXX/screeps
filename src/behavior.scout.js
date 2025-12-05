@@ -27,50 +27,40 @@ function needsAnalysis(roomName) {
  * @returns {boolean} True if room should be avoided
  */
 function isHostileRoom(roomName) {
-  // 1. Check Traveler memory (most reliable, updated by Traveler.updateRoomStatus)
-  if (Memory.Traveler && Memory.Traveler.rooms && Memory.Traveler.rooms[roomName]) {
-    if (Memory.Traveler.rooms[roomName].avoid === 1) {
-      return true;
-    }
-  }
-  
-  // 2. Check room memory (from previous analysis)
+  // 1. Check room memory (most reliable, updated by Traveler.updateRoomStatus)
   if (Memory.rooms && Memory.rooms[roomName]) {
     const roomMemory = Memory.rooms[roomName];
+    // Check avoid flag (set by Traveler.updateRoomStatus)
+    if (roomMemory.avoid === 1) {
+      return true;
+    }
     // If we previously marked it as hostile
     if (roomMemory.isHostile === true) {
       return true;
     }
   }
   
-  // 3. If we have vision, check controller directly and update Traveler
+  // 2. If we have vision, check controller directly and update memory
   const room = Game.rooms[roomName];
   if (room && room.controller) {
-    // Update Traveler memory (same logic as Traveler.updateRoomStatus)
-    if (!Memory.Traveler) {
-      Memory.Traveler = {};
+    // Initialize Memory.rooms if needed
+    if (!Memory.rooms) {
+      Memory.rooms = {};
     }
-    if (!Memory.Traveler.rooms) {
-      Memory.Traveler.rooms = {};
-    }
-    if (!Memory.Traveler.rooms[roomName]) {
-      Memory.Traveler.rooms[roomName] = {};
+    if (!Memory.rooms[roomName]) {
+      Memory.rooms[roomName] = {};
     }
     
     const myUsername = global.getMyUsername();
     const isHostile = (room.controller.owner && !room.controller.my) || 
                      (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
     
-    // Update Traveler memory
+    // Update room memory (same logic as Traveler.updateRoomStatus)
     if (isHostile) {
-      Memory.Traveler.rooms[roomName].avoid = 1;
-    } else {
-      delete Memory.Traveler.rooms[roomName].avoid;
-    }
-    
-    // Also update room memory for future reference
-    if (isHostile && Memory.rooms && Memory.rooms[roomName]) {
+      Memory.rooms[roomName].avoid = 1;
       Memory.rooms[roomName].isHostile = true;
+    } else {
+      delete Memory.rooms[roomName].avoid;
     }
     
     return isHostile;

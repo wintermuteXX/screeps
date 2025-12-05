@@ -26,7 +26,6 @@ class Traveler {
     }
     if (!Memory.Traveler) {
       Memory.Traveler = {};
-      Memory.Traveler.rooms = {};
     }
     if (global.TravelerPathCacheClean !== Game.time) {
       global.TravelerPathCacheClean = Game.time;
@@ -458,7 +457,7 @@ class Traveler {
   }
   //check if room should be avoided by findRoute algorithm
   static checkAvoid(roomName) {
-    return Memory.Traveler.rooms[roomName] && Memory.Traveler.rooms[roomName].avoid;
+    return Memory.rooms && Memory.rooms[roomName] && Memory.rooms[roomName].avoid;
   }
   //check if a position is an exit
   static isExit(pos) {
@@ -490,14 +489,11 @@ class Traveler {
     if (!room) {
       return;
     }
-    if (!Memory.Traveler) {
-      Memory.Traveler = {};
+    if (!Memory.rooms) {
+      Memory.rooms = {};
     }
-    if (!Memory.Traveler.rooms) {
-      Memory.Traveler.rooms = {};
-    }
-    if (!Memory.Traveler.rooms[room.name]) {
-      Memory.Traveler.rooms[room.name] = {};
+    if (!Memory.rooms[room.name]) {
+      Memory.rooms[room.name] = {};
     }
     if (room.controller) {
       // Avoid rooms that are owned by someone else or reserved by someone else
@@ -507,9 +503,9 @@ class Traveler {
                        (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
       
       if (isHostile) {
-        Memory.Traveler.rooms[room.name].avoid = 1;
+        Memory.rooms[room.name].avoid = 1;
       } else {
-        delete Memory.Traveler.rooms[room.name].avoid;
+        delete Memory.rooms[room.name].avoid;
       }
     }
   }

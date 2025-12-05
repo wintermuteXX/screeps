@@ -887,13 +887,13 @@ RoomPlanner.prototype._drawVisualization = function () {
   // Structure colors - each structure type has a unique color
   const structureColors = {
     [STRUCTURE_SPAWN]: "#ffff00",
-    [STRUCTURE_EXTENSION]: "#ffaa00",
+    [STRUCTURE_EXTENSION]: "#888888",
     [STRUCTURE_TOWER]: "#ff0000",
     [STRUCTURE_STORAGE]: "#00ffff",
     [STRUCTURE_TERMINAL]: "#ff00ff",
     [STRUCTURE_LAB]: "#00ff00",
     [STRUCTURE_LINK]: "#0088ff",
-    [STRUCTURE_FACTORY]: "#888888",
+    [STRUCTURE_FACTORY]: "#ffaa00",
     [STRUCTURE_OBSERVER]: "#ffffff",
     [STRUCTURE_POWER_SPAWN]: "#ff8800",
     [STRUCTURE_NUKER]: "#880000",
@@ -970,7 +970,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     const color = structureColors[planned.structureType] || "#ffffff";
     visual.rect(planned.x - 0.4, planned.y - 0.4, 0.8, 0.8, {
       fill: color,
-      opacity: 0.3,
+      opacity: 0.8,
       stroke: color,
       strokeWidth: 0.1,
     });
