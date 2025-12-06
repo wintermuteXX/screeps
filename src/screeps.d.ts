@@ -69,6 +69,14 @@ interface Source {
   memory?: any;
   _container?: StructureContainer | null;
   readonly freeSpacesCount: number;
+  canHarvestSource(creep: Creep, rc: any): {
+    canHarvest: boolean;
+    reason?: string;
+    availableSpaces: number;
+    currentHarvestPower: number;
+    energyWhenArriving: number;
+    creepHarvestPower: number;
+  };
 }
 
 // Extend Structure prototype

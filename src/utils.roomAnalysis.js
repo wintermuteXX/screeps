@@ -309,6 +309,14 @@ function analyzeRoom(room, fullAnalysis = false) {
 function logAnalysisSummary(room, memory, fullAnalysis) {
   const parts = [];
   
+  // Load utils.resources once at the start
+  let utilsResources = null;
+  try {
+    utilsResources = require("utils.resources");
+  } catch (e) {
+    // utils.resources not available
+  }
+  
   // Room type
   parts.push(`Type: ${memory.roomType}`);
   
@@ -318,13 +326,14 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   }
   
   // Mineral
-  if (memory.mineral) {
+  if (memory.mineral && memory.mineral.type) {
     // Use resourceImg helper if available, otherwise just use the type string
-    const utilsResources = require("utils.resources");
-    const resourceImg = utilsResources.resourceImg 
-      ? utilsResources.resourceImg(memory.mineral.type) 
-      : memory.mineral.type;
-    parts.push(`Mineral: ${resourceImg}`);
+    if (utilsResources && typeof utilsResources.resourceImg === 'function') {
+      const resourceImg = utilsResources.resourceImg(memory.mineral.type);
+      parts.push(`Mineral: ${resourceImg}`);
+    } else {
+      parts.push(`Mineral: ${memory.mineral.type}`);
+    }
   }
   
   // Controller info (if full analysis)
@@ -396,12 +405,13 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
     if (memory.score.breakdown.hasTwoSources > 0) scoreParts.push('2 Sources');
     if (memory.score.breakdown.lowSwamp > 0) scoreParts.push(`Low Swamp (${memory.score.breakdown.swampPercentage}%)`);
     if (memory.score.breakdown.highFreeSpace > 0) scoreParts.push(`Free Space (${memory.score.breakdown.freeSpacePercentage}%)`);
-    if (memory.score.breakdown.newMineral > 0) {
-      const utilsResources = require("utils.resources");
-      const resourceImg = utilsResources.resourceImg 
-        ? utilsResources.resourceImg(memory.score.breakdown.mineralType) 
-        : memory.score.breakdown.mineralType;
-      scoreParts.push(`New Mineral: ${resourceImg}`);
+    if (memory.score.breakdown.newMineral > 0 && memory.score.breakdown.mineralType) {
+      if (utilsResources && typeof utilsResources.resourceImg === 'function') {
+        const resourceImg = utilsResources.resourceImg(memory.score.breakdown.mineralType);
+        scoreParts.push(`New Mineral: ${resourceImg}`);
+      } else {
+        scoreParts.push(`New Mineral: ${memory.score.breakdown.mineralType}`);
+      }
     }
     if (scoreParts.length > 0) {
       parts.push(`⭐ Score: ${memory.score.total} (${scoreParts.join(', ')})`);

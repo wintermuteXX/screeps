@@ -1,36 +1,24 @@
 const Behavior = require("_behavior");
 
 /**
- * Counts how many creeps are currently targeting a source
- * @param {Source} source - The source to check
- * @param {any} rc - The room controller
- * @returns {number} Number of creeps targeting this source
- */
-function countCreepsTargetingSource(source, rc) {
-  // Get all creeps that have this source as their target
-  const creepsWithTarget = rc.getCreeps(null, source.id);
-  return creepsWithTarget.length;
-}
-
-/**
- * Selects the best source with available space
+ * Selects the best source using canHarvestSource and chooses the closest one
  * @param {Source[]} sources - Array of available sources
+ * @param {Creep} creep - The creep that wants to harvest
  * @param {any} rc - The room controller
  * @returns {Source|null} Best source or null if none available
  */
-function selectBestSource(sources, rc) {
+function selectBestSource(sources, creep, rc) {
   const availableSources = [];
   
   for (const source of sources) {
-    const freeSpaces = source.freeSpacesCount;
-    const creepsTargeting = countCreepsTargetingSource(source, rc);
-    const availableSpaces = freeSpaces - creepsTargeting;
+    const harvestInfo = source.canHarvestSource(creep, rc);
     
-    if (availableSpaces > 0) {
+    if (harvestInfo.canHarvest) {
+      const distance = creep.pos.getRangeTo(source);
       availableSources.push({
         source: source,
-        availableSpaces: availableSpaces,
-        freeSpaces: freeSpaces
+        distance: distance,
+        harvestInfo: harvestInfo
       });
     }
   }
@@ -39,16 +27,11 @@ function selectBestSource(sources, rc) {
     return null;
   }
   
-  // Sort by available spaces (descending) and select randomly from top sources
-  availableSources.sort((a, b) => b.availableSpaces - a.availableSpaces);
+  // Sort by distance (ascending) - closest first
+  availableSources.sort((a, b) => a.distance - b.distance);
   
-  // Get sources with the most available spaces
-  const maxAvailable = availableSources[0].availableSpaces;
-  const topSources = availableSources.filter(s => s.availableSpaces === maxAvailable);
-  
-  // Select randomly from top sources
-  const selected = topSources[Math.floor(Math.random() * topSources.length)];
-  return selected.source;
+  // Return the closest source
+  return availableSources[0].source;
 }
 
 const b = new Behavior("harvest");
@@ -70,7 +53,7 @@ b.work = function (creep, rc) {
   if (target === null) {
     const sources = rc.getSourcesNotEmpty();
     if (sources && sources.length) {
-      target = selectBestSource(sources, rc);
+      target = selectBestSource(sources, creep, rc);
     }
   }
 

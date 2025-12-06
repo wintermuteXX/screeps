@@ -130,6 +130,48 @@ Creep.prototype.getFirstTargetData = function () {
   return null;
 };
 
+/**
+ * Get harvest power per tick for this creep
+ * @returns {number} Energy units this creep can harvest per tick
+ * 
+ * Examples:
+ * - 1 normal WORK part = 2 energy/tick (HARVEST_POWER)
+ * - 1 WORK with UO boost (harvest: 3) = 6 energy/tick
+ * - 1 WORK with XUHO2 boost (harvest: 7) = 14 energy/tick
+ */
+Creep.prototype.getHarvestPowerPerTick = function() {
+  if (!this.body || !Array.isArray(this.body)) {
+    return 0;
+  }
+  
+  let totalHarvestPower = 0;
+  
+  for (const part of this.body) {
+    // Only count WORK parts
+    if (part.type !== WORK) {
+      continue;
+    }
+    
+    // Skip inactive/damaged parts (hits === 0 means part is destroyed)
+    if (part.hits <= 0) {
+      continue;
+    }
+    
+    // Base harvest power for this WORK part
+    if (!part.boost) {
+      totalHarvestPower += HARVEST_POWER;
+      continue;
+    }
+    
+    // BOOSTS structure: BOOSTS.work[boostResourceType].harvest
+    if (part.boost && BOOSTS.work && BOOSTS.work[part.boost] && BOOSTS.work[part.boost].harvest) {
+      totalHarvestPower += BOOSTS.work[part.boost].harvest;
+    }
+  }
+  
+  return totalHarvestPower;
+};
+
 Object.defineProperty(Source.prototype, "defended", {
   get: function () {
     if (this.memory.defended) {
@@ -395,7 +437,50 @@ Object.defineProperty(Source.prototype, "freeSpacesCount", {
   configurable: true,
 });
 
-// calculateContainerPos was removed - Container creation now happens via RoomPlanner.js
+Object.defineProperty(Source.prototype, "canHarvestSource", {
+  value: function(creep, rc) {
+    // 1. Prüfe freie Plätze
+    const freeSpaces = this.freeSpacesCount;
+    const creepsTargeting = rc.getCreeps(null, this.id).length;
+    const availableSpaces = freeSpaces - creepsTargeting;
+    
+    if (availableSpaces <= 0) {
+      return { canHarvest: false, reason: 'no_free_spaces' };
+    }
+    
+    // 2. Berechne aktuelle Harvest-Power (inkl. Boosts)
+    let totalHarvestPower = 0;
+    const harvestingCreeps = rc.getCreeps(null, this.id);
+    for (const hCreep of harvestingCreeps) {
+      if (hCreep.pos.isNearTo(this)) {
+        totalHarvestPower += hCreep.getHarvestPowerPerTick();
+      }
+    }
+    
+    // 3. Berechne verfügbare Energy bei Ankunft
+    const ticksToArrive = creep.pos.getRangeTo(this);
+    const regenRate = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
+    const currentEnergy = this.energy;
+    const energyWhenArriving = Math.min(
+      SOURCE_ENERGY_CAPACITY,
+      currentEnergy + (regenRate * ticksToArrive) - (totalHarvestPower * ticksToArrive)
+    );
+    
+    // 4. Prüfe ob genug Energy verfügbar sein wird
+    const creepHarvestPower = creep.getHarvestPowerPerTick();
+    const willHaveEnergy = energyWhenArriving > 0;
+    
+    return {
+      canHarvest: availableSpaces > 0 && willHaveEnergy,
+      availableSpaces: availableSpaces,
+      currentHarvestPower: totalHarvestPower,
+      energyWhenArriving: energyWhenArriving,
+      creepHarvestPower: creepHarvestPower
+    };
+  },
+  enumerable: false,
+  configurable: true,
+});
 
 RoomObject.prototype.say = function (what) {
   this.room.visual
