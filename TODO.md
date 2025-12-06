@@ -10,6 +10,8 @@
 - [ ] Remote Mining
 
 ## New Room
+- [ ] Function to analyse CPU usage / rooms over time
+- [ ] Function to use upper function and decide if a new room can be conquered
 - [ ] Check "Conquer new room behavior"
 - [ ] Supporter help rooms with RCL <= 3 (Line 302)
 
@@ -19,9 +21,7 @@
 - [ ] Builder/Supporter calculation is not dynamic enough. Supporters have a long way. Usually there are too many builders. Take FreeSpaces into account (Line 29)
 
 ## Harvesting
-- [x] Creep.prototype.getHarvestPowerPerTick - Calculate the real value of WORK parts even if they are boosted
-- [x] Source.prototype.canHarvestSource. How many workparts are already harvesting, how many creeps/freeTiles, consider Boosted parts. How many energy will be available after I arrive. Is there a stationary miner with 5 work parts?
-- [ ]  Move between Sources if possible
+- [ ] Move between Sources if possible
 - [ ] Creep.spaw.harvester only if 1 miner can not mine whole room.
 - [ ] Multiple harvester for low level RCL if enough space around
 - [ ] Harvest Mulitiple Rooms 

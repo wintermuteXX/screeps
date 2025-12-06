@@ -252,7 +252,8 @@ function help(category = 'all') {
       { name: 'showLabs()', desc: 'Table showing lab status and reactions', example: 'showLabs()' },
       { name: 'globalResourcesAmount(res)', desc: 'Total amount of resource across all rooms', example: 'globalResourcesAmount(RESOURCE_ENERGY)' },
       { name: 'getRoomThreshold(res, struct)', desc: 'Threshold (fill level) for resource', example: 'getRoomThreshold(RESOURCE_ENERGY, "storage")' },
-      { name: 'reorderResources()', desc: 'Reorders resources in terminal/storage', example: 'reorderResources()' }
+      { name: 'reorderResources()', desc: 'Reorders resources in terminal/storage', example: 'reorderResources()' },
+      { name: 'visualizeLogistic(roomName)', desc: 'Visualizes transport orders (givesResources and needsResources)', example: 'visualizeLogistic("W1N1")' }
     ],
     planner: [
       { name: 'plannerVisualize(room)', desc: 'Visualizes planned layout in game view', example: 'plannerVisualize("W1N1")' },

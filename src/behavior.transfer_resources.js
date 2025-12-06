@@ -1,5 +1,6 @@
 const Behavior = require("_behavior");
 const Log = require("Log");
+const CONSTANTS = require("./constants");
 const b = new Behavior("transfer_resources");
 
 /**
@@ -297,6 +298,72 @@ b._handleTransferResult = function (creep, target, resourceType, transferAmount,
 };
 
 /**
+ * Helper: Validates current target without fetching new orders
+ * Returns true if target is still valid (exists, has capacity, needs resources)
+ */
+b._validateCurrentTarget = function (creep, target, carriedResources) {
+  if (!target) return false;
+  
+  // Check if target still exists
+  const targetObj = Game.getObjectById(target.id);
+  if (!targetObj) return false;
+  
+  // Check if creep has resources that target needs
+  let hasMatchingResource = false;
+  for (const resource of carriedResources) {
+    // @ts-ignore - targetObj may have store property
+    if (targetObj.store) {
+      // @ts-ignore - store property exists on structures/creeps
+      const freeCapacity = targetObj.store.getFreeCapacity(resource.resourceType) || 0;
+      if (freeCapacity > 0) {
+        hasMatchingResource = true;
+        break;
+      }
+    } else {
+      // No store (e.g., controller) - assume valid if we have energy
+      if (resource.resourceType === RESOURCE_ENERGY) {
+        hasMatchingResource = true;
+        break;
+      }
+    }
+  }
+  
+  return hasMatchingResource;
+};
+
+/**
+ * Helper: Creates pseudo-orders from memory for current target
+ * Used when we keep the current target without calling getDeliveryOrder
+ */
+b._createOrdersFromMemory = function (creep, target, carriedResources) {
+  const orders = [];
+  
+  for (const resource of carriedResources) {
+    // @ts-ignore - target may have store property
+    const freeCapacity = target.store 
+      ? target.store.getFreeCapacity(resource.resourceType) || 0 
+      : Infinity;
+    
+    if (freeCapacity > 0) {
+      // Check if memory has this resource with this target (for priority)
+      const memoryEntry = creep.memory.resources.find(
+        r => r.resourceType === resource.resourceType && r.target === target.id
+      );
+      
+      orders.push({
+        resourceType: resource.resourceType,
+        id: target.id,
+        amount: Math.min(resource.amount, freeCapacity),
+        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID, // Default priority
+        exact: false
+      });
+    }
+  }
+  
+  return orders;
+};
+
+/**
  * Helper: Performs batch delivery to target
  */
 b._performBatchDelivery = function (creep, target, orders) {
@@ -381,55 +448,70 @@ b.work = function (creep, rc) {
     return;
   }
   
-  // Get delivery orders
-  const allOrders = this._getDeliveryOrders(creep, rc);
-  const ordersByTarget = this._groupOrdersByTarget(allOrders);
-  
   const currentTarget = creep.getTarget();
   const currentTargetId = currentTarget ? currentTarget.id : null;
   
-  // Check if current target is still valid
+  // Check if current target is still valid (without calling getDeliveryOrder)
   let bestTarget = null;
   let bestTargetOrders = null;
   
-  if (currentTarget && ordersByTarget[currentTarget.id]) {
-    const currentOrders = ordersByTarget[currentTarget.id];
-    if (this._isTargetValid(currentTarget, currentOrders, creep)) {
+  if (currentTarget) {
+    // Validate current target without fetching new orders
+    const isValid = this._validateCurrentTarget(creep, currentTarget, carriedResources);
+    if (isValid) {
+      // Current target is still valid - use it without calling getDeliveryOrder
       bestTarget = currentTarget;
-      bestTargetOrders = currentOrders;
+      // Create pseudo-orders from memory for current target
+      bestTargetOrders = this._createOrdersFromMemory(creep, currentTarget, carriedResources);
     }
   }
   
-  // Find best target from orders
+  // Only call getDeliveryOrder if no valid target exists
   if (!bestTarget) {
-    const result = this._findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId);
-    bestTarget = result.bestTarget;
-    bestTargetOrders = result.bestTargetOrders;
-  }
-  
-  // Try fallback: matching need
-  if (!bestTarget) {
-    const fallback = this._findMatchingNeed(creep, rc, carriedResources);
-    if (fallback) {
-      bestTarget = fallback.target;
-      bestTargetOrders = fallback.orders;
+    // Get delivery orders
+    const allOrders = this._getDeliveryOrders(creep, rc);
+    const ordersByTarget = this._groupOrdersByTarget(allOrders);
+    
+    // Check if current target is in new orders (if it still exists)
+    if (currentTarget && ordersByTarget[currentTarget.id]) {
+      const currentOrders = ordersByTarget[currentTarget.id];
+      if (this._isTargetValid(currentTarget, currentOrders, creep)) {
+        bestTarget = currentTarget;
+        bestTargetOrders = currentOrders;
+      }
     }
-  }
-  
-  // Try fallback: terminal
-  if (!bestTarget) {
-    const terminalFallback = this._findTerminalFallback(creep, carriedResources);
-    if (terminalFallback) {
-      bestTarget = terminalFallback.target;
-      bestTargetOrders = terminalFallback.orders;
-    } else {
-      // Last resort: drop resources
-      this._dropAllResources(
-        creep,
-        carriedResources,
-        "has resources but no delivery target found and terminal is full or missing"
-      );
-      return;
+    
+    // Find best target from orders
+    if (!bestTarget) {
+      const result = this._findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId);
+      bestTarget = result.bestTarget;
+      bestTargetOrders = result.bestTargetOrders;
+    }
+    
+    // Try fallback: matching need
+    if (!bestTarget) {
+      const fallback = this._findMatchingNeed(creep, rc, carriedResources);
+      if (fallback) {
+        bestTarget = fallback.target;
+        bestTargetOrders = fallback.orders;
+      }
+    }
+    
+    // Try fallback: terminal
+    if (!bestTarget) {
+      const terminalFallback = this._findTerminalFallback(creep, carriedResources);
+      if (terminalFallback) {
+        bestTarget = terminalFallback.target;
+        bestTargetOrders = terminalFallback.orders;
+      } else {
+        // Last resort: drop resources
+        this._dropAllResources(
+          creep,
+          carriedResources,
+          "has resources but no delivery target found and terminal is full or missing"
+        );
+        return;
+      }
     }
   }
   

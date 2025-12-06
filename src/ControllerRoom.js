@@ -180,14 +180,12 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
       // Basic compatibility check
       if (give.resourceType !== need.resourceType) continue;
       if (need.id === give.id) continue;
+      // Only block if an EMPTY creep is already targeting this source (empty creeps collect resources)
+      if (this.getAllCreeps().some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
       
       // Check if target still exists and has capacity
       const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
       if (!targetValidation) continue;
-      
-      // Check if source still exists
-      const sourceValidation = this._validateResourceTarget(give.id, give.resourceType);
-      if (!sourceValidation) continue;
       
       // Found matching order - set orderType in memory and return
       give.orderType = "G";
@@ -247,7 +245,9 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
       // Basic compatibility check
       if (need.resourceType !== resType) continue;
       if (need.id === Creep.id) continue;
-      
+      // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
+      if (this.getAllCreeps().some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
+
       // Check if target still exists and has capacity
       const targetValidation = this._validateResourceTarget(need.id, resType);
       if (!targetValidation) continue;
@@ -1018,16 +1018,11 @@ ControllerRoom.prototype.needsResources = function () {
     // Get controller priority
     const controllerPriority = this._getControllerPriority();
     
-    // Process creeps and controller
     this._processUpgraders(controllerPriority);
     this._processController(controllerPriority);
     this._processConstructors();
     this._processLabsNeeds();
-    
-    // Process structures
     this._processStructures();
-    
-    // Process storage structures
     this._processFactoryNeeds();
     this._processStorageNeeds();
     this._processTerminalNeeds();
@@ -1132,14 +1127,6 @@ ControllerRoom.prototype.getLevel = function () {
     return controller.level;
   }
   return 0;
-};
-
-ControllerRoom.prototype.structureNeedResource = function (structure, resource) {
-  if (structure) {
-    return structure.store.getFreeCapacity(resource);
-  } else {
-    return null;
-  }
 };
 
 ControllerRoom.prototype.structuresNeedResource = function (structures, resource, prio, threshold) {
