@@ -1,7 +1,19 @@
 // Type definitions for Screeps Memory extensions
 interface Memory {
   factoryLevels?: { [factoryId: string]: number };
-  previousBucket?: number;
+  previousBucket?: number; // Deprecated: Use cpuAnalyzer.getPreviousBucket() instead
+  cpuHistory?: Array<{
+    tick: number;
+    cpu: {
+      used: number;
+      limit: number;
+      bucket: number;
+    };
+    rooms: {
+      count: number;
+      perRoom: number;
+    };
+  }>;
   logging?: { [tag: string]: number };
   stats?: { [key: string]: number };
   rooms?: { [roomName: string]: RoomMemory };
