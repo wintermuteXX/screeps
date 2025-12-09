@@ -42,7 +42,7 @@ b.work = function (creep, rc) {
       Log.warn(`${target.structureType} is full`, "transfer_storage");
       break;
     default:
-      Log.warn(`${creep} Transfer-Fehler: ${result}`, "transfer_storage");
+      Log.warn(`${creep} Transfer-Fehler: ${global.getErrorString(result)}`, "transfer_storage");
   }
 };
 

@@ -1,6 +1,7 @@
 const Log = require("Log");
 const utilsUsername = require("utils.username");
 const utilsResources = require("utils.resources");
+const cpuAnalyzer = require("CpuAnalyzer");
 // @ts-ignore - ControllerRoom and ControllerGame are runtime modules
 const ControllerRoom = require("ControllerRoom");
 // @ts-ignore - ControllerRoom and ControllerGame are runtime modules
@@ -483,6 +484,22 @@ function visualizeLogistic(roomName = null) {
   return resultString;
 }
 
+/**
+ * Visualizes CPU analysis
+ * Usage:  visualizeCpu()
+ */
+function visualizeCpu() {
+  if (!Memory.cpuHistory || Memory.cpuHistory.length < 2) {
+    console.log("No CPU data - Insufficient CPU history data (need at least 2 samples)");
+    return;
+  }
+
+  const stats = cpuAnalyzer.getStatistics(100);
+  const decision = cpuAnalyzer.canConquerNewRoom();
+  
+  console.log(`CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`);
+}
+
 module.exports = {
   whatsInTerminals,
   numberOfTerminals,
@@ -491,6 +508,7 @@ module.exports = {
   marketInfo,
   json,
   help,
-  visualizeLogistic
+  visualizeLogistic,
+  visualizeCpu
 };
 

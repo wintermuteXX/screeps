@@ -33,7 +33,7 @@ b.work = function (creep, rc) {
         case ERR_NOT_IN_RANGE:
           break;
         default:
-          Log.warn(`unknown result from (creep ${creep}).harvest mineral(${target}): ${result}`, "Creep");
+          Log.warn(`unknown result from (creep ${creep}).harvest mineral(${target}): ${global.getErrorString(result)}`, "Creep");
       }
     }
   }

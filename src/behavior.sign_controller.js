@@ -75,7 +75,7 @@ function signController(creep, roomName) {
     // If pathfinding fails, mark as signed to avoid getting stuck
     if (moveResult !== OK && moveResult !== ERR_TIRED && moveResult !== ERR_NO_PATH) {
       roomMemory.controllerSigned = true;
-      Log.warn(`⚠️ ${creep} cannot reach controller in ${roomName} (pathfinding error: ${moveResult}), marking as signed`, "sign_controller");
+      Log.warn(`⚠️ ${creep} cannot reach controller in ${roomName} (pathfinding error: ${global.getErrorString(moveResult)}), marking as signed`, "sign_controller");
     } else if (moveResult === ERR_NO_PATH) {
       // If no path exists, mark as signed to avoid infinite retries
       roomMemory.controllerSigned = true;

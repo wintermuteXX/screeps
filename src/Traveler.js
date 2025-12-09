@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true,
 });
 
+const Log = require("Log");
+
 // Constants
 const MAX_CACHED_PATH_MEM_USAGE = 2000; // approx 100kb
 const MIN_CACHED_PATH_LENGTH = 999; // minimum path length to cache. Set to a very high value to stop caching.
@@ -140,13 +142,13 @@ class Traveler {
       } else {
         travelData.path = ret.path;
         ret.incomplete = false;
-        //console.log(Game.shard.name + ' cached path retrieved in ' + (Game.cpu.getUsed()-cpu))
+        Log.success(Game.shard.name + ' cached path retrieved in ' + (Game.cpu.getUsed()-cpu))
       }
       let cpuUsed = Game.cpu.getUsed() - cpu;
       state.cpu = _.round(cpuUsed + state.cpu);
       if (state.cpu > REPORT_CPU_THRESHOLD) {
         // see note at end of file for more info on this
-        console.log(Game.shard.name + " TRAVELER: heavy cpu use: " + creep.name + ", cpu: " + state.cpu + " origin: " + creep.pos + ", dest: " + destination);
+        Log.warn(Game.shard.name + " TRAVELER: heavy cpu use: " + creep.name + ", cpu: " + state.cpu + " origin: " + creep.pos + ", dest: " + destination);
         creep.memory._trav = {};
       }
       let color = "orange";
@@ -523,6 +525,13 @@ class Traveler {
     destination = this.normalizePos(destination);
     let originRoomName = origin.roomName;
     let destRoomName = destination.roomName;
+
+    // Prevents creeps from stopping in a different room
+    let distanceToEdge = _.min([destination.x, 49 - destination.x, destination.y, 49 - destination.y]);
+    if (options.range && distanceToEdge < options.range) {
+        options.range = distanceToEdge - 1;
+    }
+
     // check to see whether findRoute should be used
     let roomDistance = Game.map.getRoomLinearDistance(origin.roomName, destination.roomName);
     let allowedRooms = options.route;
@@ -708,6 +717,9 @@ class Traveler {
   //build a cost matrix based on structures in the room. Will be cached for more than one tick. Requires vision.
   static getStructureMatrix(room, options) {
     let roadcost = options && options.muscle && (options.ignoreRoads || options.offRoad) ? 2 : 1;
+    let ignoreConstructionSites = options && options.ignoreConstructionSites ? 1 : 0;
+    // Cache key combines roadcost and ignoreConstructionSites flag
+    let cacheKey = `${roadcost}_${ignoreConstructionSites}`;
     if (!this.structureMatrixTick) {
       this.structureMatrixTick = {};
     }
@@ -715,12 +727,12 @@ class Traveler {
     if (!this.structureMatrixCache[room.name]) {
       this.structureMatrixCache[room.name] = {};
     }
-    if (!this.structureMatrixCache[room.name][roadcost] || (options && options.freshMatrix && Game.time !== this.structureMatrixTick[room.name])) {
+    if (!this.structureMatrixCache[room.name][cacheKey] || (options && options.freshMatrix && Game.time !== this.structureMatrixTick[room.name])) {
       this.structureMatrixTick[room.name] = Game.time;
       let matrix = new PathFinder.CostMatrix();
-      this.structureMatrixCache[room.name][roadcost] = Traveler.addStructuresToMatrix(room, matrix, roadcost);
+      this.structureMatrixCache[room.name][cacheKey] = Traveler.addStructuresToMatrix(room, matrix, roadcost, options);
     }
-    return this.structureMatrixCache[room.name][roadcost];
+    return this.structureMatrixCache[room.name][cacheKey];
   }
   //build a cost matrix based on creeps and structures in the room. Will be cached for one tick. Requires vision.
   static getCreepMatrix(room) {
@@ -739,7 +751,7 @@ class Traveler {
     return this.creepMatrixCache[room.name];
   }
   //add structures to matrix so that impassible structures can be avoided and roads given a lower cost
-  static addStructuresToMatrix(room, matrix, roadCost) {
+  static addStructuresToMatrix(room, matrix, roadCost, options = {}) {
     let impassibleStructures = [];
     for (let structure of room.find(FIND_STRUCTURES)) {
       if (structure.structureType === STRUCTURE_RAMPART) {
@@ -758,9 +770,10 @@ class Traveler {
       }
     }
     for (let site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
-      if (site.structureType === STRUCTURE_CONTAINER || site.structureType === STRUCTURE_ROAD || site.structureType === STRUCTURE_RAMPART) {
-        continue;
+      if (options.ignoreConstructionSites) {
+        continue; // Creeps können über ConstructionSites laufen (nur wenn explizit erlaubt)
       }
+      // Alle ConstructionSites werden als Hindernisse behandelt (auch CONTAINER, ROAD, RAMPART)
       matrix.set(site.pos.x, site.pos.y, 0xff);
     }
     return matrix;

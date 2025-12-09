@@ -124,7 +124,7 @@ ControllerFactory.prototype.setFactoryLevel = function (level) {
       Log.warn(`${this.factory.room.name} Power Creep ${powerCreep.name} doesn't have enough resources to use OPERATE_FACTORY`, "FactoryLevel");
       return false;
     default:
-      Log.warn(`${this.factory.room.name} Failed to set factory level: ${result}`, "FactoryLevel");
+      Log.warn(`${this.factory.room.name} Failed to set factory level: ${global.getErrorString(result)}`, "FactoryLevel");
       return false;
   }
 };
@@ -164,7 +164,7 @@ ControllerFactory.prototype.produceInFactory = function (ResourcesArray, check =
           Log.success(`${this.factory.room} The ${this.factory} produced ${global.resourceImg(r)}`, "FactoryProduce");
           return true;
         default:
-          Log.warn(`${this.factory.room} Unknown result from ${this.factory} produce ${global.resourceImg(r)}: ${result}`, "FactoryProduce");
+          Log.warn(`${this.factory.room} Unknown result from ${this.factory} produce ${global.resourceImg(r)}: ${global.getErrorString(result)}`, "FactoryProduce");
           return false;
       }
     }

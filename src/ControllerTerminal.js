@@ -13,27 +13,61 @@ function ControllerTerminal(rc) {
 ControllerTerminal.prototype._isTerminalValid = function () {
   return this.terminal && this.terminal.my;
 };
+
+/**
+ * Helper: Checks if terminal is active and ready for trading
+ */
+ControllerTerminal.prototype._isTerminalActive = function () {
+  return this.terminal && this.terminal.my && this.terminal.isActive() && this.terminal.cooldown === 0;
+};
+
+/**
+ * Helper: Handles market order result and logs appropriately
+ */
+ControllerTerminal.prototype._handleOrderResult = function (result, action, resourceType, room, context) {
+  switch (result) {
+    case OK:
+      Log.success(`${action} in room ${room} for ${global.resourceImg(resourceType)} was successful`, context);
+      return true;
+    default:
+      Log.warn(`Result for ${action} ${global.resourceImg(resourceType)} in room ${room}: ${global.getErrorString(result)}`, context);
+      return false;
+  }
+};
+
+/**
+ * Helper: Finds existing order by type, resourceType and roomName
+ */
+ControllerTerminal.prototype._findExistingOrder = function (type, resourceType, roomName) {
+  for (const id in Game.market.orders) {
+    const order = Game.market.orders[id];
+    if (order.type === type && order.resourceType === resourceType && order.roomName === roomName) {
+      return order;
+    }
+  }
+  return null;
+};
 ControllerTerminal.prototype.calcHighestSellingPrice = function (resourceType, amount = 0) {
   if (!resourceType) {
     return null;
   }
 
   let modify;
-  if (amount < global.modSellAmount1) {
-    modify = global.modSellMultiplier1;
-  } else if (amount < global.modSellAmount2) {
-    modify = global.modSellMultiplier2;
-  } else if (amount < global.modSellAmount3) {
-    modify = global.modSellMultiplier3;
+  if (amount < CONSTANTS.MARKET.MOD_SELL_AMOUNT_1) {
+    modify = CONSTANTS.MARKET.MOD_SELL_MULTIPLIER_1;
+  } else if (amount < CONSTANTS.MARKET.MOD_SELL_AMOUNT_2) {
+    modify = CONSTANTS.MARKET.MOD_SELL_MULTIPLIER_2;
+  } else if (amount < CONSTANTS.MARKET.MOD_SELL_AMOUNT_3) {
+    modify = CONSTANTS.MARKET.MOD_SELL_MULTIPLIER_3;
   } else {
-    modify = global.modSellMultiplier4;
+    modify = CONSTANTS.MARKET.MOD_SELL_MULTIPLIER_4;
   }
 
   let maxSellPrice = this.getAvgPrice(resourceType, 2, 1);
   maxSellPrice = maxSellPrice * modify;
   Log.info(`${this.terminal} returns ${maxSellPrice.toFixed(3)} for resource ${resourceType}`, "calcHighestSellingPrice");
 
-  return Math.max(maxSellPrice, global.minSellPrice);
+  return Math.max(maxSellPrice, CONSTANTS.MARKET.MIN_SELL_PRICE);
 };
 ControllerTerminal.prototype.getAvgPrice = function (resourceType, days = 2, skipToday = 0) {
   const history = Game.market.getHistory(resourceType);
@@ -50,77 +84,74 @@ ControllerTerminal.prototype.sellRoomMineral = function () {
   const terminal = this.terminal;
   const theMineralType = terminal.room.mineral.mineralType;
   
-  if (global.globalResourcesAmount(theMineralType) < global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all")) {
+  // Check if we have enough global resources before selling
+  const globalAmount = global.globalResourcesAmount(theMineralType);
+  const threshold = global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all");
+  Log.debug(`Mineral check: ${globalAmount} < ${threshold} (${global.numberOfTerminals()} terminals)`, "sellRoomMineral");
+  
+  if (globalAmount < threshold) {
     return null;
   }
   
-  let orderExists = false;
-
-  for (const id in Game.market.orders) {
-    const order = Game.market.orders[id];
-    if (order.type === "sell" && order.resourceType === theMineralType && order.roomName === terminal.room.name) {
-      Log.debug(`${order.roomName} found an existing sell order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-      orderExists = true;
-      
-      // Adjust Price
-      const thePrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
-      if (order.price !== thePrice && Math.abs(order.price - thePrice) > 0.01) {
-        Log.info(`${order.roomName} changed sell price from ${order.price} to ${thePrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-        Game.market.changeOrderPrice(order.id, thePrice);
-      }
-      
-      // Extend Order
-      if (order.remainingAmount < CONSTANTS.MARKET.MIN_ORDER_AMOUNT) {
-        const result = Game.market.extendOrder(order.id, CONSTANTS.MARKET.MAX_ORDER_AMOUNT - order.remainingAmount);
-        switch (result) {
-          case OK:
-            Log.success(`${terminal.room} extends order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-            break;
-          default:
-            Log.warn(`Result for extendOrder ${global.resourceImg(theMineralType)} in room ${terminal.room}: ${result}`, "sellRoomMineral");
-        }
-        break;
-      }
+  const existingOrder = this._findExistingOrder("sell", theMineralType, terminal.room.name);
+  
+  if (existingOrder) {
+    Log.debug(`${terminal.room.name} found an existing sell order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
+    
+    // Adjust Price
+    const newPrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
+    if (Math.abs(existingOrder.price - newPrice) > 0.01) {
+      Log.info(`${terminal.room.name} changed sell price from ${existingOrder.price} to ${newPrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
+      Game.market.changeOrderPrice(existingOrder.id, newPrice);
     }
+    
+    // Extend Order if needed
+    if (existingOrder.remainingAmount < CONSTANTS.MARKET.MIN_ORDER_AMOUNT) {
+      const extendAmount = CONSTANTS.MARKET.MAX_ORDER_AMOUNT - existingOrder.remainingAmount;
+      const result = Game.market.extendOrder(existingOrder.id, extendAmount);
+      this._handleOrderResult(result, "ExtendOrder", theMineralType, terminal.room, "sellRoomMineral");
+    }
+    return;
   }
   
   // Create new order
-  if (!orderExists) {
-    const price = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
-    const result = Game.market.createOrder(ORDER_SELL, theMineralType, price, CONSTANTS.MARKET.MAX_ORDER_AMOUNT, terminal.room.name);
-    switch (result) {
-      case OK:
-        Log.success(`Created sell order in room ${terminal.room} for ${global.resourceImg(theMineralType)} was successful`, "sellRoomMineral");
-        break;
-      default:
-        Log.warn(`Result for create sell Order for ${global.resourceImg(theMineralType)} in room ${terminal.room}: ${result}`, "sellRoomMineral");
-    }
-  }
+  const price = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
+  const result = Game.market.createOrder({
+    type: ORDER_SELL,
+    resourceType: theMineralType,
+    price: price,
+    totalAmount: CONSTANTS.MARKET.MAX_ORDER_AMOUNT,
+    roomName: terminal.room.name
+  });
+  this._handleOrderResult(result, "CreateOrder", theMineralType, terminal.room, "sellRoomMineral");
 };
 ControllerTerminal.prototype.sellRoomMineralOverflow = function () {
-  if (!this._isTerminalValid()) {
+  if (!this._isTerminalActive()) {
     return null;
   }
   const terminal = this.terminal;
   const theMineralType = terminal.room.mineral.mineralType;
 
-  if (terminal.cooldown === 0 && terminal.store[theMineralType] > CONSTANTS.MARKET.MAX_ORDER_AMOUNT) {
-    const bestOrder = this.findBestBuyOrder(theMineralType, CONSTANTS.MARKET.ENERGY_PRICE, CONSTANTS.MARKET.PROFIT_THRESHOLD);
-    if (bestOrder) {
-      const result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
-      if (result === OK) {
-        Log.success(
-          `${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${(bestOrder.amount * bestOrder.price).toFixed(2)} - EnergyCost: ${(
-            bestOrder.fee * CONSTANTS.MARKET.ENERGY_PRICE
-          ).toFixed(2)} `,
-          "sellRoomMineralOverflow"
-        );
-      } else {
-        Log.info(`No deal because: ${result}`, "sellRoomMineralOverflow");
-      }
-    } else {
-      Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room}`, "sellRoomMineralOverflow");
-    }
+  if (terminal.store[theMineralType] <= CONSTANTS.MARKET.MAX_ORDER_AMOUNT) {
+    return null;
+  }
+
+  const bestOrder = this.findBestBuyOrder(theMineralType, CONSTANTS.MARKET.ENERGY_PRICE, CONSTANTS.MARKET.PROFIT_THRESHOLD);
+  if (!bestOrder) {
+    Log.info(`No deals for ${global.resourceImg(theMineralType)} overflow found for room ${terminal.room}`, "sellRoomMineralOverflow");
+    return null;
+  }
+
+  const result = Game.market.deal(bestOrder.id, bestOrder.amount, terminal.room.name);
+  if (result === OK) {
+    const revenue = (bestOrder.amount * bestOrder.price).toFixed(2);
+    const energyCost = (bestOrder.fee * CONSTANTS.MARKET.ENERGY_PRICE).toFixed(2);
+    Log.success(
+      `${bestOrder.amount} of ${global.resourceImg(bestOrder.resourceType)} sold to market. 💲: ${revenue} - EnergyCost: ${energyCost}`,
+      "sellRoomMineralOverflow"
+    );
+  } else {
+    Log.info(`No deal because: ${global.getErrorString(result)}`, "sellRoomMineralOverflow");
   }
 };
 
@@ -135,25 +166,40 @@ ControllerTerminal.prototype.adjustWallHits = function () {
   }
 };
 ControllerTerminal.prototype.internalTrade = function () {
-  const terminal = this.terminal;
-  if (!terminal || !terminal.my || !terminal.isActive() || terminal.cooldown !== 0) {
+  if (!this._isTerminalActive()) {
     return;
   }
+  
+  const terminal = this.terminal;
+  const roomsWithTerminal = _.filter(Game.rooms, (r) => r.terminal && r.terminal.my && r.terminal.isActive());
+  
+  // Pre-calculate helper array once
+  const sellableResources = MarketCal.TIER_1_COMPOUNDS.concat(
+    MarketCal.TIER_2_COMPOUNDS,
+    MarketCal.TIER_3_COMPOUNDS,
+    MarketCal.BASE_COMPOUNDS,
+    MarketCal.COMPRESSED_RESOURCES
+  );
   
   let cancelTrading = false;
 
   for (const resourceType in terminal.store) {
-    const amount = terminal.store[resourceType];
+    if (cancelTrading) {
+      break;
+    }
     
-    if (cancelTrading || amount === 0 || terminal.room.getResourceAmount(resourceType, "storage") < terminal.room.getRoomThreshold(resourceType, "storage")) {
+    const amount = terminal.store[resourceType];
+    if (amount === 0) {
+      continue;
+    }
+    
+    // Check if we should keep this resource
+    if (terminal.room.getResourceAmount(resourceType, "storage") < terminal.room.getRoomThreshold(resourceType, "storage")) {
       continue;
     }
 
-    const roomsWithTerminal = _.filter(Game.rooms, (r) => r.terminal && r.terminal.my && r.terminal.isActive());
-
-    for (const r in roomsWithTerminal) {
-      const targetRoom = roomsWithTerminal[r];
-      
+    // Try to send to other rooms first
+    for (const targetRoom of roomsWithTerminal) {
       if (targetRoom.terminal === terminal || cancelTrading) {
         continue;
       }
@@ -161,56 +207,52 @@ ControllerTerminal.prototype.internalTrade = function () {
       const resourceAmountInRoom = targetRoom.getResourceAmount(resourceType, "storage");
       const needed = targetRoom.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
       
-      if (needed > 0) {
-        const sendAmount = resourceType === RESOURCE_ENERGY
-          ? Math.min(ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "storage") - terminal.room.getRoomThreshold(resourceType, "storage"), needed)
-          : Math.min(amount, needed);
+      if (needed <= 0) {
+        continue;
+      }
+      
+      const sendAmount = resourceType === RESOURCE_ENERGY
+        ? Math.min(
+            ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "storage") - 
+            terminal.room.getRoomThreshold(resourceType, "storage"),
+            needed
+          )
+        : Math.min(amount, needed);
 
-        if (sendAmount > 0) {
-          const result = terminal.send(resourceType, sendAmount, targetRoom.name, "internal");
-          switch (result) {
-            case OK:
-              cancelTrading = true;
-              Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}`, "internalTrade");
-              break;
-            default:
-              Log.warn(`${terminal} has unknown result in ${terminal.room} tries to transfer to (${targetRoom}): ${result}`, "internalTrade");
-          }
-          break;
+      if (sendAmount > 0) {
+        const result = terminal.send(resourceType, sendAmount, targetRoom.name, "internal");
+        if (result === OK) {
+          cancelTrading = true;
+          Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}`, "internalTrade");
+        } else {
+          Log.warn(`${terminal.room} failed to transfer ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}: ${global.getErrorString(result)}`, "internalTrade");
         }
+        break;
       }
     }
     
-    const helperArray = MarketCal.TIER_1_COMPOUNDS.concat(
-      MarketCal.TIER_2_COMPOUNDS,
-      MarketCal.TIER_3_COMPOUNDS,
-      MarketCal.BASE_COMPOUNDS,
-      MarketCal.COMPRESSED_RESOURCES
-    );
-    
-    if (!cancelTrading && _.includes(helperArray, resourceType)) {
+    // If no internal trade happened and resource is sellable, try market
+    if (!cancelTrading && _.includes(sellableResources, resourceType)) {
       const order = this.findBestBuyOrder(resourceType);
       if (order) {
         const dealAmount = Math.min(order.amount, amount);
         const result = Game.market.deal(order.id, dealAmount, terminal.room.name);
-        switch (result) {
-          case OK:
-            cancelTrading = true;
-            Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} for ${order.price}`, "internalTrade");
-            break;
-          default:
-            Log.warn(`${terminal} has unknown result in ${terminal.room} tries to sell ${dealAmount} ${global.resourceImg(resourceType)} to market: ${result}`, "internalTrade");
+        if (result === OK) {
+          cancelTrading = true;
+          Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} for ${order.price}`, "internalTrade");
+        } else {
+          Log.warn(`${terminal.room} failed to sell ${dealAmount} ${global.resourceImg(resourceType)} to market: ${global.getErrorString(result)}`, "internalTrade");
         }
       }
     }
   }
 };
 ControllerTerminal.prototype.buyEnergyOrder = function () {
-  const terminal = this.terminal;
-  if (!terminal || !terminal.isActive() || !terminal.my) {
+  if (!this._isTerminalValid() || !this.terminal.isActive()) {
     return null;
   }
   
+  const terminal = this.terminal;
   const energyInTerminal = ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "terminal");
   const threshold = terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
 
@@ -219,46 +261,42 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
     return false;
   }
   
-  if (energyInTerminal < terminal.room.getRoomThreshold(RESOURCE_ENERGY, "storage") - CONSTANTS.RESOURCES.TERMINAL_ENERGY_BUFFER) {
-    Log.debug(`Less than ${threshold} energy in Terminal. We should check orders for room ${terminal.room.name}`, "buyEnergyOrder");
-
-    let orderExists = false;
-    for (const id in Game.market.orders) {
-      const order = Game.market.orders[id];
-      if (order.type === "buy" && order.resourceType === RESOURCE_ENERGY && order.roomName === terminal.room.name) {
-        Log.debug(`Found an existing buy energy order for room ${order.roomName}`, "buyEnergyOrder");
-        orderExists = true;
-        const storageThreshold = terminal.room.getRoomThreshold(RESOURCE_ENERGY, "storage");
-        if (order.remainingAmount + energyInTerminal < storageThreshold) {
-          Log.debug(
-            `Found an existing buy energy order for room ${order.roomName} with remainingAmount ${order.remainingAmount} so I try to extend order by ${storageThreshold} - ${order.remainingAmount} - ${energyInTerminal}`,
-            "buyEnergyOrder"
-          );
-
-          const result = Game.market.extendOrder(order.id, storageThreshold - order.remainingAmount - energyInTerminal);
-          switch (result) {
-            case OK:
-              Log.success(`ExtendOrder in room ${terminal.room} was successful`, "buyEnergyOrder");
-              break;
-            default:
-              Log.warn(`Result for extendOrder in room ${terminal.room}: ${result}`, "buyEnergyOrder");
-          }
-          break;
-        }
-      }
-    }
-    
-    if (!orderExists) {
-      const result = Game.market.createOrder(ORDER_BUY, RESOURCE_ENERGY, CONSTANTS.MARKET.ENERGY_PRICE, threshold, terminal.room.name);
-      switch (result) {
-        case OK:
-          Log.success(`Created order in room ${terminal.room} for ${threshold} energy was successful`, "buyEnergyOrder");
-          break;
-        default:
-          Log.warn(`Result for createOrder in room ${terminal.room}: ${result}`, "buyEnergyOrder");
-      }
-    }
+  const storageThreshold = terminal.room.getRoomThreshold(RESOURCE_ENERGY, "storage");
+  const minEnergyNeeded = storageThreshold - CONSTANTS.RESOURCES.TERMINAL_ENERGY_BUFFER;
+  
+  if (energyInTerminal >= minEnergyNeeded) {
+    return null;
   }
+  
+  Log.debug(`Less than ${minEnergyNeeded} energy in Terminal. Checking orders for room ${terminal.room.name}`, "buyEnergyOrder");
+
+  const existingOrder = this._findExistingOrder("buy", RESOURCE_ENERGY, terminal.room.name);
+  
+  if (existingOrder) {
+    Log.debug(`Found an existing buy energy order for room ${terminal.room.name}`, "buyEnergyOrder");
+    const totalNeeded = storageThreshold - energyInTerminal;
+    
+    if (existingOrder.remainingAmount < totalNeeded) {
+      const extendAmount = totalNeeded - existingOrder.remainingAmount;
+      Log.debug(
+        `Extending order by ${extendAmount} (need ${totalNeeded}, have ${existingOrder.remainingAmount} remaining, ${energyInTerminal} in terminal)`,
+        "buyEnergyOrder"
+      );
+      const result = Game.market.extendOrder(existingOrder.id, extendAmount);
+      this._handleOrderResult(result, "ExtendOrder", RESOURCE_ENERGY, terminal.room, "buyEnergyOrder");
+    }
+    return;
+  }
+  
+  // Create new order
+  const result = Game.market.createOrder({
+    type: ORDER_BUY,
+    resourceType: RESOURCE_ENERGY,
+    price: CONSTANTS.MARKET.ENERGY_PRICE,
+    totalAmount: threshold,
+    roomName: terminal.room.name
+  });
+  this._handleOrderResult(result, "CreateOrder", RESOURCE_ENERGY, terminal.room, "buyEnergyOrder");
 };
 /**
  * Finds the best buy order for a resource type
@@ -268,6 +306,7 @@ ControllerTerminal.prototype.buyEnergyOrder = function () {
  * @returns {Object|null} Best order or null
  */
 ControllerTerminal.prototype.findBestBuyOrder = function (resourceType, energyPrice, minProfit) {
+  // @ts-ignore - resourceType is valid MarketResourceConstant at runtime
   const orders = Game.market.getAllOrders({
     type: ORDER_BUY,
     resourceType: resourceType,

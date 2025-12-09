@@ -96,7 +96,7 @@ b.work = function (creep, rc) {
         creep.travelTo(spawn);
         break;
       default:
-        Log.warn(`${creep} Recycle-Fehler: ${result}`, "recycle");
+        Log.warn(`${creep} Recycle-Fehler: ${global.getErrorString(result)}`, "recycle");
     }
   } else {
     creep.travelTo(spawn);

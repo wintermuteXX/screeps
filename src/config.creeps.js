@@ -7,6 +7,7 @@
 const CONSTANTS = require("./constants");
 const Log = require("Log");
 const scoutBehavior = require("./behavior.scout");
+const cpuAnalyzer = require("CpuAnalyzer");
 
 function generateBody(pattern, count) {
   const body = [];
@@ -348,7 +349,17 @@ module.exports = {
       const flags = _.filter(Game.flags, { color: COLOR_WHITE });
       if (flags.length === 0) return false;
       if (flags[0].room && flags[0].room.controller && flags[0].room.controller.my) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role === "claimer").length < CONSTANTS.CREEP_LIMITS.CLAIMER_MAX;
+      if (_.filter(Game.creeps, (c) => c.memory.role === "claimer").length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) return false;
+      
+      // Check CPU analysis (only check periodically to save CPU)
+      if (Game.time % CONSTANTS.CPU_ANALYSIS.CHECK_INTERVAL === 0) {
+        const decision = cpuAnalyzer.canConquerNewRoom();
+        if (!decision.canConquer) {
+          return false;
+        }
+      }
+      
+      return true;
     },
   },
 

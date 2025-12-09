@@ -110,7 +110,7 @@ function createRenewBehavior(behaviorName) {
       case OK:
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
-        Log.info(`${creep} not enough resources for renew in ${target}: Error ${result}`, "renew");
+        Log.info(`${creep} not enough resources for renew in ${target}: ${global.getErrorString(result)}`, "renew");
         creep.memory.abort = true;
         break;
       case ERR_NOT_IN_RANGE:
@@ -121,7 +121,7 @@ function createRenewBehavior(behaviorName) {
         creep.memory.abort = true;
         break;
       default:
-        Log.warn(`${creep} unknown result from renew ${target}: Error ${result}`, "renew");
+        Log.warn(`${creep} unknown result from renew ${target}: ${global.getErrorString(result)}`, "renew");
         creep.memory.abort = true;
     }
   };

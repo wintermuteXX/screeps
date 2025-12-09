@@ -27,13 +27,14 @@ function plannerStats(roomName) {
   const room = Game.rooms[roomName];
   if (!room) {
     Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
-    return null;
+    return "Room not visible";
   }
   const planner = new RoomPlanner(room);
   const stats = planner.getStats();
+  const formatted = JSON.stringify(stats, null, 2);
   Log.info(`RoomPlanner stats for ${roomName}:`, "RoomPlanner");
-  Log.info(JSON.stringify(stats, null, 2), "RoomPlanner");
-  return stats;
+  Log.info(formatted, "RoomPlanner");
+  return formatted; // Return formatted string instead of object
 }
 
 /**

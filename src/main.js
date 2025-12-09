@@ -8,6 +8,7 @@ const stats = require("ControllerStats");
 require("marketCalculator");
 require("_init"); // Initialize prototypes once
 const ControllerGame = require("ControllerGame");
+const cpuAnalyzer = require("CpuAnalyzer");
 
 module.exports.loop = function () {
   // Run memhack first to optimize memory access for the entire tick
@@ -28,5 +29,9 @@ module.exports.loop = function () {
   }
   
   gc.updateBucketMemory();
+  
+  // Record CPU metrics for analysis
+  cpuAnalyzer.recordTick();
+  
   // stats.doStats();
 };

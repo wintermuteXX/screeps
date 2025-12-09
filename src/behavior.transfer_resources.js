@@ -292,7 +292,7 @@ b._handleTransferResult = function (creep, target, resourceType, transferAmount,
       return null; // Signal to move
       
     default:
-      Log.warn(`${creep} has unknown result from transfer ${resourceType} to ${target}: ${result}`, "transfer_resources");
+      Log.warn(`${creep} has unknown result from transfer ${resourceType} to ${target}: ${global.getErrorString(result)}`, "transfer_resources");
       return false;
   }
 };
@@ -392,7 +392,7 @@ b._performBatchDelivery = function (creep, target, orders) {
     if (transferResult === null) {
       // Need to move
       if (!transferredAny) {
-        creep.travelTo(target, { maxRooms: 0 });
+        creep.travelTo(target, { maxRooms: 0  });
       }
       return; // Stop processing, move first
     }

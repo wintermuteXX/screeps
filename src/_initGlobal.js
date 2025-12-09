@@ -6,6 +6,7 @@ const utilsConsole = require("utils.console");
 const utilsRoomPlanner = require("utils.roomPlanner");
 const createBehaviorRegistry = require("utils.behaviors");
 const createCreepConfigUtils = require("utils.creeps");
+const utilsErrors = require("utils.errors");
 require("utils.roomPrototypes"); // Extends prototypes, no exports
 
 function initGlobal(g) {
@@ -55,6 +56,7 @@ function initGlobal(g) {
   global.help = utilsConsole.help;
   global.voiceConsole = utilsConsole.voiceConsole;
   global.visualizeLogistic = utilsConsole.visualizeLogistic;
+  global.visualizeCpu = utilsConsole.visualizeCpu;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;
@@ -62,6 +64,9 @@ function initGlobal(g) {
   global.plannerReset = utilsRoomPlanner.plannerReset;
   global.plannerRun = utilsRoomPlanner.plannerRun;
   global.plannerSetCenter = utilsRoomPlanner.plannerSetCenter;
+
+  // ===== Error Utilities =====
+  g.getErrorString = utilsErrors.getErrorString;
 
   // ===== Utility Functions =====
   /**

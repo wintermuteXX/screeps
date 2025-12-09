@@ -16,6 +16,15 @@ module.exports = {
     NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
   },
 
+  // CPU Analysis Configuration
+  CPU_ANALYSIS: {
+    HISTORY_SIZE: 500,              // Anzahl Ticks für rollierenden Durchschnitt
+    CHECK_INTERVAL: 100,            // CPU-Analyse alle N Ticks
+    CONQUER_THRESHOLD_AVG: 0.8,     // Max 80% CPU-Durchschnitt
+    CONQUER_THRESHOLD_BUCKET: 2000, // Min Bucket-Level
+    CONQUER_THRESHOLD_PEAK: 0.95,   // Max 95% CPU-Spitze
+  },
+
 // Tick Intervals
   TICKS: {
     LOG_INTERVAL: 100,              // Log every N ticks
@@ -88,37 +97,40 @@ module.exports = {
 
   // Priority Values (lower = higher priority)
   PRIORITY: {
-    CONTROLLER_CRITICAL: 10,         // Controller about to downgrade
-    CONTROLLER_LOW: 25,               // Controller low on time
-    TERMINAL_ENERGY_LOW: 35,          // Terminal energy very low
-    STORAGE_ENERGY_LOW: 40,           // Storage energy low
-    STORAGE_ENERGY_MID: 55,           // Storage energy medium
-    SPAWN: 15,                        // Spawns
-    EXTENSION: 20,                    // Extensions
-    TOWER_ENEMY: 30,                  // Towers when enemies present
-    TOWER_NORMAL: 60,                 // Towers when no enemies
-    LAB: 65,                          // Labs
-    LAB_FILL: 70,                     // Labs filling
-    FACTORY_ENERGY: 75,               // Factory energy
-    FACTORY_MINERAL: 85,              // Factory minerals
-    POWER_SPAWN_ENERGY: 80,           // Power spawn energy
-    POWER_SPAWN_POWER: 90,            // Power spawn power
-    NUKER_GHODIUM: 95,                // Nuker ghodium
-    NUKER_ENERGY: 110,                // Nuker energy
-    STORAGE_ENERGY_HIGH: 100,         // Storage energy high (can give)
-    STORAGE_MINERAL: 105,             // Storage minerals
-    STORAGE_ENERGY_OVERFLOW: 120,     // Storage energy overflow
-    TERMINAL_MINERAL: 130,            // Terminal minerals
-    TERMINAL_ENERGY_HIGH: 140,        // Terminal energy high
-    TERMINAL_ENERGY_OVERFLOW: 145,    // Terminal energy overflow
-    STORAGE_MINERAL_OVERFLOW: 150,    // Storage mineral overflow
-    TOMBSTONE: 165,                   // Tombstones
-    RUIN: 166,                        // Ruins (destroyed structures)
-    DROPPED_RESOURCE: 170,            // Dropped resources
-    FACTORY_OVERFLOW: 180,            // Factory overflow
-    LAB_EMPTY: 185,                   // Labs with resources to empty
-    CONTAINER: 195,                   // Containers
-    LINK: 200,                        // Links
+    // ===== NEEDS (needsResources) - Structures that need resources =====
+    CONTROLLER_CRITICAL: 10,         // [NEEDS] Controller about to downgrade
+    CONTROLLER_LOW: 25,               // [NEEDS] Controller low on time
+    SPAWN: 15,                        // [NEEDS] Spawns
+    EXTENSION: 20,                    // [NEEDS] Extensions
+    TOWER_ENEMY: 30,                  // [NEEDS] Towers when enemies present
+    TERMINAL_ENERGY_LOW: 35,          // [NEEDS/GIVES] Terminal energy very low (used in both)
+    STORAGE_ENERGY_MID: 55,           // [NEEDS] Storage energy medium
+    TOWER_NORMAL: 60,                 // [NEEDS] Towers when no enemies
+    LAB: 65,                          // [NEEDS] Labs
+    LAB_FILL: 70,                     // [NEEDS] Labs filling
+    FACTORY_ENERGY: 75,               // [NEEDS] Factory energy
+    POWER_SPAWN_ENERGY: 80,           // [NEEDS] Power spawn energy
+    FACTORY_MINERAL: 85,              // [NEEDS] Factory minerals
+    POWER_SPAWN_POWER: 90,            // [NEEDS] Power spawn power
+    NUKER_GHODIUM: 95,                // [NEEDS] Nuker ghodium
+    STORAGE_MINERAL: 105,             // [NEEDS] Storage minerals
+    NUKER_ENERGY: 110,                // [NEEDS] Nuker energy
+    STORAGE_ENERGY_OVERFLOW: 120,     // [NEEDS/GIVES] Storage energy overflow (used in both)
+    TERMINAL_MINERAL: 130,            // [NEEDS/GIVES] Terminal minerals (used in both)
+    TERMINAL_ENERGY_OVERFLOW: 145,    // [NEEDS] Terminal energy overflow
+    
+    // ===== GIVES (givesResources) - Sources that can give resources =====
+    STORAGE_ENERGY_LOW: 40,           // [GIVES] Storage energy low (can give)
+    STORAGE_ENERGY_HIGH: 100,         // [GIVES] Storage energy high (can give)
+    TERMINAL_ENERGY_HIGH: 140,        // [GIVES] Terminal energy high (can give)
+    STORAGE_MINERAL_OVERFLOW: 150,    // [GIVES] Storage mineral overflow (can give)
+    TOMBSTONE: 165,                   // [GIVES] Tombstones (can give)
+    RUIN: 166,                        // [GIVES] Ruins (destroyed structures, can give)
+    DROPPED_RESOURCE: 170,            // [GIVES] Dropped resources (can give)
+    FACTORY_OVERFLOW: 180,            // [GIVES] Factory overflow (can give)
+    LAB_EMPTY: 185,                   // [GIVES] Labs with resources to empty (can give)
+    CONTAINER: 195,                   // [GIVES] Containers (can give)
+    LINK: 200,                        // [GIVES] Links (can give)
   },
 
   // Pathfinding

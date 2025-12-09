@@ -41,7 +41,7 @@ b.work = function (creep, rc) {
   if (result == OK) {
     Log.success(`Build a new construction site for Spawn in ${creep.room.name} at (${position.x}, ${position.y})`, "place_spawn");
   } else {
-    Log.error(`Could not build Spawn in ${creep.room.name} at (${position.x}, ${position.y}). Error: ${result}`, "place_spawn");
+    Log.error(`Could not build Spawn in ${creep.room.name} at (${position.x}, ${position.y}). Error: ${global.getErrorString(result)}`, "place_spawn");
   }
 };
 

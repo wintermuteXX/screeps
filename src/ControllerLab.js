@@ -262,7 +262,7 @@ ControllerLab.prototype.produce = function () {
                 Log.warn(`${theLab.room.name} Problem with labs ${theLab.id}: reset all memory`, "lab produce");
                 break;
             default:
-                Log.warn(`${theLab.room.name} Unknown result from ${theLab.id}: ${result}`, "lab produce");
+                Log.warn(`${theLab.room.name} Unknown result from ${theLab.id}: ${global.getErrorString(result)}`, "lab produce");
         }
     }
 }

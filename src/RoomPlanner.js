@@ -126,7 +126,7 @@ const BUNKER_LAYOUT = {
     { x: -1, y: -2, priority: 11 },
     { x: 1, y: -2, priority: 12 },
     { x: -2, y: -1, priority: 13 },
-    { x: 2, y: -1, priority: 14 },
+    { x: -1, y: 0 , priority: 14 },
     { x: -2, y: 1, priority: 15 },
     // Ring 2 (RCL 3-4)
     { x: 2, y: 1, priority: 16 },
@@ -176,10 +176,10 @@ const BUNKER_LAYOUT = {
     { x: 2, y: -4, priority: 62 },
     { x: -2, y: 4, priority: 63 },
     { x: 2, y: 4, priority: 64 },
-    { x: -3, y: -3, priority: 65 },
+    // Removed (-3, -3) - kollidiert mit Observer
     { x: 3, y: -3, priority: 66 },
     { x: -3, y: 3, priority: 67 },
-    { x: 3, y: 3, priority: 68 },
+    // Removed (3, 3) - kollidiert mit Labs
     // Additional extensions for RCL 8
     { x: -5, y: 0, priority: 69 },
     { x: 5, y: 0, priority: 70 },
@@ -205,8 +205,8 @@ const BUNKER_LAYOUT = {
 
   // Links in strategic positions
   links: [
-    { x: -1, y: 0, priority: 85 }, // At storage
-    { x: 1, y: 0, priority: 86 }, // At spawn
+    // { x: -1, y: 0, priority: 85 }, // At storage
+    { x: 2, y: -1, priority: 86 }, // At spawn
     // Additional links are placed dynamically at Sources/Controller
   ],
 
@@ -222,27 +222,11 @@ const BUNKER_LAYOUT = {
   // Roads (main paths)
   roads: [
     // Cross through the center
-    { x: 0, y: -1, priority: 200 },
-    { x: -1, y: 0, priority: 201 },
-    { x: 1, y: 0, priority: 202 },
-    { x: 0, y: 2, priority: 203 },
-    // Outer ring
-    { x: -2, y: -2, priority: 204 },
-    { x: -1, y: -2, priority: 205 },
-    { x: 1, y: -2, priority: 206 },
-    { x: 2, y: -2, priority: 207 },
-    { x: -2, y: 2, priority: 208 },
-    { x: 2, y: 2, priority: 209 },
-    // Connection to labs cluster (from outer ring to labs)
-    { x: 2, y: 3, priority: 210 },
-    { x: 3, y: 2, priority: 211 },
-    // Roads around lab cluster (connecting all labs - NOT on lab positions)
-    // Horizontal paths between lab rows (y=2, y=6)
-    { x: 2, y: 4, priority: 212 },
+    { x: 0, y: -1, priority: 200 },  
     { x: 2, y: 5, priority: 213 },
     { x: 2, y: 6, priority: 214 },
     // Vertical paths between lab columns (x=2, x=6)
-    { x: 4, y: 2, priority: 215 },
+    // Removed (4, 2) - kollidiert mit Extensions
     { x: 5, y: 2, priority: 216 },
     { x: 6, y: 2, priority: 217 },
     // Paths around the lab cluster perimeter (bottom row)
@@ -552,6 +536,11 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     if (sitesPlaced >= PLANNER_CONSTANTS.MAX_CONSTRUCTION_SITES - existingSites.length) break;
 
     const { x, y, structureType } = planned;
+    
+    // Skip special structures (Container/Links) - they are handled by _placeSpecialStructures
+    if (planned.specialIdentifier) {
+      continue;
+    }
 
     // Check if structure can be built at current RCL
     if (!this._canBuildStructure(structureType, rcl, structureCounts)) {
@@ -609,7 +598,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
       // Already too many sites
       break;
     } else if (result !== ERR_INVALID_TARGET && result !== ERR_RCL_NOT_ENOUGH) {
-      Log.warn(`RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${result}`, "RoomPlanner");
+      Log.warn(`RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${global.getErrorString(result)}`, "RoomPlanner");
     }
   }
 };
@@ -712,7 +701,7 @@ RoomPlanner.prototype._placeExtractor = function () {
   }
 
   // Container next to mineral
-  this._placeContainerNear(mineral.pos, "mineral");
+  this._placeContainerNear(mineral.pos, "mineral", "mineral", mineral.id);
 };
 
 /**
@@ -721,8 +710,10 @@ RoomPlanner.prototype._placeExtractor = function () {
 RoomPlanner.prototype._placeSourceContainers = function () {
   const sources = this.room.find(FIND_SOURCES);
   
-  for (const source of sources) {
-    this._placeContainerNear(source.pos, "source");
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    const identifier = `source_${i}`;
+    this._placeContainerNear(source.pos, "source", identifier, source.id);
   }
 };
 
@@ -731,20 +722,20 @@ RoomPlanner.prototype._placeSourceContainers = function () {
  */
 RoomPlanner.prototype._placeControllerContainer = function () {
   if (!this.room.controller) return;
-  this._placeContainerNear(this.room.controller.pos, "controller");
+  this._placeContainerNear(this.room.controller.pos, "controller", "controller", this.room.controller.id);
 };
 
 /**
- * Places a container near a position
+ * Places a container near a position (statisch im Memory)
  */
-RoomPlanner.prototype._placeContainerNear = function (pos, type) {
+RoomPlanner.prototype._placeContainerNear = function (pos, type, identifier, targetId) {
   // Container erst ab konfiguriertem RCL bauen (Standard: RCL 3)
   if (this.room.controller.level < CONSTANTS.CONTAINER.MIN_RCL) {
     return;
   }
   
   const range = type === "controller" ? PLANNER_CONSTANTS.CONTAINER_CONTROLLER_RANGE : PLANNER_CONSTANTS.CONTAINER_DEFAULT_RANGE;
-  this._placeStructureNear(pos, STRUCTURE_CONTAINER, range, type, false);
+  this._placeStructureNear(pos, STRUCTURE_CONTAINER, range, type, false, identifier, targetId);
 };
 
 /**
@@ -753,8 +744,10 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type) {
 RoomPlanner.prototype._placeSourceLinks = function () {
   const sources = this.room.find(FIND_SOURCES);
   
-  for (const source of sources) {
-    this._placeLinkNear(source.pos, "source");
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    const identifier = `source_link_${i}`;
+    this._placeLinkNear(source.pos, "source", identifier, source.id);
   }
 };
 
@@ -763,27 +756,83 @@ RoomPlanner.prototype._placeSourceLinks = function () {
  */
 RoomPlanner.prototype._placeControllerLink = function () {
   if (!this.room.controller) return;
-  this._placeLinkNear(this.room.controller.pos, "controller");
+  this._placeLinkNear(this.room.controller.pos, "controller", "controller_link", this.room.controller.id);
 };
 
 /**
- * Places a link near a position
+ * Places a link near a position (statisch im Memory)
  */
-RoomPlanner.prototype._placeLinkNear = function (pos, type) {
+RoomPlanner.prototype._placeLinkNear = function (pos, type, identifier, targetId) {
   const range = PLANNER_CONSTANTS.LINK_PLACEMENT_RANGE;
-  this._placeStructureNear(pos, STRUCTURE_LINK, range, type, true);
+  this._placeStructureNear(pos, STRUCTURE_LINK, range, type, true, identifier, targetId);
 };
 
 /**
- * Generic function to place a structure near a position
+ * Generic function to place a structure near a position (statisch im Memory)
  * @param {RoomPosition} pos - Target position
  * @param {string} structureType - Type of structure to place
  * @param {number} range - Search range around position
  * @param {string} type - Type identifier for logging (e.g., "source", "controller")
  * @param {boolean} allowRoads - Whether roads/ramparts are allowed at the position
+ * @param {string} identifier - Unique identifier for this structure (e.g., "source_0", "controller")
+ * @param {string} targetId - ID of the target (source/controller) this structure is associated with
  */
-RoomPlanner.prototype._placeStructureNear = function (pos, structureType, range, type, allowRoads) {
-  // Check if structure already in range
+RoomPlanner.prototype._placeStructureNear = function (pos, structureType, range, type, allowRoads, identifier, targetId) {
+  // Check if position is already stored in memory
+  const storedPosition = this._getStoredSpecialStructure(identifier);
+  
+  if (storedPosition) {
+    // Use stored position
+    const storedPos = new RoomPosition(storedPosition.x, storedPosition.y, this.roomName);
+    
+    // Check if structure still exists at stored position
+    const structures = storedPos.lookFor(LOOK_STRUCTURES);
+    const sites = storedPos.lookFor(LOOK_CONSTRUCTION_SITES);
+    
+    const hasStructure = structures.some(s => s.structureType === structureType);
+    const hasSite = sites.some(s => s.structureType === structureType);
+    
+    if (hasStructure || hasSite) {
+      // Structure exists or is being built - nothing to do
+      return;
+    }
+    
+    // Structure was destroyed - rebuild at stored position
+    // Check if position is still valid
+    const terrain = this.room.getTerrain();
+    if (terrain.get(storedPos.x, storedPos.y) === TERRAIN_MASK_WALL) {
+      // Position is now a wall - need to find new position
+      Log.warn(`RoomPlanner: Stored position for ${identifier} is now a wall, finding new position`, "RoomPlanner");
+      this._removeStoredSpecialStructure(identifier);
+      // Fall through to find new position
+    } else {
+      // Check if position is blocked by other structures
+      const blockingStructures = structures.filter(s => 
+        allowRoads ? (s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART) : true
+      );
+      const blockingSites = sites.filter(s => 
+        allowRoads ? (s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART) : true
+      );
+      
+      if (blockingStructures.length === 0 && blockingSites.length === 0) {
+        // Position is free - rebuild here
+        const result = this.room.createConstructionSite(storedPos, structureType);
+        if (result === OK) {
+          const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
+          Log.debug(`RoomPlanner: ${structureName} construction site placed at stored position (${storedPos.x}, ${storedPos.y}) for ${type}`, "RoomPlanner");
+        }
+        return;
+      } else {
+        // Position is blocked - need to find new position
+        Log.warn(`RoomPlanner: Stored position for ${identifier} is blocked, finding new position`, "RoomPlanner");
+        this._removeStoredSpecialStructure(identifier);
+        // Fall through to find new position
+      }
+    }
+  }
+  
+  // No stored position or stored position invalid - find new position
+  // Check if structure already exists in range (might have been placed manually)
   const nearbyStructures = pos.findInRange(FIND_STRUCTURES, range, {
     filter: (s) => s && 'structureType' in s && s.structureType === structureType,
   });
@@ -793,6 +842,9 @@ RoomPlanner.prototype._placeStructureNear = function (pos, structureType, range,
   });
 
   if (nearbyStructures.length > 0 || nearbySites.length > 0) {
+    // Structure exists nearby - store its position
+    const existingPos = nearbyStructures.length > 0 ? nearbyStructures[0].pos : nearbySites[0].pos;
+    this._storeSpecialStructure(identifier, existingPos.x, existingPos.y, structureType, targetId);
     return;
   }
 
@@ -855,9 +907,91 @@ RoomPlanner.prototype._placeStructureNear = function (pos, structureType, range,
     const result = this.room.createConstructionSite(bestPos, structureType);
     if (result === OK) {
       const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
-      Log.debug(`RoomPlanner: ${structureName} construction site placed at ${type}`, "RoomPlanner");
+      Log.debug(`RoomPlanner: ${structureName} construction site placed at ${type} (${bestPos.x}, ${bestPos.y})`, "RoomPlanner");
+      
+      // Store position in memory
+      this._storeSpecialStructure(identifier, bestPos.x, bestPos.y, structureType, targetId);
     }
   }
+};
+
+/**
+ * Stores a special structure (Container/Link) position in memory
+ */
+RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, structureType, targetId) {
+  // Ensure plannedStructures exists
+  if (!this.memory.plannedStructures) {
+    this.memory.plannedStructures = [];
+  }
+  
+  // Remove existing entry with same identifier
+  this.memory.plannedStructures = this.memory.plannedStructures.filter(
+    s => !(s.specialIdentifier && s.specialIdentifier === identifier)
+  );
+  
+  // Add new entry with special identifier
+  // Priority assignment:
+  // - Containers: 1000+
+  // - First source link (source_link_0): 85 (before spawn link at 86)
+  // - Spawn link: 86 (from BUNKER_LAYOUT)
+  // - Other source links and controller link: 87+
+  let priority;
+  if (structureType === STRUCTURE_CONTAINER) {
+    priority = 1000;
+  } else if (structureType === STRUCTURE_LINK) {
+    if (identifier === "source_link_0") {
+      priority = 85; // First source link - before spawn link
+    } else if (identifier.startsWith("source_link_")) {
+      // Other source links - after spawn link
+      const linkIndex = parseInt(identifier.split("_")[2]) || 0;
+      priority = 87 + linkIndex; // 87, 88, etc.
+    } else if (identifier === "controller_link") {
+      priority = 90; // Controller link - after all source links
+    } else {
+      priority = 1100; // Fallback for other links
+    }
+  } else {
+    priority = 1100; // Fallback
+  }
+  
+  this.memory.plannedStructures.push({
+    x: x,
+    y: y,
+    structureType: structureType,
+    priority: priority,
+    specialIdentifier: identifier,
+    targetId: targetId
+  });
+  
+  Log.debug(`RoomPlanner: Stored ${structureType} position (${x}, ${y}) for ${identifier} with priority ${priority}`, "RoomPlanner");
+};
+
+/**
+ * Gets stored special structure position from memory
+ */
+RoomPlanner.prototype._getStoredSpecialStructure = function (identifier) {
+  if (!this.memory.plannedStructures) {
+    return null;
+  }
+  
+  const stored = this.memory.plannedStructures.find(
+    s => s.specialIdentifier && s.specialIdentifier === identifier
+  );
+  
+  return stored ? { x: stored.x, y: stored.y, structureType: stored.structureType } : null;
+};
+
+/**
+ * Removes stored special structure from memory
+ */
+RoomPlanner.prototype._removeStoredSpecialStructure = function (identifier) {
+  if (!this.memory.plannedStructures) {
+    return;
+  }
+  
+  this.memory.plannedStructures = this.memory.plannedStructures.filter(
+    s => !(s.specialIdentifier && s.specialIdentifier === identifier)
+  );
 };
 
 /**
@@ -898,6 +1032,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     [STRUCTURE_POWER_SPAWN]: "#ff8800",
     [STRUCTURE_NUKER]: "#880000",
     [STRUCTURE_ROAD]: "#aaaaaa",
+    [STRUCTURE_CONTAINER]: "#00aa00",
   };
 
   // Structure names for legend
@@ -914,6 +1049,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     [STRUCTURE_POWER_SPAWN]: "PowerSpawn",
     [STRUCTURE_NUKER]: "Nuker",
     [STRUCTURE_ROAD]: "Road",
+    [STRUCTURE_CONTAINER]: "Container",
   };
 
   // Draw center

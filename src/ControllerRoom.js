@@ -171,7 +171,8 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
     return null;
   }
   
-  // Find first matching pair (same resourceType, different IDs)
+  // Collect all matching pairs with priority check
+  const matchingOrders = [];
   for (const g in givesResources) {
     const give = givesResources[g];
     for (const n in needsResources) {
@@ -180,6 +181,10 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
       // Basic compatibility check
       if (give.resourceType !== need.resourceType) continue;
       if (need.id === give.id) continue;
+      
+      // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
+      if (need.priority >= give.priority) continue;
+      
       // Only block if an EMPTY creep is already targeting this source (empty creeps collect resources)
       if (this.getAllCreeps().some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
       
@@ -187,14 +192,27 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
       const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
       if (!targetValidation) continue;
       
-      // Found matching order - set orderType in memory and return
-      give.orderType = "G";
-      
-      // Update Creep.memory.resources with orderType
-      this._updateCreepResourceMemory(Creep, give.resourceType, give.id, "G", 0);
-      
-      return give;
+      // Add to matching orders with priority for sorting
+      matchingOrders.push({
+        give: give,
+        need: need,
+        priority: need.priority
+      });
     }
+  }
+  
+  // Sort by need.priority (lowest first, same as visualizeLogistic)
+  matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+  
+  // Return first matching order
+  if (matchingOrders.length > 0) {
+    const order = matchingOrders[0];
+    order.give.orderType = "G";
+    
+    // Update Creep.memory.resources with orderType
+    this._updateCreepResourceMemory(Creep, order.give.resourceType, order.give.id, order.give.orderType, 0);
+    
+    return order.give;
   }
   
   return null;
@@ -207,6 +225,7 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
  * @returns {Object|Array|null} Single order, array of orders, or null
  */
 ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null) {
+  let givesResources = this.givesResources(); // Need to check priority
   let needsResources = this.needsResources();
   
   // Get resources the creep is carrying
@@ -233,11 +252,14 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
   // Filter by specific resource type if requested
   const resourcesToCheck = resourceType ? [resourceType] : carriedResources;
   
-  // Find matching orders - collect all matches
+  // Find matching orders - collect all matches with priority check
   const matchingOrders = [];
   
   for (const resType of resourcesToCheck) {
     if (Creep.store[resType] <= 0) continue;
+    
+    // Find corresponding give for this resource type to check priority
+    const correspondingGive = givesResources.find(g => g.resourceType === resType && g.id !== Creep.id);
     
     for (const n in needsResources) {
       const need = needsResources[n];
@@ -245,6 +267,10 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
       // Basic compatibility check
       if (need.resourceType !== resType) continue;
       if (need.id === Creep.id) continue;
+      
+      // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
+      if (correspondingGive && need.priority >= correspondingGive.priority) continue;
+      
       // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
       if (this.getAllCreeps().some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
 
@@ -256,11 +282,14 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
       need.orderType = "D";
       
       // Update Creep.memory.resources with orderType
-      this._updateCreepResourceMemory(Creep, resType, need.id, "D", Creep.store[resType] || 0);
+      this._updateCreepResourceMemory(Creep, resType, need.id, need.orderType, Creep.store[resType] || 0);
       
       matchingOrders.push(need);
     }
   }
+  
+  // Sort by priority (lowest first, same as visualizeLogistic)
+  matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
   
   // Return format: if resourceType specified, return single order; otherwise return array
   if (matchingOrders.length > 0) {
@@ -269,7 +298,7 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
       const firstForType = matchingOrders.find(o => o.resourceType === resourceType);
       return firstForType || null;
     } else {
-      // No specific resource type - return array of all matching orders
+      // All resource types - return sorted array
       return matchingOrders;
     }
   }
@@ -986,8 +1015,10 @@ ControllerRoom.prototype._processTerminalNeeds = function () {
       // Only add mineral need if we're below fill level or terminal is empty
       const fillLevel = this.room.getRoomThreshold(resourceType, "terminal");
       if (currentAmount < fillLevel || currentAmount === 0) {
-        priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-        neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
+      priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+      neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
+      // Test Overwrite
+      neededAmount = 6666;
       } else {
         continue; // Skip if already at fill level
       }

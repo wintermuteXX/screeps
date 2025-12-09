@@ -46,7 +46,7 @@ ControllerSpawn.prototype.createCreep = function (role, creepConfig, memory) {
       return false;
       break;
     default:
-      Log.warn(`${this.spawn} unknown result in createCreep: ${result}`, "createCreep");
+      Log.warn(`${this.spawn} unknown result in createCreep: ${global.getErrorString(result)}`, "createCreep");
       return false;
   }
 };
