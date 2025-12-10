@@ -1,6 +1,6 @@
-const Behavior = require("_behavior");
-const RoomPlanner = require("RoomPlanner");
-const Log = require("Log");
+const Behavior = require("./behavior.base");
+const RoomPlanner = require("./service.planner");
+const Log = require("./lib.log");
 const b = new Behavior("place_spawn");
 
 function findFlag(rc) {

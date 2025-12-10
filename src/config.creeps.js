@@ -4,10 +4,10 @@
  * @param {number} count - Number of times to repeat the pattern
  * @returns {Array} - Generated body array
  */
-const CONSTANTS = require("./constants");
-const Log = require("Log");
+const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 const scoutBehavior = require("./behavior.scout");
-const cpuAnalyzer = require("CpuAnalyzer");
+const cpuAnalyzer = require("./service.cpu");
 
 function generateBody(pattern, count) {
   const body = [];

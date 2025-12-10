@@ -1,4 +1,4 @@
-const Behavior = require("_behavior");
+const Behavior = require("./behavior.base");
 
 const b = new Behavior("attack_enemy");
 

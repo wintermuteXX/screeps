@@ -1,5 +1,5 @@
-const Behavior = require("_behavior");
-const Log = require("Log");
+const Behavior = require("./behavior.base");
+const Log = require("./lib.log");
 const RANGE_TO_ENERGY = 3;
 
 function findEnergy(obj, rc) {

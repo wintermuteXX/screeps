@@ -1,6 +1,6 @@
-const Behavior = require("_behavior");
-const Log = require("Log");
-const CONSTANTS = require("./constants");
+const Behavior = require("./behavior.base");
+const Log = require("./lib.log");
+const CONSTANTS = require("./config.constants");
 const b = new Behavior("transfer_resources");
 
 /**

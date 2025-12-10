@@ -1,34 +1,36 @@
-const Behavior = require("_behavior");
-const Log = require("Log");
+const Behavior = require("./behavior.base");
+const Log = require("./lib.log");
 
-const b = new Behavior("upgrade_controller");
+class UpgradeControllerBehavior extends Behavior {
+  constructor() {
+    super("upgrade_controller");
+  }
 
-b.when = function (creep, rc) {
-  return (rc.room.controller !== null && creep.store[RESOURCE_ENERGY] > 0);
-};
+  when(creep, rc) {
+    return rc.room.controller !== null && creep.store[RESOURCE_ENERGY] > 0;
+  }
 
-b.completed = function (creep, rc) {
-  let controller = rc.room.controller;
-  return (creep.store[RESOURCE_ENERGY] === 0 || controller === null || controller === undefined || controller.my == false);
-};
+  completed(creep, rc) {
+    const controller = rc.room.controller;
+    return creep.store[RESOURCE_ENERGY] === 0 || controller === null || controller === undefined || controller.my === false;
+  }
 
-b.work = function (creep, rc) {
+  work(creep, rc) {
+    const target = rc.room.controller;
+    if (target && target.my) {
+      const result = creep.upgradeController(target);
 
-  let target = rc.room.controller;
-  if (target && target.my) {
-    let result = creep.upgradeController(target);
-
-    switch (result) {
-      case OK:
-        break;
-      case ERR_NOT_IN_RANGE:
-        creep.travelTo(target);
-        break;
-
-      default:
-        Log.warn(`${creep} has unknown result from upgradeController(${target}): ${global.getErrorString(result)}`, "upgrade_controller");
+      switch (result) {
+        case OK:
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.travelTo(target);
+          break;
+        default:
+          Log.warn(`${creep} has unknown result from upgradeController(${target}): ${global.getErrorString(result)}`, "upgrade_controller");
+      }
     }
   }
-};
+}
 
-module.exports = b;
+module.exports = new UpgradeControllerBehavior();

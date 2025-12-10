@@ -1,5 +1,5 @@
-const Log = require("Log");
-const RoomPlanner = require("RoomPlanner");
+const Log = require("./lib.log");
+const RoomPlanner = require("./service.planner");
 
 /**
  * Visualizes the planned layout for a room

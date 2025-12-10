@@ -1,5 +1,5 @@
-const CONSTANTS = require("./constants");
-const Log = require("Log");
+const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 function ControllerLab(rc) {
     this.room = rc;

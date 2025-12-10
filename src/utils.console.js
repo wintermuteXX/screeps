@@ -1,11 +1,11 @@
-const Log = require("Log");
-const utilsUsername = require("utils.username");
-const utilsResources = require("utils.resources");
-const cpuAnalyzer = require("CpuAnalyzer");
+const Log = require("./lib.log");
+const utilsUsername = require("./utils.username");
+const utilsResources = require("./utils.resources");
+const cpuAnalyzer = require("./service.cpu");
 // @ts-ignore - ControllerRoom and ControllerGame are runtime modules
-const ControllerRoom = require("ControllerRoom");
+const ControllerRoom = require("./controller.room");
 // @ts-ignore - ControllerRoom and ControllerGame are runtime modules
-const ControllerGame = require("ControllerGame");
+const ControllerGame = require("./controller.game");
 
 
 

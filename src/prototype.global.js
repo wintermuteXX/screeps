@@ -1,13 +1,13 @@
-const Log = require("Log");
-const utilsUsername = require("utils.username");
-const utilsRoomAnalysis = require("utils.roomAnalysis");
-const utilsResources = require("utils.resources");
-const utilsConsole = require("utils.console");
-const utilsRoomPlanner = require("utils.roomPlanner");
-const createBehaviorRegistry = require("utils.behaviors");
-const createCreepConfigUtils = require("utils.creeps");
-const utilsErrors = require("utils.errors");
-require("utils.roomPrototypes"); // Extends prototypes, no exports
+const Log = require("./lib.log");
+const utilsUsername = require("./utils.username");
+const utilsRoomAnalysis = require("./utils.roomAnalysis");
+const utilsResources = require("./utils.resources");
+const utilsConsole = require("./utils.console");
+const utilsRoomPlanner = require("./utils.roomPlanner");
+const createBehaviorRegistry = require("./utils.behaviors");
+const createCreepConfigUtils = require("./utils.creeps");
+const utilsErrors = require("./utils.errors");
+require("./utils.roomPrototypes"); // Extends prototypes, no exports
 
 function initGlobal(g) {
   // ===== Username Utilities =====

@@ -1,4 +1,4 @@
-const Behavior = require("_behavior");
+const Behavior = require("./behavior.base");
 
 /**
  * Selects the best source using canHarvestSource and chooses the closest one
@@ -34,37 +34,46 @@ function selectBestSource(sources, creep, rc) {
   return availableSources[0].source;
 }
 
-const b = new Behavior("harvest");
+class HarvestBehavior extends Behavior {
+  constructor() {
+    super("harvest");
+  }
 
-b.when = function (creep, rc) {
-  const sources = rc.getSourcesNotEmpty();
-  return creep.store.getUsedCapacity() === 0 && sources.length > 0;
-};
-
-b.completed = function (creep, rc) {
-  if (!creep.getTarget()) return false;
-  if (creep.getTarget().energy == 0) return true;
-  return creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY);
-};
-
-b.work = function (creep, rc) {
-  let target = creep.getTarget();
-
-  if (target === null) {
+  when(creep, rc) {
     const sources = rc.getSourcesNotEmpty();
-    if (sources && sources.length) {
-      target = selectBestSource(sources, creep, rc);
-    }
+    return creep.store.getUsedCapacity() === 0 && sources.length > 0;
   }
 
-  if (target !== null) {
-    creep.target = target.id;
-    if (!creep.pos.isNearTo(target)) {
-      creep.travelTo(target);
-    } else {
-      creep.harvest(target);
+  completed(creep, rc) {
+    const target = creep.getTarget();
+    if (!target) {
+      return false;
+    }
+    if (target.energy === 0) {
+      return true;
+    }
+    return creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY);
+  }
+
+  work(creep, rc) {
+    let target = creep.getTarget();
+
+    if (target === null) {
+      const sources = rc.getSourcesNotEmpty();
+      if (sources && sources.length) {
+        target = selectBestSource(sources, creep, rc);
+      }
+    }
+
+    if (target !== null) {
+      creep.target = target.id;
+      if (!creep.pos.isNearTo(target)) {
+        creep.travelTo(target);
+      } else {
+        creep.harvest(target);
+      }
     }
   }
-};
+}
 
-module.exports = b;
+module.exports = new HarvestBehavior();

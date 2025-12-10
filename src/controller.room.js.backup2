@@ -1,14 +1,14 @@
-const ControllerSpawn = require("ControllerSpawn");
-const ControllerCreep = require("ControllerCreep");
-const ControllerLink = require("ControllerLink");
-const ControllerTower = require("ControllerTower");
-const ResourceManager = require("ResourceManager");
-const ControllerTerminal = require("ControllerTerminal");
-const ControllerFactory = require("ControllerFactory");
-const ControllerLab = require("ControllerLab");
-const RoomPlanner = require("RoomPlanner");
-const CONSTANTS = require("./constants");
-const Log = require("Log");
+const ControllerSpawn = require("./controller.spawn");
+const ControllerCreep = require("./controller.creep");
+const ControllerLink = require("./controller.link");
+const ControllerTower = require("./controller.tower");
+const ResourceManager = require("./service.resource");
+const ControllerTerminal = require("./controller.terminal");
+const ControllerFactory = require("./controller.factory");
+const ControllerLab = require("./controller.lab");
+const RoomPlanner = require("./service.planner");
+const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 function ControllerRoom(room, ControllerGame) {
   this.room = room;

@@ -1,4 +1,4 @@
-const Log = require("Log");
+const Log = require("./lib.log");
 
 /**
  * Behavior registry system
@@ -32,7 +32,7 @@ function createBehaviorRegistry() {
           moduleName = n.split(":")[0];
         }
         
-        const behaviorModule = require("behavior." + moduleName);
+        const behaviorModule = require("./behavior." + moduleName);
         
         // If module is a function (factory), call it with the behavior name
         if (typeof behaviorModule === "function") {

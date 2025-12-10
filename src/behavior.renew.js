@@ -1,6 +1,6 @@
-const Behavior = require("_behavior");
-const CONSTANTS = require("./constants");
-const Log = require("Log");
+const Behavior = require("./behavior.base");
+const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 // Cache for created behaviors
 const behaviorCache = {};

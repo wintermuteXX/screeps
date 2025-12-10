@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true,
 });
 
-const Log = require("Log");
+const Log = require("./lib.log");
 
 // Constants
 const MAX_CACHED_PATH_MEM_USAGE = 2000; // approx 100kb

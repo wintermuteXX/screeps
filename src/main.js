@@ -1,14 +1,14 @@
-const CONSTANTS = require("./constants");
+const CONSTANTS = require("./config.constants");
 
 // Cache all requires at module load time (runs once on global reset)
-const memHack = require("memhack");
-require("Traveler"); // Attaches to Creep prototype
-const Log = require("Log");
-const stats = require("ControllerStats");
-require("marketCalculator");
-require("_init"); // Initialize prototypes once
-const ControllerGame = require("ControllerGame");
-const cpuAnalyzer = require("CpuAnalyzer");
+const memHack = require("./lib.memhack");
+require("./lib.traveler"); // Attaches to Creep prototype
+const Log = require("./lib.log");
+const stats = require("./controller.stats");
+require("./service.market");
+require("./prototype.init"); // Initialize prototypes once
+const ControllerGame = require("./controller.game");
+const cpuAnalyzer = require("./service.cpu");
 
 module.exports.loop = function () {
   // Run memhack first to optimize memory access for the entire tick

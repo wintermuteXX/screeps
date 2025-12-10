@@ -1,4 +1,4 @@
-const ResourceManager = require("ResourceManager");
+const ResourceManager = require("./service.resource");
 
 // Helper function to create fill level entries
 const fillLevel = (storage, terminal = 0, factory = 0, extras = {}) => ({
@@ -155,7 +155,7 @@ g.resourceReorder = setInterval(() => {
     $scope.Room.selectedObject.store = orderedStore;
 }, 1000);
 </script>`.replace(/\r?\n|\r/g, ``);
-  const Log = require("Log");
+  const Log = require("./lib.log");
   Log.info(scriptInject, "ScriptInject");
 }
 

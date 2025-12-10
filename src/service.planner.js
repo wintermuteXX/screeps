@@ -9,8 +9,8 @@
  * Layout style: Compact "bunker" design for efficient defense
  */
 
-const CONSTANTS = require("./constants");
-const Log = require("Log");
+const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 /**
  * RoomPlanner Constants

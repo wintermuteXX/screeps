@@ -1,5 +1,5 @@
-const Log = require("Log");
-const CONSTANTS = require("./constants");
+const Log = require("./lib.log");
+const CONSTANTS = require("./config.constants");
 
 /**
  * Calculates a score for a room based on various factors
@@ -312,7 +312,7 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   // Load utils.resources once at the start
   let utilsResources = null;
   try {
-    utilsResources = require("utils.resources");
+    utilsResources = require("./utils.resources");
   } catch (e) {
     // utils.resources not available
   }

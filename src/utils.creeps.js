@@ -1,4 +1,4 @@
-const creepsConfig = require("config.creeps");
+const creepsConfig = require("./config.creeps");
 
 /**
  * Creep configuration utilities
