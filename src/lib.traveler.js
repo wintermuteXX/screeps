@@ -142,7 +142,7 @@ class Traveler {
       } else {
         travelData.path = ret.path;
         ret.incomplete = false;
-        Log.success(Game.shard.name + ' cached path retrieved in ' + (Game.cpu.getUsed()-cpu))
+        Log.debug(Game.shard.name + ' cached path retrieved in ' + (Game.cpu.getUsed()-cpu), "traveler")
       }
       let cpuUsed = Game.cpu.getUsed() - cpu;
       state.cpu = _.round(cpuUsed + state.cpu);
@@ -625,11 +625,11 @@ class Traveler {
         // can happen for situations where the creep would have to take an uncommonly indirect path
         // options.allowedRooms and options.routeCallback can also be used to handle this situation
         if (roomDistance <= 2) {
-          console.log(`${Game.shard.name} TRAVELER: path failed without findroute, trying with options.useFindRoute = true`);
-          console.log(`from: ${origin}, destination: ${destination}`);
+          Log.error(`${Game.shard.name} TRAVELER: path failed without findroute, trying with options.useFindRoute = true`);
+          Log.error(`from: ${origin}, destination: ${destination}`);
           options.useFindRoute = true;
           ret = this.findTravelPath(origin, destination, options);
-          console.log(`TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`);
+          Log.error(`TRAVELER: second attempt was ${ret.incomplete ? "not " : ""}successful`);
           return ret;
         }
       }
@@ -695,7 +695,7 @@ class Traveler {
       },
     });
     if (!_.isArray(ret)) {
-      console.log(`couldn't findRoute to ${destination}`);
+      Log.error(`couldn't findRoute to ${destination}`);
       return;
     }
     for (let value of ret) {
@@ -877,7 +877,7 @@ class Traveler {
         Memory.Traveler.Portals[room].shards[data[i][1]][this.packRoomName(data[i][2])] = "";
       }
     }
-    console.log("Retrieved all portal information for " + Game.shard.name);
+    Log.success("Retrieved all portal information for " + Game.shard.name);
     Memory.Traveler.portalUpdate = Game.time;
   }
   static findPathToNearestPortal(creep, shard, room) {
@@ -972,7 +972,7 @@ class Traveler {
     }
 
     if (!xferroom) return false;
-    console.log("TRAVELER: " + creep.name + " found best move to " + shard + " destination of " + room + " through " + nextShard + " - " + nextRoom + " cpu " + (Game.cpu.getUsed() - count));
+    Log.info("TRAVELER: " + creep.name + " found best move to " + shard + " destination of " + room + " through " + nextShard + " - " + nextRoom + " cpu " + (Game.cpu.getUsed() - count));
     creep.memory._trav.ISM = {
       currentShard: Game.shard.name,
       shard: shard,

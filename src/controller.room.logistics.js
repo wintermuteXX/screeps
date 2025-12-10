@@ -549,7 +549,7 @@ class LogisticsManager {
       // Only add if more than half capacity is free
       if (freeCapacity > capacity / 2) {
         this._addNeedsResource({
-          priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
+          priority: CONSTANTS.PRIORITY.CONSTRUCTOR,
           structureType: constructor.structureType,
           resourceType: RESOURCE_ENERGY,
           amount: freeCapacity,
@@ -723,10 +723,11 @@ class LogisticsManager {
         if (currentAmount < fillLevel || currentAmount === 0) {
           priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
-          // Test Overwrite
-          neededAmount = 6666;
+          neededAmount = 66666;
         } else {
-          continue; // Skip if already at fill level
+          // Test Overwrite
+          neededAmount = 66666;
+          // continue; // Skip if already at fill level
         }
       }
       

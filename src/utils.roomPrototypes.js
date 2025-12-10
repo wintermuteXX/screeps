@@ -31,14 +31,6 @@ function getCacheExpiration() {
   return CACHE_TIMEOUT + Math.round(Math.random() * CACHE_OFFSET * 2 - CACHE_OFFSET);
 }
 
-/********* CPU Profiling stats for Room.prototype._checkRoomCache ********** 
-calls         time      avg        function
-550106        5581.762  0.01015    Room._checkRoomCache
-calls with cache reset: 4085
-avg for cache reset:    0.137165
-calls without reset:    270968
-avg without reset:      0.003262
-****************************************************************************/
 Room.prototype._checkRoomCache = function _checkRoomCache() {
   // if cache is expired or doesn't exist
   if (!roomStructuresExpiration[this.name] || !roomStructures[this.name] || roomStructuresExpiration[this.name] < Game.time) {

@@ -106,6 +106,7 @@ module.exports = {
     TERMINAL_ENERGY_LOW: 35,          // [NEEDS/GIVES] Terminal energy very low (used in both)
     STORAGE_ENERGY_MID: 55,           // [NEEDS] Storage energy medium
     TOWER_NORMAL: 60,                 // [NEEDS] Towers when no enemies
+    CONSTRUCTOR: 62,                  // [NEEDS] Constructors              
     LAB: 65,                          // [NEEDS] Labs
     LAB_FILL: 70,                     // [NEEDS] Labs filling
     FACTORY_ENERGY: 75,               // [NEEDS] Factory energy
