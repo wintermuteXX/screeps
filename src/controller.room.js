@@ -10,6 +10,7 @@ const CreepManager = require("./controller.room.creeps");
 const LogisticsManager = require("./controller.room.logistics");
 const StructuresManager = require("./controller.room.structures");
 const CacheManager = require("./utils.cache");
+const Log = require("./lib.log");
 
 function ControllerRoom(room, ControllerGame) {
   this.room = room;
@@ -17,6 +18,9 @@ function ControllerRoom(room, ControllerGame) {
   this._spawns = [];
   this._towers = [];
   this._creepsByRole = null;  // Cache for getAllCreeps
+
+  // Initialize Dune faction and planet for this room
+  this._initializeDuneIdentity();
 
   // Nutze gecachten room.spawns Getter (filtert nach my)
   const spawns = this.room.spawns.filter(s => s.my);
@@ -359,5 +363,48 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
   // If level is the same, do nothing - tracking continues
 };
 
+/**
+ * Initialisiert die Dune-Identität für diesen Raum (Fraktion und Planet)
+ * Wird nur einmal beim ersten Mal ausgeführt
+ */
+ControllerRoom.prototype._initializeDuneIdentity = function () {
+  const roomMemory = this._ensureRoomMemory();
+  
+  // Nur für eigene Räume mit Controller
+  if (!this.room.controller || !this.room.controller.my) {
+    return;
+  }
+  
+  // Initialisiere nur einmal
+  if (!roomMemory.duneFaction || !roomMemory.dunePlanet) {
+    const duneConfig = require("./config.dune");
+    
+    // Wähle eine zufällige Fraktion
+    roomMemory.duneFaction = duneConfig.getRandomFaction();
+    
+    // Wähle einen zufälligen Planeten für diese Fraktion
+    roomMemory.dunePlanet = duneConfig.getRandomPlanetForFaction(roomMemory.duneFaction);
+    
+    Log.info(`Room ${this.room.name} assigned to faction ${roomMemory.duneFaction} on planet ${roomMemory.dunePlanet}`, "DuneInit");
+  }
+};
+
+/**
+ * Gibt die Fraktion dieses Raums zurück
+ * @returns {string} Fraktionsname
+ */
+ControllerRoom.prototype.getDuneFaction = function () {
+  const roomMemory = this._ensureRoomMemory();
+  return roomMemory.duneFaction || null;
+};
+
+/**
+ * Gibt den Planeten dieses Raums zurück
+ * @returns {string} Planetname
+ */
+ControllerRoom.prototype.getDunePlanet = function () {
+  const roomMemory = this._ensureRoomMemory();
+  return roomMemory.dunePlanet || null;
+};
 
 module.exports = ControllerRoom;

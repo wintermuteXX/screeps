@@ -7,7 +7,7 @@ const Log = require("./lib.log");
 
 // Constants
 const MAX_CACHED_PATH_MEM_USAGE = 2000; // approx 100kb
-const MIN_CACHED_PATH_LENGTH = 999; // minimum path length to cache. Set to a very high value to stop caching.
+const MIN_CACHED_PATH_LENGTH = 20; // minimum path length to cache. Set to a very high value to stop caching.
 const REPORT_CPU_THRESHOLD = 1000;
 const DEFAULT_MAXOPS = 20000;
 const DEFAULT_STUCK_VALUE = 2;

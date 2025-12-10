@@ -126,10 +126,12 @@ const BUNKER_LAYOUT = {
     { x: -1, y: -2, priority: 11 },
     { x: 1, y: -2, priority: 12 },
     { x: -2, y: -1, priority: 13 },
-    { x: -1, y: 0 , priority: 14 },
+    // { x: -1, y: 0 , priority: 14 },
+    { x: 3, y: -3, priority: 14 },
     { x: -2, y: 1, priority: 15 },
     // Ring 2 (RCL 3-4)
-    { x: 2, y: 1, priority: 16 },
+    // { x: 2, y: 1, priority: 16 },
+    { x: -3, y: 3, priority: 16 },
     { x: -3, y: 0, priority: 17 },
     { x: 3, y: 0, priority: 18 },
     { x: 0, y: -3, priority: 19 },
@@ -176,13 +178,9 @@ const BUNKER_LAYOUT = {
     { x: 2, y: -4, priority: 62 },
     { x: -2, y: 4, priority: 63 },
     { x: 2, y: 4, priority: 64 },
-    // Removed (-3, -3) - kollidiert mit Observer
-    { x: 3, y: -3, priority: 66 },
-    { x: -3, y: 3, priority: 67 },
-    // Removed (3, 3) - kollidiert mit Labs
+    { x: -5, y: 0, priority: 65 },
+    { x: 5, y: 0, priority: 66 },
     // Additional extensions for RCL 8
-    { x: -5, y: 0, priority: 69 },
-    { x: 5, y: 0, priority: 70 },
     { x: 0, y: -5, priority: 71 },
     { x: 0, y: 5, priority: 72 },
     { x: -4, y: -3, priority: 73 },
