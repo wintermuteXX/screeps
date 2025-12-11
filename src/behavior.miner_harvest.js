@@ -287,7 +287,7 @@ function withdrawAndTransferToLink(creep, container, link) {
  * Transfer energy from container to link
  */
 function handleLinkTransfer(creep, link, container) {
-  const linkNeedsEnergy = link.energy < link.energyCapacity;
+  const linkNeedsEnergy = link.energy < link.store.getCapacity(RESOURCE_ENERGY)
   const containerHasEnergy = container.store && container.store[RESOURCE_ENERGY] > 0;
 
   if (!linkNeedsEnergy || !containerHasEnergy) {
