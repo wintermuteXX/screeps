@@ -120,10 +120,38 @@ function getLink(source, creep, rc) {
  * Handle container repair when idle
  */
 function handleIdleRepair(creep, container) {
-  if (container.hits >= container.hitsMax || !creep.store[RESOURCE_ENERGY]) {
+  // Container doesn't need repair
+  if (container.hits >= container.hitsMax) {
     return false;
   }
 
+  // Creep needs energy to repair - try to get it from container
+  if (!creep.store[RESOURCE_ENERGY]) {
+    // Check if container has energy
+    if (container.store && container.store[RESOURCE_ENERGY] > 0) {
+      // Withdraw energy from container first
+      if (creep.pos.isNearTo(container)) {
+        const withdrawResult = creep.withdraw(container, RESOURCE_ENERGY);
+        if (withdrawResult === OK) {
+          Log.debug(`${creep.name}: Status=WITHDREW_ENERGY_FOR_REPAIR (energy=${creep.store[RESOURCE_ENERGY]})`, "miner_harvest");
+          // Now we have energy, continue to repair
+        } else {
+          // Withdraw failed, can't repair
+          return false;
+        }
+      } else {
+        // Move to container to withdraw energy
+        Log.debug(`${creep.name}: Status=MOVING_TO_CONTAINER_FOR_REPAIR_ENERGY`, "miner_harvest");
+        creep.travelTo(container);
+        return true;
+      }
+    } else {
+      // Container has no energy, can't repair
+      return false;
+    }
+  }
+
+  // Now repair the container
   return moveAndAct(
     creep,
     container,
