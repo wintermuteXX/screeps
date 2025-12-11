@@ -1276,8 +1276,7 @@ RoomPosition.prototype.FindPathTo = function (destination, options) {
 Room.prototype.GetDistanceToRoom = function (destination) {
   return Traveler.routeDistance(this.name, destination);
 };
-// Moves to a target
-// Add you own code here to interface with traveler
+// Moves to a target / Add you own code here to interface with traveler
 Creep.prototype.Move = function (target, range, priority, opts = {}) {
   if (!target) {
     return ERR_INVALID_ARGS;

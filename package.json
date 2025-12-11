@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Screeps AI codebase",
   "scripts": {
-    "deploy": "node upload.js"
+    "deploy": "node upload.js",
+    "format": "prettier --write \"src/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\""
   },
   "devDependencies": {
     "@types/lodash": "3.10.1",

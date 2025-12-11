@@ -390,7 +390,7 @@ b._performBatchDelivery = function (creep, target, orders) {
       }
       return; // Stop processing, move first
     }
-    
+     
     if (transferResult === true) {
       transferredAny = true;
     }
