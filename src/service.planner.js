@@ -259,7 +259,6 @@ RoomPlanner.prototype._initMemory = function () {
     Memory.rooms[this.roomName] = {};
   }
   if (!Memory.rooms[this.roomName].planner) {
-    // @ts-ignore - Memory object is dynamic at runtime
     Memory.rooms[this.roomName].planner = {
       centerX: null,
       centerY: null,
@@ -301,13 +300,10 @@ RoomPlanner.prototype.run = function () {
   this._placeSpecialStructures(rcl);
 
   // Draw visualization if active
-  // @ts-ignore - Memory object is dynamic at runtime
   if (this.memory.visualizeUntil && Game.time <= this.memory.visualizeUntil) {
     this._drawVisualization();
     // Auto-disable after 15 ticks
-    // @ts-ignore - Memory object is dynamic at runtime
     if (Game.time >= this.memory.visualizeUntil) {
-      // @ts-ignore - Memory object is dynamic at runtime
       this.memory.visualizeUntil = null;
     }
   }
@@ -1002,7 +998,6 @@ RoomPlanner.prototype.visualize = function () {
   }
   
   // Activate visualization
-  // @ts-ignore - Memory object is dynamic at runtime
   this.memory.visualizeUntil = Game.time + PLANNER_CONSTANTS.VISUALIZATION_DURATION;
   this._drawVisualization();
   Log.info(`Visualization activated for ${this.roomName} (${PLANNER_CONSTANTS.VISUALIZATION_DURATION} ticks)`, "RoomPlanner");

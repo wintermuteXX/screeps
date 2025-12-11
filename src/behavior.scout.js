@@ -190,7 +190,8 @@ b.work = function (creep, rc) {
     const moveResult = creep.travelTo(centerPos, { 
       range: 20,  // Move within 20 tiles of center (away from exit tiles)
       maxRooms: 1,
-      preferHighway: false  // Don't use highways when moving within room
+      preferHighway: false,  // Don't use highways when moving within room
+      ignoreConstructionSites: true,
     });
     
     // If we just entered and are moving, don't do other logic this tick
@@ -209,6 +210,7 @@ b.work = function (creep, rc) {
         preferHighway: true,
         ensurePath: true,
         useFindRoute: true,
+        ignoreConstructionSites: true,
       });
       return;
     }
@@ -250,6 +252,7 @@ b.work = function (creep, rc) {
       preferHighway: true,
       ensurePath: true,
       useFindRoute: true,
+      ignoreConstructionSites: true,
     });
   }
 };

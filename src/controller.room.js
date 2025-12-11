@@ -64,13 +64,10 @@ ControllerRoom.prototype.run = function () {
   }
   
   // Draw visualization every tick if active (independent of planner.run())
-  // @ts-ignore - Memory object is dynamic at runtime
   if (this.room.memory.planner && this.room.memory.planner.visualizeUntil && Game.time <= this.room.memory.planner.visualizeUntil) {
     this.planner._drawVisualization();
     // Auto-disable after 15 ticks
-    // @ts-ignore - Memory object is dynamic at runtime
     if (Game.time >= this.room.memory.planner.visualizeUntil) {
-      // @ts-ignore - Memory object is dynamic at runtime
       this.room.memory.planner.visualizeUntil = null;
     }
   }
@@ -148,7 +145,6 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
  * @returns {boolean} True if CPU is available
  */
 ControllerRoom.prototype._hasCpuAvailable = function (bucketThreshold) {
-  // @ts-ignore - bucketThreshold is optional
   const threshold = bucketThreshold || CONSTANTS.CPU.BUCKET_MEDIUM;
   return Game.cpu.limit - Game.cpu.getUsed() > 0 && Game.cpu.bucket > threshold;
 };

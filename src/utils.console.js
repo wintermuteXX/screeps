@@ -2,9 +2,7 @@ const Log = require("./lib.log");
 const utilsUsername = require("./utils.username");
 const utilsResources = require("./utils.resources");
 const cpuAnalyzer = require("./service.cpu");
-// @ts-ignore - ControllerRoom and ControllerGame are runtime modules
 const ControllerRoom = require("./controller.room");
-// @ts-ignore - ControllerRoom and ControllerGame are runtime modules
 const ControllerGame = require("./controller.game");
 
 
@@ -75,20 +73,17 @@ function showLabs() {
 
     for (const labIdx in labs) {
       const labC = labs[labIdx];
-      // @ts-ignore - Lab memory is custom
       const labMemory = labC.memory;
       if (labC && labMemory && labMemory.partnerA) {
         result.push("<tr>");
         const partnerA = Game.getObjectById(labMemory.partnerA);
         const partnerB = Game.getObjectById(labMemory.partnerB);
-        // @ts-ignore - Lab memory is custom
         const partnerAMemory = partnerA && partnerA.memory ? partnerA.memory : null;
         if (partnerA && partnerAMemory) {
           result.push("<td> " + partnerAMemory.status + " </td>");
           result.push("<td> " + utilsResources.resourceImg(labMemory.resource) + " </td>");
           result.push("<td> " + labC + " </td>");
           result.push("<td> " + utilsResources.resourceImg(partnerAMemory.resource) + " </td>");
-          // @ts-ignore - Lab memory is custom
           const partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
           if (partnerB && partnerBMemory) {
             result.push("<td> " + utilsResources.resourceImg(partnerBMemory.resource) + " </td>");
@@ -358,7 +353,6 @@ function visualizeLogistic(roomName = null) {
   const tempControllerGame = new ControllerGame();
   
   for (const room of roomsToProcess) {
-    // @ts-ignore - _rooms is a private property but we need it for console visualization
     const rc = tempControllerGame._rooms[room.name];
     if (!rc) continue;
     
@@ -393,9 +387,7 @@ function visualizeLogistic(roomName = null) {
           const targetObj = Game.getObjectById(need.id);
           if (!targetObj) continue;
           
-          // @ts-ignore - targetObj may have store property
           if (targetObj.store) {
-            // @ts-ignore - store property exists on structures/creeps
             const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
             if (freeCap <= 0) continue;
           }

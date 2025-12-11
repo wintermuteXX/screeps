@@ -79,7 +79,15 @@ b.work = function (creep, rc) {
       if (target.structureType) {
         result = creep.withdraw(target, RESOURCE_ENERGY);
       } else {
-        result = creep.pickup(target);
+        // DroppedResource - prüfe ob es wirklich Energy ist
+        if (target.resourceType === RESOURCE_ENERGY) {
+          result = creep.pickup(target);
+        } else {
+          // Falsche Ressourcenart - Target löschen
+          Log.debug(`${creep.room.name} ${creep.name} found non-energy resource ${target.resourceType}, clearing target`, "find_near_energy");
+          creep.target = null;
+          result = ERR_INVALID_ARGS;
+        }
       }
       
       // Check if withdraw/pickup was successful, delete target if not

@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
         "target": "ES6",
-        "checkJs": true,
+        "checkJs": false,
+        "noImplicitAny": false,
+        "strict": false,
         "module": "commonjs",
         "lib": ["ES2017", "DOM"],
         "typeRoots": ["./node_modules/@types"],

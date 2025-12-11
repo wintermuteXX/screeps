@@ -151,9 +151,7 @@ class LogisticsManager {
     const targetObj = Game.getObjectById(targetId);
     if (!targetObj) return null;
     
-    // @ts-ignore - targetObj may have store property
     if (targetObj.store) {
-      // @ts-ignore - store property exists on structures/creeps
       const freeCap = targetObj.store.getFreeCapacity(resourceType) || 0;
       if (freeCap <= 0) return null;
       return { obj: targetObj, freeCapacity: freeCap };
@@ -219,7 +217,7 @@ class LogisticsManager {
         };
       } else {
         return {
-          priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH,
+          priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_HIGH,
           amount: amount
         };
       }
@@ -723,11 +721,11 @@ class LogisticsManager {
         if (currentAmount < fillLevel || currentAmount === 0) {
           priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
-          neededAmount = 66666;
+          // neededAmount = 66666;
         } else {
           // Test Overwrite
-          neededAmount = 66666;
-          // continue; // Skip if already at fill level
+          // neededAmount = 66666;
+          continue; // Skip if already at fill level
         }
       }
       

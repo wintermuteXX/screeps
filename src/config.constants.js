@@ -123,6 +123,7 @@ module.exports = {
     // ===== GIVES (givesResources) - Sources that can give resources =====
     STORAGE_ENERGY_LOW: 40,           // [GIVES] Storage energy low (can give)
     STORAGE_ENERGY_HIGH: 100,         // [GIVES] Storage energy high (can give)
+    STORAGE_MINERAL_HIGH: 110,        // [GIVES] Storage mineral high (can give)
     TERMINAL_ENERGY_HIGH: 140,        // [GIVES] Terminal energy high (can give)
     STORAGE_MINERAL_OVERFLOW: 150,    // [GIVES] Storage mineral overflow (can give)
     TOMBSTONE: 165,                   // [GIVES] Tombstones (can give)

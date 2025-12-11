@@ -323,7 +323,6 @@ class ControllerTerminal {
    * @returns {Object|null} Best order or null
    */
   findBestBuyOrder(resourceType, energyPrice, minProfit) {
-    // @ts-ignore - resourceType is valid MarketResourceConstant at runtime
     const orders = Game.market.getAllOrders({
       type: ORDER_BUY,
       resourceType: resourceType,

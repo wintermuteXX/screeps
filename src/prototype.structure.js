@@ -201,7 +201,6 @@ Object.defineProperty(Source.prototype, "freeSpacesCount", {
         if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
         
         // Check if there's a structure blocking the position
-        // @ts-ignore - lookForAt works correctly at runtime
         const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
         const hasBlockingStructure = structures.some(s => 
           s.structureType !== STRUCTURE_ROAD && 

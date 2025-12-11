@@ -72,9 +72,7 @@ b._isTargetValid = function (target, orders, creep) {
     const targetObj = Game.getObjectById(order.id);
     if (!targetObj) continue;
     
-    // @ts-ignore - targetObj may have store property
     if (targetObj.store) {
-      // @ts-ignore - store property exists on structures/creeps
       const freeCapacity = targetObj.store.getFreeCapacity(order.resourceType) || 0;
       const hasResource = creep.store[order.resourceType] > 0;
       if (freeCapacity > 0 && hasResource) {
@@ -138,7 +136,6 @@ b._findMatchingNeed = function (creep, rc, carriedResources) {
       const targetObj = Game.getObjectById(need.id);
       if (!targetObj) continue;
       
-      // @ts-ignore - targetObj may have store property
       const freeCapacity = targetObj.store ? targetObj.store.getFreeCapacity(need.resourceType) || 0 : 0;
       if (freeCapacity <= 0) continue;
       
@@ -311,9 +308,7 @@ b._validateCurrentTarget = function (creep, target, carriedResources) {
   // Check if creep has resources that target needs
   let hasMatchingResource = false;
   for (const resource of carriedResources) {
-    // @ts-ignore - targetObj may have store property
     if (targetObj.store) {
-      // @ts-ignore - store property exists on structures/creeps
       const freeCapacity = targetObj.store.getFreeCapacity(resource.resourceType) || 0;
       if (freeCapacity > 0) {
         hasMatchingResource = true;
@@ -339,7 +334,6 @@ b._createOrdersFromMemory = function (creep, target, carriedResources) {
   const orders = [];
   
   for (const resource of carriedResources) {
-    // @ts-ignore - target may have store property
     const freeCapacity = target.store 
       ? target.store.getFreeCapacity(resource.resourceType) || 0 
       : Infinity;
@@ -392,7 +386,7 @@ b._performBatchDelivery = function (creep, target, orders) {
     if (transferResult === null) {
       // Need to move
       if (!transferredAny) {
-        creep.travelTo(target, { maxRooms: 0  });
+        creep.travelTo(target, { maxRooms: 0});
       }
       return; // Stop processing, move first
     }

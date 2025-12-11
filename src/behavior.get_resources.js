@@ -188,7 +188,7 @@ b._handleCollectionResult = function (creep, target, resourceType, result) {
       break;
       
     case ERR_NOT_IN_RANGE:
-      creep.travelTo(target, { maxRooms: 0 });
+      creep.travelTo(target, { maxRooms: 0});
       break;
       
     default:

@@ -184,10 +184,10 @@ class CpuAnalyzer {
     // Use last 1000 ticks for analysis
     const analysisWindow = 1000;
 
-    if (!Memory.cpuHistory || Memory.cpuHistory.length < 10) {
+    if (!Memory.cpuHistory || Memory.cpuHistory.length < 100) {
       return {
         canConquer: false,
-        reason: "Insufficient CPU history data (need at least 10 samples)",
+        reason: "Insufficient CPU history data (need at least 100 samples)",
         metrics: {},
       };
     }

@@ -41,7 +41,6 @@ class ControllerLab {
    * @returns {boolean} True if all labs are empty
    */
   _areAllLabsEmpty(labA, labB, theLab) {
-    // @ts-ignore - labA and labB are StructureLab objects but TypeScript doesn't know
     return this._isLabEmpty(labA) && this._isLabEmpty(labB) && this._isLabEmpty(theLab);
   }
 
@@ -51,11 +50,9 @@ class ControllerLab {
    * @returns {boolean} True if lab is filled
    */
   _isLabFilled(lab) {
-    // @ts-ignore - lab is StructureLab but TypeScript doesn't know
     if (!lab || !lab.memory || !lab.memory.status || !lab.memory.resource) {
       return false;
     }
-    // @ts-ignore - lab is StructureLab but TypeScript doesn't know
     return lab.memory.status === "fill" && lab.store.getFreeCapacity(lab.memory.resource) === 0;
   }
 
@@ -171,32 +168,24 @@ class ControllerLab {
         continue;
       }
 
-      // @ts-ignore - Game.getObjectById returns StructureLab | null
       const labA = Game.getObjectById(theLab.memory.partnerA);
-      // @ts-ignore - Game.getObjectById returns StructureLab | null
       const labB = Game.getObjectById(theLab.memory.partnerB);
 
       // Validate that both partner labs exist
       if (!labA || !labB) {
         Log.warn(`${theLab.room.name} Partner labs not found for ${theLab.id}, resetting memory`, "checkStatus");
-        // @ts-ignore - labA and labB may be null but function handles it
         this._resetLabMemory(labA, labB, theLab);
         continue;
       }
 
       // Empty -> Fill
-      // @ts-ignore - labA and labB are StructureLab objects from Game.getObjectById
       if (this._areAllLabsEmpty(labA, labB, theLab)) {
         const reaction = this.room.getFirstPossibleLabReaction();
         if (reaction) {
           Log.success(`${theLab.room.name} will fill ${labA.id} with ${global.resourceImg(reaction["resourceA"])} and ${labB.id} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
-          // @ts-ignore - labA and labB have memory property
           labA.memory.status = "fill";
-          // @ts-ignore - labA and labB have memory property
           labA.memory.resource = reaction["resourceA"];
-          // @ts-ignore - labA and labB have memory property
           labB.memory.status = "fill";
-          // @ts-ignore - labA and labB have memory property
           labB.memory.resource = reaction["resourceB"];
           theLab.memory.status = "fill";
           theLab.memory.resource = reaction["result"];
@@ -204,12 +193,9 @@ class ControllerLab {
       }
 
       // Fill -> Produce
-      // @ts-ignore - labA and labB are StructureLab objects from Game.getObjectById
       if (this._isLabFilled(labA) && this._isLabFilled(labB)) {
         Log.success(`${theLab.room.name} will produce ${global.resourceImg(theLab.memory.resource)} in labs`, "checkStatus");
-        // @ts-ignore - labA and labB have memory property
         labA.memory.status = "produce";
-        // @ts-ignore - labA and labB have memory property
         labB.memory.status = "produce";
         theLab.memory.status = "produce";
       }
@@ -228,20 +214,16 @@ class ControllerLab {
         continue;
       }
 
-      // @ts-ignore - Game.getObjectById returns StructureLab | null
       const labA = Game.getObjectById(theLab.memory.partnerA);
-      // @ts-ignore - Game.getObjectById returns StructureLab | null
       const labB = Game.getObjectById(theLab.memory.partnerB);
 
       // Validate that both partner labs exist
       if (!labA || !labB) {
         Log.warn(`${theLab.room.name} Partner labs not found for ${theLab.id}`, "lab produce");
-        // @ts-ignore - labA and labB may be null but function handles it
         this._resetLabMemory(labA, labB, theLab);
         continue;
       }
 
-      // @ts-ignore - labA and labB are StructureLab objects from Game.getObjectById
       const result = theLab.runReaction(labA, labB);
       switch (result) {
         case OK:
@@ -250,14 +232,11 @@ class ControllerLab {
         case ERR_INVALID_ARGS:
         case ERR_NOT_ENOUGH_RESOURCES:
           Log.success(`${theLab.room.name} Resources exhausted. Set labs status to empty. ${theLab.id}`, "lab produce");
-          // @ts-ignore - labA and labB have memory property
           if (labA && labA.memory) labA.memory.status = "empty";
-          // @ts-ignore - labA and labB have memory property
           if (labB && labB.memory) labB.memory.status = "empty";
           if (theLab.memory) theLab.memory.status = "empty";
           break;
         case ERR_NOT_IN_RANGE:
-          // @ts-ignore - labA and labB are StructureLab objects from Game.getObjectById
           this._resetLabMemory(labA, labB, theLab);
           Log.warn(`${theLab.room.name} Problem with labs ${theLab.id}: reset all memory`, "lab produce");
           break;

@@ -752,29 +752,45 @@ class Traveler {
   }
   //add structures to matrix so that impassible structures can be avoided and roads given a lower cost
   static addStructuresToMatrix(room, matrix, roadCost, options = {}) {
-    let impassibleStructures = [];
     for (let structure of room.find(FIND_STRUCTURES)) {
       if (structure.structureType === STRUCTURE_RAMPART) {
+        // Ramparts sind begehbar, außer fremde Ramparts (nicht my und nicht public)
         if (!structure.my && !structure.isPublic) {
-          impassibleStructures.push(structure);
+          matrix.set(structure.pos.x, structure.pos.y, 0xff);
         }
+        // Eigene oder öffentliche Ramparts sind begehbar (werden ignoriert)
       } else if (structure.structureType === STRUCTURE_ROAD) {
+        // Roads sind begehbar mit reduzierten Kosten
         if (matrix.get(structure.pos.x, structure.pos.y) < 0xff) {
           matrix.set(structure.pos.x, structure.pos.y, roadCost);
         }
       } else if (structure.structureType === STRUCTURE_CONTAINER) {
+        // Container sind begehbar (werden ignoriert)
         continue;
         //matrix.set(structure.pos.x, structure.pos.y, 5); //creeps can walk over containers. So this doesn't matter. Saving it just in case it breaks something
       } else {
+        // Alle anderen Strukturen blockieren den Durchgang
         matrix.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
     for (let site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
       if (options.ignoreConstructionSites) {
-        continue; // Creeps können über ConstructionSites laufen (nur wenn explizit erlaubt)
+        continue; // Creeps können über alle ConstructionSites laufen (wenn explizit erlaubt)
       }
-      // Alle ConstructionSites werden als Hindernisse behandelt (auch CONTAINER, ROAD, RAMPART)
-      matrix.set(site.pos.x, site.pos.y, 0xff);
+      // Begehbare ConstructionSites: ROAD, CONTAINER, RAMPART (entsprechen fertigen Strukturen)
+      if (site.structureType === STRUCTURE_ROAD) {
+        // Roads sind begehbar - optional könnten wir hier roadCost setzen, aber für ConstructionSites ignorieren wir sie
+        continue;
+      } else if (site.structureType === STRUCTURE_CONTAINER) {
+        // Container sind begehbar
+        continue;
+      } else if (site.structureType === STRUCTURE_RAMPART) {
+        // Ramparts sind begehbar (ConstructionSites haben keine my/isPublic Eigenschaften, daher alle erlauben)
+        continue;
+      } else {
+        // Alle anderen ConstructionSites blockieren den Durchgang (EXTENSION, TOWER, WALL, etc.)
+        matrix.set(site.pos.x, site.pos.y, 0xff);
+      }
     }
     return matrix;
   }
