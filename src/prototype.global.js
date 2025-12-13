@@ -56,6 +56,7 @@ function initGlobal(g) {
   global.help = utilsConsole.help;
   global.visualizeLogistic = utilsConsole.visualizeLogistic;
   global.visualizeCpu = utilsConsole.visualizeCpu;
+  global.visualizeScoutData = utilsConsole.visualizeScoutData;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;

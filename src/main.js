@@ -9,6 +9,7 @@ require("./service.market");
 require("./prototype.init"); // Initialize prototypes once
 const ControllerGame = require("./controller.game");
 const cpuAnalyzer = require("./service.cpu");
+const utilsConsole = require("./utils.console");
 
 module.exports.loop = function () {
   // Run memhack first to optimize memory access for the entire tick
@@ -32,6 +33,9 @@ module.exports.loop = function () {
 
   // Record CPU metrics for analysis
   cpuAnalyzer.recordTick();
+
+  // Redraw scout visualization if enabled (persists for multiple ticks)
+  utilsConsole._redrawScoutVisualization();
 
   // stats.doStats();
 };
