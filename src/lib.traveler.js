@@ -49,13 +49,13 @@ class Traveler {
     const priority = options.priority ? options.priority : 1;
     destination = this.normalizePos(destination);
     // manage case where creep is nearby destination
-    let rangeToDestination = creep.pos.getRangeTo(destination);
+    const rangeToDestination = creep.pos.getRangeTo(destination);
     if (!this.isExit(creep.pos) && destination.roomName === creep.pos.roomName) {
       if (options.range && rangeToDestination <= options.range) {
         return OK;
       } else if (rangeToDestination <= 1) {
         if (rangeToDestination === 1 && !options.range) {
-          let direction = creep.pos.getDirectionTo(destination);
+          const direction = creep.pos.getDirectionTo(destination);
           if (options.returnData) {
             options.returnData.nextPos = destination;
             options.returnData.path = direction.toString();
@@ -74,8 +74,8 @@ class Traveler {
     if (muscle >= 2) options.ignoreRoads = true; //able to out fatigue plains
     if (muscle >= 10) options.offRoad = true; //able to out fatigue swamps
 
-    let travelData = creep.memory._trav;
-    let state = this.deserializeState(travelData, destination);
+    const travelData = creep.memory._trav;
+    const state = this.deserializeState(travelData, destination);
     creep.memory._trav.lastMove = Game.time;
     // uncomment to visualize destination
     // this.circle(destination, "orange");
@@ -135,20 +135,20 @@ class Traveler {
       }
       let ret = {};
       state.destination = destination;
-      let cpu = Game.cpu.getUsed();
+      const cpu = Game.cpu.getUsed();
       ret.path = this.getPath(creep.pos, destination, options.muscle);
       if (!ret.path) {
         ret = this.findTravelPath(creep.pos, destination, options);
       } else {
         travelData.path = ret.path;
         ret.incomplete = false;
-        Log.debug(Game.shard.name + ' cached path retrieved in ' + (Game.cpu.getUsed()-cpu), "traveler")
+        Log.debug(`${Game.shard.name  } cached path retrieved in ${  Game.cpu.getUsed()-cpu}`, "traveler");
       }
-      let cpuUsed = Game.cpu.getUsed() - cpu;
+      const cpuUsed = Game.cpu.getUsed() - cpu;
       state.cpu = _.round(cpuUsed + state.cpu);
       if (state.cpu > REPORT_CPU_THRESHOLD) {
         // see note at end of file for more info on this
-        Log.warn(Game.shard.name + " TRAVELER: heavy cpu use: " + creep.name + ", cpu: " + state.cpu + " origin: " + creep.pos + ", dest: " + destination);
+        Log.warn(`${Game.shard.name  } TRAVELER: heavy cpu use: ${  creep.name  }, cpu: ${  state.cpu  } origin: ${  creep.pos  }, dest: ${  destination}`);
         creep.memory._trav = {};
       }
       let color = "orange";
@@ -176,10 +176,10 @@ class Traveler {
     if (state.stuckCount === 0 && !newPath) {
       travelData.path = travelData.path.substr(1);
     }
-    let nextDirection = parseInt(travelData.path[0], 10);
+    const nextDirection = parseInt(travelData.path[0], 10);
     if (options.returnData) {
       if (nextDirection) {
-        let nextPos = Traveler.positionAtDirection(creep.pos, nextDirection);
+        const nextPos = Traveler.positionAtDirection(creep.pos, nextDirection);
         if (nextPos) {
           options.returnData.nextPos = nextPos;
         }
@@ -315,9 +315,9 @@ class Traveler {
   }
   //finds and returns a new free position nearby to move to relative to it's target
   static findNewFreePosition(creep, target) {
-    let direction = creep.pos.getDirectionTo(target); //get direction to target
-    let positions = []; //hold positions we can move to
-    let offsets = {};
+    const direction = creep.pos.getDirectionTo(target); //get direction to target
+    const positions = []; //hold positions we can move to
+    const offsets = {};
     let curDirection;
     switch (direction) {
       case TOP:
@@ -358,7 +358,7 @@ class Traveler {
       freshMatrix: false,
     });
     const creepMatrix = this.getCreepMatrix(creep.room);
-    for (let o in offsets) {
+    for (const o in offsets) {
       //Out of bounds/exit
       if (offsets[o].x <= 0 || offsets[o].x >= 49 || offsets[o].y <= 0 || offsets[o].y >= 49) {
         continue;
@@ -375,7 +375,7 @@ class Traveler {
         return new RoomPosition(offsets[o].x, offsets[o].y, creep.room.name);
       }
     }
-    return;
+
   }
   //moves to a nearby off of a road position
   static moveOffRoad(creep, targetpos, distance, priority) {
@@ -400,16 +400,16 @@ class Traveler {
       freshMatrix: false,
     });
     const creepMatrix = this.getCreepMatrix(creep.room);
-    let positions = [];
-    let offsets = [];
+    const positions = [];
+    const offsets = [];
     for (let x = -distance; x <= distance; x++) {
       offsets.push(x); // ah, push it
     }
     // find each valid position around the target that does not have a road
     _.forEach(offsets, (x) =>
       _.forEach(offsets, (y) => {
-        let xpos = targetpos.x + x;
-        let ypos = targetpos.y + y;
+        const xpos = targetpos.x + x;
+        const ypos = targetpos.y + y;
         //not out of bounds/exit
         if (!(xpos <= 0 || xpos >= 49 || ypos <= 0 || ypos >= 49)) {
           if (
@@ -421,13 +421,13 @@ class Traveler {
             positions.push(new RoomPosition(xpos, ypos, creep.room.name)); //ah, push it
           }
         }
-      })
+      }),
     );
     if (_.size(positions) === 0) {
       creep.memory._trav.offroad = Game.time; //don't spam this function if it fails!
       return false; // no positions, move towards the target to make room for people behind them
     }
-    let posit = creep.pos.findClosestByPath(positions); // find the closest position to the creep
+    const posit = creep.pos.findClosestByPath(positions); // find the closest position to the creep
     return this.travelTo(creep, posit, {
       range: 0,
       priority: priority,
@@ -500,10 +500,10 @@ class Traveler {
     if (room.controller) {
       // Avoid rooms that are owned by someone else or reserved by someone else
       const myUsername = global.getMyUsername();
-      
-      const isHostile = (room.controller.owner && !room.controller.my) || 
+
+      const isHostile = (room.controller.owner && !room.controller.my) ||
                        (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
-      
+
       if (isHostile) {
         Memory.rooms[room.name].avoid = 1;
       } else {
@@ -523,27 +523,27 @@ class Traveler {
     }
     origin = this.normalizePos(origin);
     destination = this.normalizePos(destination);
-    let originRoomName = origin.roomName;
-    let destRoomName = destination.roomName;
+    const originRoomName = origin.roomName;
+    const destRoomName = destination.roomName;
 
     // Prevents creeps from stopping in a different room
-    let distanceToEdge = _.min([destination.x, 49 - destination.x, destination.y, 49 - destination.y]);
+    const distanceToEdge = _.min([destination.x, 49 - destination.x, destination.y, 49 - destination.y]);
     if (options.range && distanceToEdge < options.range) {
-        options.range = distanceToEdge - 1;
+      options.range = distanceToEdge - 1;
     }
 
     // check to see whether findRoute should be used
-    let roomDistance = Game.map.getRoomLinearDistance(origin.roomName, destination.roomName);
+    const roomDistance = Game.map.getRoomLinearDistance(origin.roomName, destination.roomName);
     let allowedRooms = options.route;
-    let heuristic = options.heuristic ? options.heuristic : 1.2;
+    const heuristic = options.heuristic ? options.heuristic : 1.2;
     if (!allowedRooms && (options.useFindRoute || (options.useFindRoute === undefined && roomDistance > 2))) {
-      let route = this.findRoute(origin.roomName, destination.roomName, options);
+      const route = this.findRoute(origin.roomName, destination.roomName, options);
       if (route) {
         allowedRooms = route;
       }
     }
     let roomsSearched = 0;
-    let callback = (roomName) => {
+    const callback = (roomName) => {
       if (allowedRooms) {
         if (!allowedRooms[roomName]) {
           return false;
@@ -553,7 +553,7 @@ class Traveler {
       }
       roomsSearched++;
       let matrix;
-      let room = Game.rooms[roomName];
+      const room = Game.rooms[roomName];
       if (room) {
         if (options.ignoreStructures) {
           matrix = new PathFinder.CostMatrix();
@@ -567,7 +567,7 @@ class Traveler {
         }
         if (options.obstacles) {
           matrix = matrix.clone();
-          for (let obstacle of options.obstacles) {
+          for (const obstacle of options.obstacles) {
             if (obstacle.pos.roomName !== roomName) {
               continue;
             }
@@ -579,14 +579,14 @@ class Traveler {
         if (!matrix) {
           matrix = new PathFinder.CostMatrix();
         }
-        let outcome = options.roomCallback(roomName, matrix.clone());
+        const outcome = options.roomCallback(roomName, matrix.clone());
         if (outcome !== undefined) {
           return outcome;
         }
       }
       return matrix;
     };
-    let range = options.range;
+    let {range} = options;
     //protect the user. make sure the range will not place them outside the target room.
     //this can lead to invalid pathing or a creep pathing to a position outside the room
     //the destination is in. We will compensate for that here.
@@ -617,7 +617,7 @@ class Traveler {
         swampCost: options.offRoad ? 1 : options.muscle ? Math.ceil(20 / options.muscle) : options.ignoreRoads ? 5 : 10,
         roomCallback: callback,
         heuristicWeight: heuristic,
-      }
+      },
     );
     if (ret.incomplete && options.ensurePath) {
       if (options.useFindRoute === undefined) {
@@ -638,8 +638,8 @@ class Traveler {
   }
   //find a viable sequence of rooms that can be used to narrow down pathfinder's search algorithm
   static findRoute(origin, destination, options = {}) {
-    let restrictDistance = options.restrictDistance || Game.map.getRoomLinearDistance(origin, destination) + 10;
-    let allowedRooms = {
+    const restrictDistance = options.restrictDistance || Game.map.getRoomLinearDistance(origin, destination) + 10;
+    const allowedRooms = {
       [origin]: true,
       [destination]: true,
     };
@@ -650,15 +650,15 @@ class Traveler {
         highwayBias = options.highwayBias;
       }
     }
-    let ret = Game.map.findRoute(origin, destination, {
+    const ret = Game.map.findRoute(origin, destination, {
       routeCallback: (roomName) => {
         if (options.routeCallback) {
-          let outcome = options.routeCallback(roomName);
+          const outcome = options.routeCallback(roomName);
           if (outcome !== undefined) {
             return outcome;
           }
         }
-        let rangeToRoom = Game.map.getRoomLinearDistance(origin, roomName);
+        const rangeToRoom = Game.map.getRoomLinearDistance(origin, roomName);
         if (rangeToRoom > restrictDistance) {
           // room is too far out of the way
           return Number.POSITIVE_INFINITY;
@@ -671,7 +671,7 @@ class Traveler {
         if (options.preferHighway) {
           parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
           if (parsed && parsed[1] && parsed[2]) {
-            let isHighway = parseInt(parsed[1]) % 10 === 0 || parseInt(parsed[2]) % 10 === 0;
+            const isHighway = parseInt(parsed[1]) % 10 === 0 || parseInt(parsed[2]) % 10 === 0;
             if (isHighway) {
               return 1;
             }
@@ -683,9 +683,9 @@ class Traveler {
             parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
           }
           if (parsed && parsed[1] && parsed[2]) {
-            let fMod = parseInt(parsed[1]) % 10;
-            let sMod = parseInt(parsed[2]) % 10;
-            let isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
+            const fMod = parseInt(parsed[1]) % 10;
+            const sMod = parseInt(parsed[2]) % 10;
+            const isSK = !(fMod === 5 && sMod === 5) && fMod >= 4 && fMod <= 6 && sMod >= 4 && sMod <= 6;
             if (isSK) {
               return 10 * highwayBias;
             }
@@ -698,28 +698,28 @@ class Traveler {
       Log.error(`couldn't findRoute to ${destination}`);
       return;
     }
-    for (let value of ret) {
+    for (const value of ret) {
       allowedRooms[value.room] = true;
     }
     return allowedRooms;
   }
   //check how many rooms were included in a route returned by findRoute
   static routeDistance(origin, destination) {
-    let linearDistance = Game.map.getRoomLinearDistance(origin, destination);
+    const linearDistance = Game.map.getRoomLinearDistance(origin, destination);
     if (linearDistance >= 32) {
       return linearDistance;
     }
-    let allowedRooms = this.findRoute(origin, destination);
+    const allowedRooms = this.findRoute(origin, destination);
     if (allowedRooms) {
       return Object.keys(allowedRooms).length;
     }
   }
   //build a cost matrix based on structures in the room. Will be cached for more than one tick. Requires vision.
   static getStructureMatrix(room, options) {
-    let roadcost = options && options.muscle && (options.ignoreRoads || options.offRoad) ? 2 : 1;
-    let ignoreConstructionSites = options && options.ignoreConstructionSites ? 1 : 0;
+    const roadcost = options && options.muscle && (options.ignoreRoads || options.offRoad) ? 2 : 1;
+    const ignoreConstructionSites = options && options.ignoreConstructionSites ? 1 : 0;
     // Cache key combines roadcost and ignoreConstructionSites flag
-    let cacheKey = `${roadcost}_${ignoreConstructionSites}`;
+    const cacheKey = `${roadcost}_${ignoreConstructionSites}`;
     if (!this.structureMatrixTick) {
       this.structureMatrixTick = {};
     }
@@ -729,7 +729,7 @@ class Traveler {
     }
     if (!this.structureMatrixCache[room.name][cacheKey] || (options && options.freshMatrix && Game.time !== this.structureMatrixTick[room.name])) {
       this.structureMatrixTick[room.name] = Game.time;
-      let matrix = new PathFinder.CostMatrix();
+      const matrix = new PathFinder.CostMatrix();
       this.structureMatrixCache[room.name][cacheKey] = Traveler.addStructuresToMatrix(room, matrix, roadcost, options);
     }
     return this.structureMatrixCache[room.name][cacheKey];
@@ -745,14 +745,14 @@ class Traveler {
         room,
         this.getStructureMatrix(room, {
           freshMatrix: true,
-        }).clone()
+        }).clone(),
       );
     }
     return this.creepMatrixCache[room.name];
   }
   //add structures to matrix so that impassible structures can be avoided and roads given a lower cost
   static addStructuresToMatrix(room, matrix, roadCost, options = {}) {
-    for (let structure of room.find(FIND_STRUCTURES)) {
+    for (const structure of room.find(FIND_STRUCTURES)) {
       if (structure.structureType === STRUCTURE_RAMPART) {
         // Ramparts sind begehbar, außer fremde Ramparts (nicht my und nicht public)
         if (!structure.my && !structure.isPublic) {
@@ -773,7 +773,7 @@ class Traveler {
         matrix.set(structure.pos.x, structure.pos.y, 0xff);
       }
     }
-    for (let site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
+    for (const site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
       if (options.ignoreConstructionSites) {
         continue; // Creeps können über alle ConstructionSites laufen (wenn explizit erlaubt)
       }
@@ -807,7 +807,7 @@ class Traveler {
     let serializedPath = "";
     let lastPosition = startPos;
     this.circle(startPos, color);
-    for (let position of path) {
+    for (const position of path) {
       if (position.roomName === lastPosition.roomName) {
         new RoomVisual(position.roomName).line(position, lastPosition, {
           color: color,
@@ -821,17 +821,17 @@ class Traveler {
   }
   //returns a position at a direction relative to origin
   static positionAtDirection(origin, direction) {
-    let offsetX = [0, 0, 1, 1, 1, 0, -1, -1, -1];
-    let offsetY = [0, -1, -1, 0, 1, 1, 1, 0, -1];
-    let x = origin.x + offsetX[direction];
-    let y = origin.y + offsetY[direction];
+    const offsetX = [0, 0, 1, 1, 1, 0, -1, -1, -1];
+    const offsetY = [0, -1, -1, 0, 1, 1, 1, 0, -1];
+    const x = origin.x + offsetX[direction];
+    const y = origin.y + offsetY[direction];
     if (x > 49 || x < 0 || y > 49 || y < 0) {
       return;
     }
     return new RoomPosition(x, y, origin.roomName);
   }
   static deserializeState(travelData, destination) {
-    let state = {};
+    const state = {};
     if (travelData.state) {
       state.lastCoord = {
         x: travelData.state[STATE_PREV_X],
@@ -893,16 +893,16 @@ class Traveler {
         Memory.Traveler.Portals[room].shards[data[i][1]][this.packRoomName(data[i][2])] = "";
       }
     }
-    Log.success("Retrieved all portal information for " + Game.shard.name);
+    Log.success(`Retrieved all portal information for ${  Game.shard.name}`);
     Memory.Traveler.portalUpdate = Game.time;
   }
   static findPathToNearestPortal(creep, shard, room) {
     const count = Game.cpu.getUsed();
-    let shards = [];
+    const shards = [];
     let shardDestIndex;
     let shardOrgIndex;
     //get shards (not hard coded so it can change later if the game is updated with new shards)
-    for (let i in Game.cpu.shardLimits) {
+    for (const i in Game.cpu.shardLimits) {
       if (i === shard) {
         shardDestIndex = shards.length;
       }
@@ -915,10 +915,10 @@ class Traveler {
     const nearestShard = shardDestIndex > shardOrgIndex ? shards[shardOrgIndex + 1] : shards[shardOrgIndex - 1];
 
     //find nearby shard portal rooms. They only appear in highway intersections
-    let [name, h, x, v, y] = creep.room.name.match(/^([WE])([0-9]+)([NS])([0-9]+)$/);
-    let x10 = Math.ceil(x / 10) * 10;
-    let y10 = Math.ceil(y / 10) * 10;
-    let xferRooms = [];
+    const [name, h, x, v, y] = creep.room.name.match(/^([WE])([0-9]+)([NS])([0-9]+)$/);
+    const x10 = Math.ceil(x / 10) * 10;
+    const y10 = Math.ceil(y / 10) * 10;
+    const xferRooms = [];
 
     xferRooms.push(h + x10 + v + y10); //top Left of sector
     xferRooms.push(h + (x10 - 10) + v + y10); //top right of sector
@@ -929,17 +929,17 @@ class Traveler {
     const h1 = h === "W" ? "E" : "W";
     //near the 0 axis cross road, get the rooms on the other side with portals
     if (x10 === 10) {
-      xferRooms.push(h1 + "0" + v + "0");
-      xferRooms.push(h1 + "0" + v + "10");
+      xferRooms.push(`${h1  }0${  v  }0`);
+      xferRooms.push(`${h1  }0${  v  }10`);
     }
     //near the 0 axis cross road, get the rooms on the other side with portals
     if (y10 === 10) {
-      xferRooms.push(h + "0" + v1 + "0");
-      xferRooms.push(h + "10" + v1 + "0");
+      xferRooms.push(`${h  }0${  v1  }0`);
+      xferRooms.push(`${h  }10${  v1  }0`);
     }
     //near the 0,0 axis cross road, get the roomscaddy corner
     if (x10 === 10 && y10 === 10) {
-      xferRooms.push(h1 + "0" + v1 + "0");
+      xferRooms.push(`${h1  }0${  v1  }0`);
     }
     //look through all these portals for the best routing
     let dist = 999999;
@@ -948,13 +948,13 @@ class Traveler {
     let nextShard = nearestShard;
     const shardPortals = Memory.Traveler.Portals;
 
-    for (let xroom of xferRooms) {
-      let proom = this.packRoomName(xroom);
+    for (const xroom of xferRooms) {
+      const proom = this.packRoomName(xroom);
       if (!shardPortals[proom] || !shardPortals[proom].shards) {
         continue; //no shards in this rooms memory
       }
       for (const destRoom in shardPortals[proom].shards[shard]) {
-        let pdestRoom = this.unpackRoomName(destRoom);
+        const pdestRoom = this.unpackRoomName(destRoom);
         //get the linear distance of travel from this room, to the transfer room, to the destination room, to the actual room number
         const newdist = Game.map.getRoomLinearDistance(creep.room.name, xroom) + Game.map.getRoomLinearDistance(pdestRoom, room);
 
@@ -969,7 +969,7 @@ class Traveler {
       if (shard === nearestShard) continue; //same shard, skip
       //and check ones for the next shard on the 'z axis' of the game
       for (const destRoom in shardPortals[xroom].shards[nearestShard]) {
-        let pdestRoom = this.unpackRoomName(destRoom);
+        const pdestRoom = this.unpackRoomName(destRoom);
         //get the linear distance of travel from this room, to the transfer room, to the destination room, to the actual room number
         //as of Dec 2020, shard 1 is the best place to make massive jumps due to the portals on shard0. We will attempt to get to that shard
         //and then find the best portal to make the shortest path. Until then, we are just going to push to the nearest portal.
@@ -988,7 +988,7 @@ class Traveler {
     }
 
     if (!xferroom) return false;
-    Log.info("TRAVELER: " + creep.name + " found best move to " + shard + " destination of " + room + " through " + nextShard + " - " + nextRoom + " cpu " + (Game.cpu.getUsed() - count));
+    Log.info(`TRAVELER: ${  creep.name  } found best move to ${  shard  } destination of ${  room  } through ${  nextShard  } - ${  nextRoom  } cpu ${  Game.cpu.getUsed() - count}`);
     creep.memory._trav.ISM = {
       currentShard: Game.shard.name,
       shard: shard,
@@ -1050,7 +1050,7 @@ class Traveler {
       this.registerTarget(creep, portal, 0, priority);
       this.travelTo(creep, portal);
     } else {
-      let dest = new RoomPosition(25, 25, xferData.xferRoom);
+      const dest = new RoomPosition(25, 25, xferData.xferRoom);
       this.registerTarget(creep, dest, 0, priority);
       this.travelTo(creep, dest, {
         preferHighway: true,
@@ -1064,9 +1064,9 @@ class Traveler {
     if (!Memory.Traveler.pCache) {
       Memory.Traveler.pCache = {};
     }
-    let cache = Memory.Traveler.pCache;
-    let key = this.getPathKey(from, to);
-    let cachedPath = cache[key];
+    const cache = Memory.Traveler.pCache;
+    const key = this.getPathKey(from, to);
+    const cachedPath = cache[key];
 
     const cost = weight >= 10 ? 2 : weight >= 2 ? 1 : 0;
     if (cachedPath) {
@@ -1081,13 +1081,13 @@ class Traveler {
   }
   static getPath(from, to, weight) {
     const cost = weight >= 10 ? 2 : weight >= 2 ? 1 : 0;
-    let cache = Memory.Traveler.pCache;
+    const cache = Memory.Traveler.pCache;
     if (!cache) {
       return;
     }
 
-    let key = this.getPathKey(from, to);
-    let cachedPath = cache[key];
+    const key = this.getPathKey(from, to);
+    const cachedPath = cache[key];
     if (cachedPath) {
       cachedPath.uses += 1;
       //clear and re get every 100 uses.
@@ -1097,7 +1097,7 @@ class Traveler {
         delete cachedPath[2];
         return;
       }
-      let path = this.unpackPath(cachedPath[cost]);
+      const path = this.unpackPath(cachedPath[cost]);
       if (!path) return;
       if (!this.validatePath(from, path)) {
         delete cache[key];
@@ -1108,13 +1108,13 @@ class Traveler {
   }
   //checks a path to make sure it is still valid via cost matrix.
   static validatePath(origin, path) {
-    let offsetX = [0, 0, 1, 1, 1, 0, -1, -1, -1];
-    let offsetY = [0, -1, -1, 0, 1, 1, 1, 0, -1];
-    let roomName = origin.roomName;
+    const offsetX = [0, 0, 1, 1, 1, 0, -1, -1, -1];
+    const offsetY = [0, -1, -1, 0, 1, 1, 1, 0, -1];
+    let {roomName} = origin;
     let room = Game.rooms[roomName];
     let exits = Game.map.describeExits(roomName);
-    let x = origin.x;
-    let y = origin.y;
+    let {x} = origin;
+    let {y} = origin;
     let matrix = this.getStructureMatrix(room);
 
     for (let i = 0; i < path.length; i++) {
@@ -1196,7 +1196,7 @@ class Traveler {
       const x = Number(match[2]);
       const yDir = match[3];
       const y = Number(match[4]);
-      let quadrant = xDir == "W" ? (yDir == "N" ? 0 : 1) : yDir == "N" ? 2 : 3;
+      const quadrant = xDir == "W" ? (yDir == "N" ? 0 : 1) : yDir == "N" ? 2 : 3;
       // y is 6 bits, x is 6 bits, quadrant is 2 bits
       const num = ((quadrant << 12) | (x << 6) | y) + 65;
       const char = String.fromCharCode(num);
@@ -1216,16 +1216,16 @@ class Traveler {
       let roomName;
       switch (q) {
         case 0:
-          roomName = "W" + x + "N" + y;
+          roomName = `W${  x  }N${  y}`;
           break;
         case 1:
-          roomName = "W" + x + "S" + y;
+          roomName = `W${  x  }S${  y}`;
           break;
         case 2:
-          roomName = "E" + x + "N" + y;
+          roomName = `E${  x  }N${  y}`;
           break;
         case 3:
-          roomName = "E" + x + "S" + y;
+          roomName = `E${  x  }S${  y}`;
           break;
         default:
           roomName = "ERROR";
@@ -1269,7 +1269,7 @@ Room.prototype.UpdateRoomStatus = function () {
 };
 // Get a path to a destiniation... Good for building roads.
 RoomPosition.prototype.FindPathTo = function (destination, options) {
-  let ret = Traveler.findTravelPath(this, destination, options);
+  const ret = Traveler.findTravelPath(this, destination, options);
   return ret.path;
 };
 // Get the route distance to a room instead of linear distance

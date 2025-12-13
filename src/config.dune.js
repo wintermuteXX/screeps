@@ -3,65 +3,65 @@
 
 const DUNE_PLANETS = {
   atreides: [
-    "Caladan", "Arrakis", "Dune", "Ix", "Ecaz", "Giedi", "Kaitain", "Salusa", "Wallach", "Ginaz"
+    "Caladan", "Arrakis", "Dune", "Ix", "Ecaz", "Giedi", "Kaitain", "Salusa", "Wallach", "Ginaz",
   ],
   harkonnen: [
-    "GiediPrime", "Lankiveil", "Tupile", "BelaTegeuse", "Harmonthep", "Richese", "Tleilax", "Ix", "Ecaz"
+    "GiediPrime", "Lankiveil", "Tupile", "BelaTegeuse", "Harmonthep", "Richese", "Tleilax", "Ix", "Ecaz",
   ],
   fremen: [
-    "Arrakis", "Dune", "SietchTabr", "SietchJacurutu", "SietchMakab", "SietchTobr", "SietchWarrick"
+    "Arrakis", "Dune", "SietchTabr", "SietchJacurutu", "SietchMakab", "SietchTobr", "SietchWarrick",
   ],
   corrino: [
-    "Kaitain", "SalusaSecundus", "Corrin", "Ophiuchi", "BelaTegeuse", "Richese", "Tupile"
+    "Kaitain", "SalusaSecundus", "Corrin", "Ophiuchi", "BelaTegeuse", "Richese", "Tupile",
   ],
   beneGesserit: [
-    "Wallach", "Chapterhouse", "Rakis", "Tupile", "BelaTegeuse", "Richese", "Tleilax"
+    "Wallach", "Chapterhouse", "Rakis", "Tupile", "BelaTegeuse", "Richese", "Tleilax",
   ],
   mentat: [
-    "Ix", "Tleilax", "Ecaz", "Ginaz", "Richese", "BelaTegeuse"
+    "Ix", "Tleilax", "Ecaz", "Ginaz", "Richese", "BelaTegeuse",
   ],
   sardaukar: [
-    "SalusaSecundus", "Kaitain", "Corrin", "Ophiuchi"
+    "SalusaSecundus", "Kaitain", "Corrin", "Ophiuchi",
   ],
   other: [
-    "Tleilax", "Ix", "Richese", "Ecaz", "Ginaz", "BelaTegeuse", "Tupile", "Ophiuchi"
-  ]
+    "Tleilax", "Ix", "Richese", "Ecaz", "Ginaz", "BelaTegeuse", "Tupile", "Ophiuchi",
+  ],
 };
 
 // Dune-Namen gruppiert nach Fraktionen
 const DUNE_NAMES = {
   atreides: {
     firstNames: ["Paul", "Leto", "Duncan", "Gurney", "Thufir", "Jessica", "Alia", "Ghanima", "LetoII", "Miles", "Teg"],
-    lastNames: ["Atreides", "Idaho", "Halleck", "Hawat", "Yueh", "Mapes", "Teg"]
+    lastNames: ["Atreides", "Idaho", "Halleck", "Hawat", "Yueh", "Mapes", "Teg"],
   },
   harkonnen: {
     firstNames: ["Vladimir", "Feyd", "Glossu", "Piter", "Beast", "Rabban", "Abulurd"],
-    lastNames: ["Harkonnen", "deVries", "Raban"]
+    lastNames: ["Harkonnen", "deVries", "Raban"],
   },
   fremen: {
     firstNames: ["Stilgar", "Chani", "Jamis", "Liet", "Otheym", "Harah", "Shadout", "Ramallo", "Naib", "MuadDib", "Usul"],
-    lastNames: ["Kynes", "Stilgar", "Otheym", "Mapes", "alGaib"]
+    lastNames: ["Kynes", "Stilgar", "Otheym", "Mapes", "alGaib"],
   },
   corrino: {
     firstNames: ["Shaddam", "Irulan", "Wensicia", "Faradn", "Corrino", "Elrood"],
-    lastNames: ["Corrino", "IV"]
+    lastNames: ["Corrino", "IV"],
   },
   beneGesserit: {
     firstNames: ["Gaius", "Helen", "Mohiam", "Reverend", "Mother", "Bene", "Odrade", "Sheeana", "Murbella"],
-    lastNames: ["Mohiam", "Gesserit", "Ramallo", "Odrade"]
+    lastNames: ["Mohiam", "Gesserit", "Ramallo", "Odrade"],
   },
   mentat: {
     firstNames: ["Thufir", "Piter", "Mentat", "Hayt"],
-    lastNames: ["Hawat", "deVries", "Mentat"]
+    lastNames: ["Hawat", "deVries", "Mentat"],
   },
   sardaukar: {
     firstNames: ["Bashar", "Sardaukar", "Imperial", "Zensunni"],
-    lastNames: ["Sardaukar", "Imperial"]
+    lastNames: ["Sardaukar", "Imperial"],
   },
   other: {
     firstNames: ["Moneo", "Siona", "Miles", "Teg", "Odrade", "Sheeana", "Duncan", "Hayt"],
-    lastNames: ["Atreides", "Teg", "Odrade", "Idaho"]
-  }
+    lastNames: ["Atreides", "Teg", "Odrade", "Idaho"],
+  },
 };
 
 /**
@@ -96,5 +96,5 @@ module.exports = {
   DUNE_NAMES,
   getRandomFaction,
   getRandomPlanetForFaction,
-  getAllFactions
+  getAllFactions,
 };

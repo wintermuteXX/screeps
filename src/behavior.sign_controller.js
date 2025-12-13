@@ -24,7 +24,7 @@ const DUNE_MESSAGES = [
   "Shai-Hulud watches. This room has been observed.",
   "Water is life. Data is power. This room's data has been collected.",
   "The Litany Against Fear has been recited. This room is no longer unknown.",
-  "House Atreides sends its regards. Room intelligence gathered."
+  "House Atreides sends its regards. Room intelligence gathered.",
 ];
 
 /**
@@ -46,20 +46,20 @@ function ensureRoomMemory(roomName) {
  * @param {string} roomName - Name of the room
  */
 function signController(creep, roomName) {
-  const controller = creep.room.controller;
+  const {controller} = creep.room;
   if (!controller || controller.my) {
     return;
   }
-  
+
   ensureRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
   if (roomMemory.controllerSigned === true) {
     return;
   }
-  
+
   const randomMessage = DUNE_MESSAGES[Math.floor(Math.random() * DUNE_MESSAGES.length)];
   const signResult = creep.signController(controller, randomMessage);
-  
+
   if (signResult === OK) {
     roomMemory.controllerSigned = true;
     Log.success(`✍️ ${creep} signed controller in ${roomName} with: "${randomMessage}"`, "sign_controller");
@@ -67,11 +67,11 @@ function signController(creep, roomName) {
     // Use moveTo instead of travelTo to ensure we stay in the current room
     // travelTo can find paths outside the room even with maxRooms: 1
     const moveResult = creep.moveTo(controller, {
-      visualizePathStyle: { stroke: '#ffffff', lineStyle: 'dashed' },
+      visualizePathStyle: { stroke: "#ffffff", lineStyle: "dashed" },
       maxRooms: 1,
-      reusePath: 5
+      reusePath: 5,
     });
-    
+
     // If pathfinding fails, mark as signed to avoid getting stuck
     if (moveResult !== OK && moveResult !== ERR_TIRED && moveResult !== ERR_NO_PATH) {
       roomMemory.controllerSigned = true;
@@ -89,22 +89,22 @@ b.when = function (creep, rc) {
   const roomName = creep.room.name;
   ensureRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
-  
+
   // Check if room has been analyzed (has lastCheck) but controller not signed
   const hasBeenAnalyzed = roomMemory.lastCheck !== undefined;
   const needsSigning = roomMemory.controllerSigned !== true;
-  
+
   // Only activate if room has been analyzed and controller needs signing
   if (!hasBeenAnalyzed || !needsSigning) {
     return false;
   }
-  
+
   // Check if controller exists and is not ours
-  const controller = creep.room.controller;
+  const {controller} = creep.room;
   if (!controller || controller.my) {
     return false;
   }
-  
+
   return true;
 };
 
@@ -112,7 +112,7 @@ b.completed = function (creep, rc) {
   const roomName = creep.room.name;
   ensureRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
-  
+
   // Completed if controller is signed
   return roomMemory.controllerSigned === true;
 };
@@ -120,7 +120,7 @@ b.completed = function (creep, rc) {
 b.work = function (creep, rc) {
   const roomName = creep.room.name;
   ensureRoomMemory(roomName);
-  
+
   // Check if we're on an exit tile - move to center first
   const isOnExitTile = creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49;
   if (isOnExitTile) {
@@ -128,11 +128,11 @@ b.work = function (creep, rc) {
     creep.moveTo(centerPos, {
       range: 20,
       maxRooms: 1,
-      reusePath: 5
+      reusePath: 5,
     });
     return;
   }
-  
+
   // Sign the controller
   signController(creep, roomName);
 };

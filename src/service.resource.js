@@ -29,25 +29,25 @@ class ResourceManager {
   getResourceAmount(room, resource, structure = "all") {
     this._ensureCache();
     const cacheKey = `resource_${room.name}_${resource}_${structure}`;
-    
+
     if (this._cache[cacheKey] !== undefined) {
       return this._cache[cacheKey];
     }
 
     let amount = 0;
-    
+
     if (structure === "all" || structure === "storage") {
       if (room.storage && room.storage.store && room.storage.store[resource]) {
         amount += room.storage.store[resource];
       }
     }
-    
+
     if (structure === "all" || structure === "terminal") {
       if (room.terminal && room.terminal.store && room.terminal.store[resource]) {
         amount += room.terminal.store[resource];
       }
     }
-    
+
     if (structure === "all" || structure === "factory") {
       if (room.factory && room.factory.store && room.factory.store[resource]) {
         amount += room.factory.store[resource];
@@ -67,7 +67,7 @@ class ResourceManager {
   getRoomThreshold(resource, structure = "all") {
     this._ensureCache();
     const cacheKey = `threshold_${resource}_${structure}`;
-    
+
     if (this._cache[cacheKey] !== undefined) {
       return this._cache[cacheKey];
     }
@@ -117,7 +117,7 @@ class ResourceManager {
   getGlobalResourceAmount(resource) {
     this._ensureCache();
     const cacheKey = `global_${resource}`;
-    
+
     if (this._cache[cacheKey] !== undefined) {
       return this._cache[cacheKey];
     }
@@ -126,10 +126,10 @@ class ResourceManager {
     let allStructures = [];
 
     for (var i in Game.rooms) {
-      var room = Game.rooms[i];
-      var storeStructures = room.find(FIND_STRUCTURES, {
+      const room = Game.rooms[i];
+      const storeStructures = room.find(FIND_STRUCTURES, {
         filter: (structure) => {
-          return 'store' in structure;
+          return "store" in structure;
         },
       });
       allStructures = allStructures.concat(storeStructures);
@@ -153,15 +153,15 @@ class ResourceManager {
   getRoomNeeds(room) {
     this._ensureCache();
     const cacheKey = `needs_${room.name}`;
-    
+
     if (this._cache[cacheKey] !== undefined) {
       return this._cache[cacheKey];
     }
 
     const needs = [];
-    
+
     if (room.terminal) {
-      for (let res of RESOURCES_ALL) {
+      for (const res of RESOURCES_ALL) {
         const has = this.getResourceAmount(room, res);
         const want = this.getRoomThreshold(res);
         if (has < want) {

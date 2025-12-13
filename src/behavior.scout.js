@@ -11,11 +11,11 @@ const b = new Behavior("scout");
 function needsAnalysis(roomName) {
   // Check Memory.rooms[roomName].lastCheck (works even without vision)
   if (Memory.rooms && Memory.rooms[roomName]) {
-    const lastCheck = Memory.rooms[roomName].lastCheck;
+    const {lastCheck} = Memory.rooms[roomName];
     // Needs analysis if never checked or last check was more than 100000 ticks ago
     return !lastCheck || (Game.time - lastCheck > 100000);
   }
-  
+
   // If no memory entry, we need to visit it
   return true;
 }
@@ -47,16 +47,16 @@ function isHostileRoom(roomName) {
       return true;
     }
   }
-  
+
   // 2. If we have vision, check controller directly and update memory
   const room = Game.rooms[roomName];
   if (room && room.controller) {
     ensureRoomMemory(roomName);
-    
+
     const myUsername = global.getMyUsername();
-    const isHostile = (room.controller.owner && !room.controller.my) || 
+    const isHostile = (room.controller.owner && !room.controller.my) ||
                      (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
-    
+
     // Update room memory (same logic as Traveler.updateRoomStatus)
     if (isHostile) {
       Memory.rooms[roomName].avoid = 1;
@@ -64,10 +64,10 @@ function isHostileRoom(roomName) {
     } else {
       delete Memory.rooms[roomName].avoid;
     }
-    
+
     return isHostile;
   }
-  
+
   return false;
 }
 
@@ -76,49 +76,49 @@ function isHostileRoom(roomName) {
  */
 function findUnvisitedRoom(creep) {
   const currentRoom = creep.room.name;
-  
+
   // Find start room (home room from memory, fallback to current room)
   const startRoom = creep.memory.home || currentRoom;
-  
+
   // Calculate distance from start room
   const distanceFromStart = Game.map.getRoomLinearDistance(startRoom, currentRoom);
-  
+
   const candidates = [];
-  
+
   // Get exits from current room
   const exits = Game.map.describeExits(currentRoom);
-  
+
   // Level 1: Directly adjacent rooms (max 1 hop from start)
   for (const direction in exits) {
     const roomName = exits[direction];
     const roomStatus = Game.map.getRoomStatus(roomName);
     const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
-    
+
     // Check if room is normal AND not hostile AND needs analysis
-    if (roomStatus.status === 'normal' && 
-        distFromStart <= 2 && 
-        !isHostileRoom(roomName) && 
+    if (roomStatus.status === "normal" &&
+        distFromStart <= 2 &&
+        !isHostileRoom(roomName) &&
         needsAnalysis(roomName)) {
       candidates.push({ roomName, distance: distFromStart });
     }
   }
-  
+
   // Level 2: Rooms 2 hops from start (only if no Level-1 rooms found)
   if (candidates.length === 0 && distanceFromStart < 2) {
     for (const direction in exits) {
       const level1Room = exits[direction];
       const level1Status = Game.map.getRoomStatus(level1Room);
-      if (level1Status.status === 'normal' && !isHostileRoom(level1Room)) {
+      if (level1Status.status === "normal" && !isHostileRoom(level1Room)) {
         const level1Exits = Game.map.describeExits(level1Room);
         for (const dir2 in level1Exits) {
           const roomName = level1Exits[dir2];
           const roomStatus = Game.map.getRoomStatus(roomName);
           const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
           // Don't go back to current room and max 2 hops from start
-          if (roomName !== currentRoom && 
-              roomStatus.status === 'normal' && 
-              distFromStart <= 2 && 
-              !isHostileRoom(roomName) && 
+          if (roomName !== currentRoom &&
+              roomStatus.status === "normal" &&
+              distFromStart <= 2 &&
+              !isHostileRoom(roomName) &&
               needsAnalysis(roomName)) {
             candidates.push({ roomName, distance: distFromStart });
           }
@@ -126,7 +126,7 @@ function findUnvisitedRoom(creep) {
       }
     }
   }
-  
+
   if (candidates.length > 0) {
     // Sort by distance (closest first) and randomly choose from the closest
     candidates.sort((a, b) => a.distance - b.distance);
@@ -134,7 +134,7 @@ function findUnvisitedRoom(creep) {
     const closestCandidates = candidates.filter(c => c.distance === minDist);
     return closestCandidates[Math.floor(Math.random() * closestCandidates.length)];
   }
-  
+
   return null;
 }
 
@@ -145,22 +145,22 @@ b.when = function (creep, rc) {
 
 b.completed = function (creep, rc) {
   const roomName = creep.room.name;
-  
+
   // Don't complete if current room still needs analysis
   if (needsAnalysis(roomName)) {
     return false;
   }
-  
+
   // Check if there are any more rooms to scout
   if (!findUnvisitedRoom(creep)) {
     const homeRoom = creep.memory.home;
     const isInHomeRoom = homeRoom && roomName === homeRoom;
-    
+
     // Check if we've been in this room before (has lastCheck in memory)
     ensureRoomMemory(roomName);
     const roomMemory = Memory.rooms[roomName];
     const hasBeenInRoom = creep.memory.lastRoom === roomName && roomMemory.lastCheck !== undefined;
-    
+
     if (isInHomeRoom || hasBeenInRoom) {
       if (!creep.memory.scoutCompleted) {
         Log.success(`✅ ${creep} completed scouting - no more rooms to analyze within 2 hops`, "scout");
@@ -169,37 +169,37 @@ b.completed = function (creep, rc) {
       return true;
     }
   }
-  
+
   return false;
 };
 
 b.work = function (creep, rc) {
   const roomName = creep.room.name;
   ensureRoomMemory(roomName);
-  
+
   // Track current room for next tick
-  const lastRoom = creep.memory.lastRoom;
+  const {lastRoom} = creep.memory;
   const justEnteredRoom = lastRoom !== roomName;
   creep.memory.lastRoom = roomName;
-  
+
   // CRITICAL: Prevent blinking - if we just entered a room or are on an exit tile, move into the room center first
   const isOnExitTile = creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49;
   if (justEnteredRoom || isOnExitTile) {
     // Move to center of room to get off exit tile immediately
     const centerPos = new RoomPosition(25, 25, roomName);
-    const moveResult = creep.travelTo(centerPos, { 
+    const moveResult = creep.travelTo(centerPos, {
       range: 20,  // Move within 20 tiles of center (away from exit tiles)
       maxRooms: 1,
       preferHighway: false,  // Don't use highways when moving within room
       ignoreConstructionSites: true,
     });
-    
+
     // If we just entered and are moving, don't do other logic this tick
     if (justEnteredRoom && moveResult === OK) {
       return;
     }
   }
-  
+
   // Safety check: If we entered a hostile room, immediately leave
   if (isHostileRoom(roomName)) {
     Log.warn(`⚠️ ${creep} entered hostile room ${creep.room}, retreating!`, "scout");
@@ -215,16 +215,16 @@ b.work = function (creep, rc) {
       return;
     }
   }
-  
+
   // Analyze room if it needs analysis (only if we're not on exit tile)
   if (!isOnExitTile && needsAnalysis(roomName)) {
     Log.success(`🔍 ${creep} Analyzing room ${roomName}`, "scout");
     global.analyzeRoom(creep.room, true);
   }
-  
+
   // Determine target room
   let targetRoom = creep.memory.scoutTarget;
-  
+
   // Update target if we've reached it or don't have one
   if (!targetRoom || targetRoom === creep.room.name) {
     const nextRoom = findUnvisitedRoom(creep);
@@ -245,7 +245,7 @@ b.work = function (creep, rc) {
       }
     }
   }
-  
+
   // Move to target room (only if we're not on exit tile)
   if (!isOnExitTile && targetRoom !== creep.room.name) {
     creep.travelTo(new RoomPosition(25, 25, targetRoom), {

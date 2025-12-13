@@ -28,29 +28,29 @@ b.completed = function (creep, rc) {
   Log.info(`${creep.room.name} ${creep.name} is checking "completed" condition`, "find_near_energy");
   // Completed when creep has energy
   if (creep.store[RESOURCE_ENERGY] > 0) return true;
-  
+
   // If no energy but no target set, stay active to move to controller
   const target = creep.getTarget();
   if (!target && rc.room.controller) {
     return false; // Keep behavior active to move to controller
   }
-  
+
   return false;
 };
 
 b.work = function (creep, rc) {
   Log.info(`${creep.room.name} ${creep.name} is performing "work" condition`, "find_near_energy");
   let target = creep.getTarget();
-  const controller = rc.room.controller;
+  const {controller} = rc.room;
 
   if (!target && controller) {
-    let link = findNearLink(controller, rc);
+    const link = findNearLink(controller, rc);
     if (link && link.energy > 0) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Link: ${link}`, "find_near_energy");
       creep.target = link.id;
       target = creep.getTarget();
     } else {
-      const container = creep.room.controller.container;
+      const {container} = creep.room.controller;
       if (container && container.store && container.store[RESOURCE_ENERGY] > 0) {
         Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${container}`, "find_near_energy");
         creep.target = container.id;
@@ -89,7 +89,7 @@ b.work = function (creep, rc) {
           result = ERR_INVALID_ARGS;
         }
       }
-      
+
       // Check if withdraw/pickup was successful, delete target if not
       if (result !== OK) {
         Log.debug(`${creep.room.name} ${creep.name} failed to get energy from ${target} (result: ${result}), clearing target`, "find_near_energy");

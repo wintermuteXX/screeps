@@ -16,18 +16,18 @@ Object.defineProperty(Structure.prototype, "container", {
           return this._container;
         } else {
           // Container no longer exists, delete ID from memory
-          Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
+          Log.debug("Container does not exist anymore. Delete from memory", "Container");
           this.memory.containerID = null;
         }
       }
-      
+
       // Search for existing container nearby
       const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: { structureType: STRUCTURE_CONTAINER },
       });
 
       if (found) {
-        Log.debug(`Container found -> Memory`, "Container");
+        Log.debug("Container found -> Memory", "Container");
         this.memory.containerID = found.id;
         this._container = found;
       } else {
@@ -88,7 +88,7 @@ Structure.prototype.getFirstMineral = function () {
 
 Structure.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
@@ -100,7 +100,7 @@ Structure.prototype.toString = function (htmlLink = true) {
 
 StructureSpawn.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
@@ -119,8 +119,8 @@ Object.defineProperty(Source.prototype, "defended", {
     if (this.memory.defended) {
       return this.memory.defended;
     }
-    let RANGE = 5;
-    let targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
+    const RANGE = 5;
+    const targets = this.pos.findInRange(FIND_HOSTILE_STRUCTURES, RANGE);
     if (targets.length) {
       this.memory.defended = true;
       return true;
@@ -141,18 +141,18 @@ Object.defineProperty(Source.prototype, "container", {
           return this._container;
         } else {
           // Container no longer exists, delete ID from memory
-          Log.debug(`Container does not exist anymore. Delete from memory`, "Container");
+          Log.debug("Container does not exist anymore. Delete from memory", "Container");
           this.memory.containerID = null;
         }
       }
-      
+
       // Search for existing container nearby
       const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
         filter: { structureType: STRUCTURE_CONTAINER },
       });
 
       if (found) {
-        Log.debug(`Container found -> Memory`, "Container");
+        Log.debug("Container found -> Memory", "Container");
         this.memory.containerID = found.id;
         this._container = found;
       } else {
@@ -186,33 +186,33 @@ Object.defineProperty(Source.prototype, "freeSpacesCount", {
   get: function () {
     const terrain = Game.map.getRoomTerrain(this.room.name);
     let freeSpaces = 0;
-    
+
     for (let dx = -1; dx <= 1; dx++) {
       for (let dy = -1; dy <= 1; dy++) {
         if (dx === 0 && dy === 0) continue; // Skip the source position itself
-        
+
         const x = this.pos.x + dx;
         const y = this.pos.y + dy;
-        
+
         // Check bounds
         if (x < 0 || x > 49 || y < 0 || y > 49) continue;
-        
+
         // Check if terrain is walkable (not a wall)
         if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
-        
+
         // Check if there's a structure blocking the position
         const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-        const hasBlockingStructure = structures.some(s => 
-          s.structureType !== STRUCTURE_ROAD && 
-          s.structureType !== STRUCTURE_CONTAINER
+        const hasBlockingStructure = structures.some(s =>
+          s.structureType !== STRUCTURE_ROAD &&
+          s.structureType !== STRUCTURE_CONTAINER,
         );
-        
+
         if (!hasBlockingStructure) {
           freeSpaces++;
         }
       }
     }
-    
+
     return freeSpaces;
   },
   enumerable: false,
@@ -225,11 +225,11 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
     const freeSpaces = this.freeSpacesCount;
     const creepsTargeting = rc.getCreeps(null, this.id).length;
     const availableSpaces = freeSpaces - creepsTargeting;
-    
+
     if (availableSpaces <= 0) {
-      return { canHarvest: false, reason: 'no_free_spaces' };
+      return { canHarvest: false, reason: "no_free_spaces" };
     }
-    
+
     // 2. Berechne aktuelle Harvest-Power (inkl. Boosts)
     let totalHarvestPower = 0;
     const harvestingCreeps = rc.getCreeps(null, this.id);
@@ -238,26 +238,26 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
         totalHarvestPower += hCreep.getHarvestPowerPerTick();
       }
     }
-    
+
     // 3. Berechne verfügbare Energy bei Ankunft
     const ticksToArrive = creep.pos.getRangeTo(this);
     const regenRate = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
     const currentEnergy = this.energy;
     const energyWhenArriving = Math.min(
       SOURCE_ENERGY_CAPACITY,
-      currentEnergy + (regenRate * ticksToArrive) - (totalHarvestPower * ticksToArrive)
+      currentEnergy + (regenRate * ticksToArrive) - (totalHarvestPower * ticksToArrive),
     );
-    
+
     // 4. Prüfe ob genug Energy verfügbar sein wird
     const creepHarvestPower = creep.getHarvestPowerPerTick();
     const willHaveEnergy = energyWhenArriving > 0;
-    
+
     return {
       canHarvest: availableSpaces > 0 && willHaveEnergy,
       availableSpaces: availableSpaces,
       currentHarvestPower: totalHarvestPower,
       energyWhenArriving: energyWhenArriving,
-      creepHarvestPower: creepHarvestPower
+      creepHarvestPower: creepHarvestPower,
     };
   },
   enumerable: false,
@@ -266,7 +266,7 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
 
 Source.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +

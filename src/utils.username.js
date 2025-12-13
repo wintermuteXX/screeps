@@ -43,11 +43,11 @@ function getMyUsername() {
 function isHostileUsername(username) {
   if (!username) return false;
   const myUsername = getMyUsername();
-  return username !== myUsername && username !== 'Source Keeper';
+  return username !== myUsername && username !== "Source Keeper";
 }
 
 module.exports = {
   getMyUsername,
-  isHostileUsername
+  isHostileUsername,
 };
 

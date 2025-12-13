@@ -134,7 +134,7 @@
       stopArr: [],
       maxIteration: 1024,
       reverse: true,
-    }
+    },
   ) {
     _.defaults(settings, {
       amount: 1,
@@ -173,7 +173,7 @@
       }
       addCooldown(COMMODITIES[type].cooldown * (amount / COMMODITIES[type].amount));
       addRecipe(type, amount);
-      for (let _type in COMMODITIES[type].components) {
+      for (const _type in COMMODITIES[type].components) {
         const amountRatio = COMMODITIES[type].components[_type] / COMMODITIES[type].amount;
         queue.push([_type, amountRatio * amount]);
       }
@@ -203,7 +203,7 @@
       stopInfo: [],
       maxIteration: 1024,
       returnBasis: 0,
-    }
+    },
   ) {
     _.defaults(settings, {
       amount: 1,
@@ -266,7 +266,7 @@
         }
       }
       settings.stopInfo = _.filter(settings.stopInfo, (i) => i[1] > 0);
-      for (let component in _ret.components) queue.push([component, _ret.components[component]]);
+      for (const component in _ret.components) queue.push([component, _ret.components[component]]);
     }
     if (cnt > settings.maxIteration) return ERR_MAX_ITERATION_REACHED;
     ret.recipes.reverse();
@@ -288,7 +288,7 @@
     if (!Array.isArray(roomNames)) roomNames = [roomNames];
     if (!Array.isArray(storeObjects)) storeObjects = [storeObjects];
     // Parse stopResources into stopInfo.
-    let ret = [].concat(stopResources);
+    const ret = [].concat(stopResources);
     for (let i = 0; i < ret.length; i++) {
       if (!Array.isArray(ret[i])) ret[i] = [ret[i], Infinity];
       else if (ret[i].length === 1) ret[i] = [ret[i][0], Infinity];
@@ -308,7 +308,7 @@
       }
     };
     const addToListByObject = function (object) {
-      for (var carry in object.store) addToList(carry, object.store[carry]);
+      for (const carry in object.store) addToList(carry, object.store[carry]);
     };
     const addToListByRoom = function (roomName) {
       if (!Game.rooms[roomName].controller || !Game.rooms[roomName].controller.my) return;
@@ -316,22 +316,22 @@
       if (Game.rooms[roomName].terminal) addToListByObject(Game.rooms[roomName].terminal);
       if (findObjects) {
         const structures = Game.rooms[roomName].find(FIND_STRUCTURES);
-        for (let structureName of STORING_SINGLE_OBJECTS)
+        for (const structureName of STORING_SINGLE_OBJECTS)
           if (!Game.rooms[roomName][structureName]) Game.rooms[roomName][structureName] = _.filter(structures, (s) => s.structureType === structureName)[0];
-        for (let structuresName of STORING_MULTI_OBJECTS)
-          if (!Game.rooms[roomName][structuresName + "s"]) Game.rooms[roomName][structuresName + "s"] = _.filter(structures, (s) => s.structureType === structuresName);
+        for (const structuresName of STORING_MULTI_OBJECTS)
+          if (!Game.rooms[roomName][`${structuresName  }s`]) Game.rooms[roomName][`${structuresName  }s`] = _.filter(structures, (s) => s.structureType === structuresName);
       }
-      for (let structureName of STORING_SINGLE_OBJECTS) if (Game.rooms[roomName][structureName]) addToListByObject(Game.rooms[roomName][structureName]);
-      for (let structuresName of STORING_MULTI_OBJECTS) if (Game.rooms[roomName][structuresName + "s"]) for (let structure of Game.rooms[roomName][structuresName + "s"]) addToListByObject(structure);
+      for (const structureName of STORING_SINGLE_OBJECTS) if (Game.rooms[roomName][structureName]) addToListByObject(Game.rooms[roomName][structureName]);
+      for (const structuresName of STORING_MULTI_OBJECTS) if (Game.rooms[roomName][`${structuresName  }s`]) for (const structure of Game.rooms[roomName][`${structuresName  }s`]) addToListByObject(structure);
     };
     // Add the information of room.
     if (roomNames.length > 0) {
-      for (let roomName of roomNames) if (Game.rooms[roomName]) addToListByRoom(roomName);
+      for (const roomName of roomNames) if (Game.rooms[roomName]) addToListByRoom(roomName);
     } else {
-      for (let roomName in Game.rooms) addToListByRoom(roomName);
+      for (const roomName in Game.rooms) addToListByRoom(roomName);
     }
     // Add the information of storeObjects.
-    for (let storeObject of storeObjects) if (storeObject && storeObject.store) addToListByObject(storeObject);
+    for (const storeObject of storeObjects) if (storeObject && storeObject.store) addToListByObject(storeObject);
     // Merge the ret with existing{Components,Amount}.
     for (let i = 0; i < existingComponents.length; i++) ret.push([existingComponents[i], existingAmount[i]]);
     return ret;
@@ -366,7 +366,7 @@
       storeObjects: [],
       findObjects: false,
       buy: false,
-    }
+    },
   ) {
     _.defaults(settings, {
       amount: 1,
@@ -391,10 +391,10 @@
     if (typeof basis === "number") return basis;
     // Calculate the cost.
     let cost = 0;
-    let lackingPriceResources = {};
-    let buy = {};
-    for (let component in basis.components) {
-      let price = _getPrice(component);
+    const lackingPriceResources = {};
+    const buy = {};
+    for (const component in basis.components) {
+      const price = _getPrice(component);
       if (price !== ERR_NO_DATA) {
         cost += price * basis.components[component];
         if (settings.buy) buy[component] = basis.components[component];
@@ -433,7 +433,7 @@
       roomNames: [],
       storeObjects: [],
       findObjects: false,
-    }
+    },
   ) {
     _.defaults(settings, {
       amount: 1,
@@ -480,7 +480,7 @@
       roomNames: [],
       storeObjects: [],
       findObjects: false,
-    }
+    },
   ) {
     stopResources = stopResources || [];
     _.defaults(settings, {
@@ -497,14 +497,14 @@
     let factoryLevel = [];
     if (!settings.detectLevel) factoryLevel = [0, 1, 2, 3, 4, 5];
     else {
-      let factoryLevels = _.map(
+      const factoryLevels = _.map(
         _.filter(Game.rooms, (r) => r.controller && r.controller.my),
         (r) =>
           r.find(FIND_STRUCTURES, {
             filter: {
               structureType: STRUCTURE_FACTORY,
             },
-          })[0]
+          })[0],
       )
         .map((f) => f && f.level)
         .filter((l) => l);

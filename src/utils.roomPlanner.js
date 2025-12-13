@@ -86,7 +86,7 @@ function plannerSetCenter(roomName, x, y) {
     layoutGenerated: false,
     plannedStructures: [],
   };
-  
+
   Log.info(`Center for ${roomName} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
 }
 
@@ -95,6 +95,6 @@ module.exports = {
   plannerStats,
   plannerReset,
   plannerRun,
-  plannerSetCenter
+  plannerSetCenter,
 };
 

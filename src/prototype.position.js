@@ -27,7 +27,7 @@ Object.defineProperty(RoomPosition.prototype, "freeFieldsCount", {
 
 RoomPosition.prototype.toString = function (htmlLink = true, id = undefined) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${id}');` +

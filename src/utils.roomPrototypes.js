@@ -45,23 +45,23 @@ Room.prototype._checkRoomCache = function _checkRoomCache() {
   }
 };
 
-multipleList.forEach(function (type) {
-  Object.defineProperty(Room.prototype, type + "s", {
+multipleList.forEach((type) => {
+  Object.defineProperty(Room.prototype, `${type  }s`, {
     get: function () {
-      if (this["_" + type + "s"] && this["_" + type + "s_ts"] === Game.time) {
-        return this["_" + type + "s"];
+      if (this[`_${  type  }s`] && this[`_${  type  }s_ts`] === Game.time) {
+        return this[`_${  type  }s`];
       } else {
         this._checkRoomCache();
         // Check if structure type exists and has structures
         if (roomStructures[this.name] && roomStructures[this.name][type] && roomStructures[this.name][type].length > 0) {
-          this["_" + type + "s_ts"] = Game.time;
+          this[`_${  type  }s_ts`] = Game.time;
           // Filter out null/undefined in case structures were destroyed
-          return (this["_" + type + "s"] = roomStructures[this.name][type]
+          return (this[`_${  type  }s`] = roomStructures[this.name][type]
             .map(Game.getObjectById)
             .filter(s => s !== null && s !== undefined));
         } else {
-          this["_" + type + "s_ts"] = Game.time;
-          return (this["_" + type + "s"] = []);
+          this[`_${  type  }s_ts`] = Game.time;
+          return (this[`_${  type  }s`] = []);
         }
       }
     },
@@ -71,20 +71,20 @@ multipleList.forEach(function (type) {
   });
 });
 
-singleList.forEach(function (type) {
+singleList.forEach((type) => {
   Object.defineProperty(Room.prototype, type, {
     get: function () {
-      if (this["_" + type] && this["_" + type + "_ts"] === Game.time) {
-        return this["_" + type];
+      if (this[`_${  type}`] && this[`_${  type  }_ts`] === Game.time) {
+        return this[`_${  type}`];
       } else {
         this._checkRoomCache();
         // Check if structure type exists and has at least one structure
         if (roomStructures[this.name] && roomStructures[this.name][type] && roomStructures[this.name][type].length > 0) {
-          this["_" + type + "_ts"] = Game.time;
-          return (this["_" + type] = Game.getObjectById(roomStructures[this.name][type][0]));
+          this[`_${  type  }_ts`] = Game.time;
+          return (this[`_${  type}`] = Game.getObjectById(roomStructures[this.name][type][0]));
         } else {
-          this["_" + type + "_ts"] = Game.time;
-          return (this["_" + type] = undefined);
+          this[`_${  type  }_ts`] = Game.time;
+          return (this[`_${  type}`] = undefined);
         }
       }
     },

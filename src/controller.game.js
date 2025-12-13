@@ -22,17 +22,17 @@ class ControllerGame {
   checkCpuBucket() {
     // Get previous bucket from cpuHistory
     const prevBucket = cpuAnalyzer.getPreviousBucket();
-    
+
     if (Game.cpu.bucket < CONSTANTS.CPU.BUCKET_CRITICAL) {
       // Only warn if bucket is decreasing (not after generatePixel)
       const bucketDecreasing = (Game.cpu.bucket < prevBucket) && (prevBucket !== 10000);
-      
+
       if (Game.cpu.limit !== 0 && bucketDecreasing) {
         const bucketDiff = Game.cpu.bucket - prevBucket;
         const diffStr = bucketDiff >= 0 ? `+${bucketDiff}` : `${bucketDiff}`;
         Log.error(`Bucket critically low and decreasing. Skipping tick. Bucket: ${prevBucket} → ${Game.cpu.bucket} (${diffStr})`, "Main");
       }
-      
+
       return true; // Skip tick
     }
 

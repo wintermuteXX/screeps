@@ -12,70 +12,70 @@ const ControllerGame = require("./controller.game");
  * @param {string} category - Category to show (default: 'all')
  * @returns {string} HTML table string
  */
-function help(category = 'all') {
+function help(category = "all") {
   const functions = {
     resources: [
-      { name: 'myResources(hide)', desc: 'Table of all resources across rooms', example: 'myResources(true)' },
-      { name: 'showLabs()', desc: 'Table showing lab status and reactions', example: 'showLabs()' },
-      { name: 'visualizeLogistic(roomName)', desc: 'Visualizes transport orders (givesResources and needsResources)', example: 'visualizeLogistic("W1N1")' },
-      { name: 'whatsInTerminals()', desc: 'Table showing what\'s in all terminals', example: 'whatsInTerminals()' },
+      { name: "myResources(hide)", desc: "Table of all resources across rooms", example: "myResources(true)" },
+      { name: "showLabs()", desc: "Table showing lab status and reactions", example: "showLabs()" },
+      { name: "visualizeLogistic(roomName)", desc: "Visualizes transport orders (givesResources and needsResources)", example: 'visualizeLogistic("W1N1")' },
+      { name: "whatsInTerminals()", desc: "Table showing what's in all terminals", example: "whatsInTerminals()" },
     ],
     planner: [
-      { name: 'plannerVisualize(room)', desc: 'Visualizes planned layout in game view', example: 'plannerVisualize("W1N1")' },
-      { name: 'plannerStats(room)', desc: 'Statistics about planned layout', example: 'plannerStats("W1N1")' },
-      { name: 'plannerReset(room)', desc: 'Resets layout for a room', example: 'plannerReset("W1N1")' },
-      { name: 'plannerRun(room)', desc: 'Runs RoomPlanner manually', example: 'plannerRun("W1N1")' },
-      { name: 'plannerSetCenter(room, x, y)', desc: 'Sets center coordinates for planning', example: 'plannerSetCenter("W1N1", 25, 25)' },
-      { name: 'visualizeCpu()', desc: 'Visualizes CPU usage', example: 'visualizeCpu()' }
+      { name: "plannerVisualize(room)", desc: "Visualizes planned layout in game view", example: 'plannerVisualize("W1N1")' },
+      { name: "plannerStats(room)", desc: "Statistics about planned layout", example: 'plannerStats("W1N1")' },
+      { name: "plannerReset(room)", desc: "Resets layout for a room", example: 'plannerReset("W1N1")' },
+      { name: "plannerRun(room)", desc: "Runs RoomPlanner manually", example: 'plannerRun("W1N1")' },
+      { name: "plannerSetCenter(room, x, y)", desc: "Sets center coordinates for planning", example: 'plannerSetCenter("W1N1", 25, 25)' },
+      { name: "visualizeCpu()", desc: "Visualizes CPU usage", example: "visualizeCpu()" },
     ],
     market: [
-      { name: 'marketInfo()', desc: 'Table with market info (prices, amounts, orders)', example: 'marketInfo()' },
+      { name: "marketInfo()", desc: "Table with market info (prices, amounts, orders)", example: "marketInfo()" },
     ],
     utils: [
-      { name: 'json(x)', desc: 'Pretty-print JSON', example: 'json({key: "value"})' },
+      { name: "json(x)", desc: "Pretty-print JSON", example: 'json({key: "value"})' },
     ],
   };
 
-  let result = [];
+  const result = [];
   result.push('<table border="1" style="border-collapse: collapse;">');
-  result.push('<caption><strong>SCREEPS HELPER FUNCTIONS</strong></caption>');
-  result.push('<tr>');
+  result.push("<caption><strong>SCREEPS HELPER FUNCTIONS</strong></caption>");
+  result.push("<tr>");
   result.push('<th style="padding: 5px; background-color: #333;">FUNCTION</th>');
   result.push('<th style="padding: 5px; background-color: #333;">DESCRIPTION</th>');
   result.push('<th style="padding: 5px; background-color: #333;">EXAMPLE</th>');
-  result.push('</tr>');
+  result.push("</tr>");
 
-  if (category === 'all' || !category) {
+  if (category === "all" || !category) {
     // Show all categories
     for (const [cat, funcs] of Object.entries(functions)) {
       result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${cat.toUpperCase()}</td></tr>`);
       funcs.forEach(func => {
-        result.push('<tr>');
+        result.push("<tr>");
         result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
         result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
         result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
-        result.push('</tr>');
+        result.push("</tr>");
       });
     }
   } else if (functions[category]) {
     // Show specific category
     result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${category.toUpperCase()}</td></tr>`);
     functions[category].forEach(func => {
-      result.push('<tr>');
+      result.push("<tr>");
       result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
       result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
       result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
-      result.push('</tr>');
+      result.push("</tr>");
     });
   } else {
     result.push(`<tr><td colspan="3" style="padding: 5px; color: #ff0000;">Unknown category: ${category}</td></tr>`);
-    result.push(`<tr><td colspan="3" style="padding: 5px; color: #cccccc;">Available: ${Object.keys(functions).join(', ')}</td></tr>`);
+    result.push(`<tr><td colspan="3" style="padding: 5px; color: #cccccc;">Available: ${Object.keys(functions).join(", ")}</td></tr>`);
   }
 
-  result.push('</table>');
+  result.push("</table>");
   result.push('<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: all, resources, planner, market, utils</p>');
-  
-  const resultString = result.join('');
+
+  const resultString = result.join("");
   console.log(resultString);
   return resultString;
 }
@@ -88,22 +88,22 @@ function help(category = 'all') {
 function whatsInTerminals() {
   const result = [];
   result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push('<caption><strong>TERMINAL CONTENTS</strong></caption>');
-  
+  result.push("<caption><strong>TERMINAL CONTENTS</strong></caption>");
+
   const roomData = {};
   const sums = {};
   const rooms = _.filter(Game.rooms, (r) => {
     return r.controller && r.controller.my && r.terminal;
   });
-  
+
   if (rooms.length === 0) {
     result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No terminals found in owned rooms</td></tr>');
-    result.push('</table>');
-    const resultString = result.join('');
+    result.push("</table>");
+    const resultString = result.join("");
     console.log(resultString);
     return resultString;
   }
-  
+
   // Collect all resource types
   const resourceTypes = new Set();
   _.forEach(rooms, (r) => {
@@ -115,15 +115,15 @@ function whatsInTerminals() {
       roomData[r.name][item] = quantity;
     });
   });
-  
+
   if (resourceTypes.size === 0) {
     result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">All terminals are empty</td></tr>');
-    result.push('</table>');
-    const resultString = result.join('');
+    result.push("</table>");
+    const resultString = result.join("");
     console.log(resultString);
     return resultString;
   }
-  
+
   // Table headers
   result.push('<tr style="background-color: #333;">');
   result.push('<th style="padding: 5px;">ROOM</th>');
@@ -131,20 +131,20 @@ function whatsInTerminals() {
   sortedResources.forEach(res => {
     result.push(`<th style="padding: 5px;">${utilsResources.resourceImg(res)}</th>`);
   });
-  result.push('</tr>');
-  
+  result.push("</tr>");
+
   // Room rows
   _.forEach(rooms, (room) => {
     result.push('<tr style="background-color: #1a1a1a;">');
     result.push(`<td style="padding: 5px; color: #00ffff; font-weight: bold;">${room.name}</td>`);
     sortedResources.forEach(res => {
       const amount = roomData[room.name][res] || 0;
-      const color = amount > 0 ? '#cccccc' : '#888';
+      const color = amount > 0 ? "#cccccc" : "#888";
       result.push(`<td style="padding: 5px; text-align: right; color: ${color};">${amount.toLocaleString()}</td>`);
     });
-    result.push('</tr>');
+    result.push("</tr>");
   });
-  
+
   // Totals row
   result.push('<tr style="background-color: #333;">');
   result.push('<td style="padding: 5px; font-weight: bold; color: #00ff00;">TOTAL</td>');
@@ -152,10 +152,10 @@ function whatsInTerminals() {
     const total = sums[res] || 0;
     result.push(`<td style="padding: 5px; text-align: right; font-weight: bold; color: #00ff00;">${total.toLocaleString()}</td>`);
   });
-  result.push('</tr>');
-  
-  result.push('</table>');
-  const resultString = result.join('');
+  result.push("</tr>");
+
+  result.push("</table>");
+  const resultString = result.join("");
   console.log(resultString);
   return resultString;
 }
@@ -185,35 +185,35 @@ function numberOfTerminals() {
 function showLabs() {
   const result = [];
   result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push('<caption><strong>LAB STATUS AND REACTIONS</strong></caption>');
-  
+  result.push("<caption><strong>LAB STATUS AND REACTIONS</strong></caption>");
+
   let hasLabs = false;
   const roomsWithLabs = [];
-  
+
   // Collect all rooms with labs
   for (const roomName in Game.rooms) {
     const room = Game.rooms[roomName];
     if (!room.controller || !room.controller.my) continue;
-    
+
     const labs = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return 'structureType' in structure && structure.structureType === STRUCTURE_LAB;
+        return "structureType" in structure && structure.structureType === STRUCTURE_LAB;
       },
     });
-    
+
     if (labs.length > 0) {
       roomsWithLabs.push({ room, roomName, labs });
     }
   }
-  
+
   if (roomsWithLabs.length === 0) {
     result.push('<tr><td colspan="7" style="padding: 5px; color: #888;">No labs found in owned rooms</td></tr>');
-    result.push('</table>');
-    const resultString = result.join('');
+    result.push("</table>");
+    const resultString = result.join("");
     console.log(resultString);
     return resultString;
   }
-  
+
   // Table headers
   result.push('<tr style="background-color: #333;">');
   result.push('<th style="padding: 5px;">ROOM</th>');
@@ -223,49 +223,49 @@ function showLabs() {
   result.push('<th style="padding: 5px;">REAGENT A</th>');
   result.push('<th style="padding: 5px;">REAGENT B</th>');
   result.push('<th style="padding: 5px;">PARTNER LABS</th>');
-  result.push('</tr>');
-  
+  result.push("</tr>");
+
   // Process each room
   for (const { room, roomName, labs } of roomsWithLabs) {
     let roomHeaderAdded = false;
-    
+
     for (const labIdx in labs) {
       const labC = labs[labIdx];
       const labMemory = labC.memory;
-      
+
       if (labC && labMemory && labMemory.partnerA) {
         hasLabs = true;
-        
+
         // Add room header for first lab in room
         if (!roomHeaderAdded) {
           result.push(`<tr><td colspan="7" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">ROOM: ${roomName}</td></tr>`);
           roomHeaderAdded = true;
         }
-        
+
         result.push('<tr style="background-color: #1a1a1a;">');
-        
+
         const partnerA = Game.getObjectById(labMemory.partnerA);
         const partnerB = Game.getObjectById(labMemory.partnerB);
         const partnerAMemory = partnerA && partnerA.memory ? partnerA.memory : null;
-        
+
         if (partnerA && partnerAMemory) {
           // Room name (only for first row per room, handled by header)
           result.push('<td style="padding: 5px; color: #888;"></td>');
-          
+
           // Status
-          const status = partnerAMemory.status || 'UNKNOWN';
-          const statusColor = status === 'OK' ? '#00ff00' : status === 'ERROR' ? '#ff0000' : '#ffaa00';
+          const status = partnerAMemory.status || "UNKNOWN";
+          const statusColor = status === "OK" ? "#00ff00" : status === "ERROR" ? "#ff0000" : "#ffaa00";
           result.push(`<td style="padding: 5px; color: ${statusColor}; font-weight: bold;">${status}</td>`);
-          
+
           // Result resource (center lab output)
           result.push(`<td style="padding: 5px; text-align: center;">${utilsResources.resourceImg(labMemory.resource)}</td>`);
-          
+
           // Center lab
           result.push(`<td style="padding: 5px; color: #00ffff;">${labC}</td>`);
-          
+
           // Reagent A
           result.push(`<td style="padding: 5px; text-align: center;">${utilsResources.resourceImg(partnerAMemory.resource)}</td>`);
-          
+
           // Reagent B
           const partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
           if (partnerB && partnerBMemory) {
@@ -273,26 +273,26 @@ function showLabs() {
           } else {
             result.push('<td style="padding: 5px; color: #888; text-align: center;">-</td>');
           }
-          
+
           // Partner labs
           const partnerNames = [partnerA.toString()];
           if (partnerB) {
             partnerNames.push(partnerB.toString());
           }
-          result.push(`<td style="padding: 5px; color: #cccccc;">${partnerNames.join(', ')}</td>`);
-          
-          result.push('</tr>');
+          result.push(`<td style="padding: 5px; color: #cccccc;">${partnerNames.join(", ")}</td>`);
+
+          result.push("</tr>");
         }
       }
     }
   }
-  
+
   if (!hasLabs) {
     result.push('<tr><td colspan="7" style="padding: 5px; color: #888;">No active lab reactions found</td></tr>');
   }
-  
-  result.push('</table>');
-  const resultString = result.join('');
+
+  result.push("</table>");
+  const resultString = result.join("");
   console.log(resultString);
   return resultString;
 }
@@ -322,21 +322,21 @@ function myResources(hide = false) {
 
     if (!hide) {
       result.push("<tr>");
-      result.push("<td> " + utilsResources.resourceImg(resource) + " </td>");
-      result.push("<td align='right'> " + utilsResources.globalResourcesAmount(resource) + " </td>");
+      result.push(`<td> ${  utilsResources.resourceImg(resource)  } </td>`);
+      result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource)  } </td>`);
       const offset = utilsResources.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
       if (offset >= 0) {
-        result.push("<td align='right' style='color:#008000'> " + offset + " </td>");
+        result.push(`<td align='right' style='color:#008000'> ${  offset  } </td>`);
       } else {
-        result.push("<td align='right' style='color:#FF0000'> " + offset + " </td>");
+        result.push(`<td align='right' style='color:#FF0000'> ${  offset  } </td>`);
       }
       result.push("</tr>");
     } else {
       if (utilsResources.globalResourcesAmount && utilsResources.globalResourcesAmount(resource) > 0) {
         result.push("<tr>");
-        result.push("<td> " + utilsResources.resourceImg(resource) + " </td>");
-        result.push("<td align='right'> " + utilsResources.globalResourcesAmount(resource) + " </td>");
-        result.push("<td align='right'> " + (utilsResources.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")) + " </td>");
+        result.push(`<td> ${  utilsResources.resourceImg(resource)  } </td>`);
+        result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource)  } </td>`);
+        result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")  } </td>`);
         result.push("</tr>");
       }
     }
@@ -396,26 +396,26 @@ function marketInfo() {
     let amountSell = " - ";
     if (ordersSell[0] && ordersSell[0].amount) {
       amountSell = ordersSell[0].amount;
-      if (amountSell > 1000) amountSell = amountSell / 1000 + "K";
+      if (amountSell > 1000) amountSell = `${amountSell / 1000  }K`;
     }
 
     let amountBuy = " - ";
     if (ordersBuy[0] && ordersBuy[0].amount) {
       amountBuy = ordersBuy[ordersBuy.length - 1].amount;
-      if (amountBuy > 1000) amountBuy = amountBuy / 1000 + "K";
+      if (amountBuy > 1000) amountBuy = `${amountBuy / 1000  }K`;
     }
 
     result.push("<tr>");
-    result.push("<td> " + utilsResources.resourceImg(resources) + " </td>");
-    result.push("<td> " + priceSell + " </td>");
-    result.push("<td> " + amountSell + " </td>");
-    result.push("<td> " + lastPriceSell + " </td>");
-    result.push("<td> " + ordersSell.length + " </td>");
-    result.push("<td> " + utilsResources.resourceImg(resources) + " </td>");
-    result.push("<td> " + priceBuy + " </td>");
-    result.push("<td> " + amountBuy + " </td>");
-    result.push("<td> " + lastPriceBuy + " </td>");
-    result.push("<td> " + ordersBuy.length + " </td>");
+    result.push(`<td> ${  utilsResources.resourceImg(resources)  } </td>`);
+    result.push(`<td> ${  priceSell  } </td>`);
+    result.push(`<td> ${  amountSell  } </td>`);
+    result.push(`<td> ${  lastPriceSell  } </td>`);
+    result.push(`<td> ${  ordersSell.length  } </td>`);
+    result.push(`<td> ${  utilsResources.resourceImg(resources)  } </td>`);
+    result.push(`<td> ${  priceBuy  } </td>`);
+    result.push(`<td> ${  amountBuy  } </td>`);
+    result.push(`<td> ${  lastPriceBuy  } </td>`);
+    result.push(`<td> ${  ordersBuy.length  } </td>`);
     result.push("</tr>");
   }
 
@@ -439,8 +439,8 @@ function json(x) {
 function visualizeLogistic(roomName = null) {
   const result = [];
   result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push('<caption><strong>TRANSPORT ORDERS (LOGISTICS)</strong></caption>');
-  
+  result.push("<caption><strong>TRANSPORT ORDERS (LOGISTICS)</strong></caption>");
+
   // Get rooms to process
   const roomsToProcess = [];
   if (roomName) {
@@ -449,8 +449,8 @@ function visualizeLogistic(roomName = null) {
       roomsToProcess.push(room);
     } else {
       result.push(`<tr><td colspan="8" style="color: #ff0000;">Room "${roomName}" not found or not owned</td></tr>`);
-      result.push('</table>');
-      return result.join('');
+      result.push("</table>");
+      return result.join("");
     }
   } else {
     // All owned rooms
@@ -461,23 +461,23 @@ function visualizeLogistic(roomName = null) {
       }
     }
   }
-  
+
   if (roomsToProcess.length === 0) {
     result.push('<tr><td colspan="8" style="color: #ff0000;">No owned rooms found</td></tr>');
-    result.push('</table>');
-    return result.join('');
+    result.push("</table>");
+    return result.join("");
   }
-  
+
   // Create a temporary ControllerGame instance to create ControllerRoom instances
   const tempControllerGame = new ControllerGame();
-  
+
   for (const room of roomsToProcess) {
     const rc = tempControllerGame._rooms[room.name];
     if (!rc) continue;
-    
+
     // Room header
     result.push(`<tr><td colspan="10" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">ROOM: ${room.name}</td></tr>`);
-    
+
     // Table headers
     result.push('<tr style="background-color: #333;">');
     result.push('<th style="padding: 5px;">RESOURCE</th>');
@@ -490,12 +490,12 @@ function visualizeLogistic(roomName = null) {
     result.push('<th style="padding: 5px;">SOURCE OBJ</th>');
     result.push('<th style="padding: 5px;">TARGET OBJ</th>');
     result.push('<th style="padding: 5px;">STATUS</th>');
-    result.push('</tr>');
-    
+    result.push("</tr>");
+
     // Get givesResources and needsResources
     const givesResources = rc.givesResources();
     const needsResources = rc.needsResources();
-    
+
     // Find matching transport orders (need.priority < give.priority)
     const transportOrders = [];
     for (const give of givesResources) {
@@ -505,36 +505,36 @@ function visualizeLogistic(roomName = null) {
           // Verify target still exists and has capacity
           const targetObj = Game.getObjectById(need.id);
           if (!targetObj) continue;
-          
+
           if (targetObj.store) {
             const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
             if (freeCap <= 0) continue;
           }
-          
+
           // Verify source still exists
           const sourceObj = Game.getObjectById(give.id);
           if (!sourceObj) continue;
-          
+
           transportOrders.push({ give, need });
         }
       }
     }
-    
+
     // Sort by priority (need.priority) from smallest to largest
     transportOrders.sort((a, b) => (a.need.priority || 0) - (b.need.priority || 0));
-    
+
     if (transportOrders.length > 0) {
       for (const order of transportOrders) {
         const { give, need } = order;
-        
+
         const sourceObj = Game.getObjectById(give.id);
         const targetObj = Game.getObjectById(need.id);
-        const sourceName = sourceObj ? sourceObj.toString() : 'NOT FOUND';
-        const targetName = targetObj ? targetObj.toString() : 'NOT FOUND';
-        
-        let status = 'OK';
+        const sourceName = sourceObj ? sourceObj.toString() : "NOT FOUND";
+        const targetName = targetObj ? targetObj.toString() : "NOT FOUND";
+
+        let status = "OK";
         if (!sourceObj || !targetObj) {
-          status = 'INVALID';
+          status = "INVALID";
         } else {
           // Calculate source available amount
           let sourceAvailable = 0;
@@ -548,24 +548,24 @@ function visualizeLogistic(roomName = null) {
             // Tombstone or ruin
             sourceAvailable = sourceObj.store[give.resourceType] || 0;
           }
-          
+
           // Calculate target free capacity
-          let targetFreeStr = '0';
+          let targetFreeStr = "0";
           if (targetObj.store) {
             // Structure with store
             const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
             targetFreeStr = String(freeCap);
           } else if (targetObj.store && targetObj.store.getFreeCapacity) {
             // Tombstone or ruin (can't receive, but has store)
-            targetFreeStr = '0';
+            targetFreeStr = "0";
           } else {
             // Object without store (e.g., Controller) - assume it can receive
-            targetFreeStr = '∞';
+            targetFreeStr = "∞";
           }
-          
+
           status = `${sourceAvailable} available → ${targetFreeStr} free`;
         }
-        
+
         result.push('<tr style="background-color: #1a1a1a;">');
         result.push(`<td style="padding: 5px;">${utilsResources.resourceImg(give.resourceType)}</td>`);
         result.push(`<td style="padding: 5px; color: #00ff00;">${sourceName}</td>`);
@@ -577,20 +577,20 @@ function visualizeLogistic(roomName = null) {
         result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${give.id}</td>`);
         result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${need.id}</td>`);
         result.push(`<td style="padding: 5px;">${status}</td>`);
-        result.push('</tr>');
+        result.push("</tr>");
       }
     } else {
       result.push('<tr><td colspan="10" style="padding: 5px; color: #888;">No transport orders available (no matching pairs with need.priority < give.priority)</td></tr>');
     }
-    
+
     // Summary row
     result.push('<tr style="background-color: #333;">');
     result.push(`<td colspan="10" style="padding: 5px; color: #cccccc;">Summary: ${transportOrders.length} transport order(s) from ${givesResources.length} gives and ${needsResources.length} needs</td>`);
-    result.push('</tr>');
+    result.push("</tr>");
   }
-  
-  result.push('</table>');
-  const resultString = result.join('');
+
+  result.push("</table>");
+  const resultString = result.join("");
   console.log(resultString);
   return resultString;
 }
@@ -607,7 +607,7 @@ function visualizeCpu() {
 
   const stats = cpuAnalyzer.getStatistics(100);
   const decision = cpuAnalyzer.canConquerNewRoom();
-  
+
   console.log(`CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`);
 }
 
@@ -620,7 +620,6 @@ module.exports = {
   json,
   help,
   visualizeLogistic,
-  visualizeCpu
+  visualizeCpu,
 };
-
 

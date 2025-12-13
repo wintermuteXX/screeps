@@ -29,7 +29,7 @@ function createCreepConfigUtils() {
    * @returns {Array<string>} Array of role names
    */
   function getCreepRoles() {
-    return _.sortBy(Object.keys(creepsConfig), function (r) {
+    return _.sortBy(Object.keys(creepsConfig), (r) => {
       return creepsConfig[r].priority || 999;
     });
   }
@@ -37,7 +37,7 @@ function createCreepConfigUtils() {
   return {
     getCreepConfig,
     getCreepsConfig,
-    getCreepRoles
+    getCreepRoles,
   };
 }
 

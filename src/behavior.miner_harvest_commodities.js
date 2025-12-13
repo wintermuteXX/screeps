@@ -2,13 +2,13 @@ const Behavior = require("./behavior.base");
 const b = new Behavior("miner_harvest_commodities");
 
 b.when = function (creep, rc) {
-    const deposits = rc.find(FIND_DEPOSITS);
-    return deposits.length > 0 && creep.store.getFreeCapacity() !== 0 && creep.ticksToLive >= 350;
+  const deposits = rc.find(FIND_DEPOSITS);
+  return deposits.length > 0 && creep.store.getFreeCapacity() !== 0 && creep.ticksToLive >= 350;
 };
 
 b.completed = function (creep, rc) {
-    const deposits = rc.find(FIND_DEPOSITS);
-    return creep.store.getFreeCapacity() === 0 || creep.ticksToLive < 250 || deposits.length === 0;
+  const deposits = rc.find(FIND_DEPOSITS);
+  return creep.store.getFreeCapacity() === 0 || creep.ticksToLive < 250 || deposits.length === 0;
 };
 
 b.work = function (creep, rc) {

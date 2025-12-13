@@ -34,11 +34,11 @@ b.work = function (creep, rc) {
     if (!resource) {
       return;
     }
-    
+
     creep.target = resource.id;
     resourceType = resource.resourceType;
     amount = resource.amount;
-    
+
     this._updateMemory(creep, resourceType, amount, resource.id);
   } else {
     // Target already set - get resource info from memory
@@ -64,7 +64,7 @@ b._updateMemory = function (creep, resourceType, amount, targetId) {
   if (!creep.memory.resources) {
     creep.memory.resources = [];
   }
-  
+
   const existingEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
   if (existingEntry) {
     existingEntry.target = targetId;
@@ -73,7 +73,7 @@ b._updateMemory = function (creep, resourceType, amount, targetId) {
     creep.memory.resources.push({
       resourceType: resourceType,
       amount: amount,
-      target: targetId
+      target: targetId,
     });
   }
 };
@@ -86,15 +86,15 @@ b._getResourceFromMemory = function (creep, targetId) {
   if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
     return null;
   }
-  
+
   const resourceEntry = creep.memory.resources.find(r => r.target === targetId);
   if (resourceEntry) {
     return {
       resourceType: resourceEntry.resourceType,
-      amount: resourceEntry.amount
+      amount: resourceEntry.amount,
     };
   }
-  
+
   return null;
 };
 
@@ -108,7 +108,7 @@ b._collectResource = function (creep, target, resourceType, plannedAmount) {
   }
 
   let result;
-  
+
   // Check if target has a store (structures, tombstones, ruins) -> withdraw
   // Otherwise (Dropped Resources) -> pickup
   if (actualTarget.store !== undefined) {
@@ -116,7 +116,7 @@ b._collectResource = function (creep, target, resourceType, plannedAmount) {
   } else {
     result = this._pickupResource(creep, actualTarget, resourceType);
   }
-  
+
   // Handle result
   this._handleCollectionResult(creep, actualTarget, resourceType, result);
 };
@@ -127,25 +127,25 @@ b._collectResource = function (creep, target, resourceType, plannedAmount) {
 b._withdrawResource = function (creep, target, resourceType, plannedAmount) {
   const available = target.store[resourceType] || 0;
   const freeCapacity = creep.store.getFreeCapacity(resourceType) || 0;
-  const withdrawAmount = plannedAmount 
-    ? Math.min(plannedAmount, available, freeCapacity) 
+  const withdrawAmount = plannedAmount
+    ? Math.min(plannedAmount, available, freeCapacity)
     : Math.min(available, freeCapacity);
-  
+
   if (withdrawAmount <= 0) {
     Log.debug(
       `${creep} cannot withdraw ${resourceType}: available=${available}, freeCapacity=${freeCapacity}`,
-      "get_resources"
+      "get_resources",
     );
     creep.target = null;
     return ERR_NOT_ENOUGH_RESOURCES;
   }
-  
+
   const result = creep.withdraw(target, resourceType, withdrawAmount);
   Log.debug(
     `${creep} tries to withdraw ${resourceType} (${withdrawAmount}) from ${target}: ${result}`,
-    "get_resources"
+    "get_resources",
   );
-  
+
   return result;
 };
 
@@ -156,7 +156,7 @@ b._pickupResource = function (creep, target, resourceType) {
   const result = creep.pickup(target);
   Log.debug(
     `${creep} tries to pickup ${resourceType || "resource"} from ${target}: ${result}`,
-    "get_resources"
+    "get_resources",
   );
   return result;
 };
@@ -171,30 +171,30 @@ b._handleCollectionResult = function (creep, target, resourceType, result) {
       this._updateMemoryWithActualAmount(creep, resourceType);
       creep.target = null;
       break;
-      
+
     case ERR_INVALID_TARGET:
     case ERR_NOT_ENOUGH_RESOURCES:
       Log.warn(
         `${creep} had a problem collecting ${resourceType} from ${target}. Status: ${result}`,
-        "get_resources"
+        "get_resources",
       );
       creep.target = null;
       break;
-      
+
     case ERR_FULL:
       Log.info(`${creep} is full, cannot collect more ${resourceType}`, "get_resources");
       this._updateMemoryWithActualAmount(creep, resourceType);
       creep.target = null;
       break;
-      
+
     case ERR_NOT_IN_RANGE:
       creep.travelTo(target, { maxRooms: 0});
       break;
-      
+
     default:
       Log.warn(
         `${creep} got unknown result from collection (${target}): ${result}`,
-        "get_resources"
+        "get_resources",
       );
   }
 };
@@ -206,7 +206,7 @@ b._updateMemoryWithActualAmount = function (creep, resourceType) {
   if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
     return;
   }
-  
+
   const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
   if (resourceEntry) {
     resourceEntry.amount = creep.store[resourceType] || 0;

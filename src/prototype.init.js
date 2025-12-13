@@ -1,6 +1,6 @@
 /**
  * Prototype Initialization
- * 
+ *
  * This file initializes all prototype extensions by requiring the individual modules.
  */
 
@@ -55,12 +55,12 @@ RoomObject.prototype.say = function (what) {
 
 Resource.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    const resourceType = this.resourceType || 'unknown';
+    const resourceType = this.resourceType || "unknown";
     const amount = this.amount || 0;
     return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[${resourceType}:${amount}]</a>`;
   }
@@ -69,12 +69,12 @@ Resource.prototype.toString = function (htmlLink = true) {
 
 Tombstone.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    const creepName = this.creep ? this.creep.name : 'unknown';
+    const creepName = this.creep ? this.creep.name : "unknown";
     return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[Tombstone:${creepName}]</a>`;
   }
   return `[(Tombstone) #${this.id}]`;
@@ -82,12 +82,12 @@ Tombstone.prototype.toString = function (htmlLink = true) {
 
 Ruin.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    const structureType = this.structure ? this.structure.structureType : 'unknown';
+    const structureType = this.structure ? this.structure.structureType : "unknown";
     return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[Ruin:${structureType}]</a>`;
   }
   return `[(Ruin) #${this.id}]`;
@@ -95,12 +95,12 @@ Ruin.prototype.toString = function (htmlLink = true) {
 
 Mineral.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +
         `angular.element($('body')).scope().$broadcast('roomObjectSelected', _.filter(angular.element(document.getElementsByClassName('room ng-scope')).scope().Room.objects, (o)=>o._id==='${this.id}')[0]);`;
-    const mineralType = this.mineralType || 'unknown';
+    const mineralType = this.mineralType || "unknown";
     const amount = this.mineralAmount || 0;
     return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[Mineral:${mineralType}:${amount}]</a>`;
   }

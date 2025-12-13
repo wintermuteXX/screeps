@@ -7,68 +7,68 @@ class LogisticsManager {
   }
 
   getTransportOrder(Creep) {
-    let givesResources = this.givesResources();
-    let needsResources = this.needsResources();
-    
+    const givesResources = this.givesResources();
+    const needsResources = this.needsResources();
+
     // Check if creep is empty
     const isEmpty = Creep.store.getUsedCapacity() === 0;
-    
+
     // Only assign orders to empty creeps
     if (!isEmpty) {
       return null;
     }
-    
+
     // Collect all matching pairs with priority check
     const matchingOrders = [];
     for (const g in givesResources) {
       const give = givesResources[g];
       for (const n in needsResources) {
         const need = needsResources[n];
-        
+
         // Basic compatibility check
         if (give.resourceType !== need.resourceType) continue;
         if (need.id === give.id) continue;
-        
+
         // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
         if (need.priority >= give.priority) continue;
-        
+
         // Only block if an EMPTY creep is already targeting this source (empty creeps collect resources)
         if (this.rc.creeps.getAllCreeps().some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
-        
+
         // Check if target still exists and has capacity
         const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
         if (!targetValidation) continue;
-        
+
         // Add to matching orders with priority for sorting
         matchingOrders.push({
           give: give,
           need: need,
-          priority: need.priority
+          priority: need.priority,
         });
       }
     }
-    
+
     // Sort by need.priority (lowest first, same as visualizeLogistic)
     matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
-    
+
     // Return first matching order
     if (matchingOrders.length > 0) {
       const order = matchingOrders[0];
       order.give.orderType = "G";
-      
+
       // Update Creep.memory.resources with orderType
       this._updateCreepResourceMemory(Creep, order.give.resourceType, order.give.id, order.give.orderType, 0);
-      
+
       return order.give;
     }
-    
+
     return null;
   }
 
   getDeliveryOrder(Creep, resourceType = null) {
-    let givesResources = this.givesResources(); // Need to check priority
-    let needsResources = this.needsResources();
-    
+    const givesResources = this.givesResources(); // Need to check priority
+    const needsResources = this.needsResources();
+
     // Get resources the creep is carrying
     const carriedResources = [];
     if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
@@ -85,53 +85,53 @@ class LogisticsManager {
         }
       }
     }
-    
+
     if (carriedResources.length === 0) {
       return null;
     }
-    
+
     // Filter by specific resource type if requested
     const resourcesToCheck = resourceType ? [resourceType] : carriedResources;
-    
+
     // Find matching orders - collect all matches with priority check
     const matchingOrders = [];
-    
+
     for (const resType of resourcesToCheck) {
       if (Creep.store[resType] <= 0) continue;
-      
+
       // Find corresponding give for this resource type to check priority
       const correspondingGive = givesResources.find(g => g.resourceType === resType && g.id !== Creep.id);
-      
+
       for (const n in needsResources) {
         const need = needsResources[n];
-        
+
         // Basic compatibility check
         if (need.resourceType !== resType) continue;
         if (need.id === Creep.id) continue;
-        
+
         // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
         if (correspondingGive && need.priority >= correspondingGive.priority) continue;
-        
+
         // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
         if (this.rc.creeps.getAllCreeps().some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
 
         // Check if target still exists and has capacity
         const targetValidation = this._validateResourceTarget(need.id, resType);
         if (!targetValidation) continue;
-        
+
         // Found matching order - set orderType and add to list
         need.orderType = "D";
-        
+
         // Update Creep.memory.resources with orderType
         this._updateCreepResourceMemory(Creep, resType, need.id, need.orderType, Creep.store[resType] || 0);
-        
+
         matchingOrders.push(need);
       }
     }
-    
+
     // Sort by priority (lowest first, same as visualizeLogistic)
     matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
-    
+
     // Return format: if resourceType specified, return single order; otherwise return array
     if (matchingOrders.length > 0) {
       if (resourceType !== null) {
@@ -143,20 +143,20 @@ class LogisticsManager {
         return matchingOrders;
       }
     }
-    
+
     return null;
   }
 
   _validateResourceTarget(targetId, resourceType) {
     const targetObj = Game.getObjectById(targetId);
     if (!targetObj) return null;
-    
+
     if (targetObj.store) {
       const freeCap = targetObj.store.getFreeCapacity(resourceType) || 0;
       if (freeCap <= 0) return null;
       return { obj: targetObj, freeCapacity: freeCap };
     }
-    
+
     // No store (e.g., controller) - assume valid
     return { obj: targetObj, freeCapacity: Infinity };
   }
@@ -165,8 +165,8 @@ class LogisticsManager {
     if (!creep.memory.resources) {
       creep.memory.resources = [];
     }
-    
-    let resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
+
+    const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
     if (resourceEntry) {
       resourceEntry.orderType = orderType;
       if (targetId) resourceEntry.target = targetId;
@@ -176,7 +176,7 @@ class LogisticsManager {
         resourceType: resourceType,
         amount: amount !== undefined ? amount : 0,
         target: targetId || null,
-        orderType: orderType
+        orderType: orderType,
       });
     }
   }
@@ -200,12 +200,12 @@ class LogisticsManager {
       if (amount <= fillLevel) {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW,
-          amount: amount
+          amount: amount,
         };
       } else {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
-          amount: amount - fillLevel
+          amount: amount - fillLevel,
         };
       }
     } else {
@@ -213,12 +213,12 @@ class LogisticsManager {
       if (amount > fillLevel) {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW,
-          amount: amount - fillLevel
+          amount: amount - fillLevel,
         };
       } else {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_HIGH,
-          amount: amount
+          amount: amount,
         };
       }
     }
@@ -229,12 +229,12 @@ class LogisticsManager {
       if (currentAmount < fillLevel) {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
-          amount: fillLevel - currentAmount
+          amount: fillLevel - currentAmount,
         };
       } else if (currentAmount < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
-          amount: CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount
+          amount: CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount,
         };
       }
       return null; // Skip if already at max
@@ -243,7 +243,7 @@ class LogisticsManager {
       if (currentAmount < fillLevel) {
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL,
-          amount: fillLevel - currentAmount
+          amount: fillLevel - currentAmount,
         };
       }
       return null; // Skip if already at fill level
@@ -255,12 +255,12 @@ class LogisticsManager {
       if (amount <= energyThreshold) {
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW,
-          amount: amount
+          amount: amount,
         };
       } else {
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH,
-          amount: amount - energyThreshold
+          amount: amount - energyThreshold,
         };
       }
     } else {
@@ -268,7 +268,7 @@ class LogisticsManager {
       if (amount > 0) {
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_MINERAL,
-          amount: amount
+          amount: amount,
         };
       }
       return null; // Skip if no minerals
@@ -280,7 +280,7 @@ class LogisticsManager {
       for (const resourceType in item.store) {
         const amount = item.store[resourceType];
         if (amount > minAmount) {
-          const structureType = item.structureType || 
+          const structureType = item.structureType ||
                               (item.structure ? item.structure.structureType : defaultStructureType);
           this._addGivesResource({
             priority: priority,
@@ -299,7 +299,7 @@ class LogisticsManager {
       FIND_TOMBSTONES,
       CONSTANTS.RESOURCES.TOMBSTONE_MIN,
       CONSTANTS.PRIORITY.TOMBSTONE,
-      "tombstone"
+      "tombstone",
     );
   }
 
@@ -308,13 +308,13 @@ class LogisticsManager {
       FIND_RUINS,
       0,
       CONSTANTS.PRIORITY.RUIN,
-      "ruin"
+      "ruin",
     );
   }
 
   _processLinks() {
     if (!this.rc.links.receivers) return;
-    
+
     for (const link of this.rc.links.receivers) {
       if (link.energy > 0 && !this._isTooCloseToController(link.pos)) {
         this._addGivesResource({
@@ -343,7 +343,7 @@ class LogisticsManager {
 
   _processContainers() {
     const containers = [];
-    
+
     // Get containers from sources (nutzt gecachten find() Cache)
     const sources = this.rc.find(FIND_SOURCES);
     for (const source of sources) {
@@ -351,15 +351,15 @@ class LogisticsManager {
         containers.push(source.container);
       }
     }
-    
+
     // Get container from extractor
     if (this.rc.room.extractor && this.rc.room.extractor.container) {
       containers.push(this.rc.room.extractor.container);
     }
-    
+
     for (const container of containers) {
       if (!container || !container.store) continue;
-      
+
       for (const resourceType in container.store) {
         const amount = container.store[resourceType];
         if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
@@ -377,10 +377,10 @@ class LogisticsManager {
 
   _processLabs() {
     if (!this.rc.room.labs) return;
-    
+
     for (const lab of this.rc.room.labs) {
       if (!lab.memory || lab.memory.status !== "empty") continue;
-      
+
       const result = lab.getFirstMineral();
       if (result && result.amount > 0) {
         this._addGivesResource({
@@ -395,13 +395,13 @@ class LogisticsManager {
   }
 
   _processFactory() {
-    const factory = this.rc.room.factory;
+    const {factory} = this.rc.room;
     if (!factory) return;
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "factory");
       const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "factory");
-      
+
       if (amount > fillLevel) {
         this._addGivesResource({
           priority: CONSTANTS.PRIORITY.FACTORY_OVERFLOW,
@@ -416,16 +416,16 @@ class LogisticsManager {
   }
 
   _processStorage() {
-    const storage = this.rc.room.storage;
+    const {storage} = this.rc.room;
     if (!storage) return;
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "storage");
       if (amount === 0) continue;
-      
+
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "storage");
       const priorityInfo = this._getStorageGivesPriority(resourceType, amount, fillLevel);
-      
+
       if (priorityInfo) {
         this._addGivesResource({
           priority: priorityInfo.priority,
@@ -440,15 +440,15 @@ class LogisticsManager {
   }
 
   _processTerminal() {
-    const terminal = this.rc.room.terminal;
+    const {terminal} = this.rc.room;
     if (!terminal) return;
-    
+
     const energyThreshold = this.rc.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "terminal");
       const priorityInfo = this._getTerminalGivesPriority(resourceType, amount, energyThreshold);
-      
+
       if (priorityInfo) {
         this._addGivesResource({
           priority: priorityInfo.priority,
@@ -464,7 +464,7 @@ class LogisticsManager {
   givesResources() {
     if (!this.rc._givesResources) {
       this.rc._givesResources = [];
-      
+
       // Process all resource sources
       this._processTombstones();
       this._processRuins();
@@ -475,11 +475,11 @@ class LogisticsManager {
       this._processFactory();
       this._processStorage();
       this._processTerminal();
-      
+
       // Sort by priority (highest first)
       this.rc._givesResources.sort((a, b) => b.priority - a.priority);
     }
-    
+
     return this.rc._givesResources;
   }
 
@@ -494,20 +494,20 @@ class LogisticsManager {
     if (!this.rc.room.controller) {
       return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
     }
-    
-    const ticksToDowngrade = this.rc.room.controller.ticksToDowngrade;
+
+    const {ticksToDowngrade} = this.rc.room.controller;
     if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
       return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
     } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
       return CONSTANTS.PRIORITY.CONTROLLER_LOW;
     }
-    
+
     return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
   }
 
   _processUpgraders(priority) {
     if (!this.rc.room.controller || this.rc.room.controller.container) return;
-    
+
     const upgraders = this.rc.creeps.getCreeps("upgrader");
     for (const upgrader of upgraders) {
       const freeCapacity = upgrader.store.getFreeCapacity(RESOURCE_ENERGY);
@@ -543,7 +543,7 @@ class LogisticsManager {
     for (const constructor of constructors) {
       const freeCapacity = constructor.store.getFreeCapacity(RESOURCE_ENERGY);
       const capacity = constructor.store.getCapacity();
-      
+
       // Only add if more than half capacity is free
       if (freeCapacity > capacity / 2) {
         this._addNeedsResource({
@@ -559,13 +559,13 @@ class LogisticsManager {
 
   _processLabsNeeds() {
     if (!this.rc.room.labs) return;
-    
+
     for (const lab of this.rc.room.labs) {
       if (!lab.memory || lab.memory.status !== "fill" || !lab.memory.usedBy) continue;
-      
+
       const resourceType = lab.memory.resource;
       if (!resourceType) continue;
-      
+
       const freeCapacity = lab.store.getFreeCapacity(resourceType);
       if (freeCapacity > 0) {
         this._addNeedsResource({
@@ -581,56 +581,56 @@ class LogisticsManager {
 
   _processStructures() {
     if (!this.rc.room.controller || !this.rc.room.controller.my) return;
-    
+
     // Determine tower priority based on enemies
-    const towerPriority = this.rc.structures.getEnemys().length > 0 
-      ? CONSTANTS.PRIORITY.TOWER_ENEMY 
+    const towerPriority = this.rc.structures.getEnemys().length > 0
+      ? CONSTANTS.PRIORITY.TOWER_ENEMY
       : CONSTANTS.PRIORITY.TOWER_NORMAL;
-    
+
     // Process towers
     const towerNeeds = this.rc.structures.structuresNeedResource(this.rc.room.towers, RESOURCE_ENERGY, towerPriority, 400);
     for (const need of towerNeeds) {
       this._addNeedsResource(need);
     }
-    
+
     // Process spawns
     const spawnNeeds = this.rc.structures.structuresNeedResource(this.rc.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
     for (const need of spawnNeeds) {
       this._addNeedsResource(need);
     }
-    
+
     // Process extensions
     const extensionNeeds = this.rc.structures.structuresNeedResource(this.rc.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
     for (const need of extensionNeeds) {
       this._addNeedsResource(need);
     }
-    
+
     // Process labs (for energy)
     const labNeeds = this.rc.structures.structuresNeedResource(this.rc.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
     for (const need of labNeeds) {
       this._addNeedsResource(need);
     }
-    
+
     // Process power spawn
     if (this.rc.room.powerSpawn) {
       const powerSpawnEnergyNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
       for (const need of powerSpawnEnergyNeeds) {
         this._addNeedsResource(need);
       }
-      
+
       const powerSpawnPowerNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
       for (const need of powerSpawnPowerNeeds) {
         this._addNeedsResource(need);
       }
     }
-    
+
     // Process nuker
     if (this.rc.room.nuker) {
       const nukerEnergyNeeds = this.rc.structures.structuresNeedResource([this.rc.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
       for (const need of nukerEnergyNeeds) {
         this._addNeedsResource(need);
       }
-      
+
       const nukerGhodiumNeeds = this.rc.structures.structuresNeedResource([this.rc.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
       for (const need of nukerGhodiumNeeds) {
         this._addNeedsResource(need);
@@ -639,18 +639,18 @@ class LogisticsManager {
   }
 
   _processFactoryNeeds() {
-    const factory = this.rc.room.factory;
+    const {factory} = this.rc.room;
     if (!factory || factory.store.getFreeCapacity() === 0) return;
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "factory");
       const currentAmount = factory.store[resourceType] || 0;
-      
+
       if (currentAmount < fillLevel) {
-        const priority = resourceType === RESOURCE_ENERGY 
-          ? CONSTANTS.PRIORITY.FACTORY_ENERGY 
+        const priority = resourceType === RESOURCE_ENERGY
+          ? CONSTANTS.PRIORITY.FACTORY_ENERGY
           : CONSTANTS.PRIORITY.FACTORY_MINERAL;
-        
+
         this._addNeedsResource({
           priority: priority,
           structureType: factory.structureType,
@@ -664,14 +664,14 @@ class LogisticsManager {
   }
 
   _processStorageNeeds() {
-    const storage = this.rc.room.storage;
+    const {storage} = this.rc.room;
     if (!storage || storage.store.getFreeCapacity() === 0) return;
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "storage");
       const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "storage");
       const priorityInfo = this._getStorageNeedsPriority(resourceType, currentAmount, fillLevel);
-      
+
       if (priorityInfo) {
         this._addNeedsResource({
           priority: priorityInfo.priority,
@@ -686,17 +686,17 @@ class LogisticsManager {
   }
 
   _processTerminalNeeds() {
-    const terminal = this.rc.room.terminal;
+    const {terminal} = this.rc.room;
     if (!terminal || terminal.store.getFreeCapacity() === 0) return;
-    
+
     const energyThreshold = this.rc.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
     const freeCapacity = terminal.store.getFreeCapacity();
-    
+
     for (const resourceType of RESOURCES_ALL) {
       const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "terminal");
       let priority;
       let neededAmount;
-      
+
       if (resourceType === RESOURCE_ENERGY) {
         if (currentAmount < energyThreshold) {
           priority = CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW;
@@ -728,7 +728,7 @@ class LogisticsManager {
           continue; // Skip if already at fill level
         }
       }
-      
+
       // Only add if we actually need something
       if (neededAmount > 0) {
         this._addNeedsResource({
@@ -746,10 +746,10 @@ class LogisticsManager {
   needsResources() {
     if (!this.rc._needsResources) {
       this.rc._needsResources = [];
-      
+
       // Get controller priority
       const controllerPriority = this._getControllerPriority();
-      
+
       this._processUpgraders(controllerPriority);
       this._processController(controllerPriority);
       this._processConstructors();
@@ -758,11 +758,11 @@ class LogisticsManager {
       this._processFactoryNeeds();
       this._processStorageNeeds();
       this._processTerminalNeeds();
-      
+
       // Sort by priority (lowest first = highest priority)
       this.rc._needsResources.sort((a, b) => a.priority - b.priority);
     }
-    
+
     return this.rc._needsResources;
   }
 }

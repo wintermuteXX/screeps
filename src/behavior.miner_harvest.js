@@ -26,11 +26,11 @@ b.completed = function () {
  */
 function moveAndAct(creep, target, action, statusPrefix, range = 1) {
   if (!target) return false;
-  
-  const isNear = range === 1 
+
+  const isNear = range === 1
     ? creep.pos.isNearTo(target)
     : creep.pos.inRangeTo(target, range);
-  
+
   if (isNear) {
     return action();
   } else {
@@ -61,7 +61,7 @@ function transferIfNear(creep, target, resourceType, statusPrefix) {
       }
       return false;
     },
-    statusPrefix
+    statusPrefix,
   );
 }
 
@@ -90,7 +90,7 @@ function getSource(creep, rc) {
   let source = creep.getTarget();
   if (source === null) {
     // Nutzt gecachten find() Cache statt getSources()
-    source = _.find(rc.find(FIND_SOURCES), function (s) {
+    source = _.find(rc.find(FIND_SOURCES), (s) => {
       return (rc.getCreeps("miner", s.id).length === 0);
     });
   }
@@ -160,7 +160,7 @@ function handleIdleRepair(creep, container) {
       creep.repair(container);
       return true;
     },
-    "REPAIRING_CONTAINER"
+    "REPAIRING_CONTAINER",
   );
 }
 
@@ -185,7 +185,7 @@ function transferResourcesToContainer(creep, container) {
       creep.transfer(container, resourceType);
       return true;
     },
-    "IDLE_MOVING_TO_CONTAINER"
+    "IDLE_MOVING_TO_CONTAINER",
   );
 }
 
@@ -216,7 +216,7 @@ function pickupDroppedResources(creep, container) {
       creep.pickup(closestResource);
       return true;
     },
-    "IDLE_MOVING_TO_RESOURCE"
+    "IDLE_MOVING_TO_RESOURCE",
   );
 }
 
@@ -287,7 +287,7 @@ function withdrawAndTransferToLink(creep, container, link) {
  * Transfer energy from container to link
  */
 function handleLinkTransfer(creep, link, container) {
-  const linkNeedsEnergy = link.energy < link.store.getCapacity(RESOURCE_ENERGY)
+  const linkNeedsEnergy = link.energy < link.store.getCapacity(RESOURCE_ENERGY);
   const containerHasEnergy = container.store && container.store[RESOURCE_ENERGY] > 0;
 
   if (!linkNeedsEnergy || !containerHasEnergy) {
@@ -357,7 +357,7 @@ b.work = function (creep, rc) {
 
   // Get link and container references
   const link = getLink(source, creep, rc);
-  const container = source.container;
+  const {container} = source;
   const isIdle = source.energy === 0;
 
   // ============================================================

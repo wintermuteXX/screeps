@@ -31,9 +31,9 @@ function createBehaviorRegistry() {
         if (n.indexOf(":") !== -1) {
           moduleName = n.split(":")[0];
         }
-        
-        const behaviorModule = require("./behavior." + moduleName);
-        
+
+        const behaviorModule = require(`./behavior.${  moduleName}`);
+
         // If module is a function (factory), call it with the behavior name
         if (typeof behaviorModule === "function") {
           _behaviors[n] = behaviorModule(n);
@@ -52,7 +52,7 @@ function createBehaviorRegistry() {
 
   return {
     getBehavior,
-    _registerBehavior
+    _registerBehavior,
   };
 }
 

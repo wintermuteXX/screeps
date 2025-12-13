@@ -9,7 +9,7 @@ class ControllerLink {
   get senders() {
     // Nutzt gecachten find() Cache statt getSources()
     const sources = this.room.find(FIND_SOURCES);
-    return _.filter(this.links, function (link) {
+    return _.filter(this.links, (link) => {
       return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length > 0;
     });
   }
@@ -17,7 +17,7 @@ class ControllerLink {
   get receivers() {
     // Nutzt gecachten find() Cache statt getSources()
     const sources = this.room.find(FIND_SOURCES);
-    return _.filter(this.links, function (link) {
+    return _.filter(this.links, (link) => {
       return link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length === 0;
     });
   }
@@ -28,11 +28,11 @@ class ControllerLink {
       return;
     }
 
-    let senders = _.filter(this.senders, function (s) {
+    let senders = _.filter(this.senders, (s) => {
       return (s.energy > s.store.getCapacity(RESOURCE_ENERGY) - CONSTANTS.STRUCTURE_ENERGY.LINK_SENDER_THRESHOLD);
     });
 
-    const receivers = _.shuffle(_.filter(this.receivers, function (r) {
+    const receivers = _.shuffle(_.filter(this.receivers, (r) => {
       return (r.energy < r.store.getCapacity(RESOURCE_ENERGY) - CONSTANTS.STRUCTURE_ENERGY.LINK_RECEIVER_THRESHOLD);
     }));
 

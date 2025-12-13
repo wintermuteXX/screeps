@@ -1,6 +1,6 @@
 /**
  * Constants - Centralized configuration values
- * 
+ *
  * This file contains all magic numbers and hardcoded values used throughout the codebase.
  * Update values here to adjust behavior across the entire codebase.
  */
@@ -25,7 +25,7 @@ module.exports = {
     CONQUER_THRESHOLD_PEAK: 0.95,   // Max 95% CPU-Spitze
   },
 
-// Tick Intervals
+  // Tick Intervals
   TICKS: {
     LOG_INTERVAL: 100,              // Log every N ticks
     MEMHACK_CLEANUP_ROOMS: 100,     // Clean up room memory every N ticks
@@ -106,7 +106,7 @@ module.exports = {
     TERMINAL_ENERGY_LOW: 35,          // [NEEDS/GIVES] Terminal energy very low (used in both)
     STORAGE_ENERGY_MID: 55,           // [NEEDS] Storage energy medium
     TOWER_NORMAL: 60,                 // [NEEDS] Towers when no enemies
-    CONSTRUCTOR: 62,                  // [NEEDS] Constructors              
+    CONSTRUCTOR: 62,                  // [NEEDS] Constructors
     LAB: 65,                          // [NEEDS] Labs
     LAB_FILL: 70,                     // [NEEDS] Labs filling
     FACTORY_ENERGY: 75,               // [NEEDS] Factory energy
@@ -119,7 +119,7 @@ module.exports = {
     STORAGE_ENERGY_OVERFLOW: 120,     // [NEEDS/GIVES] Storage energy overflow (used in both)
     TERMINAL_MINERAL: 130,            // [NEEDS/GIVES] Terminal minerals (used in both)
     TERMINAL_ENERGY_OVERFLOW: 145,    // [NEEDS] Terminal energy overflow
-    
+
     // ===== GIVES (givesResources) - Sources that can give resources =====
     STORAGE_ENERGY_LOW: 40,           // [GIVES] Storage energy low (can give)
     STORAGE_ENERGY_HIGH: 100,         // [GIVES] Storage energy high (can give)

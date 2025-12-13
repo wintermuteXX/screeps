@@ -36,7 +36,7 @@ class Log {
 
   /** */
   static log(level = Log.LEVEL_DEBUG, msg, tag) {
-    var color = Log.color[level];
+    const color = Log.color[level];
     if (tag && this.getLogLevel(tag) > level) return;
     this.toConsole(msg, color, tag);
   }
@@ -47,8 +47,8 @@ class Log {
    */
   static table(headers, rows) {
     let msg = "<table>";
-    _.each(headers, (h) => (msg += '<th width="50px">' + h + "</th>"));
-    _.each(rows, (row) => (msg += "<tr>" + _.map(row, (el) => `<th>${el}</th>`) + "</tr>"));
+    _.each(headers, (h) => (msg += `<th width="50px">${  h  }</th>`));
+    _.each(rows, (row) => (msg += `<tr>${  _.map(row, (el) => `<th>${el}</th>`)  }</tr>`));
     msg += "</table>";
     // console.log(msg);
     return msg;

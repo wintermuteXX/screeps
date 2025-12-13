@@ -1,6 +1,6 @@
 /**
  * Cache Manager for tick-based caching
- * 
+ *
  * Automatically clears cache when Game.time changes.
  * Reduces CPU usage by caching expensive operations per tick.
  */
@@ -9,7 +9,7 @@ class CacheManager {
     this._cache = new Map();
     this._tick = null;
   }
-  
+
   /**
    * Get a cached value or compute it using the factory function
    * @param {string} key - Cache key
@@ -22,18 +22,18 @@ class CacheManager {
       this._cache.clear();
       this._tick = Game.time;
     }
-    
+
     // Return cached value if exists
     if (this._cache.has(key)) {
       return this._cache.get(key);
     }
-    
+
     // Compute and cache new value
     const value = factory();
     this._cache.set(key, value);
     return value;
   }
-  
+
   /**
    * Manually set a cache value
    * @param {string} key - Cache key
@@ -45,10 +45,10 @@ class CacheManager {
       this._cache.clear();
       this._tick = Game.time;
     }
-    
+
     this._cache.set(key, value);
   }
-  
+
   /**
    * Check if a key exists in cache
    * @param {string} key - Cache key
@@ -60,10 +60,10 @@ class CacheManager {
       this._cache.clear();
       this._tick = Game.time;
     }
-    
+
     return this._cache.has(key);
   }
-  
+
   /**
    * Clear the cache manually
    */
@@ -71,7 +71,7 @@ class CacheManager {
     this._cache.clear();
     this._tick = null;
   }
-  
+
   /**
    * Get cache size (for debugging)
    * @returns {number} Number of cached entries

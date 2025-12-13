@@ -20,7 +20,7 @@ class ControllerCreep {
         if (creep.behavior !== behavior.name) {
           creep.behavior = behavior.name;
         }
-       
+
         behavior.work(creep, this.ControllerRoom);
 
       } else {
@@ -33,7 +33,7 @@ class ControllerCreep {
    * ControllerCreep.findBehavior
    */
   findBehavior(config, creep) {
-    const behaviors = config.behaviors;
+    const {behaviors} = config;
 
     for (let i = 0; i < behaviors.length; i++) {
       const b = global.getBehavior(behaviors[i]);

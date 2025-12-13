@@ -31,7 +31,7 @@ function ControllerRoom(room, ControllerGame) {
 
   this.links = new ControllerLink(this);
 
-  const towers = this.room.towers;
+  const {towers} = this.room;
 
   for (const t in towers) {
     const tower = towers[t];
@@ -55,14 +55,14 @@ ControllerRoom.prototype.run = function () {
   this._creepsByRole = null;
   this._givesResources = null;
   this._needsResources = null;
-  
+
   this.creeps.populate();
 
   // Run RoomPlanner (every 50 ticks to save CPU)
   if (Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
     this.planner.run();
   }
-  
+
   // Draw visualization every tick if active (independent of planner.run())
   if (this.room.memory.planner && this.room.memory.planner.visualizeUntil && Game.time <= this.room.memory.planner.visualizeUntil) {
     this.planner._drawVisualization();
@@ -81,7 +81,7 @@ ControllerRoom.prototype.run = function () {
   // Tower operations - fire always, repair based on energy level
   const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > this.room.getRoomThreshold(RESOURCE_ENERGY, "all");
   const shouldRepair = hasEnoughEnergy || (Game.time % CONSTANTS.TICKS.REPAIR_TOWER === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
-  
+
   for (const tower of this._towers) {
     tower.fire();
     tower.heal();
@@ -197,7 +197,7 @@ ControllerRoom.prototype.getEnemys = function () {
 };
 
 ControllerRoom.prototype.getLevel = function () {
-  const controller = this.room.controller;
+  const {controller} = this.room;
   if (controller && controller.my) {
     return controller.level;
   }
@@ -273,7 +273,7 @@ ControllerRoom.prototype.getSourcesNotEmpty = function () {
     // Nutzt gecachten find() Cache statt getSources()
     const sources = this.find(FIND_SOURCES);
     if (sources && sources.length > 0) {
-      return _.filter(sources, function (s) {
+      return _.filter(sources, (s) => {
         return s.energy > 0;
       });
     }
@@ -323,7 +323,7 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
 
   const currentLevel = this.room.controller.level;
   const roomMemory = this._ensureRoomMemory();
-  
+
   // Initialize rclUpgradeTimes if not exists
   if (!roomMemory.rclUpgradeTimes) {
     roomMemory.rclUpgradeTimes = {};
@@ -335,14 +335,14 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
     roomMemory.rclUpgradeTimes.lastLevelTick = Game.time;
   }
 
-  const lastLevel = roomMemory.rclUpgradeTimes.lastLevel;
-  const lastLevelTick = roomMemory.rclUpgradeTimes.lastLevelTick;
+  const {lastLevel} = roomMemory.rclUpgradeTimes;
+  const {lastLevelTick} = roomMemory.rclUpgradeTimes;
 
   // Check if RCL level increased
   if (currentLevel > lastLevel) {
     // Calculate upgrade time for the previous level (time from lastLevel to currentLevel)
     const upgradeTime = Game.time - lastLevelTick;
-    
+
     // Store upgrade time for the level we just reached
     // Key is the level reached (e.g., "2" means time from RCL 1 to RCL 2)
     roomMemory.rclUpgradeTimes[currentLevel.toString()] = upgradeTime;
@@ -365,22 +365,22 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
  */
 ControllerRoom.prototype._initializeDuneIdentity = function () {
   const roomMemory = this._ensureRoomMemory();
-  
+
   // Nur für eigene Räume mit Controller
   if (!this.room.controller || !this.room.controller.my) {
     return;
   }
-  
+
   // Initialisiere nur einmal
   if (!roomMemory.duneFaction || !roomMemory.dunePlanet) {
     const duneConfig = require("./config.dune");
-    
+
     // Wähle eine zufällige Fraktion
     roomMemory.duneFaction = duneConfig.getRandomFaction();
-    
+
     // Wähle einen zufälligen Planeten für diese Fraktion
     roomMemory.dunePlanet = duneConfig.getRandomPlanetForFaction(roomMemory.duneFaction);
-    
+
     Log.info(`Room ${this.room.name} assigned to faction ${roomMemory.duneFaction} on planet ${roomMemory.dunePlanet}`, "DuneInit");
   }
 };

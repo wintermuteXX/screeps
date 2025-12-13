@@ -20,13 +20,13 @@ b.work = function (creep, rc) {
 
   if (target !== null) {
     if (creep.room.extractor && creep.room.extractor.container) {
-      let container = creep.room.extractor.container;
+      const {container} = creep.room.extractor;
       creep.travelTo(container);
     } else if (!creep.pos.isNearTo(target)) {
       creep.travelTo(target);
     }
     if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
-      let result = creep.harvest(target);
+      const result = creep.harvest(target);
 
       switch (result) {
         case OK:

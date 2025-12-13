@@ -43,7 +43,7 @@ const PLANNER_CONSTANTS = {
   ROOM_MIN: 1,
   ROOM_MAX: 48,
   ROOM_EDGE_MIN: 2,
-  ROOM_EDGE_MAX: 47
+  ROOM_EDGE_MAX: 47,
 };
 
 /**
@@ -66,7 +66,7 @@ const CONTROLLER_STRUCTURES = {
   [STRUCTURE_LAB]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 3, 7: 6, 8: 10 },
   [STRUCTURE_CONTAINER]: { 0: 5, 1: 5, 2: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5, 8: 5 },
   [STRUCTURE_NUKER]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 1 },
-  [STRUCTURE_FACTORY]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 }
+  [STRUCTURE_FACTORY]: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1 },
 };
 
 /**
@@ -84,7 +84,7 @@ const STRUCTURE_TYPE_MAP = {
   observer: STRUCTURE_OBSERVER,
   powerSpawn: STRUCTURE_POWER_SPAWN,
   nuker: STRUCTURE_NUKER,
-  roads: STRUCTURE_ROAD
+  roads: STRUCTURE_ROAD,
 };
 
 /**
@@ -98,7 +98,7 @@ const BUNKER_LAYOUT = {
   spawns: [
     { x: 0, y: 0, priority: 1 },
     { x: -2, y: 2, priority: 100 },
-    { x: 2, y: 2, priority: 101 }
+    { x: 2, y: 2, priority: 101 },
   ],
 
   // Storage central for short paths
@@ -117,7 +117,7 @@ const BUNKER_LAYOUT = {
     { x: 2, y: 0, priority: 30 },
     { x: -2, y: 0, priority: 31 },
     { x: 0, y: -2, priority: 32 },
-    { x: 0, y: 2, priority: 33 }
+    { x: 0, y: 2, priority: 33 },
   ],
 
   // Extensions in an efficient pattern around the core
@@ -182,7 +182,7 @@ const BUNKER_LAYOUT = {
     { x: 0, y: -5, priority: 71 },
     { x: 0, y: 5, priority: 72 },
     { x: -4, y: -3, priority: 73 },
-    { x: 4, y: -3, priority: 74 }
+    { x: 4, y: -3, priority: 74 },
   ],
 
   // Labs in a compact cluster (for reactions)
@@ -196,12 +196,12 @@ const BUNKER_LAYOUT = {
     { x: 3, y: 5, priority: 81 },
     { x: 4, y: 5, priority: 82 },
     { x: 5, y: 5, priority: 83 },
-    { x: 6, y: 4, priority: 84 }
+    { x: 6, y: 4, priority: 84 },
   ],
 
   // Links in strategic positions
   links: [
-    { x: 2, y: -1, priority: 86 } // At spawn
+    { x: 2, y: -1, priority: 86 }, // At spawn
     // Additional links are placed dynamically at Sources/Controller
   ],
 
@@ -231,8 +231,8 @@ const BUNKER_LAYOUT = {
     // Connection to additional lab at (6,4) - roads around it
     { x: 7, y: 3, priority: 222 },
     { x: 7, y: 4, priority: 223 },
-    { x: 7, y: 5, priority: 224 }
-  ]
+    { x: 7, y: 5, priority: 224 },
+  ],
 };
 
 /**
@@ -260,7 +260,7 @@ RoomPlanner.prototype._initMemory = function () {
       centerY: null,
       layoutGenerated: false,
       plannedStructures: [],
-      visualizeUntil: null
+      visualizeUntil: null,
     };
   }
   return Memory.rooms[this.roomName].planner;
@@ -324,7 +324,7 @@ RoomPlanner.prototype._findCenter = function () {
     this.memory.centerY = spawns[0].pos.y;
     Log.info(
       `RoomPlanner: Center for ${this.roomName} found at (${this.memory.centerX}, ${this.memory.centerY})`,
-      "RoomPlanner"
+      "RoomPlanner",
     );
     return true;
   }
@@ -336,7 +336,7 @@ RoomPlanner.prototype._findCenter = function () {
     this.memory.centerY = centerPos.y;
     Log.info(
       `RoomPlanner: Optimal center for ${this.roomName} calculated at (${this.memory.centerX}, ${this.memory.centerY})`,
-      "RoomPlanner"
+      "RoomPlanner",
     );
     return true;
   }
@@ -349,7 +349,7 @@ RoomPlanner.prototype._findCenter = function () {
  */
 RoomPlanner.prototype._calculateOptimalCenter = function () {
   const sources = this.room.find(FIND_SOURCES);
-  const controller = this.room.controller;
+  const {controller} = this.room;
 
   if (!controller) return null;
 
@@ -417,8 +417,8 @@ RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
  * Generiert das Layout basierend auf dem Bunker-Design
  */
 RoomPlanner.prototype._generateLayout = function () {
-  const centerX = this.memory.centerX;
-  const centerY = this.memory.centerY;
+  const {centerX} = this.memory;
+  const {centerY} = this.memory;
   const terrain = this.room.getTerrain();
   const plannedStructures = [];
 
@@ -445,7 +445,7 @@ RoomPlanner.prototype._generateLayout = function () {
           x: altPos.x,
           y: altPos.y,
           structureType,
-          priority
+          priority,
         });
       }
       return;
@@ -466,7 +466,7 @@ RoomPlanner.prototype._generateLayout = function () {
     "links",
     "observer",
     "powerSpawn",
-    "nuker"
+    "nuker",
   ];
 
   for (const key of structureKeys) {
@@ -485,7 +485,7 @@ RoomPlanner.prototype._generateLayout = function () {
 
     // Check if this position is already planned for a non-road structure
     const isOccupied = plannedStructures.some(
-      (s) => s.x === roadX && s.y === roadY && s.structureType !== STRUCTURE_ROAD
+      (s) => s.x === roadX && s.y === roadY && s.structureType !== STRUCTURE_ROAD,
     );
 
     // Only add road if position is free (no other structure planned there)
@@ -502,7 +502,7 @@ RoomPlanner.prototype._generateLayout = function () {
 
   Log.success(
     `RoomPlanner: Layout for ${this.roomName} generated with ${plannedStructures.length} structures`,
-    "RoomPlanner"
+    "RoomPlanner",
   );
 };
 
@@ -579,10 +579,10 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     // For roads: check if there's already a non-road structure or site at this position
     if (structureType === STRUCTURE_ROAD) {
       const hasNonRoadStructure = existingStructures.some(
-        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
       );
       const hasNonRoadSite = existingConstSites.some(
-        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
       );
       if (hasNonRoadStructure || hasNonRoadSite) {
         continue; // Don't place road under other structures
@@ -597,7 +597,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
       // For non-road structures: check if structure of this type already exists
       const hasStructure = existingStructures.some(
         (s) =>
-          s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD)
+          s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD),
       );
       const hasSite = existingConstSites.some((s) => s.structureType === structureType);
       if (hasStructure || hasSite) {
@@ -606,7 +606,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 
       // Check if there's a blocking non-road, non-rampart structure
       const blockingStructure = existingStructures.find(
-        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
       );
       if (blockingStructure) {
         continue;
@@ -625,7 +625,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     } else if (result !== ERR_INVALID_TARGET && result !== ERR_RCL_NOT_ENOUGH) {
       Log.warn(
         `RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${global.getErrorString(result)}`,
-        "RoomPlanner"
+        "RoomPlanner",
       );
     }
   }
@@ -726,7 +726,7 @@ RoomPlanner.prototype._placeExtractor = function () {
   if (!existingExtractor && !existingSite) {
     const result = this.room.createConstructionSite(mineral.pos, STRUCTURE_EXTRACTOR);
     if (result === OK) {
-      Log.debug(`RoomPlanner: Extractor construction site placed at mineral`, "RoomPlanner");
+      Log.debug("RoomPlanner: Extractor construction site placed at mineral", "RoomPlanner");
     }
   }
 
@@ -815,7 +815,7 @@ RoomPlanner.prototype._placeStructureNear = function (
   type,
   allowRoads,
   identifier,
-  targetId
+  targetId,
 ) {
   // Check if position is already stored in memory
   const storedPosition = this._getStoredSpecialStructure(identifier);
@@ -847,10 +847,10 @@ RoomPlanner.prototype._placeStructureNear = function (
     } else {
       // Check if position is blocked by other structures
       const blockingStructures = structures.filter((s) =>
-        allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true
+        allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true,
       );
       const blockingSites = sites.filter((s) =>
-        allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true
+        allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true,
       );
 
       if (blockingStructures.length === 0 && blockingSites.length === 0) {
@@ -860,7 +860,7 @@ RoomPlanner.prototype._placeStructureNear = function (
           const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
           Log.debug(
             `RoomPlanner: ${structureName} construction site placed at stored position (${storedPos.x}, ${storedPos.y}) for ${type}`,
-            "RoomPlanner"
+            "RoomPlanner",
           );
         }
         return;
@@ -876,11 +876,11 @@ RoomPlanner.prototype._placeStructureNear = function (
   // No stored position or stored position invalid - find new position
   // Check if structure already exists in range (might have been placed manually)
   const nearbyStructures = pos.findInRange(FIND_STRUCTURES, range, {
-    filter: (s) => s && "structureType" in s && s.structureType === structureType
+    filter: (s) => s && "structureType" in s && s.structureType === structureType,
   });
 
   const nearbySites = pos.findInRange(FIND_CONSTRUCTION_SITES, range, {
-    filter: (s) => s && "structureType" in s && s.structureType === structureType
+    filter: (s) => s && "structureType" in s && s.structureType === structureType,
   });
 
   if (nearbyStructures.length > 0 || nearbySites.length > 0) {
@@ -925,10 +925,10 @@ RoomPlanner.prototype._placeStructureNear = function (
       if (allowRoads) {
         // For links: allow roads/ramparts, but block other structures
         const hasBlockingStructure = structures.some(
-          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
         );
         const hasBlockingSite = sites.some(
-          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART
+          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
         );
         if (hasBlockingStructure || hasBlockingSite) continue;
       } else {
@@ -956,7 +956,7 @@ RoomPlanner.prototype._placeStructureNear = function (
       const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
       Log.debug(
         `RoomPlanner: ${structureName} construction site placed at ${type} (${bestPos.x}, ${bestPos.y})`,
-        "RoomPlanner"
+        "RoomPlanner",
       );
 
       // Store position in memory
@@ -976,7 +976,7 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
 
   // Remove existing entry with same identifier
   this.memory.plannedStructures = this.memory.plannedStructures.filter(
-    (s) => !(s.specialIdentifier && s.specialIdentifier === identifier)
+    (s) => !(s.specialIdentifier && s.specialIdentifier === identifier),
   );
 
   // Add new entry with special identifier
@@ -1010,12 +1010,12 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
     structureType: structureType,
     priority: priority,
     specialIdentifier: identifier,
-    targetId: targetId
+    targetId: targetId,
   });
 
   Log.debug(
     `RoomPlanner: Stored ${structureType} position (${x}, ${y}) for ${identifier} with priority ${priority}`,
-    "RoomPlanner"
+    "RoomPlanner",
   );
 };
 
@@ -1041,7 +1041,7 @@ RoomPlanner.prototype._removeStoredSpecialStructure = function (identifier) {
   }
 
   this.memory.plannedStructures = this.memory.plannedStructures.filter(
-    (s) => !(s.specialIdentifier && s.specialIdentifier === identifier)
+    (s) => !(s.specialIdentifier && s.specialIdentifier === identifier),
   );
 };
 
@@ -1059,7 +1059,7 @@ RoomPlanner.prototype.visualize = function () {
   this._drawVisualization();
   Log.info(
     `Visualization activated for ${this.roomName} (${PLANNER_CONSTANTS.VISUALIZATION_DURATION} ticks)`,
-    "RoomPlanner"
+    "RoomPlanner",
   );
 };
 
@@ -1069,7 +1069,7 @@ RoomPlanner.prototype.visualize = function () {
 RoomPlanner.prototype._drawVisualization = function () {
   if (!this.memory.layoutGenerated) return;
 
-  const visual = this.room.visual;
+  const {visual} = this.room;
 
   // Structure colors - each structure type has a unique color
   const structureColors = {
@@ -1085,7 +1085,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     [STRUCTURE_POWER_SPAWN]: "#ff8800",
     [STRUCTURE_NUKER]: "#880000",
     [STRUCTURE_ROAD]: "#aaaaaa",
-    [STRUCTURE_CONTAINER]: "#00aa00"
+    [STRUCTURE_CONTAINER]: "#00aa00",
   };
 
   // Structure names for legend
@@ -1102,7 +1102,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     [STRUCTURE_POWER_SPAWN]: "PowerSpawn",
     [STRUCTURE_NUKER]: "Nuker",
     [STRUCTURE_ROAD]: "Road",
-    [STRUCTURE_CONTAINER]: "Container"
+    [STRUCTURE_CONTAINER]: "Container",
   };
 
   // Draw center
@@ -1111,7 +1111,7 @@ RoomPlanner.prototype._drawVisualization = function () {
       fill: "transparent",
       stroke: "#00ff00",
       strokeWidth: 0.2,
-      radius: 0.5
+      radius: 0.5,
     });
   }
 
@@ -1129,7 +1129,7 @@ RoomPlanner.prototype._drawVisualization = function () {
     fill: "#000000",
     opacity: 0.7,
     stroke: "#ffffff",
-    strokeWidth: 0.2
+    strokeWidth: 0.2,
   });
 
   for (const structureType of usedStructures) {
@@ -1141,14 +1141,14 @@ RoomPlanner.prototype._drawVisualization = function () {
       fill: color,
       opacity: 1,
       stroke: color,
-      strokeWidth: 0.2
+      strokeWidth: 0.2,
     });
 
     // Text label: "Farbe = Extension" format (doubled size)
     visual.text(`= ${name}`, 1.6, legendY + 0.4, {
       color: "#ffffff",
       font: "0.8 Arial",
-      align: "left"
+      align: "left",
     });
 
     legendY += legendItemHeight;
@@ -1161,7 +1161,7 @@ RoomPlanner.prototype._drawVisualization = function () {
       fill: color,
       opacity: 0.8,
       stroke: color,
-      strokeWidth: 0.1
+      strokeWidth: 0.1,
     });
   }
 };
@@ -1188,7 +1188,7 @@ RoomPlanner.prototype.getStats = function () {
   const stats = {
     center: { x: this.memory.centerX, y: this.memory.centerY },
     totalPlanned: this.memory.plannedStructures.length,
-    byType: {}
+    byType: {},
   };
 
   for (const planned of this.memory.plannedStructures) {

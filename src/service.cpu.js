@@ -23,10 +23,10 @@ class CpuAnalyzer {
 
     const cpuUsed = Game.cpu.getUsed();
     const cpuLimit = Game.cpu.limit;
-    
+
     // Count owned rooms
     const ownedRooms = Object.values(Game.rooms).filter(
-      (room) => room.controller && room.controller.my
+      (room) => room.controller && room.controller.my,
     );
     const roomCount = ownedRooms.length;
     const cpuPerRoom = roomCount > 0 ? cpuUsed / roomCount : cpuUsed;
@@ -63,7 +63,7 @@ class CpuAnalyzer {
 
     // Remove entries older than HISTORY_SIZE ticks
     Memory.cpuHistory = Memory.cpuHistory.filter(
-      (entry) => currentTick - entry.tick <= maxAge
+      (entry) => currentTick - entry.tick <= maxAge,
     );
   }
 
@@ -232,7 +232,7 @@ class CpuAnalyzer {
     if (!Memory.cpuHistory || Memory.cpuHistory.length === 0) {
       return Game.cpu.bucket;
     }
-    
+
     // Get the most recent entry (last tick)
     const lastEntry = Memory.cpuHistory[Memory.cpuHistory.length - 1];
     return (lastEntry.cpu && lastEntry.cpu.bucket) || Game.cpu.bucket;

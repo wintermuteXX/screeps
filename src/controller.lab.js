@@ -92,7 +92,7 @@ class ControllerLab {
     if (!lab1 || !lab2 || !lab3) {
       return false;
     }
-    return lab1.pos.inRangeTo(lab2.pos, CONSTANTS.LAB.RANGE) && 
+    return lab1.pos.inRangeTo(lab2.pos, CONSTANTS.LAB.RANGE) &&
            lab1.pos.inRangeTo(lab3.pos, CONSTANTS.LAB.RANGE);
   }
 
@@ -154,7 +154,7 @@ class ControllerLab {
 
     // Set status + labpartner in memory if all are in range
     if (allInRange) {
-      Log.success(`Finding labpartners was successfull`, "findLabPartner");
+      Log.success("Finding labpartners was successfull", "findLabPartner");
       for (let j = 0; j < trimmedLabs.length; j += 3) {
         this._assignLabPartners(trimmedLabs[j], trimmedLabs[j + 1], trimmedLabs[j + 2]);
       }

@@ -22,7 +22,7 @@ class TransferStorageBehavior extends Behavior {
   work(creep, rc) {
     // Ziel: Storage bevorzugt, sonst Terminal
     const target = creep.room.storage || creep.room.terminal;
-    
+
     if (!target) {
       Log.warn(`${creep} has no Storage/Terminal for delivery`, "transfer_storage");
       return;
@@ -35,7 +35,7 @@ class TransferStorageBehavior extends Behavior {
     }
 
     const result = creep.transfer(target, resourceType);
-    
+
     switch (result) {
       case OK:
         Log.debug(`${creep} transfers ${resourceType} to ${target.structureType}`, "transfer_storage");

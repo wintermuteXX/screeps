@@ -62,7 +62,7 @@ class CreepManager {
       // Use Object.create(null) to avoid prototype pollution (e.g. role named "constructor")
       this.rc._creepsByRole = Object.create(null);
       this.rc._creepsByRole._all = [];
-      const room = this.rc.room;
+      const {room} = this.rc;
       for (const name in Game.creeps) {
         const creep = Game.creeps[name];
         if (creep.room === room) {
@@ -77,7 +77,7 @@ class CreepManager {
         }
       }
     }
-    
+
     if (role) {
       return this.rc._creepsByRole[role] || [];
     }
@@ -137,7 +137,7 @@ class CreepManager {
       return false;
     }
     if (!cfg.canBuild) {
-      Log.error(role + " : no canBuild() implemented", "ControllerRoom");
+      Log.error(`${role  } : no canBuild() implemented`, "ControllerRoom");
       return false;
     }
 

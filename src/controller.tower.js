@@ -12,7 +12,7 @@ class ControllerTower {
     if (targetList.length === 0) {
       return;
     }
-    
+
     const closestHostile = this.tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
       this.tower.attack(closestHostile);
@@ -55,12 +55,12 @@ class ControllerTower {
 
     // Heile den am meisten verletzten Creep
     const result = this.tower.heal(damagedCreeps[0]);
-    
+
     if (result === OK) {
       Log.debug(`Tower healing ${damagedCreeps[0].name} (${damagedCreeps[0].hits}/${damagedCreeps[0].hitsMax})`, "Tower");
       return true;
     }
-    
+
     return false;
   }
 }

@@ -71,7 +71,7 @@ module.exports = {
     behaviors: ["miner_harvest_mineral", "recycle"],
 
     canBuild: function (rc) {
-      var miners = rc.getAllCreeps("miner_mineral");
+      const miners = rc.getAllCreeps("miner_mineral");
       return rc.room.extractor && rc.room.terminal && rc.getMineralAmount() > 0 && miners.length < CONSTANTS.CREEP_LIMITS.MINER_MINERAL_MAX && _.sum(rc.room.terminal.store) < CONSTANTS.RESOURCES.TERMINAL_MAX_STORE;
     },
   },
@@ -86,7 +86,7 @@ module.exports = {
     behaviors: ["goto_flag:green", "miner_harvest_commodities", "goto_home", "transfer_storage"],
 
     canBuild: function (rc) {
-      var miners = _.filter(Game.creeps, (c) => c.memory.role === "miner_commodity").length;
+      const miners = _.filter(Game.creeps, (c) => c.memory.role === "miner_commodity").length;
       return _.find(Game.flags, { color: COLOR_GREEN }) && miners < 1;
     },
   },
@@ -119,7 +119,7 @@ module.exports = {
       let modifier = 0;
       const level = rc.getLevel();
       let limit;
-      
+
       if (level < 4) {
         limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_BASE;
       } else if (level < 7) {
@@ -127,7 +127,7 @@ module.exports = {
       } else {
         limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
       }
-      
+
       if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * 50) { // 50x the minimum
         modifier = 1;
         // Only warn if we can actually build an additional transporter
@@ -135,7 +135,7 @@ module.exports = {
           Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional transporter.`, "transporter");
         }
       }
-      
+
       return transporters.length < limit + modifier;
     },
   },
@@ -145,7 +145,7 @@ module.exports = {
     levelMin: 1,
     minParts: 3,
     wait4maxEnergy: true,
-    
+
     // Dynamischer Body basierend auf RCL
     // RCL 8: Max 15 Energy/tick Limit, daher kleinerer Body
     // RCL 1-7: Larger body for faster upgrading
@@ -172,23 +172,23 @@ module.exports = {
         ];
       }
     },
-    
+
     behaviors: ["find_near_energy", "upgrade_controller"],
 
     canBuild: function (rc) {
-      var controller = rc.room.controller;
+      const {controller} = rc.room;
       if (!controller || !controller.my) return false;
-      
+
       const level = rc.getLevel();
       const upgraders = rc.getAllCreeps("upgrader");
 
       // Helper function: Energy near the controller
       function energyAround(obj) {
-        var dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
-          filter: { resourceType: RESOURCE_ENERGY }
+        const dropped = obj.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
+          filter: { resourceType: RESOURCE_ENERGY },
         });
         let amount = 0;
-        for (var d in dropped) {
+        for (const d in dropped) {
           amount += dropped[d].amount;
         }
         return amount;
@@ -198,17 +198,17 @@ module.exports = {
       if (level === 8) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_RCL8;
       }
-      
+
       // RCL 1-4: More upgraders for fast progress
       if (level <= 4) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
       }
-      
+
       // RCL 5: Mittlere Anzahl
       if (level === 5) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       }
-      
+
       // RCL 6-7: Dynamic based on available energy
       if (energyAround(controller) > CONSTANTS.STRUCTURE_ENERGY.CONTROLLER_ENERGY_HIGH) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
@@ -264,9 +264,9 @@ module.exports = {
     behaviors: ["renew:emergency", "build_structures", "repair"],
 
     canBuild: function (rc) {
-      var towers = rc.room.towers;
+      const {towers} = rc.room;
 
-      var structures = _.filter(rc.find(FIND_STRUCTURES), function (s) {
+      const structures = _.filter(rc.find(FIND_STRUCTURES), (s) => {
         return s.needsRepair();
       });
       if (rc.getLevel() < 4) {
@@ -305,14 +305,14 @@ module.exports = {
     canBuild: function (rc) {
       // Only build if no tower OR boosted creeps enter room
       const hasTowers = rc.room.towers && rc.room.towers.length > 0;
-      
+
       // Check for boosted hostile creeps
       const hostiles = rc.getEnemys();
       const hasBoostedCreeps = hostiles.some(creep => {
         // Check if creep has any boosted body parts
         return creep.body.some(part => part.boost);
       });
-      
+
       // Build defender if: no towers OR boosted creeps present
       return !hasTowers || hasBoostedCreeps;
     },
@@ -350,7 +350,7 @@ module.exports = {
       if (flags.length === 0) return false;
       if (flags[0].room && flags[0].room.controller && flags[0].room.controller.my) return false;
       if (_.filter(Game.creeps, (c) => c.memory.role === "claimer").length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) return false;
-      
+
       // Check CPU analysis (only check periodically to save CPU)
       if (Game.time % CONSTANTS.CPU_ANALYSIS.CHECK_INTERVAL === 0) {
         const decision = cpuAnalyzer.canConquerNewRoom();
@@ -358,7 +358,7 @@ module.exports = {
           return false;
         }
       }
-      
+
       return true;
     },
   },
@@ -374,12 +374,12 @@ module.exports = {
     canBuild: function (rc) {
       // Don't spawn scouts if room has an Observer
       const observers = rc.room.find(FIND_MY_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_OBSERVER
+        filter: (s) => s.structureType === STRUCTURE_OBSERVER,
       });
       if (observers.length > 0) {
         return false;
       }
-      
+
       // Maximal 1 Scout pro HomeRoom - check if scout with this homeRoom already exists
       const homeRoom = rc.room.name;
       const existingScouts = _.filter(Game.creeps, (c) => {
@@ -388,12 +388,12 @@ module.exports = {
       if (existingScouts.length >= 1) {
         return false;
       }
-      
+
       // Prüfe ob überhaupt ein Raum besucht werden muss
       // Erstelle ein Mock-Creep-Objekt für findUnvisitedRoom
       const mockCreep = {
         room: rc.room,
-        memory: { home: homeRoom }
+        memory: { home: homeRoom },
       };
       const unvisitedRoom = scoutBehavior.findUnvisitedRoom(mockCreep);
       return unvisitedRoom !== null;

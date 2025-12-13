@@ -2,7 +2,7 @@ const Behavior = require("./behavior.base");
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
-var b = new Behavior("recycle");
+const b = new Behavior("recycle");
 
 /**
  * Recycle behavior for creeps that are no longer needed
@@ -48,7 +48,7 @@ b.work = function (creep, rc) {
   if (spawn && !spawn.my) {
     spawn = null; // Not our spawn, ignore it
   }
-    
+
   // If no spawn in current room, go to home room
   if (!spawn) {
     const homeRoom = Game.rooms[creep.memory.home];
@@ -74,16 +74,16 @@ b.work = function (creep, rc) {
       }
     }
   }
-  
+
   // Verify spawn is ours before proceeding
   if (!spawn || !spawn.my) {
     Log.warn(`${creep} cannot be recycled - no own spawn found in current room or home room`, "recycle");
     return;
   }
-  
+
   if (creep.pos.isNearTo(spawn)) {
     const result = spawn.recycleCreep(creep);
-    
+
     switch (result) {
       case OK:
         Log.success(`♻️ ${creep} is being recycled at ${spawn} in ${creep.room}`, "recycle");

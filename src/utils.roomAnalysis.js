@@ -11,9 +11,9 @@ const CONSTANTS = require("./config.constants");
 function calculateRoomScore(room, memory) {
   let score = 0;
   const breakdown = {};
-  
+
   // 1. Is the room free? (highest priority - 1000 points)
-  const isFree = !memory.controller || 
+  const isFree = !memory.controller ||
                  (!memory.controller.owner && !memory.controller.reservation);
   if (isFree) {
     score += 1000;
@@ -21,7 +21,7 @@ function calculateRoomScore(room, memory) {
   } else {
     breakdown.isFree = 0;
   }
-  
+
   // 2. Has 2 sources? (500 points)
   if (memory.sources && memory.sources.length === 2) {
     score += 500;
@@ -29,13 +29,13 @@ function calculateRoomScore(room, memory) {
   } else {
     breakdown.hasTwoSources = 0;
   }
-  
+
   // 3. Little swamp in room? (max 300 points, less swamp = more points)
   const terrain = Game.map.getRoomTerrain(room.name);
   let swampCount = 0;
   let freeSpaceCount = 0;
   const totalTiles = 50 * 50; // Room is 50x50
-  
+
   for (let x = 0; x < 50; x++) {
     for (let y = 0; y < 50; y++) {
       const terrainType = terrain.get(x, y);
@@ -46,14 +46,14 @@ function calculateRoomScore(room, memory) {
       }
     }
   }
-  
+
   const swampPercentage = (swampCount / totalTiles) * 100;
   // Less swamp = more points (0% swamp = 300 points, 50% swamp = 0 points)
   const swampScore = Math.max(0, 300 * (1 - swampPercentage / 50));
   score += swampScore;
   breakdown.lowSwamp = Math.round(swampScore);
   breakdown.swampPercentage = Math.round(swampPercentage * 10) / 10;
-  
+
   // 4. Much free space in room? (max 200 points, more space = more points)
   const freeSpacePercentage = (freeSpaceCount / totalTiles) * 100;
   // More free space = more points (100% free = 200 points, 50% free = 0 points)
@@ -61,11 +61,11 @@ function calculateRoomScore(room, memory) {
   score += freeSpaceScore;
   breakdown.highFreeSpace = Math.round(freeSpaceScore);
   breakdown.freeSpacePercentage = Math.round(freeSpacePercentage * 10) / 10;
-  
+
   // 5. Has a mineral we don't have in other rooms? (400 points)
   if (memory.mineral && memory.mineral.type) {
     const existingMinerals = new Set();
-    
+
     // Check all rooms in memory for existing minerals
     if (Memory.rooms) {
       for (const roomName in Memory.rooms) {
@@ -78,7 +78,7 @@ function calculateRoomScore(room, memory) {
         }
       }
     }
-    
+
     // Check current Game.rooms for owned rooms
     for (const roomName in Game.rooms) {
       const gameRoom = Game.rooms[roomName];
@@ -88,7 +88,7 @@ function calculateRoomScore(room, memory) {
         }
       }
     }
-    
+
     if (!existingMinerals.has(memory.mineral.type)) {
       score += 400;
       breakdown.newMineral = 400;
@@ -100,10 +100,10 @@ function calculateRoomScore(room, memory) {
   } else {
     breakdown.newMineral = 0;
   }
-  
+
   return {
     total: Math.round(score),
-    breakdown: breakdown
+    breakdown: breakdown,
   };
 }
 
@@ -115,9 +115,9 @@ function calculateRoomScore(room, memory) {
  */
 function analyzeRoom(room, fullAnalysis = false) {
   if (!room || !room.memory) return;
-  
-  const memory = room.memory;
-  
+
+  const {memory} = room;
+
   // Initialize Memory.rooms if needed
   if (!Memory.rooms) {
     Memory.rooms = {};
@@ -125,17 +125,17 @@ function analyzeRoom(room, fullAnalysis = false) {
   if (!Memory.rooms[room.name]) {
     Memory.rooms[room.name] = {};
   }
-  
+
   // Set lastCheck in Memory.rooms (works even without vision)
   Memory.rooms[room.name].lastCheck = Game.time;
-  
+
   try {
 
     // ===== Static Data (only set once) =====
     if (!memory.roomType) {
       // Source keeper rooms
-      let lairs = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_KEEPER_LAIR
+      const lairs = room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_KEEPER_LAIR,
       });
       if (lairs.length > 0) {
         memory.roomType = "ROOMTYPE_SOURCEKEEPER";
@@ -144,7 +144,7 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Core rooms (3 sources)
-      let sources = room.find(FIND_SOURCES);
+      const sources = room.find(FIND_SOURCES);
       if (sources.length === CONSTANTS.ROOM.SOURCE_COUNT_CORE) {
         memory.roomType = "ROOMTYPE_CORE";
       } else if (room.controller) {
@@ -172,8 +172,8 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Portal information (static)
-      let portals = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_PORTAL
+      const portals = room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_PORTAL,
       });
       if (portals.length > 0) {
         memory.portal = {
@@ -188,8 +188,8 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Power Bank information (static)
-      let powerBanks = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_POWER_BANK
+      const powerBanks = room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_POWER_BANK,
       });
       if (powerBanks.length > 0) {
         memory.powerBank = {
@@ -201,7 +201,7 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Deposit information (static)
-      let deposits = room.find(FIND_DEPOSITS);
+      const deposits = room.find(FIND_DEPOSITS);
       if (deposits.length > 0) {
         memory.deposits = deposits.map(d => ({
           id: d.id,
@@ -235,34 +235,34 @@ function analyzeRoom(room, fullAnalysis = false) {
       memory.structures = {
         spawn: room.find(FIND_MY_SPAWNS).length,
         extension: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_EXTENSION
+          filter: (s) => s.structureType === STRUCTURE_EXTENSION,
         }).length,
         storage: room.storage ? { id: room.storage.id, x: room.storage.pos.x, y: room.storage.pos.y } : null,
         terminal: room.terminal ? { id: room.terminal.id, x: room.terminal.pos.x, y: room.terminal.pos.y } : null,
         factory: room.factory ? { id: room.factory.id, x: room.factory.pos.x, y: room.factory.pos.y } : null,
         tower: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_TOWER
+          filter: (s) => s.structureType === STRUCTURE_TOWER,
         }).length,
         link: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_LINK
+          filter: (s) => s.structureType === STRUCTURE_LINK,
         }).length,
         lab: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_LAB
+          filter: (s) => s.structureType === STRUCTURE_LAB,
         }).length,
         nuker: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_NUKER
+          filter: (s) => s.structureType === STRUCTURE_NUKER,
         }).length,
         observer: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_OBSERVER
+          filter: (s) => s.structureType === STRUCTURE_OBSERVER,
         }).length,
         powerSpawn: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_POWER_SPAWN
+          filter: (s) => s.structureType === STRUCTURE_POWER_SPAWN,
         }).length,
       };
 
       // Hostile information
-      let hostiles = room.find(FIND_HOSTILE_CREEPS);
-      let hostileStructures = room.find(FIND_HOSTILE_STRUCTURES);
+      const hostiles = room.find(FIND_HOSTILE_CREEPS);
+      const hostileStructures = room.find(FIND_HOSTILE_STRUCTURES);
       memory.hostiles = {
         creeps: hostiles.length,
         structures: hostileStructures.length,
@@ -270,8 +270,8 @@ function analyzeRoom(room, fullAnalysis = false) {
       };
 
       // Invader cores
-      let invaderCores = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
+      const invaderCores = room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_INVADER_CORE,
       });
       if (invaderCores.length > 0) {
         memory.invaderCores = invaderCores.map(c => ({
@@ -288,7 +288,7 @@ function analyzeRoom(room, fullAnalysis = false) {
         available: room.energyAvailable,
         capacity: room.energyCapacityAvailable,
       };
-      
+
       // Calculate room score for claiming priority
       memory.score = calculateRoomScore(room, memory);
     }
@@ -308,7 +308,7 @@ function analyzeRoom(room, fullAnalysis = false) {
  */
 function logAnalysisSummary(room, memory, fullAnalysis) {
   const parts = [];
-  
+
   // Load utils.resources once at the start
   let utilsResources = null;
   try {
@@ -316,26 +316,26 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   } catch (e) {
     // utils.resources not available
   }
-  
+
   // Room type
   parts.push(`Type: ${memory.roomType}`);
-  
+
   // Sources
   if (memory.sources && memory.sources.length > 0) {
     parts.push(`Sources: ${memory.sources.length}`);
   }
-  
+
   // Mineral
   if (memory.mineral && memory.mineral.type) {
     // Use resourceImg helper if available, otherwise just use the type string
-    if (utilsResources && typeof utilsResources.resourceImg === 'function') {
+    if (utilsResources && typeof utilsResources.resourceImg === "function") {
       const resourceImg = utilsResources.resourceImg(memory.mineral.type);
       parts.push(`Mineral: ${resourceImg}`);
     } else {
       parts.push(`Mineral: ${memory.mineral.type}`);
     }
   }
-  
+
   // Controller info (if full analysis)
   if (fullAnalysis && memory.controller) {
     if (memory.controller.my) {
@@ -348,7 +348,7 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
       parts.push(`Controller: RCL${memory.controller.level} (Available)`);
     }
   }
-  
+
   // Hostiles (if full analysis)
   if (fullAnalysis && memory.hostiles) {
     if (memory.hostiles.creeps > 0 || memory.hostiles.structures > 0) {
@@ -360,19 +360,19 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
         hostileInfo.push(`${memory.hostiles.structures} structures`);
       }
       if (memory.hostiles.usernames && memory.hostiles.usernames.length > 0) {
-        hostileInfo.push(`(${memory.hostiles.usernames.join(', ')})`);
+        hostileInfo.push(`(${memory.hostiles.usernames.join(", ")})`);
       }
-      parts.push(`⚠️ Hostiles: ${hostileInfo.join(' ')}`);
+      parts.push(`⚠️ Hostiles: ${hostileInfo.join(" ")}`);
     }
   }
-  
+
   // Special features
   if (memory.portal) {
     const dest = memory.portal.destination;
     if (dest) {
-      parts.push(`Portal → ${dest.room}${dest.shard ? ` (${dest.shard})` : ''}`);
+      parts.push(`Portal → ${dest.room}${dest.shard ? ` (${dest.shard})` : ""}`);
     } else {
-      parts.push(`Portal (unknown destination)`);
+      parts.push("Portal (unknown destination)");
     }
   }
   if (memory.powerBank) {
@@ -384,29 +384,29 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   if (memory.keeperLairs) {
     parts.push(`Keeper Lairs: ${memory.keeperLairs}`);
   }
-  
+
   // Structures (if full analysis and own room)
   if (fullAnalysis && memory.structures && memory.controller && memory.controller.my) {
     const structParts = [];
     if (memory.structures.spawn > 0) structParts.push(`${memory.structures.spawn}S`);
     if (memory.structures.tower > 0) structParts.push(`${memory.structures.tower}T`);
-    if (memory.structures.storage) structParts.push('Storage');
-    if (memory.structures.terminal) structParts.push('Terminal');
-    if (memory.structures.factory) structParts.push('Factory');
+    if (memory.structures.storage) structParts.push("Storage");
+    if (memory.structures.terminal) structParts.push("Terminal");
+    if (memory.structures.factory) structParts.push("Factory");
     if (structParts.length > 0) {
-      parts.push(`Structures: ${structParts.join(', ')}`);
+      parts.push(`Structures: ${structParts.join(", ")}`);
     }
   }
-  
+
   // Room score (if full analysis and room is not owned)
   if (fullAnalysis && memory.score && (!memory.controller || !memory.controller.my)) {
     const scoreParts = [];
-    if (memory.score.breakdown.isFree > 0) scoreParts.push('✅ Free');
-    if (memory.score.breakdown.hasTwoSources > 0) scoreParts.push('2 Sources');
+    if (memory.score.breakdown.isFree > 0) scoreParts.push("✅ Free");
+    if (memory.score.breakdown.hasTwoSources > 0) scoreParts.push("2 Sources");
     if (memory.score.breakdown.lowSwamp > 0) scoreParts.push(`Low Swamp (${memory.score.breakdown.swampPercentage}%)`);
     if (memory.score.breakdown.highFreeSpace > 0) scoreParts.push(`Free Space (${memory.score.breakdown.freeSpacePercentage}%)`);
     if (memory.score.breakdown.newMineral > 0 && memory.score.breakdown.mineralType) {
-      if (utilsResources && typeof utilsResources.resourceImg === 'function') {
+      if (utilsResources && typeof utilsResources.resourceImg === "function") {
         const resourceImg = utilsResources.resourceImg(memory.score.breakdown.mineralType);
         scoreParts.push(`New Mineral: ${resourceImg}`);
       } else {
@@ -414,19 +414,19 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
       }
     }
     if (scoreParts.length > 0) {
-      parts.push(`⭐ Score: ${memory.score.total} (${scoreParts.join(', ')})`);
+      parts.push(`⭐ Score: ${memory.score.total} (${scoreParts.join(", ")})`);
     } else {
       parts.push(`⭐ Score: ${memory.score.total}`);
     }
   }
-  
-  const summary = `📊 ${room.name}: ${parts.join(' | ')}`;
+
+  const summary = `📊 ${room.name}: ${parts.join(" | ")}`;
   Log.success(summary, "analyzeRoom");
 }
 
 module.exports = {
   analyzeRoom,
   logAnalysisSummary,
-  calculateRoomScore
+  calculateRoomScore,
 };
 

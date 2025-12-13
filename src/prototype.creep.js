@@ -127,7 +127,7 @@ Creep.prototype.getFirstTargetData = function () {
 /**
  * Get harvest power per tick for this creep
  * @returns {number} Energy units this creep can harvest per tick
- * 
+ *
  * Examples:
  * - 1 normal WORK part = 2 energy/tick (HARVEST_POWER)
  * - 1 WORK with UO boost (harvest: 3) = 6 energy/tick
@@ -137,38 +137,38 @@ Creep.prototype.getHarvestPowerPerTick = function() {
   if (!this.body || !Array.isArray(this.body)) {
     return 0;
   }
-  
+
   let totalHarvestPower = 0;
-  
+
   for (const part of this.body) {
     // Only count WORK parts
     if (part.type !== WORK) {
       continue;
     }
-    
+
     // Skip inactive/damaged parts (hits === 0 means part is destroyed)
     if (part.hits <= 0) {
       continue;
     }
-    
+
     // Base harvest power for this WORK part
     if (!part.boost) {
       totalHarvestPower += HARVEST_POWER;
       continue;
     }
-    
+
     // BOOSTS structure: BOOSTS.work[boostResourceType].harvest
     if (part.boost && BOOSTS.work && BOOSTS.work[part.boost] && BOOSTS.work[part.boost].harvest) {
       totalHarvestPower += BOOSTS.work[part.boost].harvest;
     }
   }
-  
+
   return totalHarvestPower;
 };
 
 Creep.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
-    var onClick = "";
+    let onClick = "";
     if (this.id)
       onClick +=
         `angular.element('body').injector().get('RoomViewPendingSelector').set('${this.id}');` +

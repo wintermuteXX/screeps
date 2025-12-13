@@ -11,7 +11,7 @@ class UpgradeControllerBehavior extends Behavior {
   }
 
   completed(creep, rc) {
-    const controller = rc.room.controller;
+    const {controller} = rc.room;
     return creep.store[RESOURCE_ENERGY] === 0 || controller === null || controller === undefined || controller.my === false;
   }
 

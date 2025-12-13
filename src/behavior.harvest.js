@@ -9,27 +9,27 @@ const Behavior = require("./behavior.base");
  */
 function selectBestSource(sources, creep, rc) {
   const availableSources = [];
-  
+
   for (const source of sources) {
     const harvestInfo = source.canHarvestSource(creep, rc);
-    
+
     if (harvestInfo.canHarvest) {
       const distance = creep.pos.getRangeTo(source);
       availableSources.push({
         source: source,
         distance: distance,
-        harvestInfo: harvestInfo
+        harvestInfo: harvestInfo,
       });
     }
   }
-  
+
   if (availableSources.length === 0) {
     return null;
   }
-  
+
   // Sort by distance (ascending) - closest first
   availableSources.sort((a, b) => a.distance - b.distance);
-  
+
   // Return the closest source
   return availableSources[0].source;
 }

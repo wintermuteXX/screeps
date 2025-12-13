@@ -114,7 +114,7 @@ class ControllerFactory {
 
     // Use OPERATE_FACTORY power to set the level
     const result = powerCreep.usePower(PWR_OPERATE_FACTORY, this.factory);
-    
+
     switch (result) {
       case OK:
         Log.success(`${this.factory.room.name} Power Creep ${powerCreep.name} set factory ${this.factory.id} to level ${level}`, "FactoryLevel");
@@ -135,12 +135,12 @@ class ControllerFactory {
     if (check === undefined) {
       check = true;
     }
-    
+
     // Check if factory belongs to the player
     if (!this.factory || !this.factory.my) {
       return false;
     }
-    
+
     let roomNeedsResource = true; // if no check is needed, this must be true
 
     for (const r of ResourcesArray) {
@@ -176,7 +176,7 @@ class ControllerFactory {
     if (!this.factory || !this.factory.my || (this.factory && this.factory.cooldown !== 0)) {
       return null;
     }
-    
+
     let result = this.produceInFactory(MarketCal.COMMODITIES_LEVEL_0, false);
     if (result === false) {
       result = this.produceInFactory(MarketCal.COMPRESSED_RESOURCES, true);

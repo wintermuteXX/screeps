@@ -7,7 +7,7 @@ const Log = require("./lib.log");
  */
 function isNotAtBorder(creep) {
   const { BORDER_MIN, BORDER_MAX } = CONSTANTS.ROOM;
-  return creep.pos.x > BORDER_MIN && creep.pos.x < BORDER_MAX && 
+  return creep.pos.x > BORDER_MIN && creep.pos.x < BORDER_MAX &&
          creep.pos.y > BORDER_MIN && creep.pos.y < BORDER_MAX;
 }
 
@@ -69,16 +69,16 @@ function createGotoFlagBehavior(behaviorName) {
   if (behaviorCache[behaviorName]) {
     return behaviorCache[behaviorName];
   }
-  
+
   // Parse color from behavior name (format: "goto_flag:red" or "goto_flag")
   let colorName = "red"; // default
   if (behaviorName.indexOf(":") !== -1) {
     colorName = behaviorName.split(":")[1];
   }
-  
+
   let config = FLAG_CONFIGS[colorName];
   if (!config) {
-    Log.warn("Unknown flag color '" + colorName + "', using default 'red'", "goto_flag");
+    Log.warn(`Unknown flag color '${  colorName  }', using default 'red'`, "goto_flag");
     config = FLAG_CONFIGS.red;
     colorName = "red";
   }

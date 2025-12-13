@@ -36,7 +36,7 @@ Object.defineProperty(Room.prototype, "mineral", {
       this.memory.mineral = {};
     }
     if (this.memory.mineral.mineralId === undefined) {
-      let [theMineral] = this.find(FIND_MINERALS);
+      const [theMineral] = this.find(FIND_MINERALS);
       if (!theMineral) {
         this.memory.mineral.mineralId = null;
         this._mineral = null;

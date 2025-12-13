@@ -11,7 +11,7 @@ function getTarget(room) {
     return global.isHostileUsername(t.owner.username);
   };
 
-  for (let i in TARGETS) {
+  for (const i in TARGETS) {
     const targets = _.filter(room.find(TARGETS[i]), filter);
     if (targets.length) {
       return targets[Math.floor(Math.random() * targets.length)];
@@ -33,7 +33,7 @@ b.completed = function (creep, rc) {
 };
 
 b.work = function (creep, rc) {
-  let target = creep.getTarget() || getTarget(creep.room);
+  const target = creep.getTarget() || getTarget(creep.room);
 
   if (target !== null) {
     creep.target = target.id;
