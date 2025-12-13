@@ -8,7 +8,7 @@ b.when = function (creep, rc) {
 };
 
 b.completed = function (creep) {
-  return creep.store.getFreeCapacity() == 0 || creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY;
+  return creep.store.getFreeCapacity() === 0 || creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RENEW_EMERGENCY;
 };
 
 b.work = function (creep, rc) {

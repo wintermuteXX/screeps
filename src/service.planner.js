@@ -13,38 +13,9 @@ const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
 /**
- * RoomPlanner Constants
+ * RoomPlanner Constants - now imported from config.constants.js
+ * Use CONSTANTS.PLANNER.* instead of PLANNER_CONSTANTS.*
  */
-const PLANNER_CONSTANTS = {
-  // Construction Site Limits
-  MAX_CONSTRUCTION_SITES: 5,
-
-  // Road Building
-  MIN_RCL_FOR_ROADS: 5,
-
-  // Center Calculation
-  CENTER_FREE_RANGE: 5,
-  CENTER_SEARCH_MIN: 6,
-  CENTER_SEARCH_MAX: 44,
-  CONTROLLER_WEIGHT: 0.5,
-
-  // Alternative Position Search
-  ALTERNATIVE_POSITION_RANGE: 2,
-
-  // Special Structure Placement
-  LINK_PLACEMENT_RANGE: 2,
-  CONTAINER_CONTROLLER_RANGE: 2,
-  CONTAINER_DEFAULT_RANGE: 1,
-
-  // Visualization
-  VISUALIZATION_DURATION: 15,
-
-  // Room Boundaries
-  ROOM_MIN: 1,
-  ROOM_MAX: 48,
-  ROOM_EDGE_MIN: 2,
-  ROOM_EDGE_MAX: 47,
-};
 
 /**
  * Structure limits per RCL (from Screeps API)
@@ -357,8 +328,8 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
   let bestScore = Infinity;
 
   // Search through possible positions
-  for (let x = PLANNER_CONSTANTS.CENTER_SEARCH_MIN; x < PLANNER_CONSTANTS.CENTER_SEARCH_MAX; x++) {
-    for (let y = PLANNER_CONSTANTS.CENTER_SEARCH_MIN; y < PLANNER_CONSTANTS.CENTER_SEARCH_MAX; y++) {
+  for (let x = CONSTANTS.PLANNER.CENTER_SEARCH_MIN; x < CONSTANTS.PLANNER.CENTER_SEARCH_MAX; x++) {
+    for (let y = CONSTANTS.PLANNER.CENTER_SEARCH_MIN; y < CONSTANTS.PLANNER.CENTER_SEARCH_MAX; y++) {
       // Check if position and surroundings are free
       if (!this._isValidCenterPosition(x, y)) continue;
 
@@ -369,7 +340,7 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
       for (const source of sources) {
         score += pos.getRangeTo(source.pos);
       }
-      score += pos.getRangeTo(controller.pos) * PLANNER_CONSTANTS.CONTROLLER_WEIGHT;
+      score += pos.getRangeTo(controller.pos) * CONSTANTS.PLANNER.CONTROLLER_WEIGHT;
 
       if (score < bestScore) {
         bestScore = score;
@@ -386,7 +357,7 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
  */
 RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
   const terrain = this.room.getTerrain();
-  const range = PLANNER_CONSTANTS.CENTER_FREE_RANGE;
+  const range = CONSTANTS.PLANNER.CENTER_FREE_RANGE;
 
   for (let dx = -range; dx <= range; dx++) {
     for (let dy = -range; dy <= range; dy++) {
@@ -395,10 +366,10 @@ RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
 
       // Border check
       if (
-        checkX < PLANNER_CONSTANTS.ROOM_EDGE_MIN ||
-        checkX > PLANNER_CONSTANTS.ROOM_EDGE_MAX ||
-        checkY < PLANNER_CONSTANTS.ROOM_EDGE_MIN ||
-        checkY > PLANNER_CONSTANTS.ROOM_EDGE_MAX
+        checkX < CONSTANTS.PLANNER.ROOM_EDGE_MIN ||
+        checkX > CONSTANTS.PLANNER.ROOM_EDGE_MAX ||
+        checkY < CONSTANTS.PLANNER.ROOM_EDGE_MIN ||
+        checkY > CONSTANTS.PLANNER.ROOM_EDGE_MAX
       ) {
         return false;
       }
@@ -429,10 +400,10 @@ RoomPlanner.prototype._generateLayout = function () {
 
     // Border check
     if (
-      x < PLANNER_CONSTANTS.ROOM_MIN ||
-      x > PLANNER_CONSTANTS.ROOM_MAX ||
-      y < PLANNER_CONSTANTS.ROOM_MIN ||
-      y > PLANNER_CONSTANTS.ROOM_MAX
+      x < CONSTANTS.PLANNER.ROOM_MIN ||
+      x > CONSTANTS.PLANNER.ROOM_MAX ||
+      y < CONSTANTS.PLANNER.ROOM_MIN ||
+      y > CONSTANTS.PLANNER.ROOM_MAX
     )
       return;
 
@@ -511,7 +482,7 @@ RoomPlanner.prototype._generateLayout = function () {
  */
 RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) {
   const terrain = this.room.getTerrain();
-  const range = PLANNER_CONSTANTS.ALTERNATIVE_POSITION_RANGE;
+  const range = CONSTANTS.PLANNER.ALTERNATIVE_POSITION_RANGE;
 
   for (let dx = -range; dx <= range; dx++) {
     for (let dy = -range; dy <= range; dy++) {
@@ -519,10 +490,10 @@ RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) 
       const newY = y + dy;
 
       if (
-        newX < PLANNER_CONSTANTS.ROOM_MIN ||
-        newX > PLANNER_CONSTANTS.ROOM_MAX ||
-        newY < PLANNER_CONSTANTS.ROOM_MIN ||
-        newY > PLANNER_CONSTANTS.ROOM_MAX
+        newX < CONSTANTS.PLANNER.ROOM_MIN ||
+        newX > CONSTANTS.PLANNER.ROOM_MAX ||
+        newY < CONSTANTS.PLANNER.ROOM_MIN ||
+        newY > CONSTANTS.PLANNER.ROOM_MAX
       )
         continue;
       if (terrain.get(newX, newY) === TERRAIN_MASK_WALL) continue;
@@ -547,7 +518,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
   const existingSites = this.room.find(FIND_CONSTRUCTION_SITES);
 
   // Limit for Construction Sites (max 100 per room, but we limit to fewer for efficiency)
-  if (existingSites.length >= PLANNER_CONSTANTS.MAX_CONSTRUCTION_SITES) {
+  if (existingSites.length >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES) {
     return;
   }
 
@@ -557,7 +528,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
   let sitesPlaced = 0;
 
   for (const planned of this.memory.plannedStructures) {
-    if (sitesPlaced >= PLANNER_CONSTANTS.MAX_CONSTRUCTION_SITES - existingSites.length) break;
+    if (sitesPlaced >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES - existingSites.length) break;
 
     const { x, y, structureType } = planned;
 
@@ -663,7 +634,7 @@ RoomPlanner.prototype._getStructureCounts = function () {
  */
 RoomPlanner.prototype._canBuildStructure = function (structureType, rcl, structureCounts) {
   // Roads are only built from minimum RCL onwards
-  if (structureType === STRUCTURE_ROAD && rcl < PLANNER_CONSTANTS.MIN_RCL_FOR_ROADS) {
+  if (structureType === STRUCTURE_ROAD && rcl < CONSTANTS.PLANNER.MIN_RCL_FOR_ROADS) {
     return false;
   }
 
@@ -765,7 +736,7 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type, identifier, tar
   }
 
   const range =
-    type === "controller" ? PLANNER_CONSTANTS.CONTAINER_CONTROLLER_RANGE : PLANNER_CONSTANTS.CONTAINER_DEFAULT_RANGE;
+    type === "controller" ? CONSTANTS.PLANNER.CONTAINER_CONTROLLER_RANGE : CONSTANTS.PLANNER.CONTAINER_DEFAULT_RANGE;
   this._placeStructureNear(pos, STRUCTURE_CONTAINER, range, type, false, identifier, targetId);
 };
 
@@ -794,7 +765,7 @@ RoomPlanner.prototype._placeControllerLink = function () {
  * Places a link near a position (statisch im Memory)
  */
 RoomPlanner.prototype._placeLinkNear = function (pos, type, identifier, targetId) {
-  const range = PLANNER_CONSTANTS.LINK_PLACEMENT_RANGE;
+  const range = CONSTANTS.PLANNER.LINK_PLACEMENT_RANGE;
   this._placeStructureNear(pos, STRUCTURE_LINK, range, type, true, identifier, targetId);
 };
 
@@ -908,10 +879,10 @@ RoomPlanner.prototype._placeStructureNear = function (
       const y = pos.y + dy;
 
       if (
-        x < PLANNER_CONSTANTS.ROOM_MIN ||
-        x > PLANNER_CONSTANTS.ROOM_MAX ||
-        y < PLANNER_CONSTANTS.ROOM_MIN ||
-        y > PLANNER_CONSTANTS.ROOM_MAX
+        x < CONSTANTS.PLANNER.ROOM_MIN ||
+        x > CONSTANTS.PLANNER.ROOM_MAX ||
+        y < CONSTANTS.PLANNER.ROOM_MIN ||
+        y > CONSTANTS.PLANNER.ROOM_MAX
       )
         continue;
       if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
@@ -1055,10 +1026,10 @@ RoomPlanner.prototype.visualize = function () {
   }
 
   // Activate visualization
-  this.memory.visualizeUntil = Game.time + PLANNER_CONSTANTS.VISUALIZATION_DURATION;
+  this.memory.visualizeUntil = Game.time + CONSTANTS.PLANNER.VISUALIZATION_DURATION;
   this._drawVisualization();
   Log.info(
-    `Visualization activated for ${this.roomName} (${PLANNER_CONSTANTS.VISUALIZATION_DURATION} ticks)`,
+    `Visualization activated for ${this.roomName} (${CONSTANTS.PLANNER.VISUALIZATION_DURATION} ticks)`,
     "RoomPlanner",
   );
 };

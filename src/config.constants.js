@@ -206,5 +206,37 @@ module.exports = {
   // Fill Levels for Resources (storage, terminal, factory)
   // Note: This is a large object, kept here for reference but assigned to global in _initGlobal.js
   FILL_LEVEL: null, // Will be assigned from _initGlobal.js
+
+  // Room Planner Configuration
+  PLANNER: {
+    // Construction Site Limits
+    MAX_CONSTRUCTION_SITES: 5,
+
+    // Road Building
+    MIN_RCL_FOR_ROADS: 5,
+
+    // Center Calculation
+    CENTER_FREE_RANGE: 5,
+    CENTER_SEARCH_MIN: 6,
+    CENTER_SEARCH_MAX: 44,
+    CONTROLLER_WEIGHT: 0.5,
+
+    // Alternative Position Search
+    ALTERNATIVE_POSITION_RANGE: 2,
+
+    // Special Structure Placement
+    LINK_PLACEMENT_RANGE: 2,
+    CONTAINER_CONTROLLER_RANGE: 2,
+    CONTAINER_DEFAULT_RANGE: 1,
+
+    // Visualization
+    VISUALIZATION_DURATION: 15,
+
+    // Room Boundaries
+    ROOM_MIN: 1,
+    ROOM_MAX: 48,
+    ROOM_EDGE_MIN: 2,
+    ROOM_EDGE_MAX: 47,
+  },
 };
 

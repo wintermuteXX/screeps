@@ -13,6 +13,7 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   extends: [
     "eslint:recommended",
+    "prettier", // Must be last to override other configs
   ],
   rules: {
     // ECMAScript 2017 Standards
@@ -31,7 +32,7 @@ module.exports = {
       "ignoreDestructuring": false
     }],
     "no-underscore-dangle": ["warn", {
-      "allow": ["_rooms", "_cache", "_creepsByRole", "_init", "_behavior", "_updateMemory", "_getResourceFromMemory", "_shouldCreateCreep"]
+      "allow": ["_rooms", "_cache", "_creepsByRole", "_init", "_behavior", "_updateMemory", "_getResourceFromMemory", "_shouldCreateCreep", "_harvestPowerCache", "_harvestPowerCacheTick", "_collectResource", "_withdrawResource", "_pickupResource", "_handleCollectionResult", "_updateMemoryWithActualAmount", "_getCarriedResources", "_updateMemoryWithCarriedResources", "_getDeliveryOrders", "_groupOrdersByTarget", "_isTargetValid", "_findBestTargetFromOrders", "_findMatchingNeed", "_findTerminalFallback", "_dropAllResources", "_updateMemoryAfterTransfer", "_calculateTransferAmount", "_handleTransferResult", "_validateCurrentTarget", "_createOrdersFromMemory", "_performBatchDelivery", "_calculateOptimalCenter", "_structureCounts"]
     }],
     
     // Performance - Prevent require() in loops (but allow at module level)
@@ -42,7 +43,7 @@ module.exports = {
     "no-undef": "error",
     "no-unused-vars": ["warn", {
       "argsIgnorePattern": "^(_|rc|creep)$",
-      "varsIgnorePattern": "^_"
+      "varsIgnorePattern": "^(_|memoryEntry)$"
     }],
     
     // Best Practices
@@ -64,19 +65,13 @@ module.exports = {
     "require-await": "warn",
     "vars-on-top": "off", // Allow const/let anywhere
     
-    // Style
-    "comma-dangle": ["warn", "always-multiline"],
-    "semi": ["error", "always"],
-    "quotes": ["warn", "double", { "avoidEscape": true }],
-    "indent": ["warn", 2, { "SwitchCase": 1 }],
-    "no-trailing-spaces": "warn",
+    // Style (Prettier handles formatting, but we keep some rules for consistency)
     "eol-last": ["warn", "always"],
-    "no-multiple-empty-lines": ["warn", { "max": 2, "maxEOF": 1 }],
     
     // TypeScript-specific
     "@typescript-eslint/no-unused-vars": ["warn", {
       "argsIgnorePattern": "^(_|rc|creep)$",
-      "varsIgnorePattern": "^_"
+      "varsIgnorePattern": "^(_|memoryEntry)$"
     }],
   },
   overrides: [
@@ -110,9 +105,13 @@ module.exports = {
         "FIND_CONSTRUCTION_SITES": "readonly",
         "FIND_DROPPED_RESOURCES": "readonly",
         "FIND_MY_STRUCTURES": "readonly",
+        "FIND_MY_SPAWNS": "readonly",
         "FIND_HOSTILE_CREEPS": "readonly",
         "FIND_HOSTILE_SPAWNS": "readonly",
         "FIND_HOSTILE_STRUCTURES": "readonly",
+        "FIND_DEPOSITS": "readonly",
+        "FIND_MY_CREEPS": "readonly",
+        "FIND_MINERALS": "readonly",
         "STRUCTURE_TOWER": "readonly",
         "STRUCTURE_SPAWN": "readonly",
         "STRUCTURE_EXTENSION": "readonly",
@@ -142,6 +141,16 @@ module.exports = {
         "ERR_TIRED": "readonly",
         "ERR_NO_BODYPART": "readonly",
         "ERR_RCL_NOT_ENOUGH": "readonly",
+        "ERR_NO_PATH": "readonly",
+        "EXTRACTOR_COOLDOWN": "readonly",
+        "RoomPosition": "readonly",
+        "HARVEST_POWER": "readonly",
+        "BOOSTS": "readonly",
+        "PWR_OPERATE_FACTORY": "readonly",
+        "COMMODITIES": "readonly",
+        "MarketCal": "readonly",
+        "REACTION_TIME": "readonly",
+        "REACTIONS": "readonly",
         "_": "readonly",
       },
     },

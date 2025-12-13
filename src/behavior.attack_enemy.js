@@ -11,8 +11,8 @@ function getTarget(room) {
     return global.isHostileUsername(t.owner.username);
   };
 
-  for (const i in TARGETS) {
-    const targets = _.filter(room.find(TARGETS[i]), filter);
+  for (const targetType of TARGETS) {
+    const targets = _.filter(room.find(targetType), filter);
     if (targets.length) {
       return targets[0];
     }

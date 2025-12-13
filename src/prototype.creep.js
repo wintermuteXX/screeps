@@ -42,7 +42,14 @@ Object.defineProperty(Creep.prototype, "target", {
   },
 });
 
+/**
+ * Get the target object by ID
+ * @returns {Object|null} The target object or null if not found
+ */
 Creep.prototype.getTarget = function () {
+  if (!this.target) {
+    return null;
+  }
   return Game.getObjectById(this.target);
 };
 
@@ -103,14 +110,17 @@ Creep.prototype.clearTargets = function () {
 
 /**
  * Get the first target as an object
- * @returns {Object|null} The target object or null
+ * @returns {Object|null} The target object or null if not found
  */
 Creep.prototype.getFirstTarget = function () {
-  if (this.memory.targets && this.memory.targets.length > 0) {
-    const targetData = this.memory.targets[0];
-    return Game.getObjectById(targetData.id);
+  if (!this.memory.targets || this.memory.targets.length === 0) {
+    return null;
   }
-  return null;
+  const targetData = this.memory.targets[0];
+  if (!targetData || !targetData.id) {
+    return null;
+  }
+  return Game.getObjectById(targetData.id);
 };
 
 /**
@@ -126,6 +136,7 @@ Creep.prototype.getFirstTargetData = function () {
 
 /**
  * Get harvest power per tick for this creep
+ * Cached per tick for performance (body doesn't change during a tick)
  * @returns {number} Energy units this creep can harvest per tick
  *
  * Examples:
@@ -134,7 +145,14 @@ Creep.prototype.getFirstTargetData = function () {
  * - 1 WORK with XUHO2 boost (harvest: 7) = 14 energy/tick
  */
 Creep.prototype.getHarvestPowerPerTick = function() {
+  // Cache per tick (body doesn't change during a tick)
+  if (this._harvestPowerCache && this._harvestPowerCacheTick === Game.time) {
+    return this._harvestPowerCache;
+  }
+
   if (!this.body || !Array.isArray(this.body)) {
+    this._harvestPowerCache = 0;
+    this._harvestPowerCacheTick = Game.time;
     return 0;
   }
 
@@ -142,7 +160,7 @@ Creep.prototype.getHarvestPowerPerTick = function() {
 
   for (const part of this.body) {
     // Only count WORK parts
-    if (part.type !== WORK) {
+    if (!part || part.type !== WORK) {
       continue;
     }
 
@@ -158,11 +176,14 @@ Creep.prototype.getHarvestPowerPerTick = function() {
     }
 
     // BOOSTS structure: BOOSTS.work[boostResourceType].harvest
-    if (part.boost && BOOSTS.work && BOOSTS.work[part.boost] && BOOSTS.work[part.boost].harvest) {
+    if (part.boost && BOOSTS && BOOSTS.work && BOOSTS.work[part.boost] && BOOSTS.work[part.boost].harvest) {
       totalHarvestPower += BOOSTS.work[part.boost].harvest;
     }
   }
 
+  // Cache the result
+  this._harvestPowerCache = totalHarvestPower;
+  this._harvestPowerCacheTick = Game.time;
   return totalHarvestPower;
 };
 

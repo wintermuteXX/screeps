@@ -12,7 +12,7 @@ function findFlag(rc) {
 b.when = function (creep, rc) {
   const flag = findFlag(rc);
   const {spawns} = rc.room; // Use room.spawns prototype
-  return !!flag && flag.room == creep.room && spawns && spawns.length > 0;
+  return !!flag && flag.room === creep.room && spawns && spawns.length > 0;
 };
 
 b.completed = function (creep, rc) {
@@ -34,11 +34,11 @@ b.work = function (creep, rc) {
   const position = new RoomPosition(centerPos.x, centerPos.y, creep.room.name);
   const result = creep.room.createConstructionSite(position, STRUCTURE_SPAWN);
 
-  if (result == ERR_RCL_NOT_ENOUGH) {
+  if (result === ERR_RCL_NOT_ENOUGH) {
     // Shortcut for Claimer - remove if other creeps are using this behavior
     creep.suicide();
   }
-  if (result == OK) {
+  if (result === OK) {
     Log.success(`Build a new construction site for Spawn in ${creep.room.name} at (${position.x}, ${position.y})`, "place_spawn");
   } else {
     Log.error(`Could not build Spawn in ${creep.room.name} at (${position.x}, ${position.y}). Error: ${global.getErrorString(result)}`, "place_spawn");

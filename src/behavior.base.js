@@ -9,30 +9,30 @@ class Behavior {
 
   /**
    * Determines if this behavior should be executed
-   * @param {Creep} creep - The creep
-   * @param {RoomController} rc - The room controller
+   * @param {Creep} _creep - The creep
+   * @param {RoomController} _rc - The room controller
    * @returns {boolean} True if behavior should execute
    */
-  when(creep, rc) {
+  when(_creep, _rc) {
     return false;
   }
 
   /**
    * Determines if this behavior is completed
-   * @param {Creep} creep - The creep
-   * @param {RoomController} rc - The room controller
+   * @param {Creep} _creep - The creep
+   * @param {RoomController} _rc - The room controller
    * @returns {boolean} True if behavior is completed
    */
-  completed(creep, rc) {
+  completed(_creep, _rc) {
     return true;
   }
 
   /**
    * Executes the behavior
-   * @param {Creep} creep - The creep
-   * @param {RoomController} rc - The room controller
+   * @param {Creep} _creep - The creep
+   * @param {RoomController} _rc - The room controller
    */
-  work(creep, rc) {
+  work(_creep, _rc) {
     // Override in subclasses
   }
 }

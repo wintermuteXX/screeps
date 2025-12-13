@@ -24,8 +24,7 @@ function ControllerRoom(room, ControllerGame) {
 
   // Nutze gecachten room.spawns Getter (filtert nach my)
   const spawns = this.room.spawns.filter(s => s.my);
-  for (const s in spawns) {
-    const spawn = spawns[s];
+  for (const spawn of spawns) {
     this._spawns.push(new ControllerSpawn(spawn, this));
   }
 
@@ -33,8 +32,7 @@ function ControllerRoom(room, ControllerGame) {
 
   const {towers} = this.room;
 
-  for (const t in towers) {
-    const tower = towers[t];
+  for (const tower of towers) {
     this._towers.push(new ControllerTower(tower, this));
   }
 
@@ -237,8 +235,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
-  for (const i in this._spawns) {
-    const sc = this._spawns[i];
+  for (const sc of this._spawns) {
     if (sc.isIdle()) {
       return sc;
     }
@@ -249,8 +246,7 @@ ControllerRoom.prototype.getIdleSpawn = function () {
 ControllerRoom.prototype.getIdleSpawnObject = function () {
   // Nutze gecachten room.spawns Getter (filtert nach my)
   const spawns = this.room.spawns.filter(s => s.my);
-  for (const i in spawns) {
-    const sc = spawns[i];
+  for (const sc of spawns) {
     if (!sc.spawning) {
       return sc;
     }
@@ -282,26 +278,21 @@ ControllerRoom.prototype.getSourcesNotEmpty = function () {
 };
 
 ControllerRoom.prototype.getFirstPossibleLabReaction = function () {
-  for (const key in REACTIONS) {
-    if (REACTIONS.hasOwnProperty(key)) {
-      const obj = REACTIONS[key];
-      for (const prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+  for (const [key, obj] of Object.entries(REACTIONS)) {
+    for (const [prop, result] of Object.entries(obj)) {
           if (
             this.room.getResourceAmount(key, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
             this.room.getResourceAmount(prop, "all") >= CONSTANTS.RESOURCES.LAB_REACTION_MIN &&
-            this.room.getResourceAmount(obj[prop], "all") < this.room.getRoomThreshold(obj[prop], "all")
+            this.room.getResourceAmount(result, "all") < this.room.getRoomThreshold(result, "all")
           ) {
             return {
               resourceA: key,
               resourceB: prop,
-              result: obj[prop],
+              result: result,
             };
           }
         }
       }
-    }
-  }
 };
 
 ControllerRoom.prototype.findStructuresToRepair = function () {
