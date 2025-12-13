@@ -59,10 +59,8 @@ Creep.prototype.getTarget = function () {
  */
 Object.defineProperty(Creep.prototype, "targets", {
   get: function () {
-    if (!this.memory.targets) {
-      this.memory.targets = [];
-    }
-    return this.memory.targets;
+    // Only read, don't write to memory unnecessarily
+    return this.memory.targets || [];
   },
   set: function (newTargets) {
     if (Array.isArray(newTargets)) {

@@ -19,11 +19,11 @@ class LogisticsManager {
     }
 
     // Collect all matching pairs with priority check
+    // Cache getAllCreeps() to avoid repeated calls in nested loop
+    const allCreeps = this.rc.creeps.getAllCreeps();
     const matchingOrders = [];
-    for (const g in givesResources) {
-      const give = givesResources[g];
-      for (const n in needsResources) {
-        const need = needsResources[n];
+    for (const give of givesResources) {
+      for (const need of needsResources) {
 
         // Basic compatibility check
         if (give.resourceType !== need.resourceType) continue;
@@ -33,7 +33,8 @@ class LogisticsManager {
         if (need.priority >= give.priority) continue;
 
         // Only block if an EMPTY creep is already targeting this source (empty creeps collect resources)
-        if (this.rc.creeps.getAllCreeps().some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
+        // Use cached allCreeps instead of calling getAllCreeps() again
+        if (allCreeps.some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
 
         // Check if target still exists and has capacity
         const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
@@ -79,7 +80,8 @@ class LogisticsManager {
       }
     } else {
       // Fallback: find all resources in store if memory.resources not set
-      for (const resType in Creep.store) {
+      // Use Object.keys() for better performance than for...in
+      for (const resType of Object.keys(Creep.store)) {
         if (Creep.store[resType] > 0) {
           carriedResources.push(resType);
         }
@@ -94,6 +96,8 @@ class LogisticsManager {
     const resourcesToCheck = resourceType ? [resourceType] : carriedResources;
 
     // Find matching orders - collect all matches with priority check
+    // Cache getAllCreeps() to avoid repeated calls in nested loop
+    const allCreeps = this.rc.creeps.getAllCreeps();
     const matchingOrders = [];
 
     for (const resType of resourcesToCheck) {
@@ -102,8 +106,7 @@ class LogisticsManager {
       // Find corresponding give for this resource type to check priority
       const correspondingGive = givesResources.find(g => g.resourceType === resType && g.id !== Creep.id);
 
-      for (const n in needsResources) {
-        const need = needsResources[n];
+      for (const need of needsResources) {
 
         // Basic compatibility check
         if (need.resourceType !== resType) continue;
@@ -113,7 +116,8 @@ class LogisticsManager {
         if (correspondingGive && need.priority >= correspondingGive.priority) continue;
 
         // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
-        if (this.rc.creeps.getAllCreeps().some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
+        // Use cached allCreeps instead of calling getAllCreeps() again
+        if (allCreeps.some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
 
         // Check if target still exists and has capacity
         const targetValidation = this._validateResourceTarget(need.id, resType);
@@ -277,7 +281,8 @@ class LogisticsManager {
 
   _processStoreResources(findType, minAmount, priority, defaultStructureType) {
     this.rc.find(findType).forEach((item) => {
-      for (const resourceType in item.store) {
+      // Use Object.keys() for better performance than for...in
+      for (const resourceType of Object.keys(item.store)) {
         const amount = item.store[resourceType];
         if (amount > minAmount) {
           const structureType = item.structureType ||
@@ -360,7 +365,8 @@ class LogisticsManager {
     for (const container of containers) {
       if (!container || !container.store) continue;
 
-      for (const resourceType in container.store) {
+      // Use Object.keys() for better performance than for...in
+      for (const resourceType of Object.keys(container.store)) {
         const amount = container.store[resourceType];
         if (amount > CONSTANTS.RESOURCES.CONTAINER_MIN) {
           this._addGivesResource({
