@@ -1,0 +1,12 @@
+Code organization and naming conventions---
+alwaysApply: true
+---
+- File naming: controller.*.js, behavior.*.js, config.*.js, lib.*.js, service.*.js, utils.*.js, prototype.*.js
+- Controllers use PascalCase class names (ControllerGame, ControllerRoom)
+- Behaviors use camelCase (behavior.harvest.js → "harvest")
+- Constants use UPPER_SNAKE_CASE (CONSTANTS.CPU.BUCKET_CRITICAL)
+- Private methods use underscore prefix (_rooms, _cache)
+- All modules must export using module.exports
+- Use JSDoc comments for all public methods with @param and @returns
+- Group related functionality in the same file
+- Keep files focused on a single responsibility

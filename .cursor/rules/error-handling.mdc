@@ -1,0 +1,14 @@
+Error handling and validation---
+alwaysApply: true
+---
+- Always check for null/undefined before accessing properties
+- Never use optional chaining (?.)
+- Validate room exists before processing
+- Check creep exists and is not null before operations
+- Use Log.error() for critical errors
+- Use Log.warn() for warnings
+- Handle structure destruction gracefully
+- Check structure energy before operations
+- Validate structure type before casting
+- Check if creep has required body parts before actions
+- Verify target exists and is in range before actions

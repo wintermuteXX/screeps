@@ -1,0 +1,15 @@
+Performance optimization rules for Screeps---
+alwaysApply: true
+---
+- Never call require() inside loops or frequently called functions
+- Cache Game.rooms, Game.creeps lookups per tick
+- Use tick-level caching for enemies, repair structures, and room structures
+- Avoid repeated pathfinding - cache paths when possible
+- Use memhack.run() at the start of each tick
+- Check CPU bucket before processing rooms
+- Skip ticks when bucket is critically low
+- Use prototype extensions instead of find() when possible
+- Minimize memory writes - batch updates when possible
+- Use CONSTANTS for all thresholds to avoid magic numbers
+- Move requires outside loops to prevent re-loading
+- Use efficient structure access via prototype extensions (room.towers, room.spawns)

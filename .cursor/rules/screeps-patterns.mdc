@@ -1,0 +1,16 @@
+Screeps AI coding patterns and best practices---
+alwaysApply: true
+---
+- Follow the Controller Pattern: ControllerGame → ControllerRoom → specialized controllers
+- All behaviors must extend the Behavior base class with when(), completed(), and work() methods
+- Use require() at module level, not inside loops
+- Cache expensive operations per tick using utils.cache
+- Use memhack for memory optimization
+- All magic numbers and thresholds must be in config.constants.js
+- Use Log utility for all logging (Log.success, Log.error, Log.warn)
+- Use Traveler.js for pathfinding, not built-in pathfinding
+- Check CPU bucket before expensive operations
+- Use prototype extensions (room.towers, room.spawns, etc.) for efficient structure access
+- Creep roles and properties are defined in config.creeps.js
+- Transport system uses priority-based matching algorithm
+- Behaviors are executed in priority order defined in config.creeps.js

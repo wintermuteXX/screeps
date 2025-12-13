@@ -1,0 +1,10 @@
+use ECMA Script 2017---
+alwaysApply: true
+---
+- Use const for all requires and module exports
+- Prefer const/let over var
+- Use arrow functions for callbacks
+- Use template literals for string interpolation
+- Use destructuring when appropriate
+- Use classes for controllers and behaviors
+- Use JSDoc comments for all public methods with @param and @returns

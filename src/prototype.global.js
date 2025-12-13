@@ -54,7 +54,6 @@ function initGlobal(g) {
   global.marketInfo = utilsConsole.marketInfo;
   global.json = utilsConsole.json;
   global.help = utilsConsole.help;
-  global.voiceConsole = utilsConsole.voiceConsole;
   global.visualizeLogistic = utilsConsole.visualizeLogistic;
   global.visualizeCpu = utilsConsole.visualizeCpu;
 
