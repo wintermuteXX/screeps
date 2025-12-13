@@ -22,6 +22,8 @@ class LogisticsManager {
     // Cache getAllCreeps() to avoid repeated calls in nested loop
     const allCreeps = this.rc.creeps.getAllCreeps();
     const matchingOrders = [];
+    const creepPos = Creep.pos; // Cache creep position for distance calculation
+
     for (const give of givesResources) {
       for (const need of needsResources) {
 
@@ -40,17 +42,37 @@ class LogisticsManager {
         const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
         if (!targetValidation) continue;
 
-        // Add to matching orders with priority for sorting
+        // Calculate distance for secondary sorting
+        const giveObj = Game.getObjectById(give.id);
+        const needObj = Game.getObjectById(need.id);
+        const giveDistance = giveObj ? creepPos.getRangeTo(giveObj) : 999;
+        const needDistance = needObj ? creepPos.getRangeTo(needObj) : 999;
+        const totalDistance = giveDistance + needDistance;
+
+        // Add to matching orders with priority and distance for sorting
         matchingOrders.push({
           give: give,
           need: need,
           priority: need.priority,
+          totalDistance: totalDistance,
+          needDistance: needDistance, // Prefer closer needs
         });
       }
     }
 
-    // Sort by need.priority (lowest first, same as visualizeLogistic)
-    matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    // Sort by priority (lowest first), then by distance (closest first)
+    matchingOrders.sort((a, b) => {
+      // Primary sort: priority
+      if (a.priority !== b.priority) {
+        return (a.priority || 0) - (b.priority || 0);
+      }
+      // Secondary sort: total distance (give + need)
+      if (a.totalDistance !== b.totalDistance) {
+        return a.totalDistance - b.totalDistance;
+      }
+      // Tertiary sort: need distance (prefer closer needs)
+      return a.needDistance - b.needDistance;
+    });
 
     // Return first matching order
     if (matchingOrders.length > 0) {
@@ -99,6 +121,7 @@ class LogisticsManager {
     // Cache getAllCreeps() to avoid repeated calls in nested loop
     const allCreeps = this.rc.creeps.getAllCreeps();
     const matchingOrders = [];
+    const creepPos = Creep.pos; // Cache creep position for distance calculation
 
     for (const resType of resourcesToCheck) {
       if (Creep.store[resType] <= 0) continue;
@@ -123,8 +146,13 @@ class LogisticsManager {
         const targetValidation = this._validateResourceTarget(need.id, resType);
         if (!targetValidation) continue;
 
-        // Found matching order - set orderType and add to list
+        // Calculate distance for secondary sorting
+        const needObj = Game.getObjectById(need.id);
+        const needDistance = needObj ? creepPos.getRangeTo(needObj) : 999;
+
+        // Found matching order - set orderType and add to list with distance
         need.orderType = "D";
+        need._sortDistance = needDistance; // Store distance for sorting
 
         // Update Creep.memory.resources with orderType
         this._updateCreepResourceMemory(Creep, resType, need.id, need.orderType, Creep.store[resType] || 0);
@@ -133,8 +161,15 @@ class LogisticsManager {
       }
     }
 
-    // Sort by priority (lowest first, same as visualizeLogistic)
-    matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    // Sort by priority (lowest first), then by distance (closest first)
+    matchingOrders.sort((a, b) => {
+      // Primary sort: priority
+      if (a.priority !== b.priority) {
+        return (a.priority || 0) - (b.priority || 0);
+      }
+      // Secondary sort: distance (prefer closer needs)
+      return (a._sortDistance || 999) - (b._sortDistance || 999);
+    });
 
     // Return format: if resourceType specified, return single order; otherwise return array
     if (matchingOrders.length > 0) {

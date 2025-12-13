@@ -96,6 +96,72 @@ module.exports = {
     RANGE_FOR_DROPPED_RESOURCES: 3,     // Don't collect dropped resources near controller
   },
 
+  /**
+   * PRIORITY SYSTEM DOCUMENTATION
+   * ==============================
+   * 
+   * PRIORITY RULES:
+   * 1. Lower number = Higher priority (10 is more urgent than 100)
+   * 2. NEEDS priorities: 10-145 (structures that need resources)
+   * 3. GIVES priorities: 40-200 (sources that can give resources)
+   * 4. MATCHING RULE: need.priority < give.priority (prevents low-priority needs from being served by high-priority sources)
+   * 
+   * PRIORITY GROUPS:
+   * - CRITICAL (10-30): Life-or-death situations (controller downgrade, spawning)
+   *   * CONTROLLER_CRITICAL (10): Controller about to downgrade (< 100 ticks)
+   *   * SPAWN (15): Spawns (must be filled for new creeps)
+   *   * EXTENSION (20): Extensions (needed for spawning)
+   *   * CONTROLLER_LOW (25): Controller low on time (< 5000 ticks)
+   * 
+   * - HIGH (30-50): Important operational needs
+   *   * TOWER_ENEMY (30): Towers when enemies present (defensive priority)
+   *   * TERMINAL_ENERGY_LOW (35): Terminal energy very low (critical for trading)
+   * 
+   * - MEDIUM (50-80): Normal operational needs
+   *   * STORAGE_ENERGY_MID (55): Storage energy medium
+   *   * TOWER_NORMAL (60): Towers when no enemies
+   *   * CONSTRUCTOR (62): Constructors
+   *   * LAB (65): Labs
+   *   * LAB_FILL (70): Labs filling
+   *   * FACTORY_ENERGY (75): Factory energy
+   * 
+   * - LOW (80-145): Non-critical needs
+   *   * POWER_SPAWN_ENERGY (80): Power spawn energy
+   *   * FACTORY_MINERAL (85): Factory minerals
+   *   * POWER_SPAWN_POWER (90): Power spawn power
+   *   * NUKER_GHODIUM (95): Nuker ghodium
+   *   * STORAGE_MINERAL (105): Storage minerals
+   *   * NUKER_ENERGY (110): Nuker energy
+   *   * STORAGE_ENERGY_OVERFLOW (120): Storage energy overflow
+   *   * TERMINAL_MINERAL (130): Terminal minerals
+   *   * TERMINAL_ENERGY_OVERFLOW (145): Terminal energy overflow
+   * 
+   * GIVES PRIORITIES:
+   * - Start at 40 to ensure need.priority < give.priority works for all needs
+   * - Higher numbers = lower priority sources (containers, links are last resort)
+   * - STORAGE_ENERGY_LOW (40): Storage energy low (can give)
+   * - STORAGE_ENERGY_HIGH (100): Storage energy high (can give)
+   * - STORAGE_MINERAL_HIGH (110): Storage mineral high (can give)
+   * - TERMINAL_ENERGY_HIGH (140): Terminal energy high (can give)
+   * - STORAGE_MINERAL_OVERFLOW (150): Storage mineral overflow (can give)
+   * - TOMBSTONE (165): Tombstones (can give)
+   * - RUIN (166): Ruins (destroyed structures, can give)
+   * - DROPPED_RESOURCE (170): Dropped resources (can give)
+   * - FACTORY_OVERFLOW (180): Factory overflow (can give)
+   * - LAB_EMPTY (185): Labs with resources to empty (can give)
+   * - CONTAINER (195): Containers (can give)
+   * - LINK (200): Links (can give)
+   * 
+   * DYNAMIC PRIORITIES:
+   * - Controller: Changes based on ticksToDowngrade (10 = critical, 25 = low)
+   * - Tower: Changes based on enemy presence (30 = enemy, 60 = normal)
+   * - Storage/Terminal: Changes based on fill level (see _getStorageGivesPriority, _getStorageNeedsPriority)
+   * 
+   * SORTING LOGIC:
+   * - Primary: Priority (lowest first = highest priority)
+   * - Secondary: Distance (closest first) - applied when priorities are equal
+   * - This ensures efficient resource distribution and minimizes travel time
+   */
   // Priority Values (lower = higher priority)
   PRIORITY: {
     // ===== NEEDS (needsResources) - Structures that need resources =====
