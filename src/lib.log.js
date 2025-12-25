@@ -2,6 +2,34 @@
  * Log.js
  *
  * ES6 log class for logging screeps messages with color, where it makes sense.
+ *
+ * LOGGING GUIDELINES:
+ * ===================
+ * Use the appropriate log level based on the message type:
+ *
+ * - Log.debug(): Development/debugging information (e.g., detailed state, intermediate values)
+ *   Example: "Creep trying to withdraw 50 energy from storage"
+ *
+ * - Log.info(): Important operational events (e.g., successful actions, state changes)
+ *   Example: "Creep successfully collected energy from source"
+ *
+ * - Log.success(): Successful completion of important operations
+ *   Example: "Room upgraded to RCL 5"
+ *
+ * - Log.warn(): Potential problems or unexpected situations (e.g., missing targets, low resources)
+ *   Example: "No transport orders available for creep"
+ *   Always include context: what happened, why it might be a problem, what the system will do
+ *
+ * - Log.error(): Critical errors that affect functionality (e.g., missing required objects, API errors)
+ *   Example: "Failed to spawn creep: ERR_NOT_ENOUGH_ENERGY"
+ *   Always include error codes using global.getErrorString() when available
+ *
+ * BEST PRACTICES:
+ * - Always use tags to categorize logs (e.g., "transport", "spawn", "defense")
+ * - Include relevant context (creep names, room names, resource amounts)
+ * - Use consistent formatting for similar messages
+ * - Don't log in tight loops (use conditional logging or rate limiting)
+ * - Use Log.warn() for recoverable issues, Log.error() for critical failures
  */
 "use strict";
 

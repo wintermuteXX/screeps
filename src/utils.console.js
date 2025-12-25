@@ -297,7 +297,7 @@ function showLabs() {
 
 /**
  * Show resources across all rooms
- * @param {boolean} hide - If true, only show resources with amount > 0
+ * @param {boolean} [hide=false] - If true, only show resources with amount > 0
  * @returns {string} HTML table string
  */
 function showResources(hide = false) {
@@ -315,8 +315,7 @@ function showResources(hide = false) {
     if (Game.rooms[roomName].storage) numberOfRooms += 1;
   }
 
-  for (const resourceIdx in RESOURCES_ALL) {
-    const resource = RESOURCES_ALL[resourceIdx];
+  for (const resource of RESOURCES_ALL) {
 
     if (!hide) {
       result.push("<tr>");
@@ -366,8 +365,7 @@ function showMarket() {
 
   const orders = Game.market.getAllOrders();
 
-  for (const resourceIdx in RESOURCES_ALL) {
-    const resources = RESOURCES_ALL[resourceIdx];
+  for (const resources of RESOURCES_ALL) {
 
     const orderMinerals = orders.filter((order) => order.resourceType === resources);
 
@@ -595,7 +593,7 @@ function showLogistic(roomName = null) {
 
 /**
  * Shows CPU analysis
- * Usage:  showCPU()
+ * @returns {void}
  */
 function showCPU() {
   if (!Memory.cpuHistory || Memory.cpuHistory.length < 2) {
@@ -610,12 +608,156 @@ function showCPU() {
 }
 
 /**
+ * Internal helper function to draw a single room on the scout visualization
+ * @param {string} roomName - Room name to visualize
+ * @param {Object} roomMemory - Room memory data
+ * @param {string} centerRoom - Center room name for distance calculation
+ * @returns {boolean} True if room was visualized, false otherwise
+ */
+function _drawScoutRoom(roomName, roomMemory, centerRoom) {
+  // Skip if never checked
+  if (!roomMemory.lastCheck) return false;
+
+  // Calculate distance from center
+  const distance = Game.map.getRoomLinearDistance(centerRoom, roomName);
+  if (distance > CONSTANTS.TRANSPORT.SCOUT_MAX_DISTANCE) return false;
+
+  // Get room status
+  const roomStatus = Game.map.getRoomStatus(roomName);
+  if (roomStatus.status !== "normal") return false;
+
+  // Determine color and symbol based on room status
+  let color = "#888888"; // Gray = unknown/old data
+  let symbol = "?";
+  let size = 0.3;
+
+  // Check how recent the data is
+  const ticksSinceCheck = Game.time - roomMemory.lastCheck;
+  const isRecent = ticksSinceCheck < CONSTANTS.TRANSPORT.SCOUT_RECENT_THRESHOLD;
+  const isOld = ticksSinceCheck > CONSTANTS.TRANSPORT.SCOUT_OLD_THRESHOLD;
+
+  if (isOld) {
+    color = "#444444"; // Very old data
+    symbol = "·";
+    size = 0.2;
+  } else if (isRecent) {
+    // Recent data - show detailed info
+    if (roomMemory.isHostile || roomMemory.avoid) {
+      color = "#ff0000"; // Red = hostile
+      symbol = "⚠";
+      size = 0.4;
+    } else if (roomMemory.controller && roomMemory.controller.my) {
+      color = "#00ff00"; // Green = owned
+      symbol = "✓";
+      size = 0.4;
+    } else if (roomMemory.controller && !roomMemory.controller.owner && !roomMemory.controller.reservation) {
+      color = "#00ffff"; // Cyan = free to claim
+      symbol = "○";
+      size = 0.5;
+    } else if (roomMemory.roomType === "ROOMTYPE_CORE") {
+      color = "#ffff00"; // Yellow = core room (3 sources)
+      symbol = "★";
+      size = 0.4;
+    } else if (roomMemory.sources && roomMemory.sources.length === 2) {
+      color = "#ffaa00"; // Orange = 2 sources
+      symbol = "●";
+      size = 0.35;
+    } else {
+      color = "#8888ff"; // Blue = explored
+      symbol = "·";
+      size = 0.3;
+    }
+  }
+
+  // Draw main symbol on world map (center of room)
+  const centerPos = new RoomPosition(25, 25, roomName);
+  Game.map.visual.text(symbol, centerPos, {
+    size: size,
+    color: color,
+    align: "center",
+    opacity: 0.8,
+  });
+
+  // Draw info: Score and Mineral in top-left, Sources in top-right
+  let xOffsetLeft = 0.5;
+  let hasInfo = false;
+
+  // Score (white) - top-left corner
+  if (roomMemory.score && roomMemory.score.total && roomMemory.score.total > CONSTANTS.TRANSPORT.SCOUT_SCORE_THRESHOLD) {
+    const scoreText = roomMemory.score.total.toString();
+    const scorePos = new RoomPosition(xOffsetLeft, 1, roomName);
+    Game.map.visual.text(scoreText, scorePos, {
+      size: 0.2,
+      color: "#ffffff",
+      align: "left",
+      opacity: 0.8,
+    });
+    xOffsetLeft += scoreText.length * 0.15 + 0.2; // Space after score
+    hasInfo = true;
+  }
+
+  // Mineral (orange) - top-left corner after score
+  if (roomMemory.mineral && roomMemory.mineral.type && isRecent) {
+    const mineralShort = roomMemory.mineral.type.replace("RESOURCE_", "").substring(0, 2);
+    const mineralPos = new RoomPosition(xOffsetLeft, 1, roomName);
+    Game.map.visual.text(mineralShort, mineralPos, {
+      size: 0.2,
+      color: "#ffaa00",
+      align: "left",
+      opacity: 0.8,
+    });
+    hasInfo = true;
+  }
+
+  // Source count as yellow dots (0-4 dots) - top-right corner
+  const sourceCount = roomMemory.sources ? roomMemory.sources.length : 0;
+  const sourceDots = "•".repeat(Math.min(sourceCount, CONSTANTS.TRANSPORT.SCOUT_MAX_SOURCE_DOTS));
+  if (sourceDots) {
+    const dotsPos = new RoomPosition(49, 1, roomName);
+    Game.map.visual.text(sourceDots, dotsPos, {
+      size: 0.25,
+      color: "#ffff00",
+      align: "right",
+      opacity: 0.9,
+    });
+    hasInfo = true;
+  }
+
+  // Draw background for better readability if we have info
+  if (hasInfo) {
+    // Background for left side (score + mineral)
+    const bgWidthLeft = xOffsetLeft + 0.3;
+    const bgPosLeft = new RoomPosition(0.3, 0.3, roomName);
+    Game.map.visual.rect(bgPosLeft, bgWidthLeft, 0.5, {
+      fill: "#000000",
+      opacity: 0.6,
+      stroke: "#000000",
+      strokeWidth: 0.1,
+    });
+    // Background for right side (sources) if present
+    if (sourceDots) {
+      const bgWidthRight = sourceDots.length * 0.15 + 0.5;
+      const bgPosRight = new RoomPosition(49 - bgWidthRight + 0.3, 0.3, roomName);
+      Game.map.visual.rect(bgPosRight, bgWidthRight, 0.5, {
+        fill: "#000000",
+        opacity: 0.6,
+        stroke: "#000000",
+        strokeWidth: 0.1,
+      });
+    }
+  }
+
+  return true;
+}
+
+/**
  * Visualizes Scout data on the World Map
  * Shows: Explored rooms, hostile rooms, free rooms, scores, etc.
  * Visualization persists for SCOUT_VISUALIZATION_DURATION ticks (default: 100)
  * Usage: showScout() or showScout('W1N1') or showScout('W1N1', false) to disable
  * @param {string|null} centerRoom - Room name to use as center (default: first owned room)
- * @param {boolean|number} duration - Duration in ticks (default: CONSTANTS.TICKS.SCOUT_VISUALIZATION_DURATION) or false to disable
+ * @param {boolean|number|null} duration - Duration in ticks (default: CONSTANTS.TICKS.SCOUT_VISUALIZATION_DURATION) or false to disable
+ * @returns {void}
  */
 function showScout(centerRoom = null, duration = null) {
   // Handle disable request
@@ -659,144 +801,10 @@ function showScout(centerRoom = null, duration = null) {
   }
 
   let roomsVisualized = 0;
-  const maxDistance = 10; // Only show rooms within 10 hops
-
   for (const roomName in Memory.rooms) {
-    const roomMemory = Memory.rooms[roomName];
-
-    // Skip if never checked
-    if (!roomMemory.lastCheck) continue;
-
-    // Calculate distance from center
-    const distance = Game.map.getRoomLinearDistance(centerRoom, roomName);
-    if (distance > maxDistance) continue; // Only show nearby rooms
-
-    // Get room status
-    const roomStatus = Game.map.getRoomStatus(roomName);
-    if (roomStatus.status !== "normal") continue;
-
-    // Determine color and symbol based on room status
-    let color = "#888888"; // Gray = unknown/old data
-    let symbol = "?";
-    let size = 0.3;
-
-    // Check how recent the data is
-    const ticksSinceCheck = Game.time - roomMemory.lastCheck;
-    const isRecent = ticksSinceCheck < 1000;
-    const isOld = ticksSinceCheck > 100000;
-
-    if (isOld) {
-      color = "#444444"; // Very old data
-      symbol = "·";
-      size = 0.2;
-    } else if (isRecent) {
-      // Recent data - show detailed info
-      if (roomMemory.isHostile || roomMemory.avoid) {
-        color = "#ff0000"; // Red = hostile
-        symbol = "⚠";
-        size = 0.4;
-      } else if (roomMemory.controller && roomMemory.controller.my) {
-        color = "#00ff00"; // Green = owned
-        symbol = "✓";
-        size = 0.4;
-      } else if (roomMemory.controller && !roomMemory.controller.owner && !roomMemory.controller.reservation) {
-        color = "#00ffff"; // Cyan = free to claim
-        symbol = "○";
-        size = 0.5;
-      } else if (roomMemory.roomType === "ROOMTYPE_CORE") {
-        color = "#ffff00"; // Yellow = core room (3 sources)
-        symbol = "★";
-        size = 0.4;
-      } else if (roomMemory.sources && roomMemory.sources.length === 2) {
-        color = "#ffaa00"; // Orange = 2 sources
-        symbol = "●";
-        size = 0.35;
-      } else {
-        color = "#8888ff"; // Blue = explored
-        symbol = "·";
-        size = 0.3;
-      }
+    if (_drawScoutRoom(roomName, Memory.rooms[roomName], centerRoom)) {
+      roomsVisualized++;
     }
-
-    // Draw main symbol on world map (center of room)
-    const centerPos = new RoomPosition(25, 25, roomName);
-    Game.map.visual.text(symbol, centerPos, {
-      size: size,
-      color: color,
-      align: "center",
-      opacity: 0.8,
-    });
-
-    // Draw info: Score and Mineral in top-left, Sources in top-right
-    let xOffsetLeft = 0.5;
-    let hasInfo = false;
-
-    // Score (white) - top-left corner
-    if (roomMemory.score && roomMemory.score.total && roomMemory.score.total > 500) {
-      const scoreText = roomMemory.score.total.toString();
-      const scorePos = new RoomPosition(xOffsetLeft, 1, roomName);
-      Game.map.visual.text(scoreText, scorePos, {
-        size: 0.2,
-        color: "#ffffff",
-        align: "left",
-        opacity: 0.8,
-      });
-      xOffsetLeft += scoreText.length * 0.15 + 0.2; // Space after score
-      hasInfo = true;
-    }
-
-    // Mineral (orange) - top-left corner after score
-    if (roomMemory.mineral && roomMemory.mineral.type && isRecent) {
-      const mineralShort = roomMemory.mineral.type.replace("RESOURCE_", "").substring(0, 2);
-      const mineralPos = new RoomPosition(xOffsetLeft, 1, roomName);
-      Game.map.visual.text(mineralShort, mineralPos, {
-        size: 0.2,
-        color: "#ffaa00",
-        align: "left",
-        opacity: 0.8,
-      });
-      hasInfo = true;
-    }
-
-    // Source count as yellow dots (0-4 dots) - top-right corner
-    const sourceCount = roomMemory.sources ? roomMemory.sources.length : 0;
-    const sourceDots = "•".repeat(Math.min(sourceCount, 4)); // Max 4 dots
-    if (sourceDots) {
-      const dotsPos = new RoomPosition(49, 1, roomName);
-      Game.map.visual.text(sourceDots, dotsPos, {
-        size: 0.25,
-        color: "#ffff00",
-        align: "right",
-        opacity: 0.9,
-      });
-      hasInfo = true;
-    }
-
-    // Draw background for better readability if we have info
-    if (hasInfo) {
-      // Background for left side (score + mineral)
-      const bgWidthLeft = xOffsetLeft + 0.3;
-      const bgPosLeft = new RoomPosition(0.3, 0.3, roomName);
-      Game.map.visual.rect(bgPosLeft, bgWidthLeft, 0.5, {
-        fill: "#000000",
-        opacity: 0.6,
-        stroke: "#000000",
-        strokeWidth: 0.1,
-      });
-      // Background for right side (sources) if present
-      if (sourceDots) {
-        const bgWidthRight = sourceDots.length * 0.15 + 0.5;
-        const bgPosRight = new RoomPosition(49 - bgWidthRight + 0.3, 0.3, roomName);
-        Game.map.visual.rect(bgPosRight, bgWidthRight, 0.5, {
-          fill: "#000000",
-          opacity: 0.6,
-          stroke: "#000000",
-          strokeWidth: 0.1,
-        });
-      }
-    }
-
-    roomsVisualized++;
   }
 
   // Store visualization state in memory for persistence
@@ -839,6 +847,7 @@ function _redrawScoutVisualization() {
 /**
  * Internal function to draw scout visualization
  * @param {string} centerRoom - Room name to use as center
+ * @returns {void}
  */
 function _drawScoutVisualization(centerRoom) {
   // Clear and redraw
@@ -846,139 +855,8 @@ function _drawScoutVisualization(centerRoom) {
 
   if (!Memory.rooms) return;
 
-  let roomsVisualized = 0;
-  const maxDistance = 10;
-
   for (const roomName in Memory.rooms) {
-    const roomMemory = Memory.rooms[roomName];
-
-    if (!roomMemory.lastCheck) continue;
-
-    const distance = Game.map.getRoomLinearDistance(centerRoom, roomName);
-    if (distance > maxDistance) continue;
-
-    const roomStatus = Game.map.getRoomStatus(roomName);
-    if (roomStatus.status !== "normal") continue;
-
-    let color = "#888888";
-    let symbol = "?";
-    let size = 0.3;
-
-    const ticksSinceCheck = Game.time - roomMemory.lastCheck;
-    const isRecent = ticksSinceCheck < 1000;
-    const isOld = ticksSinceCheck > 100000;
-
-    if (isOld) {
-      color = "#444444";
-      symbol = "·";
-      size = 0.2;
-    } else if (isRecent) {
-      if (roomMemory.isHostile || roomMemory.avoid) {
-        color = "#ff0000";
-        symbol = "⚠";
-        size = 0.4;
-      } else if (roomMemory.controller && roomMemory.controller.my) {
-        color = "#00ff00";
-        symbol = "✓";
-        size = 0.4;
-      } else if (roomMemory.controller && !roomMemory.controller.owner && !roomMemory.controller.reservation) {
-        color = "#00ffff";
-        symbol = "○";
-        size = 0.5;
-      } else if (roomMemory.roomType === "ROOMTYPE_CORE") {
-        color = "#ffff00";
-        symbol = "★";
-        size = 0.4;
-      } else if (roomMemory.sources && roomMemory.sources.length === 2) {
-        color = "#ffaa00";
-        symbol = "●";
-        size = 0.35;
-      } else {
-        color = "#8888ff";
-        symbol = "·";
-        size = 0.3;
-      }
-    }
-
-    // Draw main symbol on world map (center of room)
-    const centerPos = new RoomPosition(25, 25, roomName);
-    Game.map.visual.text(symbol, centerPos, {
-      size: size,
-      color: color,
-      align: "center",
-      opacity: 0.8,
-    });
-
-    // Draw info: Score and Mineral in top-left, Sources in top-right
-    let xOffsetLeft = 0.5;
-    let hasInfo = false;
-
-    // Score (white) - top-left corner
-    if (roomMemory.score && roomMemory.score.total && roomMemory.score.total > 500) {
-      const scoreText = roomMemory.score.total.toString();
-      const scorePos = new RoomPosition(xOffsetLeft, 1, roomName);
-      Game.map.visual.text(scoreText, scorePos, {
-        size: 0.2,
-        color: "#ffffff",
-        align: "left",
-        opacity: 0.8,
-      });
-      xOffsetLeft += scoreText.length * 0.15 + 0.2; // Space after score
-      hasInfo = true;
-    }
-
-    // Mineral (orange) - top-left corner after score
-    if (roomMemory.mineral && roomMemory.mineral.type && isRecent) {
-      const mineralShort = roomMemory.mineral.type.replace("RESOURCE_", "").substring(0, 2);
-      const mineralPos = new RoomPosition(xOffsetLeft, 1, roomName);
-      Game.map.visual.text(mineralShort, mineralPos, {
-        size: 0.2,
-        color: "#ffaa00",
-        align: "left",
-        opacity: 0.8,
-      });
-      hasInfo = true;
-    }
-
-    // Source count as yellow dots (0-4 dots) - top-right corner
-    const sourceCount = roomMemory.sources ? roomMemory.sources.length : 0;
-    const sourceDots = "•".repeat(Math.min(sourceCount, 4)); // Max 4 dots
-    if (sourceDots) {
-      const dotsPos = new RoomPosition(49, 1, roomName);
-      Game.map.visual.text(sourceDots, dotsPos, {
-        size: 0.25,
-        color: "#ffff00",
-        align: "right",
-        opacity: 0.9,
-      });
-      hasInfo = true;
-    }
-
-    // Draw background for better readability if we have info
-    if (hasInfo) {
-      // Background for left side (score + mineral)
-      const bgWidthLeft = xOffsetLeft + 0.3;
-      const bgPosLeft = new RoomPosition(0.3, 0.3, roomName);
-      Game.map.visual.rect(bgPosLeft, bgWidthLeft, 0.5, {
-        fill: "#000000",
-        opacity: 0.6,
-        stroke: "#000000",
-        strokeWidth: 0.1,
-      });
-      // Background for right side (sources) if present
-      if (sourceDots) {
-        const bgWidthRight = sourceDots.length * 0.15 + 0.5;
-        const bgPosRight = new RoomPosition(49 - bgWidthRight + 0.3, 0.3, roomName);
-        Game.map.visual.rect(bgPosRight, bgWidthRight, 0.5, {
-          fill: "#000000",
-          opacity: 0.6,
-          stroke: "#000000",
-          strokeWidth: 0.1,
-        });
-      }
-    }
-
-    roomsVisualized++;
+    _drawScoutRoom(roomName, Memory.rooms[roomName], centerRoom);
   }
 }
 

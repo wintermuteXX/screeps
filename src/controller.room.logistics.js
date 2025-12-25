@@ -3,10 +3,18 @@ const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
 class LogisticsManager {
+  /**
+   * @param {ControllerRoom} roomController - Room controller instance
+   */
   constructor(roomController) {
     this.rc = roomController;
   }
 
+  /**
+   * Get transport order for an empty creep
+   * @param {Creep} Creep - Creep to get transport order for
+   * @returns {Object|null} Transport order with give/need information, or null if no order available
+   */
   getTransportOrder(Creep) {
     const givesResources = this.givesResources();
     const needsResources = this.needsResources();
@@ -92,6 +100,12 @@ class LogisticsManager {
     return order.give;
   }
 
+  /**
+   * Get delivery order for a creep with resources
+   * @param {Creep} Creep - Creep carrying resources
+   * @param {string|null} [resourceType=null] - Specific resource type to deliver, or null for all resources
+   * @returns {Object|Array|null} Delivery order(s), or null if no order available
+   */
   getDeliveryOrder(Creep, resourceType = null) {
     const givesResources = this.givesResources(); // Need to check priority
     const needsResources = this.needsResources();
@@ -193,6 +207,8 @@ class LogisticsManager {
   /**
    * Get transport orders for ornithopter creeps
    * Implements intelligent batching: finds multiple give orders nearby and assigns matching need orders
+   * @param {Creep} creep - Ornithopter creep to get orders for
+   * @returns {Array|null} Array of transport orders, or null if no orders available
    */
   getTransportOrderOrnithopter(creep) {
     // Check if creep already has active transport orders
@@ -291,7 +307,7 @@ class LogisticsManager {
     const transportOrders = [];
     const usedGiveIds = new Set();
     const usedNeedIds = new Set();
-    const MAX_DISTANCE_FOR_BATCHING = 10; // Maximum distance for batching nearby orders
+    const MAX_DISTANCE_FOR_BATCHING = CONSTANTS.TRANSPORT.ORNITHOPTER_BATCH_DISTANCE;
     const creepCapacity = creep.store.getCapacity();
 
     // Start with first matching pair
@@ -429,6 +445,8 @@ class LogisticsManager {
 
   /**
    * Get delivery orders for ornithopter creeps that have resources
+   * @param {Creep} creep - Ornithopter creep carrying resources
+   * @returns {Array|null} Array of delivery orders, or null if no orders available
    */
   getDeliveryOrderOrnithopter(creep) {
     // Get resources the creep is carrying
@@ -540,6 +558,12 @@ class LogisticsManager {
     return creep.memory.transport ? creep.memory.transport.filter(o => o.type === "need") : null;
   }
 
+  /**
+   * Validate that a resource target exists and has capacity
+   * @param {string} targetId - Target object ID
+   * @param {string} resourceType - Resource type to check capacity for
+   * @returns {Object|null} Object with {obj, freeCapacity} or null if invalid
+   */
   _validateResourceTarget(targetId, resourceType) {
     const targetObj = Game.getObjectById(targetId);
     if (!targetObj) return null;
@@ -858,6 +882,10 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Get all resources that can be given (sources)
+   * @returns {Array} Array of give resource orders, sorted by priority (highest first)
+   */
   givesResources() {
     if (!this.rc._givesResources) {
       this.rc._givesResources = [];
@@ -1118,10 +1146,7 @@ class LogisticsManager {
         if (currentAmount < fillLevel || currentAmount === 0) {
           priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
-          // neededAmount = 66666;
         } else {
-          // Test Overwrite
-          // neededAmount = 66666;
           continue; // Skip if already at fill level
         }
       }
@@ -1140,6 +1165,10 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Get all resources that are needed (destinations)
+   * @returns {Array} Array of need resource orders, sorted by priority (lowest first = highest priority)
+   */
   needsResources() {
     if (!this.rc._needsResources) {
       this.rc._needsResources = [];

@@ -305,5 +305,15 @@ module.exports = {
     ROOM_EDGE_MIN: 2,
     ROOM_EDGE_MAX: 47,
   },
+
+  // Transport System Configuration
+  TRANSPORT: {
+    ORNITHOPTER_BATCH_DISTANCE: 10,    // Maximum distance for batching nearby orders
+    SCOUT_MAX_DISTANCE: 10,            // Maximum distance for scout visualization (room hops)
+    SCOUT_RECENT_THRESHOLD: 1000,      // Ticks since check to consider data "recent"
+    SCOUT_OLD_THRESHOLD: 100000,       // Ticks since check to consider data "old"
+    SCOUT_SCORE_THRESHOLD: 500,        // Minimum score to display on scout visualization
+    SCOUT_MAX_SOURCE_DOTS: 4,          // Maximum number of source dots to display
+  },
 };
 

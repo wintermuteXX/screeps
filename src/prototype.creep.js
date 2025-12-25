@@ -141,6 +141,11 @@ Creep.prototype.getFirstTargetData = function () {
  * - 1 normal WORK part = 2 energy/tick (HARVEST_POWER)
  * - 1 WORK with UO boost (harvest: 3) = 6 energy/tick
  * - 1 WORK with XUHO2 boost (harvest: 7) = 14 energy/tick
+ *
+ * MEMORY MANAGEMENT:
+ * - Cache properties (_harvestPowerCache, _harvestPowerCacheTick) are stored on the creep object
+ * - These are automatically cleaned up when the creep dies via memhack.js cleanup
+ * - No manual cleanup required - memhack removes dead creep memory each tick
  */
 Creep.prototype.getHarvestPowerPerTick = function() {
   // Cache per tick (body doesn't change during a tick)
