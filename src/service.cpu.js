@@ -1,5 +1,4 @@
 const CONSTANTS = require("./config.constants");
-const Log = require("./lib.log");
 
 /**
  * CPU Analyzer - Tracks global CPU usage over time and provides decision-making capabilities

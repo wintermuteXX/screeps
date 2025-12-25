@@ -1,4 +1,6 @@
+const Log = require("./lib.log");
 const utilsUsername = require("./utils.username");
+const utilsResources = require("./utils.resources");
 const cpuAnalyzer = require("./service.cpu");
 const ControllerRoom = require("./controller.room");
 const ControllerGame = require("./controller.game");
@@ -300,12 +302,12 @@ function showLabs() {
  */
 function showResources(hide = false) {
   const result = [];
-  result.push('<table border="1">');
-  result.push("<caption> RESOURCE\n</caption>");
-  result.push("<tr>");
-  result.push("<th></th>");
-  result.push("<th> AMOUNT </th>");
-  result.push("<th> Offset to perfect </th>");
+  result.push('<table border="1" style="border-collapse: collapse; border-color: #fff; font-family: monospace;">');
+  result.push('<caption style="padding: 5px; font-weight: bold; font-size: 1.1em;">RESOURCES</caption>');
+  result.push('<tr style="background-color: #333;">');
+  result.push('<th style="padding: 8px; text-align: left;">RESOURCE</th>');
+  result.push('<th style="padding: 8px; text-align: right;">AMOUNT</th>');
+  result.push('<th style="padding: 8px; text-align: right;">OFFSET TO PERFECT</th>');
   result.push("</tr>");
 
   let numberOfRooms = 0;
@@ -313,30 +315,57 @@ function showResources(hide = false) {
     if (Game.rooms[roomName].storage) numberOfRooms += 1;
   }
 
-  for (const resource of RESOURCES_ALL) {
+  // Helper function to format numbers with thousand separators
+  const formatNumber = (num) => {
+    // Convert to integer and format with thousand separators (dots)
+    const numStr = Math.floor(num).toString();
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
-    if (!hide) {
-      result.push("<tr>");
-      result.push(`<td> ${  utilsResources.resourceImg(resource)  } </td>`);
-      result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource)  } </td>`);
-      const offset = utilsResources.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all");
-      if (offset >= 0) {
-        result.push(`<td align='right' style='color:#008000'> ${  offset  } </td>`);
-      } else {
-        result.push(`<td align='right' style='color:#FF0000'> ${  offset  } </td>`);
-      }
-      result.push("</tr>");
-    } else {
-      if (utilsResources.globalResourcesAmount && utilsResources.globalResourcesAmount(resource) > 0) {
-        result.push("<tr>");
-        result.push(`<td> ${  utilsResources.resourceImg(resource)  } </td>`);
-        result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource)  } </td>`);
-        result.push(`<td align='right'> ${  utilsResources.globalResourcesAmount(resource) - numberOfRooms * global.getRoomThreshold(resource, "all")  } </td>`);
-        result.push("</tr>");
-      }
+  let rowCount = 0;
+  for (const resource of RESOURCES_ALL) {
+    const amount = utilsResources.globalResourcesAmount(resource);
+    const threshold = numberOfRooms * global.getRoomThreshold(resource, "all");
+    const offset = amount - threshold;
+
+    // Skip if hide is true and amount is 0
+    if (hide && amount === 0) {
+      continue;
     }
+
+    // Alternate row colors for better readability
+    const rowBgColor = rowCount % 2 === 0 ? "#1a1a1a" : "#222";
+    result.push(`<tr style="background-color: ${rowBgColor};">`);
+    
+    // Resource icon/name
+    result.push(`<td style="padding: 5px;">${utilsResources.resourceImg(resource)}</td>`);
+    
+    // Amount with formatting
+    result.push(`<td style="padding: 5px; text-align: right; color: #fff;">${formatNumber(amount)}</td>`);
+    
+    // Offset with color coding
+    let offsetColor = "#888";
+    let offsetSymbol = "";
+    if (offset > 0) {
+      offsetColor = "#4CAF50"; // Green for positive
+      offsetSymbol = "+";
+    } else if (offset < 0) {
+      offsetColor = "#F44336"; // Red for negative
+    } else {
+      offsetColor = "#FFC107"; // Yellow/Orange for zero
+    }
+    
+    result.push(`<td style="padding: 5px; text-align: right; color: ${offsetColor}; border-color: #fff; font-weight: bold;">${offsetSymbol}${formatNumber(offset)}</td>`);
+    
+    result.push("</tr>");
+    rowCount++;
   }
 
+  if (rowCount === 0) {
+    result.push('<tr><td colspan="3" style="padding: 10px; text-align: center; color: #888;">No resources found</td></tr>');
+  }
+
+  result.push("</table>");
   return result.join("");
 }
 

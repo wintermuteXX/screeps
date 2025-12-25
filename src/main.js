@@ -3,8 +3,6 @@ const CONSTANTS = require("./config.constants");
 // Cache all requires at module load time (runs once on global reset)
 const memHack = require("./lib.memhack");
 require("./lib.traveler"); // Attaches to Creep prototype
-const Log = require("./lib.log");
-const stats = require("./controller.stats");
 require("./service.market");
 require("./prototype.init"); // Initialize prototypes once
 const ControllerGame = require("./controller.game");

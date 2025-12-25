@@ -26,7 +26,7 @@ global.getRoomThreshold = function (resource, structure = "all") {
 
 Object.defineProperty(Room.prototype, "mineral", {
   get: function () {
-    if (this == Room.prototype || this == undefined) return undefined;
+    if (this === Room.prototype || this === undefined) return undefined;
     // Cache for current tick
     if (this._mineral !== undefined) {
       return this._mineral;

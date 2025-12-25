@@ -1196,7 +1196,7 @@ class Traveler {
       const x = Number(match[2]);
       const yDir = match[3];
       const y = Number(match[4]);
-      const quadrant = xDir == "W" ? (yDir == "N" ? 0 : 1) : yDir == "N" ? 2 : 3;
+      const quadrant = xDir === "W" ? (yDir === "N" ? 0 : 1) : yDir === "N" ? 2 : 3;
       // y is 6 bits, x is 6 bits, quadrant is 2 bits
       const num = ((quadrant << 12) | (x << 6) | y) + 65;
       const char = String.fromCharCode(num);

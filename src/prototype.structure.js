@@ -7,7 +7,7 @@ const CONSTANTS = require("./config.constants");
 
 Object.defineProperty(Structure.prototype, "container", {
   get: function () {
-    if (this._container == undefined) {
+    if (this._container === undefined) {
       // Check if container ID is stored in memory
       if (this.memory.containerID) {
         const container = Game.getObjectById(this.memory.containerID);
@@ -57,7 +57,7 @@ Object.defineProperty(Structure.prototype, "memory", {
 
 Structure.prototype.needsRepair = function () {
   //"Repair" walls + ramparts until Limit (room.memory.wallHits) is reached
-  if (this.structureType == STRUCTURE_RAMPART || this.structureType == STRUCTURE_WALL) {
+  if (this.structureType === STRUCTURE_RAMPART || this.structureType === STRUCTURE_WALL) {
     if (this.room.memory.wallHits) {
       // Should I repair/upgrade walls + ramparts?
       return this.hits < this.room.memory.wallHits && this.hits < this.hitsMax && this.hitsMax > 1;
@@ -132,7 +132,7 @@ Object.defineProperty(Source.prototype, "defended", {
 
 Object.defineProperty(Source.prototype, "container", {
   get: function () {
-    if (this._container == undefined) {
+    if (this._container === undefined) {
       // Check if container ID is stored in memory
       if (this.memory.containerID) {
         const container = Game.getObjectById(this.memory.containerID);

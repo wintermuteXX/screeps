@@ -125,7 +125,7 @@ class ResourceManager {
     let amount = 0;
     let allStructures = [];
 
-    for (let i in Game.rooms) {
+    for (const i in Game.rooms) {
       const room = Game.rooms[i];
       const storeStructures = room.find(FIND_STRUCTURES, {
         filter: (structure) => {
@@ -135,7 +135,7 @@ class ResourceManager {
       allStructures = allStructures.concat(storeStructures);
     }
 
-    for (let j in allStructures) {
+    for (const j in allStructures) {
       if (allStructures[j].store && allStructures[j].store[resource] > 0) {
         amount += allStructures[j].store[resource];
       }
