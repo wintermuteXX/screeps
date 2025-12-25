@@ -96,6 +96,19 @@ class ControllerSpawn {
       memory.born = Game.time;
       memory.home = this.spawn.room.name;
       memory.bornEnergyLevel = this.spawn.room.energyCapacityAvailable;
+
+      // Spezielle Behandlung für Claimer: Setze Zielraum im Memory
+      if (role === "claimer" && Memory.roomToClaim) {
+        memory.targetRoom = Memory.roomToClaim;
+        // NICHT löschen - wird erst gelöscht wenn Raum RCL 3 erreicht hat
+      }
+
+      // Spezielle Behandlung für Supporter: Setze Zielraum im Memory (nutzt roomToClaim)
+      if (role === "supporter" && Memory.roomToClaim) {
+        memory.targetRoom = Memory.roomToClaim;
+        // NICHT löschen - roomToClaim wird erst gelöscht wenn Raum RCL 3 erreicht hat
+      }
+
       result = this.spawn.spawnCreep(bodyConfig, theName, {
         memory: memory,
       });
@@ -103,7 +116,13 @@ class ControllerSpawn {
 
     switch (result) {
       case OK:
-        Log.info(`${this.spawn} spawns creep: ${role}`, "createCreep");
+        if (role === "claimer" && memory.targetRoom) {
+          Log.success(`🏰 ${this.spawn} spawns claimer ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+        } else if (role === "supporter" && memory.targetRoom) {
+          Log.success(`🚀 ${this.spawn} spawns supporter ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+        } else {
+          Log.info(`${this.spawn} spawns creep: ${role}`, "createCreep");
+        }
         return true;
       case null:
         Log.debug(`${this.spawn} createCreep returns: ${result}`, "createCreep");

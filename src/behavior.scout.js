@@ -231,8 +231,7 @@ b.work = function (creep, rc) {
     if (nextRoom) {
       targetRoom = nextRoom.roomName;
       creep.memory.scoutTarget = targetRoom;
-      const targetPos = new RoomPosition(25, 25, targetRoom);
-      Log.success(`🔍 Scout ${creep} starting analysis journey to ${targetPos} (${nextRoom.distance} hops away)`, "scout");
+      Log.success(`🔍 ${creep} starting analysis journey to ${targetRoom} (${nextRoom.distance} hops away)`, "scout");
     } else {
       // No more unvisited rooms - return to home room
       const homeRoom = creep.memory.home;

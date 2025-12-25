@@ -340,12 +340,60 @@ module.exports = {
     wait4maxEnergy: true,
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_flag:white", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
+    behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
 
     canBuild: function (rc) {
-      const flags = _.filter(Game.flags, { color: COLOR_WHITE });
-      if (flags.length === 0) return false;
-      return _.filter(Game.creeps, (c) => c.memory.role === "supporter").length < CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX;
+      // Prüfe ob bereits genug Supporter existieren
+      const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");
+      if (existingSupporters.length >= CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX) {
+        return false;
+      }
+      // Prüfe ob roomToClaim gesetzt ist (enthält direkt den Raumnamen)
+      if (!Memory.roomToClaim || !Memory.rooms) {
+        return false;
+      }
+
+      const targetRoomName = Memory.roomToClaim;
+      const roomMemory = Memory.rooms[targetRoomName];
+      if (!roomMemory) {
+        return false;
+      }
+
+      // Prüfe ob Raum geclaimt ist (prüfe Memory und Game.rooms als Fallback)
+      const gameRoom = Game.rooms[targetRoomName];
+      const isClaimed = (roomMemory.controller && roomMemory.controller.my) ||
+                        (gameRoom && gameRoom.controller && gameRoom.controller.my);
+
+      if (!isClaimed) {
+        return false;
+      }
+
+      // Aktualisiere Memory falls nötig (wenn Game.rooms aktueller ist)
+      if (gameRoom && gameRoom.controller && gameRoom.controller.my) {
+        if (!roomMemory.controller) {
+          roomMemory.controller = {};
+        }
+        roomMemory.controller.my = true;
+        roomMemory.controller.level = gameRoom.controller.level;
+      }
+
+      // Prüfe ob Raum noch RCL < 3 hat
+      const controllerLevel = roomMemory.controller ? roomMemory.controller.level : (gameRoom && gameRoom.controller ? gameRoom.controller.level : null);
+      if (!controllerLevel || controllerLevel >= 3) {
+        return false;
+      }
+      // Zähle wie viele Supporter bereits zu diesem Raum unterwegs sind oder dort sind
+      const supportersForRoom = existingSupporters.filter(s => {
+        return s.memory.targetRoom === targetRoomName ||
+               (s.room && s.room.name === targetRoomName);
+      });
+      // Wenn bereits zu viele Supporter für diesen Raum existieren
+      if (supportersForRoom.length >= 2) {
+        return false; // Max 2 Supporter pro Raum
+      }
+
+      // roomToClaim enthält bereits den Zielraum, keine separate Variable nötig
+      return true;
     },
   },
 
@@ -356,21 +404,73 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: true,
     body: generateBody([MOVE, CLAIM], 2), // 2 MOVE, 2 CLAIM
-    behaviors: ["goto_flag:white", "claim_controller", "place_spawn"],
+    behaviors: ["claim_controller", "place_spawn"],
 
     canBuild: function (rc) {
-      const flags = _.filter(Game.flags, { color: COLOR_WHITE });
-      if (flags.length === 0) return false;
-      if (flags[0].room && flags[0].room.controller && flags[0].room.controller.my) return false;
-      if (_.filter(Game.creeps, (c) => c.memory.role === "claimer").length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) return false;
+      // Prüfe ob bereits ein Claimer existiert
+      const existingClaimers = _.filter(Game.creeps, (c) => c.memory.role === "claimer");
+      if (existingClaimers.length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) {
+        return false;
+      }
 
-      // Check CPU analysis (only check periodically to save CPU)
-      if (Game.time % CONSTANTS.CPU_ANALYSIS.CHECK_INTERVAL === 0) {
-        const decision = cpuAnalyzer.canConquerNewRoom();
-        if (!decision.canConquer) {
-          return false;
+      // Warte mit Spawning bis Memory.roomToClaim nicht mehr existiert
+      if (Memory.roomToClaim) {
+        return false;
+      }
+
+      // Prüfe CPU-Analyse
+      const decision = cpuAnalyzer.canConquerNewRoom();
+      if (!decision.canConquer) {
+        return false;
+      }
+
+      // Finde den Raum mit der höchsten Bewertung, der noch nicht geclaimt ist
+      let bestRoom = null;
+      let bestScore = -1;
+
+      if (!Memory.rooms) {
+        return false;
+      }
+
+      for (const roomName in Memory.rooms) {
+        const roomMemory = Memory.rooms[roomName];
+
+        // Prüfe ob Raum einen Score hat
+        if (!roomMemory.score || !roomMemory.score.total) {
+          continue;
+        }
+
+        // Prüfe ob Raum bereits geclaimt ist (prüfe Memory und Game.rooms als Fallback)
+        const gameRoom = Game.rooms[roomName];
+        const isClaimed = (roomMemory.controller && roomMemory.controller.my) ||
+                          (gameRoom && gameRoom.controller && gameRoom.controller.my);
+
+        if (isClaimed) {
+          continue;
+        }
+
+        // Prüfe ob Raum frei ist (wichtig für Claiming)
+        if (roomMemory.controller) {
+          // Wenn Controller existiert, prüfe ob er bereits besetzt ist
+          if (roomMemory.controller.owner && !roomMemory.controller.my) {
+            continue; // Raum ist bereits von jemand anderem geclaimt
+          }
+        }
+
+        // Prüfe ob Score höher ist als bisheriger bester Score
+        if (roomMemory.score.total > bestScore) {
+          bestScore = roomMemory.score.total;
+          bestRoom = roomName;
         }
       }
+
+      // Wenn kein geeigneter Raum gefunden wurde
+      if (!bestRoom) {
+        return false;
+      }
+
+      // Speichere Zielraum direkt als String (nicht als Objekt)
+      Memory.roomToClaim = bestRoom;
 
       return true;
     },

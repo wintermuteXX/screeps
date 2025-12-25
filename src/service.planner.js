@@ -444,6 +444,9 @@ RoomPlanner.prototype._generateLayout = function () {
     const structureType = STRUCTURE_TYPE_MAP[key];
     if (!structureType) continue;
 
+    // Prüfe ob BUNKER_LAYOUT[key] existiert, bevor forEach aufgerufen wird
+    if (!BUNKER_LAYOUT[key]) continue;
+
     BUNKER_LAYOUT[key].forEach((pos) => {
       addStructure(pos.x, pos.y, structureType, pos.priority);
     });

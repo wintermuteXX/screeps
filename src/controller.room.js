@@ -353,6 +353,12 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
     // Update tracking
     roomMemory.rclUpgradeTimes.lastLevel = currentLevel;
     roomMemory.rclUpgradeTimes.lastLevelTick = Game.time;
+
+    // Wenn Raum RCL 3 erreicht hat, lösche temporäre Claimer-Target-Variable
+    if (currentLevel >= 3 && Memory.roomToClaim === this.room.name) {
+      Memory.roomToClaim = undefined;
+      Log.success(`🏰 Room ${this.room.name} reached RCL 3, removed from claimer target list`, "ControllerRoom");
+    }
   } else if (currentLevel < lastLevel) {
     // Level decreased (shouldn't happen normally, but handle it)
     // Reset tracking

@@ -62,7 +62,7 @@ function signController(creep, roomName) {
 
   if (signResult === OK) {
     roomMemory.controllerSigned = true;
-    Log.success(`✍️ ${creep} signed controller in ${roomName} with: "${randomMessage}"`, "sign_controller");
+    Log.success(`✍️ ${creep} signed controller in ${creep.room} with: "${randomMessage}"`, "sign_controller");
   } else if (signResult === ERR_NOT_IN_RANGE) {
     // Use moveTo instead of travelTo to ensure we stay in the current room
     // travelTo can find paths outside the room even with maxRooms: 1
