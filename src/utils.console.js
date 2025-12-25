@@ -1,6 +1,4 @@
-const Log = require("./lib.log");
 const utilsUsername = require("./utils.username");
-const utilsResources = require("./utils.resources");
 const cpuAnalyzer = require("./service.cpu");
 const ControllerRoom = require("./controller.room");
 const ControllerGame = require("./controller.game");

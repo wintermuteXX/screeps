@@ -46,7 +46,6 @@ module.exports = {
     behaviors: ["miner_harvest"],
 
     canBuild: function (rc) {
-      const miners = rc.getAllCreeps("miner");
       // Nutzt gecachten find() Cache statt getSources()
       const sources = rc.find(FIND_SOURCES);
       // Count how many sources already have a miner assigned

@@ -31,9 +31,9 @@ module.exports = {
       "properties": "always",
       "ignoreDestructuring": false
     }],
-    "no-underscore-dangle": ["warn", {
-      "allow": ["_rooms", "_cache", "_creepsByRole", "_init", "_behavior", "_updateMemory", "_getResourceFromMemory", "_shouldCreateCreep", "_harvestPowerCache", "_harvestPowerCacheTick", "_collectResource", "_withdrawResource", "_pickupResource", "_handleCollectionResult", "_updateMemoryWithActualAmount", "_getCarriedResources", "_updateMemoryWithCarriedResources", "_getDeliveryOrders", "_groupOrdersByTarget", "_isTargetValid", "_findBestTargetFromOrders", "_findMatchingNeed", "_findTerminalFallback", "_dropAllResources", "_updateMemoryAfterTransfer", "_calculateTransferAmount", "_handleTransferResult", "_validateCurrentTarget", "_createOrdersFromMemory", "_performBatchDelivery", "_calculateOptimalCenter", "_structureCounts"]
-    }],
+    // "no-underscore-dangle": ["warn", {
+    //   "allow": ["_rooms", "_cache", "_creepsByRole", "_init", "_behavior", "_updateMemory", "_getResourceFromMemory", "_shouldCreateCreep", "_harvestPowerCache", "_harvestPowerCacheTick", "_collectResource", "_withdrawResource", "_pickupResource", "_handleCollectionResult", "_updateMemoryWithActualAmount", "_getCarriedResources", "_updateMemoryWithCarriedResources", "_getDeliveryOrders", "_groupOrdersByTarget", "_isTargetValid", "_findBestTargetFromOrders", "_findMatchingNeed", "_findTerminalFallback", "_dropAllResources", "_updateMemoryAfterTransfer", "_calculateTransferAmount", "_handleTransferResult", "_validateCurrentTarget", "_createOrdersFromMemory", "_performBatchDelivery", "_calculateOptimalCenter", "_structureCounts"]
+    // }],
     
     // Performance - Prevent require() in loops (but allow at module level)
     // Note: This is a best practice, but we can't easily detect require() in loops with static analysis
