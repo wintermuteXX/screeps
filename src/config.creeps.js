@@ -340,8 +340,8 @@ module.exports = {
     wait4maxEnergy: true,
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "transfer_resources", "upgrade_controller"],
-
+    behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "upgrade_controller"],
+    // TODO: "transfer_resources",
     canBuild: function (rc) {
       // Prüfe ob bereits genug Supporter existieren
       const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");
