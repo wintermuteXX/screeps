@@ -175,7 +175,7 @@ b._handleCollectionResult = function (creep, target, resourceType, result) {
     case ERR_INVALID_TARGET:
     case ERR_NOT_ENOUGH_RESOURCES:
       Log.warn(
-        `${creep} had a problem collecting ${resourceType} from ${target}. Status: ${result}`,
+        `${creep} had a problem collecting ${resourceType} from ${target}. Status: ${global.getErrorString(result)}`,
         "get_resources",
       );
       creep.target = null;

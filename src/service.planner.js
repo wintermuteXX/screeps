@@ -79,7 +79,7 @@ const BUNKER_LAYOUT = {
   terminal: [{ x: 1, y: 1, priority: 20 }],
 
   // Factory next to Terminal
-  factory: [{ x: -1, y: 1, priority: 25 }],
+  // factory: [{ x: -1, y: 1, priority: 25 }],
 
   // Towers in strategic positions (protection of the core)
   towers: [
@@ -180,7 +180,7 @@ const BUNKER_LAYOUT = {
   observer: [{ x: -3, y: -3, priority: 95 }],
 
   // Power Spawn
-  powerSpawn: [{ x: -1, y: 2, priority: 96 }],
+  // powerSpawn: [{ x: -1, y: 2, priority: 96 }],
 
   // Nuker (far from center)
   nuker: [{ x: -4, y: 3, priority: 97 }],
@@ -1076,6 +1076,23 @@ RoomPlanner.prototype._drawVisualization = function () {
     [STRUCTURE_CONTAINER]: "Container",
   };
 
+  // Structure initial letters for visualization
+  const structureLetters = {
+    [STRUCTURE_SPAWN]: "S",
+    [STRUCTURE_EXTENSION]: "E",
+    [STRUCTURE_TOWER]: "T",
+    [STRUCTURE_STORAGE]: "St",
+    [STRUCTURE_TERMINAL]: "Te",
+    [STRUCTURE_LAB]: "L",
+    [STRUCTURE_LINK]: "Li",
+    [STRUCTURE_FACTORY]: "F",
+    [STRUCTURE_OBSERVER]: "O",
+    [STRUCTURE_POWER_SPAWN]: "P",
+    [STRUCTURE_NUKER]: "N",
+    [STRUCTURE_ROAD]: "R",
+    [STRUCTURE_CONTAINER]: "C",
+  };
+
   // Draw center
   if (this._hasCenter()) {
     visual.circle(this.memory.centerX, this.memory.centerY, {
@@ -1132,6 +1149,16 @@ RoomPlanner.prototype._drawVisualization = function () {
       fill: color,
       opacity: 0.8,
       stroke: color,
+      strokeWidth: 0.1,
+    });
+
+    // Draw structure initial letter
+    const letter = structureLetters[planned.structureType] || "?";
+    visual.text(letter, planned.x, planned.y + 0.3, {
+      color: "#000000",
+      font: "0.6 Arial",
+      align: "center",
+      stroke: "#ffffff",
       strokeWidth: 0.1,
     });
   }

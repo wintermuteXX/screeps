@@ -92,7 +92,7 @@ b.work = function (creep, rc) {
 
       // Check if withdraw/pickup was successful, delete target if not
       if (result !== OK) {
-        Log.debug(`${creep.room.name} ${creep.name} failed to get energy from ${target} (result: ${result}), clearing target`, "find_near_energy");
+        Log.debug(`${creep.room.name} ${creep.name} failed to get energy from ${target} (result: ${global.getErrorString(result)}), clearing target`, "find_near_energy");
         creep.target = null;
       }
     }

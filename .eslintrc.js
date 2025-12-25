@@ -65,6 +65,12 @@ module.exports = {
     "require-await": "warn",
     "vars-on-top": "off", // Allow const/let anywhere
     
+    // Console restrictions
+    "no-restricted-syntax": ["error", {
+      "selector": "MemberExpression[object.name='console'][property.name='table']",
+      "message": "console.table() is not allowed. Use console.log() with forEach or map instead."
+    }],
+    
     // Style (Prettier handles formatting, but we keep some rules for consistency)
     "eol-last": ["warn", "always"],
     

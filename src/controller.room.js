@@ -111,6 +111,10 @@ ControllerRoom.prototype.run = function () {
   }
 
   if (this._hasCpuAvailable()) {
+    // Find lab partners periodically (when new labs are built or memory is reset)
+    if (this.room.labs && this.room.labs.length > 0 && Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
+      this.labs.findLabPartner();
+    }
     if (Game.time % CONSTANTS.TICKS.LAB_CHECK_STATUS === 0) {
       this.labs.checkStatus();
     }
@@ -135,6 +139,14 @@ ControllerRoom.prototype.getTransportOrder = function (Creep) {
 
 ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null) {
   return this.logistics.getDeliveryOrder(Creep, resourceType);
+};
+
+ControllerRoom.prototype.getTransportOrderOrnithopter = function (creep) {
+  return this.logistics.getTransportOrderOrnithopter(creep);
+};
+
+ControllerRoom.prototype.getDeliveryOrderOrnithopter = function (creep) {
+  return this.logistics.getDeliveryOrderOrnithopter(creep);
 };
 
 /**

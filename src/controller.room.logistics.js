@@ -1,5 +1,6 @@
 const ResourceManager = require("./service.resource");
 const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 class LogisticsManager {
   constructor(roomController) {
@@ -11,45 +12,49 @@ class LogisticsManager {
     const needsResources = this.needsResources();
 
     // Check if creep is empty
-    const isEmpty = Creep.store.getUsedCapacity() === 0;
-
-    // Only assign orders to empty creeps
-    if (!isEmpty) {
+    if (Creep.store.getUsedCapacity() > 0) {
       return null;
     }
 
-    // Collect all matching pairs with priority check
-    // Cache getAllCreeps() to avoid repeated calls in nested loop
+    // Cache expensive operations
     const allCreeps = this.rc.creeps.getAllCreeps();
+    const creepPos = Creep.pos;
+
+    // Pre-compute blocked give sources (empty creeps collecting resources)
+    const blockedGiveIds = new Set(
+      allCreeps
+        .filter(c => c.memory.target && c.store.getUsedCapacity() === 0)
+        .map(c => c.memory.target),
+    );
+
     const matchingOrders = [];
-    const creepPos = Creep.pos; // Cache creep position for distance calculation
 
     for (const give of givesResources) {
-      for (const need of needsResources) {
+      // Skip if source is already blocked
+      if (blockedGiveIds.has(give.id)) continue;
 
+      for (const need of needsResources) {
         // Basic compatibility check
         if (give.resourceType !== need.resourceType) continue;
         if (need.id === give.id) continue;
 
-        // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
+        // PRIORITY CHECK: Only match if need.priority < give.priority (same as showLogistic)
         if (need.priority >= give.priority) continue;
 
-        // Only block if an EMPTY creep is already targeting this source (empty creeps collect resources)
-        // Use cached allCreeps instead of calling getAllCreeps() again
-        if (allCreeps.some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0)) continue;
-
-        // Check if target still exists and has capacity
+        // Validate target first (this also gets the object)
         const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
         if (!targetValidation) continue;
 
-        // Calculate distance for secondary sorting
+        // Get give object (only if we have a valid match)
         const giveObj = Game.getObjectById(give.id);
-        const needObj = Game.getObjectById(need.id);
-        const giveDistance = giveObj ? creepPos.getRangeTo(giveObj) : 999;
-        const needDistance = needObj ? creepPos.getRangeTo(needObj) : 999;
+        if (!giveObj) continue;
+
+        // Calculate distances using cached objects
+        const giveDistance = creepPos.getRangeTo(giveObj);
+        const needDistance = creepPos.getRangeTo(targetValidation.obj);
         const totalDistance = giveDistance + needDistance;
 
-        // Add to matching orders with priority and distance for sorting
+        // Add to matching orders
         matchingOrders.push({
           give: give,
           need: need,
@@ -58,6 +63,11 @@ class LogisticsManager {
           needDistance: needDistance, // Prefer closer needs
         });
       }
+    }
+
+    // Early return if no matches
+    if (matchingOrders.length === 0) {
+      return null;
     }
 
     // Sort by priority (lowest first), then by distance (closest first)
@@ -75,17 +85,11 @@ class LogisticsManager {
     });
 
     // Return first matching order
-    if (matchingOrders.length > 0) {
-      const order = matchingOrders[0];
-      order.give.orderType = "G";
+    const order = matchingOrders[0];
+    order.give.orderType = "G";
+    this._updateCreepResourceMemory(Creep, order.give.resourceType, order.give.id, order.give.orderType, 0);
 
-      // Update Creep.memory.resources with orderType
-      this._updateCreepResourceMemory(Creep, order.give.resourceType, order.give.id, order.give.orderType, 0);
-
-      return order.give;
-    }
-
-    return null;
+    return order.give;
   }
 
   getDeliveryOrder(Creep, resourceType = null) {
@@ -135,7 +139,7 @@ class LogisticsManager {
         if (need.resourceType !== resType) continue;
         if (need.id === Creep.id) continue;
 
-        // PRIORITY CHECK: Only match if need.priority < give.priority (same as visualizeLogistic)
+        // PRIORITY CHECK: Only match if need.priority < give.priority (same as showLogistic)
         if (correspondingGive && need.priority >= correspondingGive.priority) continue;
 
         // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
@@ -184,6 +188,356 @@ class LogisticsManager {
     }
 
     return null;
+  }
+
+  /**
+   * Get transport orders for ornithopter creeps
+   * Implements intelligent batching: finds multiple give orders nearby and assigns matching need orders
+   */
+  getTransportOrderOrnithopter(creep) {
+    // Check if creep already has active transport orders
+    if (creep.memory.transport && Array.isArray(creep.memory.transport) && creep.memory.transport.length > 0) {
+      // Already has active orders, don't assign new ones
+      return creep.memory.transport;
+    }
+
+    // Check if creep is empty
+    const isEmpty = creep.store.getUsedCapacity() === 0;
+    if (!isEmpty) {
+      return null;
+    }
+
+    const givesResources = this.givesResources();
+    const needsResources = this.needsResources();
+    const allCreeps = this.rc.creeps.getAllCreeps();
+    const creepPos = creep.pos;
+
+    // Get all ornithopter creeps to check for already assigned orders
+    const ornithopters = allCreeps.filter(c => c.memory.role === "ornithopter");
+    const assignedGiveIds = new Set();
+    const assignedNeedIds = new Set();
+
+    // Collect already assigned orders from other ornithopters
+    for (const ornithopter of ornithopters) {
+      if (ornithopter.id === creep.id) continue;
+      if (!ornithopter.memory.transport || !Array.isArray(ornithopter.memory.transport)) continue;
+
+      for (const order of ornithopter.memory.transport) {
+        if (order.type === "give") {
+          assignedGiveIds.add(order.id);
+        } else if (order.type === "need") {
+          assignedNeedIds.add(order.id);
+        }
+      }
+    }
+
+    // Find all matching give-need pairs
+    const matchingPairs = [];
+    for (const give of givesResources) {
+      // Skip if already assigned to another ornithopter
+      if (assignedGiveIds.has(give.id)) continue;
+
+      // Skip if already assigned to a transporter (empty creeps collect resources)
+      if (allCreeps.some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0 && c.memory.role !== "ornithopter")) {
+        continue;
+      }
+
+      const giveObj = Game.getObjectById(give.id);
+      if (!giveObj) continue;
+
+      const giveDistance = creepPos.getRangeTo(giveObj);
+
+      // Find matching needs for this give
+      for (const need of needsResources) {
+        if (give.resourceType !== need.resourceType) continue;
+        if (need.id === give.id) continue;
+        if (need.priority >= give.priority) continue; // Priority check
+        if (assignedNeedIds.has(need.id)) continue; // Already assigned
+
+        // Check if target still exists and has capacity
+        const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
+        if (!targetValidation) continue;
+
+        const needObj = Game.getObjectById(need.id);
+        if (!needObj) continue;
+
+        const needDistance = creepPos.getRangeTo(needObj);
+        const totalDistance = giveDistance + needDistance;
+
+        matchingPairs.push({
+          give: give,
+          need: need,
+          priority: need.priority,
+          totalDistance: totalDistance,
+          giveDistance: giveDistance,
+          needDistance: needDistance,
+        });
+      }
+    }
+
+    // Sort by priority, then by distance
+    matchingPairs.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return (a.priority || 0) - (b.priority || 0);
+      }
+      return a.totalDistance - b.totalDistance;
+    });
+
+    if (matchingPairs.length === 0) {
+      return null;
+    }
+
+    // Intelligent batching: collect multiple give orders
+    const transportOrders = [];
+    const usedGiveIds = new Set();
+    const usedNeedIds = new Set();
+    const MAX_DISTANCE_FOR_BATCHING = 10; // Maximum distance for batching nearby orders
+    const creepCapacity = creep.store.getCapacity();
+
+    // Start with first matching pair
+    let currentPair = matchingPairs[0];
+    let totalPlannedAmount = 0;
+
+    while (currentPair && totalPlannedAmount < creepCapacity) {
+      const give = currentPair.give;
+      const need = currentPair.need;
+
+      // Check if we can add this give order
+      if (usedGiveIds.has(give.id)) {
+        // Already used this give, find next pair with different give
+        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
+        continue;
+      }
+
+      // Calculate how much we can take from this give
+      const giveObj = Game.getObjectById(give.id);
+      if (!giveObj) {
+        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
+        continue;
+      }
+
+      const availableAmount = giveObj.store ? (giveObj.store[give.resourceType] || 0) : 0;
+      const remainingCapacity = creepCapacity - totalPlannedAmount;
+      const takeAmount = Math.min(availableAmount, remainingCapacity, give.amount || availableAmount);
+
+      if (takeAmount <= 0) {
+        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
+        continue;
+      }
+
+      // Add give order
+      const giveOrder = {
+        type: "give",
+        id: give.id,
+        resourceType: give.resourceType,
+        amount: takeAmount,
+        priority: give.priority,
+        roomName: giveObj.room ? giveObj.room.name : this.rc.room.name,
+      };
+      transportOrders.push(giveOrder);
+      usedGiveIds.add(give.id);
+      totalPlannedAmount += takeAmount;
+
+      // Find all matching needs for this give order
+      const matchingNeeds = matchingPairs
+        .filter(p => p.give.id === give.id && !usedNeedIds.has(p.need.id))
+        .sort((a, b) => {
+          if (a.priority !== b.priority) {
+            return (a.priority || 0) - (b.priority || 0);
+          }
+          return a.needDistance - b.needDistance;
+        });
+
+      // Add need orders for this give
+      let remainingFromGive = takeAmount;
+      for (const needPair of matchingNeeds) {
+        if (remainingFromGive <= 0) break;
+
+        const need = needPair.need;
+        const needObj = Game.getObjectById(need.id);
+        if (!needObj) continue;
+
+        const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
+        if (!targetValidation) continue;
+
+        const needAmount = Math.min(need.amount || targetValidation.freeCapacity, remainingFromGive, targetValidation.freeCapacity);
+
+        if (needAmount > 0) {
+          const needOrder = {
+            type: "need",
+            id: need.id,
+            resourceType: need.resourceType,
+            amount: needAmount,
+            priority: need.priority,
+            roomName: needObj.room ? needObj.room.name : this.rc.room.name,
+          };
+          transportOrders.push(needOrder);
+          usedNeedIds.add(need.id);
+          remainingFromGive -= needAmount;
+        }
+      }
+
+      // Look for additional give orders nearby (batching)
+      if (totalPlannedAmount < creepCapacity) {
+        const nearbyPairs = matchingPairs.filter(p => {
+          if (usedGiveIds.has(p.give.id)) return false;
+          if (usedNeedIds.has(p.need.id)) return false;
+
+          const nearbyGiveObj = Game.getObjectById(p.give.id);
+          if (!nearbyGiveObj) return false;
+
+          const distanceToGive = giveObj.pos.getRangeTo(nearbyGiveObj.pos);
+          return distanceToGive <= MAX_DISTANCE_FOR_BATCHING;
+        });
+
+        if (nearbyPairs.length > 0) {
+          // Sort by priority and distance
+          nearbyPairs.sort((a, b) => {
+            if (a.priority !== b.priority) {
+              return (a.priority || 0) - (b.priority || 0);
+            }
+            const aDist = giveObj.pos.getRangeTo(Game.getObjectById(a.give.id).pos);
+            const bDist = giveObj.pos.getRangeTo(Game.getObjectById(b.give.id).pos);
+            return aDist - bDist;
+          });
+
+          currentPair = nearbyPairs[0];
+        } else {
+          currentPair = null;
+        }
+      } else {
+        currentPair = null;
+      }
+    }
+
+    // Store orders in creep memory
+    if (transportOrders.length > 0) {
+      creep.memory.transport = transportOrders;
+
+      // Log assigned orders
+      const orderSummary = transportOrders.map(order => {
+        const obj = Game.getObjectById(order.id);
+        const objName = obj ? (obj.structureType || obj.constructor.name || "Object") : "Unknown";
+        return `${order.type}: ${objName} (${order.resourceType}: ${order.amount})`;
+      }).join(", ");
+
+      Log.info(`${creep} Zugewiesen: [${orderSummary}]`, "transport");
+    }
+
+    return transportOrders;
+  }
+
+  /**
+   * Get delivery orders for ornithopter creeps that have resources
+   */
+  getDeliveryOrderOrnithopter(creep) {
+    // Get resources the creep is carrying
+    const carriedResources = [];
+    for (const resourceType of Object.keys(creep.store)) {
+      if (creep.store[resourceType] > 0) {
+        carriedResources.push(resourceType);
+      }
+    }
+
+    if (carriedResources.length === 0) {
+      return null;
+    }
+
+    const needsResources = this.needsResources();
+    const allCreeps = this.rc.creeps.getAllCreeps();
+    const creepPos = creep.pos;
+
+    // Get all ornithopter creeps to check for already assigned orders
+    const ornithopters = allCreeps.filter(c => c.memory.role === "ornithopter");
+    const assignedNeedIds = new Set();
+
+    // Collect already assigned need orders from other ornithopters
+    for (const ornithopter of ornithopters) {
+      if (ornithopter.id === creep.id) continue;
+      if (!ornithopter.memory.transport || !Array.isArray(ornithopter.memory.transport)) continue;
+
+      for (const order of ornithopter.memory.transport) {
+        if (order.type === "need") {
+          assignedNeedIds.add(order.id);
+        }
+      }
+    }
+
+    // Find matching need orders
+    const matchingNeeds = [];
+    for (const resType of carriedResources) {
+      if (creep.store[resType] <= 0) continue;
+
+      for (const need of needsResources) {
+        if (need.resourceType !== resType) continue;
+        if (need.id === creep.id) continue;
+        if (assignedNeedIds.has(need.id)) continue;
+
+        // Check if target still exists and has capacity
+        const targetValidation = this._validateResourceTarget(need.id, resType);
+        if (!targetValidation) continue;
+
+        // Skip if another creep is already targeting this
+        if (allCreeps.some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0 && c.id !== creep.id)) {
+          continue;
+        }
+
+        const needObj = Game.getObjectById(need.id);
+        if (!needObj) continue;
+
+        const needDistance = creepPos.getRangeTo(needObj);
+
+        matchingNeeds.push({
+          need: need,
+          priority: need.priority,
+          distance: needDistance,
+          resourceType: resType,
+        });
+      }
+    }
+
+    // Sort by priority, then by distance
+    matchingNeeds.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return (a.priority || 0) - (b.priority || 0);
+      }
+      return a.distance - b.distance;
+    });
+
+    // Add need orders to transport memory
+    if (matchingNeeds.length > 0 && (!creep.memory.transport || !Array.isArray(creep.memory.transport))) {
+      creep.memory.transport = [];
+    }
+
+    for (const match of matchingNeeds) {
+      const need = match.need;
+      const needObj = Game.getObjectById(need.id);
+      if (!needObj) continue;
+
+      const targetValidation = this._validateResourceTarget(need.id, match.resourceType);
+      if (!targetValidation) continue;
+
+      const needAmount = Math.min(
+        match.need.amount || targetValidation.freeCapacity,
+        creep.store[match.resourceType] || 0,
+        targetValidation.freeCapacity
+      );
+
+      if (needAmount > 0) {
+        const needOrder = {
+          type: "need",
+          id: need.id,
+          resourceType: match.resourceType,
+          amount: needAmount,
+          priority: need.priority,
+          roomName: needObj.room ? needObj.room.name : this.rc.room.name,
+        };
+
+        creep.memory.transport.push(needOrder);
+      }
+    }
+
+    return creep.memory.transport ? creep.memory.transport.filter(o => o.type === "need") : null;
   }
 
   _validateResourceTarget(targetId, resourceType) {
@@ -291,6 +645,9 @@ class LogisticsManager {
 
   _getTerminalGivesPriority(resourceType, amount, energyThreshold) {
     if (resourceType === RESOURCE_ENERGY) {
+      if (amount <= 0) {
+        return null; // Skip if no energy
+      }
       if (amount <= energyThreshold) {
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW,
@@ -489,7 +846,6 @@ class LogisticsManager {
     for (const resourceType of RESOURCES_ALL) {
       const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "terminal");
       const priorityInfo = this._getTerminalGivesPriority(resourceType, amount, energyThreshold);
-
       if (priorityInfo) {
         this._addGivesResource({
           priority: priorityInfo.priority,

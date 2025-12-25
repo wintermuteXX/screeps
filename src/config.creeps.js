@@ -140,6 +140,20 @@ module.exports = {
     },
   },
 
+  ornithopter: {
+    priority: 3,
+    levelMin: 2,
+    minParts: 6,
+    wait4maxEnergy: false,
+    body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
+    behaviors: ["renew:emergency", "transport", "renew"],
+
+    canBuild: function (rc) {
+      // Only manual creation for test phase
+      return false;
+    },
+  },
+
   upgrader: {
     priority: 4,
     levelMin: 1,

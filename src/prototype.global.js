@@ -47,16 +47,16 @@ function initGlobal(g) {
   g.getCreepRoles = creepConfigUtils.getCreepRoles;
 
   // ===== Console Helpers =====
-  g.whatsInTerminals = utilsConsole.whatsInTerminals;
+  g.showTerminals = utilsConsole.showTerminals;
   g.numberOfTerminals = utilsConsole.numberOfTerminals;
   global.showLabs = utilsConsole.showLabs;
-  global.myResources = utilsConsole.myResources;
-  global.marketInfo = utilsConsole.marketInfo;
+  global.showResources = utilsConsole.showResources;
+  global.showMarket = utilsConsole.showMarket;
   global.json = utilsConsole.json;
   global.help = utilsConsole.help;
-  global.visualizeLogistic = utilsConsole.visualizeLogistic;
-  global.visualizeCpu = utilsConsole.visualizeCpu;
-  global.visualizeScoutData = utilsConsole.visualizeScoutData;
+  global.showLogistic = utilsConsole.showLogistic;
+  global.showCPU = utilsConsole.showCPU;
+  global.showScout = utilsConsole.showScout;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;

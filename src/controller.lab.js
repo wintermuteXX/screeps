@@ -57,6 +57,40 @@ class ControllerLab {
   }
 
   /**
+   * Helper function to get and validate partner labs
+   * @param {StructureLab} theLab - The result lab
+   * @returns {{labA: StructureLab, labB: StructureLab} | null} Partner labs or null if invalid
+   */
+  _getPartnerLabs(theLab) {
+    if (!theLab || !theLab.memory || !theLab.memory.partnerA || !theLab.memory.partnerB) {
+      return null;
+    }
+
+    const labA = Game.getObjectById(theLab.memory.partnerA);
+    const labB = Game.getObjectById(theLab.memory.partnerB);
+
+    if (!labA || !labB) {
+      Log.warn(`${theLab.room} Partner labs not found for ${theLab}, resetting memory`, "lab");
+      this._resetLabMemory(labA, labB, theLab);
+      return null;
+    }
+
+    return { labA, labB };
+  }
+
+  /**
+   * Helper function to set lab status to empty
+   * @param {StructureLab} labA - First lab
+   * @param {StructureLab} labB - Second lab
+   * @param {StructureLab} theLab - Result lab
+   */
+  _setLabsToEmpty(labA, labB, theLab) {
+    if (labA && labA.memory) labA.memory.status = "empty";
+    if (labB && labB.memory) labB.memory.status = "empty";
+    if (theLab && theLab.memory) theLab.memory.status = "empty";
+  }
+
+  /**
    * Helper function to reset all lab memory (used when labs are out of range or error occurs)
    * @param {StructureLab} labA - First lab
    * @param {StructureLab} labB - Second lab
@@ -149,7 +183,7 @@ class ControllerLab {
         allInRange = false;
         break;
       }
-      Log.debug(`${trimmedLabs[i].id} is in Range to ${trimmedLabs[i + 1].id} and ${trimmedLabs[i + 2].id}`, "findLabPartner");
+      Log.debug(`${trimmedLabs[i]} is in Range to ${trimmedLabs[i + 1]} and ${trimmedLabs[i + 2]}`, "findLabPartner");
     }
 
     // Set status + labpartner in memory if all are in range
@@ -164,25 +198,18 @@ class ControllerLab {
   checkStatus() {
     for (const i in this.labs) {
       const theLab = this.labs[i];
-      if (!theLab || !theLab.memory || !theLab.memory.partnerA || !theLab.memory.partnerB) {
+      const partners = this._getPartnerLabs(theLab);
+      if (!partners) {
         continue;
       }
 
-      const labA = Game.getObjectById(theLab.memory.partnerA);
-      const labB = Game.getObjectById(theLab.memory.partnerB);
-
-      // Validate that both partner labs exist
-      if (!labA || !labB) {
-        Log.warn(`${theLab.room.name} Partner labs not found for ${theLab.id}, resetting memory`, "checkStatus");
-        this._resetLabMemory(labA, labB, theLab);
-        continue;
-      }
+      const { labA, labB } = partners;
 
       // Empty -> Fill
       if (this._areAllLabsEmpty(labA, labB, theLab)) {
         const reaction = this.room.getFirstPossibleLabReaction();
         if (reaction) {
-          Log.success(`${theLab.room.name} will fill ${labA.id} with ${global.resourceImg(reaction["resourceA"])} and ${labB.id} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
+          Log.success(`${theLab.room} will fill ${labA} with ${global.resourceImg(reaction["resourceA"])} and ${labB} with ${global.resourceImg(reaction["resourceB"])} to get ${global.resourceImg(reaction["result"])}`, "checkStatus");
           labA.memory.status = "fill";
           labA.memory.resource = reaction["resourceA"];
           labB.memory.status = "fill";
@@ -194,7 +221,7 @@ class ControllerLab {
 
       // Fill -> Produce
       if (this._isLabFilled(labA) && this._isLabFilled(labB)) {
-        Log.success(`${theLab.room.name} will produce ${global.resourceImg(theLab.memory.resource)} in labs`, "checkStatus");
+        Log.success(`${theLab.room} will produce ${global.resourceImg(theLab.memory.resource)} in labs`, "checkStatus");
         labA.memory.status = "produce";
         labB.memory.status = "produce";
         theLab.memory.status = "produce";
@@ -205,7 +232,7 @@ class ControllerLab {
   produce() {
     for (const i in this.labs) {
       const theLab = this.labs[i];
-      if (!theLab || !theLab.memory || theLab.memory.status !== "produce" || !theLab.memory.partnerA || !theLab.memory.partnerB) {
+      if (!theLab || !theLab.memory || theLab.memory.status !== "produce") {
         continue;
       }
 
@@ -214,34 +241,29 @@ class ControllerLab {
         continue;
       }
 
-      const labA = Game.getObjectById(theLab.memory.partnerA);
-      const labB = Game.getObjectById(theLab.memory.partnerB);
-
-      // Validate that both partner labs exist
-      if (!labA || !labB) {
-        Log.warn(`${theLab.room.name} Partner labs not found for ${theLab.id}`, "lab produce");
-        this._resetLabMemory(labA, labB, theLab);
+      const partners = this._getPartnerLabs(theLab);
+      if (!partners) {
         continue;
       }
 
+      const { labA, labB } = partners;
       const result = theLab.runReaction(labA, labB);
+
       switch (result) {
         case OK:
           break;
         case ERR_FULL:
         case ERR_INVALID_ARGS:
         case ERR_NOT_ENOUGH_RESOURCES:
-          Log.success(`${theLab.room.name} Resources exhausted. Set labs status to empty. ${theLab.id}`, "lab produce");
-          if (labA && labA.memory) labA.memory.status = "empty";
-          if (labB && labB.memory) labB.memory.status = "empty";
-          if (theLab.memory) theLab.memory.status = "empty";
+          Log.success(`${theLab.room} Resources exhausted. Set labs status to empty. ${theLab}`, "lab produce");
+          this._setLabsToEmpty(labA, labB, theLab);
           break;
         case ERR_NOT_IN_RANGE:
           this._resetLabMemory(labA, labB, theLab);
-          Log.warn(`${theLab.room.name} Problem with labs ${theLab.id}: reset all memory`, "lab produce");
+          Log.warn(`${theLab.room} Problem with labs ${theLab}: reset all memory`, "lab produce");
           break;
         default:
-          Log.warn(`${theLab.room.name} Unknown result from ${theLab.id}: ${global.getErrorString(result)}`, "lab produce");
+          Log.warn(`${theLab.room} Unknown result from ${theLab}: ${global.getErrorString(result)}`, "lab produce");
       }
     }
   }

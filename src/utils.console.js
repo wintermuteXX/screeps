@@ -16,10 +16,10 @@ const CONSTANTS = require("./config.constants");
 function help(category = "all") {
   const functions = {
     resources: [
-      { name: "myResources(hide)", desc: "Table of all resources across rooms", example: "myResources(true)" },
+      { name: "showResources(hide)", desc: "Table of all resources across rooms", example: "showResources(true)" },
       { name: "showLabs()", desc: "Table showing lab status and reactions", example: "showLabs()" },
-      { name: "visualizeLogistic(roomName)", desc: "Visualizes transport orders (givesResources and needsResources)", example: 'visualizeLogistic("W1N1")' },
-      { name: "whatsInTerminals()", desc: "Table showing what's in all terminals", example: "whatsInTerminals()" },
+      { name: "showLogistic(roomName)", desc: "Shows transport orders (givesResources and needsResources)", example: 'showLogistic("W1N1")' },
+      { name: "showTerminals()", desc: "Table showing what's in all terminals", example: "showTerminals()" },
     ],
     planner: [
       { name: "plannerVisualize(room)", desc: "Visualizes planned layout in game view", example: 'plannerVisualize("W1N1")' },
@@ -27,11 +27,11 @@ function help(category = "all") {
       { name: "plannerReset(room)", desc: "Resets layout for a room", example: 'plannerReset("W1N1")' },
       { name: "plannerRun(room)", desc: "Runs RoomPlanner manually", example: 'plannerRun("W1N1")' },
       { name: "plannerSetCenter(room, x, y)", desc: "Sets center coordinates for planning", example: 'plannerSetCenter("W1N1", 25, 25)' },
-      { name: "visualizeCpu()", desc: "Visualizes CPU usage", example: "visualizeCpu()" },
-      { name: "visualizeScoutData(room, duration)", desc: "Visualizes scout data on world map (persists for 100 ticks)", example: 'visualizeScoutData("W1N1") or visualizeScoutData(false) to disable' },
+      { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
+      { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
     ],
     market: [
-      { name: "marketInfo()", desc: "Table with market info (prices, amounts, orders)", example: "marketInfo()" },
+      { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
     ],
     utils: [
       { name: "json(x)", desc: "Pretty-print JSON", example: 'json({key: "value"})' },
@@ -87,7 +87,7 @@ function help(category = "all") {
  * Show what's in all terminals
  * @returns {string} HTML table string
  */
-function whatsInTerminals() {
+function showTerminals() {
   const result = [];
   result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
   result.push("<caption><strong>TERMINAL CONTENTS</strong></caption>");
@@ -300,7 +300,7 @@ function showLabs() {
  * @param {boolean} hide - If true, only show resources with amount > 0
  * @returns {string} HTML table string
  */
-function myResources(hide = false) {
+function showResources(hide = false) {
   const result = [];
   result.push('<table border="1">');
   result.push("<caption> RESOURCE\n</caption>");
@@ -347,7 +347,7 @@ function myResources(hide = false) {
  * Show market information
  * @returns {string} HTML table string
  */
-function marketInfo() {
+function showMarket() {
   const result = [];
   result.push('<table border="1">');
   result.push("<caption> MARKET\n</caption>");
@@ -434,7 +434,7 @@ function json(x) {
  * @param {string|null} roomName - Room name to visualize, or null for all rooms
  * @returns {string} HTML table string
  */
-function visualizeLogistic(roomName = null) {
+function showLogistic(roomName = null) {
   const result = [];
   result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
   result.push("<caption><strong>TRANSPORT ORDERS (LOGISTICS)</strong></caption>");
@@ -594,10 +594,10 @@ function visualizeLogistic(roomName = null) {
 }
 
 /**
- * Visualizes CPU analysis
- * Usage:  visualizeCpu()
+ * Shows CPU analysis
+ * Usage:  showCPU()
  */
-function visualizeCpu() {
+function showCPU() {
   if (!Memory.cpuHistory || Memory.cpuHistory.length < 2) {
     console.log("No CPU data - Insufficient CPU history data (need at least 2 samples)");
     return;
@@ -613,11 +613,11 @@ function visualizeCpu() {
  * Visualizes Scout data on the World Map
  * Shows: Explored rooms, hostile rooms, free rooms, scores, etc.
  * Visualization persists for SCOUT_VISUALIZATION_DURATION ticks (default: 100)
- * Usage: visualizeScoutData() or visualizeScoutData('W1N1') or visualizeScoutData('W1N1', false) to disable
+ * Usage: showScout() or showScout('W1N1') or showScout('W1N1', false) to disable
  * @param {string|null} centerRoom - Room name to use as center (default: first owned room)
  * @param {boolean|number} duration - Duration in ticks (default: CONSTANTS.TICKS.SCOUT_VISUALIZATION_DURATION) or false to disable
  */
-function visualizeScoutData(centerRoom = null, duration = null) {
+function showScout(centerRoom = null, duration = null) {
   // Handle disable request
   if (duration === false) {
     if (Memory.scoutVisualization) {
@@ -648,7 +648,7 @@ function visualizeScoutData(centerRoom = null, duration = null) {
   }
 
   if (!centerRoom) {
-    console.log("No owned room found for center. Usage: visualizeScoutData('W1N1')");
+    console.log("No owned room found for center. Usage: showScout('W1N1')");
     return;
   }
 
@@ -808,7 +808,7 @@ function visualizeScoutData(centerRoom = null, duration = null) {
 
   console.log(`✅ Scout data visualized: ${roomsVisualized} rooms shown on world map (center: ${centerRoom})`);
   console.log(`   Visualization will persist for ${visualizationDuration} ticks (until tick ${Game.time + visualizationDuration})`);
-  console.log("   Use visualizeScoutData(false) to disable early");
+  console.log("   Use showScout(false) to disable early");
   console.log("Legend: ✓=Owned, ○=Free, ★=Core(3s), ●=2s, ⚠=Hostile, ·=Explored, ?=Old data");
 }
 
@@ -983,16 +983,16 @@ function _drawScoutVisualization(centerRoom) {
 }
 
 module.exports = {
-  whatsInTerminals,
+  showTerminals,
   numberOfTerminals,
   showLabs,
-  myResources,
-  marketInfo,
+  showResources,
+  showMarket,
   json,
   help,
-  visualizeLogistic,
-  visualizeCpu,
-  visualizeScoutData,
+  showLogistic,
+  showCPU,
+  showScout,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 
