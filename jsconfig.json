@@ -1,16 +1,27 @@
 {
     "compilerOptions": {
         "target": "ES6",
+        "module": "commonjs",
+        "lib": ["ES2017", "DOM"],
         "checkJs": false,
         "noImplicitAny": false,
         "strict": false,
-        "module": "commonjs",
-        "lib": ["ES2017", "DOM"],
+        "skipLibCheck": true,
         "typeRoots": ["./node_modules/@types"],
-        "skipLibCheck": true
+        "types": ["screeps"],
+        "baseUrl": ".",
+        "paths": {
+            "*": ["src/*", "node_modules/*"]
+        },
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true
     },
+    "include": [
+        "src/**/*"
+    ],
     "exclude": [
         "node_modules",
-        "**/node_modules/*"
+        "**/node_modules/*",
+        "stuff/**/*"
     ]
 }

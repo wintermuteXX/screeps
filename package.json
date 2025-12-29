@@ -3,19 +3,10 @@
   "version": "1.0.0",
   "description": "Screeps AI codebase",
   "scripts": {
-    "deploy": "node upload.js",
-    "format": "prettier --write \"src/**/*.js\"",
-    "format:check": "prettier --check \"src/**/*.js\"",
-    "lint": "eslint src/**/*.js",
-    "lint:fix": "eslint src/**/*.js --fix",
-    "update-globals": "node scripts/generate-eslint-globals.js"
+    "deploy": "node upload.js"
   },
   "devDependencies": {
     "@types/lodash": "3.10.1",
-    "@types/screeps": "^3.3.8",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^10.1.8"
+    "@types/screeps": "^3.3.8"
   }
 }

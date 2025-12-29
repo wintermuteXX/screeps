@@ -90,11 +90,62 @@ function plannerSetCenter(roomName, x, y) {
   Log.info(`Center for ${roomName} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
 }
 
+/**
+ * Lists orphaned structures (built but no longer in the layout)
+ * Usage: plannerOrphaned('W1N1')
+ * @param {string} roomName - Room name
+ * @returns {Array} Array of orphaned structures
+ */
+function plannerOrphaned(roomName) {
+  const room = Game.rooms[roomName];
+  if (!room) {
+    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    return [];
+  }
+  const planner = new RoomPlanner(room);
+  const orphaned = planner._findOrphanedStructures();
+
+  if (orphaned.length === 0) {
+    Log.info(`No orphaned structures found in ${roomName}`, "RoomPlanner");
+    return [];
+  }
+
+  // Structure type names for display
+  const structureNames = {
+    [STRUCTURE_SPAWN]: "Spawn",
+    [STRUCTURE_EXTENSION]: "Extension",
+    [STRUCTURE_TOWER]: "Tower",
+    [STRUCTURE_STORAGE]: "Storage",
+    [STRUCTURE_TERMINAL]: "Terminal",
+    [STRUCTURE_FACTORY]: "Factory",
+    [STRUCTURE_LAB]: "Lab",
+    [STRUCTURE_LINK]: "Link",
+    [STRUCTURE_OBSERVER]: "Observer",
+    [STRUCTURE_POWER_SPAWN]: "PowerSpawn",
+    [STRUCTURE_NUKER]: "Nuker",
+    [STRUCTURE_ROAD]: "Road",
+    [STRUCTURE_CONTAINER]: "Container",
+  };
+
+  Log.info(`Found ${orphaned.length} orphaned structure(s) in ${roomName}:`, "RoomPlanner");
+  for (const orphan of orphaned) {
+    const name = structureNames[orphan.structureType] || orphan.structureType;
+    const id = orphan.structure.id;
+    Log.info(
+      `  - ${name} at (${orphan.x}, ${orphan.y}) - ID: ${id} - Destroy with: Game.getObjectById('${id}').destroy()`,
+      "RoomPlanner",
+    );
+  }
+
+  return orphaned;
+}
+
 module.exports = {
   plannerVisualize,
   plannerStats,
   plannerReset,
   plannerRun,
   plannerSetCenter,
+  plannerOrphaned,
 };
 

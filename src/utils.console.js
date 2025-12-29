@@ -27,6 +27,7 @@ function help(category = "all") {
       { name: "plannerReset(room)", desc: "Resets layout for a room", example: 'plannerReset("W1N1")' },
       { name: "plannerRun(room)", desc: "Runs RoomPlanner manually", example: 'plannerRun("W1N1")' },
       { name: "plannerSetCenter(room, x, y)", desc: "Sets center coordinates for planning", example: 'plannerSetCenter("W1N1", 25, 25)' },
+      { name: "plannerOrphaned(room)", desc: "Lists orphaned structures (built but no longer in layout)", example: 'plannerOrphaned("W1N1")' },
       { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
       { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
     ],

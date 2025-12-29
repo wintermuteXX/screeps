@@ -1038,6 +1038,75 @@ RoomPlanner.prototype.visualize = function () {
 };
 
 /**
+ * Finds orphaned structures (built but no longer in the layout)
+ * @returns {Array} Array of orphaned structures with their positions
+ */
+RoomPlanner.prototype._findOrphanedStructures = function () {
+  if (!this.memory.layoutGenerated || !this._hasCenter()) {
+    return [];
+  }
+
+  const orphanedStructures = [];
+  const {centerX, centerY} = this.memory;
+
+  // Create a map of planned positions: "x,y" -> structureType
+  const plannedPositions = new Map();
+  for (const planned of this.memory.plannedStructures) {
+    // Skip special structures (containers/links at sources) - they're dynamic
+    if (planned.specialIdentifier) continue;
+    const key = `${planned.x},${planned.y}`;
+    plannedPositions.set(key, planned.structureType);
+  }
+
+  // Find all structures in the room that could be planned by the planner
+  const plannerStructureTypes = [
+    STRUCTURE_SPAWN,
+    STRUCTURE_EXTENSION,
+    STRUCTURE_TOWER,
+    STRUCTURE_STORAGE,
+    STRUCTURE_TERMINAL,
+    STRUCTURE_FACTORY,
+    STRUCTURE_LAB,
+    STRUCTURE_LINK,
+    STRUCTURE_OBSERVER,
+    STRUCTURE_POWER_SPAWN,
+    STRUCTURE_NUKER,
+    STRUCTURE_ROAD,
+  ];
+
+  const structures = this.room.find(FIND_STRUCTURES, {
+    filter: (s) => plannerStructureTypes.includes(s.structureType),
+  });
+
+  for (const structure of structures) {
+    const key = `${structure.pos.x},${structure.pos.y}`;
+    const plannedType = plannedPositions.get(key);
+
+    // Structure is orphaned if:
+    // 1. No structure is planned at this position, OR
+    // 2. A different structure type is planned at this position
+    if (!plannedType || plannedType !== structure.structureType) {
+      // Check if it's within reasonable range of the center (to avoid flagging structures far away)
+      const distanceFromCenter = Math.max(
+        Math.abs(structure.pos.x - centerX),
+        Math.abs(structure.pos.y - centerY),
+      );
+      // Only flag structures within 20 tiles of center (reasonable bunker range)
+      if (distanceFromCenter <= 20) {
+        orphanedStructures.push({
+          structure: structure,
+          x: structure.pos.x,
+          y: structure.pos.y,
+          structureType: structure.structureType,
+        });
+      }
+    }
+  }
+
+  return orphanedStructures;
+};
+
+/**
  * Draws the visualization (internal method)
  */
 RoomPlanner.prototype._drawVisualization = function () {
@@ -1162,6 +1231,67 @@ RoomPlanner.prototype._drawVisualization = function () {
       font: "0.6 Arial",
       align: "center",
       stroke: "#ffffff",
+      strokeWidth: 0.1,
+    });
+  }
+
+  // Draw orphaned structures (structures that exist but are no longer in the layout)
+  const orphanedStructures = this._findOrphanedStructures();
+  if (orphanedStructures.length > 0) {
+    // Draw orphaned structures with red X marker
+    for (const orphaned of orphanedStructures) {
+      // Draw red background
+      visual.rect(orphaned.x - 0.4, orphaned.y - 0.4, 0.8, 0.8, {
+        fill: "#ff0000",
+        opacity: 0.6,
+        stroke: "#ff0000",
+        strokeWidth: 0.2,
+      });
+
+      // Draw X mark
+      visual.line(orphaned.x - 0.3, orphaned.y - 0.3, orphaned.x + 0.3, orphaned.y + 0.3, {
+        color: "#ffffff",
+        width: 0.15,
+        opacity: 1,
+      });
+      visual.line(orphaned.x - 0.3, orphaned.y + 0.3, orphaned.x + 0.3, orphaned.y - 0.3, {
+        color: "#ffffff",
+        width: 0.15,
+        opacity: 1,
+      });
+
+      // Draw structure type letter
+      const letter = structureLetters[orphaned.structureType] || "?";
+      visual.text(letter, orphaned.x, orphaned.y + 0.3, {
+        color: "#ffffff",
+        font: "0.5 Arial",
+        align: "center",
+        stroke: "#000000",
+        strokeWidth: 0.15,
+      });
+    }
+
+    // Add orphaned structures info to legend
+    const orphanedCount = orphanedStructures.length;
+    const orphanedY = legendY;
+    visual.rect(0.5, orphanedY, legendWidth, 1.5, {
+      fill: "#ff0000",
+      opacity: 0.7,
+      stroke: "#ffffff",
+      strokeWidth: 0.2,
+    });
+    visual.text(`⚠ ${orphanedCount} verwaiste Gebäude`, 1, orphanedY + 0.5, {
+      color: "#ffffff",
+      font: "0.7 Arial",
+      align: "left",
+      stroke: "#000000",
+      strokeWidth: 0.1,
+    });
+    visual.text("(nicht mehr im Layout)", 1, orphanedY + 1, {
+      color: "#ffffff",
+      font: "0.5 Arial",
+      align: "left",
+      stroke: "#000000",
       strokeWidth: 0.1,
     });
   }
