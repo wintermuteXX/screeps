@@ -36,6 +36,7 @@ function help(category = "all") {
     ],
     utils: [
       { name: "json(x)", desc: "Pretty-print JSON", example: 'json({key: "value"})' },
+      { name: "cleanMemory(type, property)", desc: "Cleans up memory by removing specified property from rooms or creeps", example: 'cleanMemory("rooms", "dunePlanet")' },
     ],
   };
 
@@ -453,6 +454,42 @@ function showMarket() {
  */
 function json(x) {
   return JSON.stringify(x, null, 2);
+}
+
+/**
+ * Cleans up memory by removing specified properties
+ * @param {string} memoryType - "rooms" or "creeps" - where to clean
+ * @param {string} propertyName - Name of the property to remove (e.g. "dunePlanet", "duneFaction", "spawnRenamed")
+ * @returns {string} Summary of cleaned entries
+ */
+function cleanMemory(memoryType, propertyName) {
+  if (!memoryType || !propertyName) {
+    return "Usage: cleanMemory('rooms'|'creeps', 'propertyName')";
+  }
+
+  if (memoryType !== "rooms" && memoryType !== "creeps") {
+    return `Invalid memory type: "${memoryType}". Use "rooms" or "creeps"`;
+  }
+
+  const memoryObject = Memory[memoryType];
+  if (!memoryObject) {
+    return `No ${memoryType} in memory`;
+  }
+
+  let cleaned = 0;
+  for (const key in memoryObject) {
+    if (memoryObject[key][propertyName] !== undefined) {
+      delete memoryObject[key][propertyName];
+      cleaned++;
+    }
+  }
+
+  const message = cleaned > 0
+    ? `Cleaned memory: Removed "${propertyName}" from ${cleaned} ${memoryType.slice(0, -1)}(s)`
+    : `No "${propertyName}" entries found in ${memoryType}`;
+  
+  console.log(message);
+  return message;
 }
 
 /**
@@ -899,6 +936,7 @@ module.exports = {
   showLogistic,
   showCPU,
   showScout,
+  cleanMemory,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 

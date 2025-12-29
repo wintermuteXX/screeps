@@ -11,6 +11,7 @@
 
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
+const duneConfig = require("./config.dune");
 
 /**
  * RoomPlanner Constants - now imported from config.constants.js
@@ -693,11 +694,23 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
     }
 
     // Try to place construction site
-    const result = this.room.createConstructionSite(x, y, structureType);
+    // For spawns, use a random planet name from Dune universe
+    let result;
+    let planetName = null;
+    if (structureType === STRUCTURE_SPAWN) {
+      planetName = duneConfig.getRandomPlanet();
+      result = this.room.createConstructionSite(x, y, structureType, planetName);
+    } else {
+      result = this.room.createConstructionSite(x, y, structureType);
+    }
 
     if (result === OK) {
       sitesPlaced++;
-      Log.debug(`RoomPlanner: Construction site for ${structureType} placed at (${x}, ${y})`, "RoomPlanner");
+      if (structureType === STRUCTURE_SPAWN) {
+        Log.debug(`RoomPlanner: Construction site for Spawn "${planetName}" placed at (${x}, ${y})`, "RoomPlanner");
+      } else {
+        Log.debug(`RoomPlanner: Construction site for ${structureType} placed at (${x}, ${y})`, "RoomPlanner");
+      }
     } else if (result === ERR_FULL) {
       // Already too many sites
       break;
@@ -857,8 +870,28 @@ RoomPlanner.prototype._placeSourceLinks = function () {
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
     const identifier = `source_link_${i}`;
-    this._placeLinkNear(source.pos, "source", identifier, source.id);
+    
+    // Versuche zuerst den Container für diese Source zu finden
+    const containerIdentifier = `source_${i}`;
+    const containerPosition = this._getStoredSpecialStructure(containerIdentifier);
+    
+    if (containerPosition) {
+      // Container existiert - platziere Link direkt daneben (Range 1)
+      const containerPos = new RoomPosition(containerPosition.x, containerPosition.y, this.roomName);
+      this._placeLinkNearContainer(containerPos, "source", identifier, source.id);
+    } else {
+      // Container existiert noch nicht - platziere Link in der Nähe der Source (Fallback)
+      this._placeLinkNear(source.pos, "source", identifier, source.id);
+    }
   }
+};
+
+/**
+ * Places a link directly adjacent to a container (Range 1)
+ */
+RoomPlanner.prototype._placeLinkNearContainer = function (containerPos, type, identifier, targetId) {
+  const range = 1; // Direkt angrenzend
+  this._placeStructureNear(containerPos, STRUCTURE_LINK, range, type, true, identifier, targetId);
 };
 
 /**

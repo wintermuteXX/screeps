@@ -74,6 +74,7 @@ module.exports = {
     CONSTRUCTOR_LOW: 2,              // Constructor count at low RCL
     CONSTRUCTOR_HIGH: 1,             // Constructor count at high RCL
     ATTACKER_MAX: 1,                 // Max attacker creeps
+    DEFENDER_MAX: 2,                 // Max defender creeps
     SUPPORTER_MAX: 3,                // Max supporter creeps
     CLAIMER_MAX: 1,                  // Max claimer creeps
     MINER_PER_SOURCE: 1,             // Miners per source

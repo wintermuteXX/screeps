@@ -5,35 +5,6 @@ class ControllerSpawn {
   constructor(spawn, ControllerRoom) {
     this.spawn = spawn;
     this.ControllerRoom = ControllerRoom;
-
-    // Benenne Spawn nach dem Planeten des Raums
-    this._renameSpawnToPlanet();
-  }
-
-  /**
-   * Benennt den Spawn nach dem Planeten des Raums um (falls noch nicht geschehen)
-   */
-  _renameSpawnToPlanet() {
-    const planet = this.ControllerRoom.getDunePlanet();
-    if (!planet) {
-      return; // Raum hat noch keine Dune-Identität
-    }
-
-    // Prüfe ob Spawn bereits umbenannt wurde
-    const roomMemory = this.ControllerRoom._ensureRoomMemory();
-    if (roomMemory.spawnRenamed && roomMemory.spawnRenamed[this.spawn.id]) {
-      return; // Bereits umbenannt
-    }
-
-    // Versuche Spawn umzubenennen (nur wenn Name noch nicht gesetzt)
-    // Hinweis: In Screeps können Spawns nicht umbenannt werden, aber wir können es im Memory speichern
-    if (!roomMemory.spawnRenamed) {
-      roomMemory.spawnRenamed = {};
-    }
-    roomMemory.spawnRenamed[this.spawn.id] = planet;
-
-    // Log für Referenz (Spawn.name kann nicht geändert werden, aber wir wissen welcher Planet es ist)
-    Log.info(`Spawn ${this.spawn.name} represents planet ${planet}`, "DuneSpawn");
   }
 
   isIdle() {
@@ -45,11 +16,18 @@ class ControllerSpawn {
 
   /**
    * Generiert einen zufälligen Dune-Namen für einen Creep
-   * Verwendet die Fraktion des Raums
+   * Verwendet die Fraktion des Raums oder namePrefix aus der Config
    * @param {string} role - Die Rolle des Creeps
+   * @param {Object} creepConfig - Die Creep-Konfiguration
    * @returns {string} Ein verfügbarer Name
    */
-  generateCreepName(role) {
+  generateCreepName(role, creepConfig) {
+    // Prüfe ob ein namePrefix in der Config definiert ist
+    if (creepConfig && creepConfig.namePrefix) {
+      return this._generateDuneName(creepConfig.namePrefix);
+    }
+
+    // Fallback: Verwende Dune-Personennamen basierend auf Fraktion
     const faction = this.ControllerRoom.getDuneFaction();
 
     // Fallback auf zufällige Fraktion wenn Raum noch keine hat
@@ -76,12 +54,36 @@ class ControllerSpawn {
     return `${role  }_${  Math.round(Math.random() * 999)}`;
   }
 
+  /**
+   * Generische Hilfsfunktion zum Generieren von Dune-Namen mit Präfix und 3-stelliger Nummer
+   * @param {string} prefix - Der Präfix für den Namen (z.B. "Ornithopter", "Spice_Harvester")
+   * @returns {string} Ein verfügbarer Name
+   */
+  _generateDuneName(prefix) {
+    const maxAttempts = 100;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      // Generiere 3-stellige Zufallszahl (000-999)
+      const randomNumber = Math.floor(Math.random() * 1000);
+      const numberString = randomNumber.toString().padStart(3, "0");
+      const name = `${prefix}_${numberString}`;
+
+      // Prüfe ob der Name bereits existiert
+      if (!Game.creeps[name]) {
+        return name;
+      }
+    }
+
+    // Fallback: Verwende Timestamp wenn alle Namen belegt sind
+    return `${prefix}_${(Game.time % 1000).toString().padStart(3, "0")}`;
+  }
+
   createCreep(role, creepConfig, memory) {
     // TODO createCreep. Calculate Move parts dynamically
     // Initialize memory if not provided
     memory = memory || {};
 
-    const theName = this.generateCreepName(role);
+    const theName = this.generateCreepName(role, creepConfig);
 
     // Use getUpgraderBody() if available, otherwise body
     let bodyTemplate = creepConfig.body;

@@ -22,6 +22,7 @@ module.exports = {
     priority: 1,
     minParts: 4,
     wait4maxEnergy: false,
+    namePrefix: "Construction_Crawler",
     body: [MOVE, WORK, CARRY, MOVE],
     behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
 
@@ -42,6 +43,7 @@ module.exports = {
     levelMin: 2,
     minParts: 3,
     wait4maxEnergy: false,
+    namePrefix: "Spice_Harvester",
     body: [MOVE, WORK, WORK, WORK, WORK, WORK, CARRY, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, MOVE],
     behaviors: ["miner_harvest"],
 
@@ -66,6 +68,7 @@ module.exports = {
     levelMin: 6,
     minParts: 16,
     wait4maxEnergy: true,
+    namePrefix: "Mineral_Extractor",
     body: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
     behaviors: ["miner_harvest_mineral", "recycle"],
 
@@ -81,6 +84,7 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
+    namePrefix: "Commodity_Harvester",
     body: generateBody([MOVE, WORK, MOVE, CARRY], 12), // 24 MOVE, 12 WORK, 12 CARRY
     behaviors: ["goto_flag:green", "miner_harvest_commodities", "goto_home", "transfer_storage"],
 
@@ -96,6 +100,7 @@ module.exports = {
     levelMin: 5,
     minParts: 16,
     wait4maxEnergy: true,
+    namePrefix: "Raid_Harvester",
     body: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
     behaviors: ["goto_flag:yellow", "miner_raid_room", "goto_home", "transfer_storage"],
 
@@ -109,6 +114,7 @@ module.exports = {
     levelMin: 2,
     minParts: 6,
     wait4maxEnergy: false,
+    namePrefix: "Ornithopter",
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
     behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
 
@@ -144,6 +150,7 @@ module.exports = {
     levelMin: 2,
     minParts: 6,
     wait4maxEnergy: false,
+    namePrefix: "Thopter",
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
     behaviors: ["renew:emergency", "transport", "renew"],
 
@@ -158,6 +165,7 @@ module.exports = {
     levelMin: 1,
     minParts: 3,
     wait4maxEnergy: true,
+    namePrefix: "Spice_Refiner",
 
     // Dynamischer Body basierend auf RCL
     // RCL 8: Max 15 Energy/tick Limit, daher kleinerer Body
@@ -236,6 +244,7 @@ module.exports = {
     levelMin: 2,
     minParts: 4,
     wait4maxEnergy: true,
+    namePrefix: "Repair_Crawler",
     body: [
       MOVE,
       CARRY,
@@ -296,6 +305,7 @@ module.exports = {
     minLevel: 4,
     minParts: 6,
     wait4maxEnergy: true,
+    namePrefix: "Sardaukar",
     body: generateBody([MOVE, ATTACK], 25), // 25 MOVE, 25 ATTACK
     behaviors: ["goto_flag:red", "attack_enemy"],
 
@@ -312,10 +322,17 @@ module.exports = {
     minLevel: 2,
     minParts: 6,
     wait4maxEnergy: true,
+    namePrefix: "Shield_Wall",
     body: generateBody([MOVE, RANGED_ATTACK], 25), // 25 MOVE, 25 RANGED_ATTACK
     behaviors: ["attack_enemy"],
 
     canBuild: function (rc) {
+      // Check global defender limit first
+      const existingDefenders = _.filter(Game.creeps, (c) => c.memory.role === "defender").length;
+      if (existingDefenders >= CONSTANTS.CREEP_LIMITS.DEFENDER_MAX) {
+        return false;
+      }
+
       // Only build if no tower AND hostiles present OR boosted creeps enter room
       const hasTowers = rc.room.towers && rc.room.towers.length > 0;
     
@@ -341,6 +358,7 @@ module.exports = {
     minLevel: 3,
     minParts: 8,
     wait4maxEnergy: true,
+    namePrefix: "Support_Crawler",
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
     behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "upgrade_controller"],
@@ -406,6 +424,7 @@ module.exports = {
     minLevel: 3,
     minParts: 4,
     wait4maxEnergy: true,
+    namePrefix: "Colonizer",
     body: generateBody([MOVE, CLAIM], 2), // 2 MOVE, 2 CLAIM
     behaviors: ["claim_controller", "place_spawn"],
 
@@ -484,6 +503,7 @@ module.exports = {
     levelMin: 1,
     minParts: 1,
     wait4maxEnergy: false,
+    namePrefix: "Explorer",
     body: [MOVE], // Nur 1 MOVE part
     behaviors: ["scout", "sign_controller", "recycle"],
 

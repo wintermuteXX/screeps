@@ -84,11 +84,17 @@ function getRandomPlanetForFaction(faction) {
 }
 
 /**
- * Gibt alle verfügbaren Fraktionen zurück
- * @returns {Array<string>} Array von Fraktionsnamen
+ * Wählt einen zufälligen Planetennamen aus allen verfügbaren Planeten
+ * @returns {string} Planetname
  */
-function getAllFactions() {
-  return Object.keys(DUNE_PLANETS);
+function getRandomPlanet() {
+  const allPlanets = [];
+  for (const faction in DUNE_PLANETS) {
+    allPlanets.push(...DUNE_PLANETS[faction]);
+  }
+  // Entferne Duplikate
+  const uniquePlanets = [...new Set(allPlanets)];
+  return uniquePlanets[Math.floor(Math.random() * uniquePlanets.length)];
 }
 
 module.exports = {
@@ -96,5 +102,5 @@ module.exports = {
   DUNE_NAMES,
   getRandomFaction,
   getRandomPlanetForFaction,
-  getAllFactions,
+  getRandomPlanet,
 };

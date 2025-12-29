@@ -1,6 +1,7 @@
 const Behavior = require("./behavior.base");
 const RoomPlanner = require("./service.planner");
 const Log = require("./lib.log");
+const duneConfig = require("./config.dune");
 const b = new Behavior("place_spawn");
 
 function findFlag(rc) {
@@ -32,14 +33,15 @@ b.work = function (creep, rc) {
   }
 
   const position = new RoomPosition(centerPos.x, centerPos.y, creep.room.name);
-  const result = creep.room.createConstructionSite(position, STRUCTURE_SPAWN);
+  const planetName = duneConfig.getRandomPlanet();
+  const result = creep.room.createConstructionSite(position, STRUCTURE_SPAWN, planetName);
 
   if (result === ERR_RCL_NOT_ENOUGH) {
     // Shortcut for Claimer - remove if other creeps are using this behavior
     creep.suicide();
   }
   if (result === OK) {
-    Log.success(`Build a new construction site for Spawn in ${creep.room.name} at (${position.x}, ${position.y})`, "place_spawn");
+    Log.success(`Build a new construction site for Spawn "${planetName}" in ${creep.room.name} at (${position.x}, ${position.y})`, "place_spawn");
   } else {
     Log.error(`Could not build Spawn in ${creep.room.name} at (${position.x}, ${position.y}). Error: ${global.getErrorString(result)}`, "place_spawn");
   }

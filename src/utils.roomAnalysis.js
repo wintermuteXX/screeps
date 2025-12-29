@@ -426,7 +426,5 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
 
 module.exports = {
   analyzeRoom,
-  logAnalysisSummary,
-  calculateRoomScore,
 };
 
