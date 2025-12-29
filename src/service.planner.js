@@ -64,146 +64,62 @@ const STRUCTURE_TYPE_MAP = {
  * Format: { x: offsetX, y: offsetY, structureType: STRUCTURE_TYPE, priority: number }
  * Priority determines build order (lower = earlier)
  */
+/**
+ * Extension pattern template from JSON (relative to center)
+ * Used as template for dynamic placement
+ */
+const EXTENSION_PATTERN = [
+  { x: 2, y: 2 }, { x: 2, y: 4 }, { x: 1, y: 3 }, { x: 0, y: 4 }, { x: 0, y: 2 },
+  { x: -3, y: 3 }, { x: -2, y: 4 }, { x: -3, y: 1 }, { x: -2, y: 0 }, { x: -3, y: -1 },
+  { x: -2, y: -2 }, { x: -3, y: -3 }, { x: -3, y: -5 }, { x: -2, y: -6 }, { x: -1, y: -5 },
+  { x: 0, y: -4 }, { x: 0, y: -6 }, { x: 1, y: -5 }, { x: 2, y: -6 }, { x: 2, y: -4 },
+  { x: 3, y: -5 }, { x: 4, y: -6 }, { x: 4, y: -4 }, { x: 5, y: -5 }, { x: 3, y: -3 },
+  { x: 5, y: -3 }, { x: 6, y: -6 }, { x: 6, y: -4 }, { x: 4, y: -2 }, { x: 6, y: -2 },
+  { x: 5, y: -1 }, { x: 4, y: 0 }, { x: 6, y: 0 }, { x: 5, y: 1 }, { x: 5, y: 3 },
+  { x: 4, y: 4 }, { x: 6, y: 4 }, { x: 6, y: 2 }, { x: 1, y: -3 }, { x: -1, y: -1 },
+  { x: 0, y: -2 }, { x: -1, y: 1 }, { x: 3, y: 1 },
+];
+
 const BUNKER_LAYOUT = {
   // Spawn in center (used as reference point)
   spawns: [
     { x: 0, y: 0, priority: 1 },
-    { x: -2, y: 2, priority: 100 },
-    { x: 2, y: 2, priority: 101 },
   ],
 
   // Storage central for short paths
-  storage: [{ x: 0, y: 1, priority: 10 }],
+  storage: [{ x: 1, y: 1, priority: 10 }],
 
   // Terminal next to Storage
-  terminal: [{ x: 1, y: 1, priority: 20 }],
+  terminal: [{ x: 2, y: 0, priority: 20 }],
 
-  // Factory next to Terminal
-  // factory: [{ x: -1, y: 1, priority: 25 }],
+  // Factory
+  factory: [{ x: 0, y: -1, priority: 25 }],
 
   // Towers in strategic positions (protection of the core)
   towers: [
-    { x: 1, y: -1, priority: 5 },
-    { x: -1, y: -1, priority: 6 },
-    { x: 2, y: 0, priority: 30 },
-    { x: -2, y: 0, priority: 31 },
-    { x: 0, y: -2, priority: 32 },
-    { x: 0, y: 2, priority: 33 },
-  ],
-
-  // Extensions in an efficient pattern around the core
-  extensions: [
-    // Ring 1 (RCL 2-3)
-    { x: -1, y: -2, priority: 11 },
-    { x: 1, y: -2, priority: 12 },
-    { x: -2, y: -1, priority: 13 },
-    { x: 3, y: -3, priority: 14 },
-    { x: -2, y: 1, priority: 15 },
-    // Ring 2 (RCL 3-4)
-    { x: -3, y: 3, priority: 16 },
-    { x: -3, y: 0, priority: 17 },
-    { x: 3, y: 0, priority: 18 },
-    { x: 0, y: -3, priority: 19 },
-    { x: 0, y: 3, priority: 21 },
-    // Ring 3 (RCL 4-5)
-    { x: -3, y: -1, priority: 22 },
-    { x: 3, y: -1, priority: 23 },
-    { x: -3, y: 1, priority: 24 },
-    { x: 3, y: 1, priority: 26 },
-    { x: -1, y: -3, priority: 27 },
-    { x: 1, y: -3, priority: 28 },
-    { x: -1, y: 3, priority: 29 },
-    { x: 1, y: 3, priority: 34 },
-    { x: -2, y: -2, priority: 35 },
-    { x: 2, y: -2, priority: 36 },
-    // Ring 4 (RCL 5-6)
-    { x: -4, y: 0, priority: 37 },
-    { x: 4, y: 0, priority: 38 },
-    { x: 0, y: -4, priority: 39 },
-    { x: 0, y: 4, priority: 40 },
-    { x: -3, y: -2, priority: 41 },
-    { x: 3, y: -2, priority: 42 },
-    { x: -3, y: 2, priority: 43 },
-    { x: 3, y: 2, priority: 44 },
-    { x: -2, y: -3, priority: 45 },
-    { x: 2, y: -3, priority: 46 },
-    // Ring 5 (RCL 6-7)
-    { x: -2, y: 3, priority: 47 },
-    { x: 2, y: 3, priority: 48 },
-    { x: -4, y: -1, priority: 49 },
-    { x: 4, y: -1, priority: 50 },
-    { x: -4, y: 1, priority: 51 },
-    { x: 4, y: 1, priority: 52 },
-    { x: -1, y: -4, priority: 53 },
-    { x: 1, y: -4, priority: 54 },
-    { x: -1, y: 4, priority: 55 },
-    { x: 1, y: 4, priority: 56 },
-    // Ring 6 (RCL 7-8)
-    { x: -4, y: -2, priority: 57 },
-    { x: 4, y: -2, priority: 58 },
-    { x: -4, y: 2, priority: 59 },
-    { x: 4, y: 2, priority: 60 },
-    { x: -2, y: -4, priority: 61 },
-    { x: 2, y: -4, priority: 62 },
-    { x: -2, y: 4, priority: 63 },
-    { x: 2, y: 4, priority: 64 },
-    { x: -5, y: 0, priority: 65 },
-    { x: 5, y: 0, priority: 66 },
-    // Additional extensions for RCL 8
-    { x: 0, y: -5, priority: 71 },
-    { x: 0, y: 5, priority: 72 },
-    { x: -4, y: -3, priority: 73 },
-    { x: 4, y: -3, priority: 74 },
-  ],
-
-  // Labs in a compact cluster (for reactions)
-  labs: [
-    { x: 3, y: 3, priority: 75 },
-    { x: 4, y: 3, priority: 76 },
-    { x: 5, y: 3, priority: 77 },
-    { x: 3, y: 4, priority: 78 },
-    { x: 4, y: 4, priority: 79 },
-    { x: 5, y: 4, priority: 80 },
-    { x: 3, y: 5, priority: 81 },
-    { x: 4, y: 5, priority: 82 },
-    { x: 5, y: 5, priority: 83 },
-    { x: 6, y: 4, priority: 84 },
+    { x: 2, y: -2, priority: 5 },
+    { x: 3, y: -1, priority: 6 },
   ],
 
   // Links in strategic positions
   links: [
-    { x: 2, y: -1, priority: 86 }, // At spawn
+    { x: 1, y: -1, priority: 86 }, // At spawn
     // Additional links are placed dynamically at Sources/Controller
   ],
 
-  // Observer
-  observer: [{ x: -3, y: -3, priority: 95 }],
-
   // Power Spawn
-  // powerSpawn: [{ x: -1, y: 2, priority: 96 }],
+  powerSpawn: [{ x: 1, y: -2, priority: 96 }],
 
   // Nuker (far from center)
-  nuker: [{ x: -4, y: 3, priority: 97 }],
+  nuker: [{ x: 3, y: 0, priority: 97 }],
 
-  // Roads (main paths)
-  roads: [
-    // Cross through the center
-    { x: 0, y: -1, priority: 200 },
-    { x: 2, y: 5, priority: 213 },
-    { x: 2, y: 6, priority: 214 },
-    // Vertical paths between lab columns (x=2, x=6)
-    { x: 5, y: 2, priority: 216 },
-    { x: 6, y: 2, priority: 217 },
-    // Paths around the lab cluster perimeter (bottom row)
-    { x: 3, y: 6, priority: 218 },
-    { x: 4, y: 6, priority: 219 },
-    { x: 5, y: 6, priority: 220 },
-    { x: 6, y: 6, priority: 221 },
-    // Connection to additional lab at (6,4) - roads around it
-    { x: 7, y: 3, priority: 222 },
-    { x: 7, y: 4, priority: 223 },
-    { x: 7, y: 5, priority: 224 },
+  // 1 Lab in core (rest will be placed dynamically)
+  labs: [
+    { x: 2, y: 1, priority: 75 },
   ],
+
+  // Extensions and remaining labs are placed dynamically
+  // See _placeExtensionsDynamically() and _placeLabsDynamically()
 };
 
 /**
@@ -385,6 +301,207 @@ RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
 };
 
 /**
+ * Places extensions dynamically based on pattern template, only where space is available
+ */
+RoomPlanner.prototype._placeExtensionsDynamically = function (plannedStructures, centerX, centerY, addStructure) {
+  const terrain = this.room.getTerrain();
+  const usedPositions = new Set();
+  
+  // Mark all already planned positions as used
+  for (const planned of plannedStructures) {
+    usedPositions.add(`${planned.x},${planned.y}`);
+  }
+
+  // Priority starts at 11 (RCL 2) and increases
+  let priority = 11;
+
+  // Try to place extensions following the pattern
+  for (const patternPos of EXTENSION_PATTERN) {
+    const x = centerX + patternPos.x;
+    const y = centerY + patternPos.y;
+
+    // Border check
+    if (
+      x < CONSTANTS.PLANNER.ROOM_MIN ||
+      x > CONSTANTS.PLANNER.ROOM_MAX ||
+      y < CONSTANTS.PLANNER.ROOM_MIN ||
+      y > CONSTANTS.PLANNER.ROOM_MAX
+    ) {
+      continue;
+    }
+
+    // Check if position is already used
+    const posKey = `${x},${y}`;
+    if (usedPositions.has(posKey)) {
+      continue;
+    }
+
+    // Wall check
+    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+      // Try to find alternative position nearby
+      const altPos = this._findAlternativePosition(x, y, STRUCTURE_EXTENSION);
+      if (altPos && !usedPositions.has(`${altPos.x},${altPos.y}`)) {
+        addStructure(altPos.x - centerX, altPos.y - centerY, STRUCTURE_EXTENSION, priority);
+        usedPositions.add(`${altPos.x},${altPos.y}`);
+        priority++;
+      }
+      continue;
+    }
+
+    // Check if position is free (no existing structures or construction sites)
+    const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+    const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
+    
+    if (structures.length === 0 && sites.length === 0) {
+      // Position is free, place extension
+      addStructure(patternPos.x, patternPos.y, STRUCTURE_EXTENSION, priority);
+      usedPositions.add(posKey);
+      priority++;
+    }
+  }
+};
+
+/**
+ * Places remaining labs dynamically in 3er-blocks (9 labs total, 1 already in core)
+ * Labs are placed in groups of 3, but not necessarily in perfect 3x3 squares
+ */
+RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, centerX, centerY, addStructure) {
+  const terrain = this.room.getTerrain();
+  const usedPositions = new Set();
+  
+  // Mark all already planned positions as used
+  for (const planned of plannedStructures) {
+    usedPositions.add(`${planned.x},${planned.y}`);
+  }
+
+  // We need 9 more labs (1 already in core)
+  const labsNeeded = 9;
+  let labsPlaced = 0;
+  let priority = 76; // Start after core lab (priority 75)
+
+  // Search for available positions outside the core
+  const searchRange = 20;
+  const coreExclusionRadius = 4;
+
+  // Helper function to check if a position is available
+  const isPositionAvailable = (x, y) => {
+    // Border check
+    if (
+      x < CONSTANTS.PLANNER.ROOM_MIN ||
+      x > CONSTANTS.PLANNER.ROOM_MAX ||
+      y < CONSTANTS.PLANNER.ROOM_MIN ||
+      y > CONSTANTS.PLANNER.ROOM_MAX
+    ) {
+      return false;
+    }
+
+    // Wall check
+    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+      return false;
+    }
+
+    // Check if position is already used
+    const posKey = `${x},${y}`;
+    if (usedPositions.has(posKey)) {
+      return false;
+    }
+
+    // Check if position is free
+    const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+    const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
+    
+    return structures.length === 0 && sites.length === 0;
+  };
+
+  // Try to find 3 labs per block, placing them close together
+  while (labsPlaced < labsNeeded) {
+    let blockFound = false;
+
+    // Search for a starting position for a new block
+    for (let startX = -searchRange; startX <= searchRange && !blockFound && labsPlaced < labsNeeded; startX++) {
+      for (let startY = -searchRange; startY <= searchRange && !blockFound && labsPlaced < labsNeeded; startY++) {
+        const absStartX = centerX + startX;
+        const absStartY = centerY + startY;
+
+        // Skip if too close to center
+        const distFromCenter = Math.max(Math.abs(startX), Math.abs(startY));
+        if (distFromCenter < coreExclusionRadius) {
+          continue;
+        }
+
+        // Check if starting position is available
+        if (!isPositionAvailable(absStartX, absStartY)) {
+          continue;
+        }
+
+        // Try to find 2 more positions nearby for a 3-lab block
+        const blockPositions = [{ x: startX, y: startY, absX: absStartX, absY: absStartY }];
+        const searchRadius = 3; // Search within 3 tiles for other labs in the block
+
+        for (let dx = -searchRadius; dx <= searchRadius && blockPositions.length < 3; dx++) {
+          for (let dy = -searchRadius; dy <= searchRadius && blockPositions.length < 3; dy++) {
+            if (dx === 0 && dy === 0) continue; // Skip starting position
+
+            const x = absStartX + dx;
+            const y = absStartY + dy;
+
+            if (isPositionAvailable(x, y)) {
+              // Check if this position is not too close to center
+              const relX = startX + dx;
+              const relY = startY + dy;
+              const dist = Math.max(Math.abs(relX), Math.abs(relY));
+              if (dist >= coreExclusionRadius) {
+                blockPositions.push({ x: relX, y: relY, absX: x, absY: y });
+              }
+            }
+          }
+        }
+
+        // If we found at least 3 positions, place the labs
+        if (blockPositions.length >= 3) {
+          const labsToPlace = Math.min(3, labsNeeded - labsPlaced);
+          for (let i = 0; i < labsToPlace; i++) {
+            const pos = blockPositions[i];
+            addStructure(pos.x, pos.y, STRUCTURE_LAB, priority);
+            usedPositions.add(`${pos.absX},${pos.absY}`);
+            priority++;
+            labsPlaced++;
+          }
+          blockFound = true;
+        }
+      }
+    }
+
+    // If we couldn't find a block, try placing labs individually
+    if (!blockFound && labsPlaced < labsNeeded) {
+      for (let x = -searchRange; x <= searchRange && labsPlaced < labsNeeded; x++) {
+        for (let y = -searchRange; y <= searchRange && labsPlaced < labsNeeded; y++) {
+          const absX = centerX + x;
+          const absY = centerY + y;
+
+          const distFromCenter = Math.max(Math.abs(x), Math.abs(y));
+          if (distFromCenter < coreExclusionRadius) {
+            continue;
+          }
+
+          if (isPositionAvailable(absX, absY)) {
+            addStructure(x, y, STRUCTURE_LAB, priority);
+            usedPositions.add(`${absX},${absY}`);
+            priority++;
+            labsPlaced++;
+          }
+        }
+      }
+    }
+
+    // If we still haven't placed all labs, break to avoid infinite loop
+    if (!blockFound && labsPlaced < labsNeeded) {
+      break;
+    }
+  }
+};
+
+/**
  * Generiert das Layout basierend auf dem Bunker-Design
  */
 RoomPlanner.prototype._generateLayout = function () {
@@ -425,19 +542,17 @@ RoomPlanner.prototype._generateLayout = function () {
     plannedStructures.push({ x, y, structureType, priority });
   };
 
-  // Add all structures from layout (except roads, which are handled separately)
+  // Add all core structures from layout
   const structureKeys = [
     "spawns",
     "storage",
     "terminal",
     "factory",
     "towers",
-    "extensions",
-    "labs",
     "links",
-    "observer",
     "powerSpawn",
     "nuker",
+    "labs", // 1 lab in core
   ];
 
   for (const key of structureKeys) {
@@ -452,21 +567,11 @@ RoomPlanner.prototype._generateLayout = function () {
     });
   }
 
-  // Roads - only add if position is not already occupied by another structure
-  BUNKER_LAYOUT.roads.forEach((pos) => {
-    const roadX = centerX + pos.x;
-    const roadY = centerY + pos.y;
+  // Place extensions dynamically (only where space is available)
+  this._placeExtensionsDynamically(plannedStructures, centerX, centerY, addStructure);
 
-    // Check if this position is already planned for a non-road structure
-    const isOccupied = plannedStructures.some(
-      (s) => s.x === roadX && s.y === roadY && s.structureType !== STRUCTURE_ROAD,
-    );
-
-    // Only add road if position is free (no other structure planned there)
-    if (!isOccupied) {
-      addStructure(pos.x, pos.y, STRUCTURE_ROAD, pos.priority);
-    }
-  });
+  // Place remaining labs dynamically in 3x3 blocks (9 labs total, 1 already in core)
+  this._placeLabsDynamically(plannedStructures, centerX, centerY, addStructure);
 
   // Sort by priority
   plannedStructures.sort((a, b) => a.priority - b.priority);

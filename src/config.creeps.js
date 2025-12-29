@@ -316,18 +316,21 @@ module.exports = {
     behaviors: ["attack_enemy"],
 
     canBuild: function (rc) {
-      // Only build if no tower OR boosted creeps enter room
+      // Only build if no tower AND hostiles present OR boosted creeps enter room
       const hasTowers = rc.room.towers && rc.room.towers.length > 0;
-
-      // Check for boosted hostile creeps
+    
+      // Check for hostile creeps
       const hostiles = rc.getEnemys();
+      const hasHostiles = hostiles.length > 0;
+      
+      // Check for boosted hostile creeps
       const hasBoostedCreeps = hostiles.some(creep => {
         // Check if creep has any boosted body parts
         return creep.body.some(part => part.boost);
       });
-
-      // Build defender if: no towers OR boosted creeps present
-      return !hasTowers || hasBoostedCreeps;
+    
+      // Build defender if: (no towers AND hostiles present) OR boosted creeps present
+      return (!hasTowers && hasHostiles) || hasBoostedCreeps;
     },
   },
 
