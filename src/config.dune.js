@@ -74,16 +74,6 @@ function getRandomFaction() {
 }
 
 /**
- * Wählt einen zufälligen Planeten für eine Fraktion
- * @param {string} faction - Die Fraktion
- * @returns {string} Planetname
- */
-function getRandomPlanetForFaction(faction) {
-  const planets = DUNE_PLANETS[faction] || DUNE_PLANETS.other;
-  return planets[Math.floor(Math.random() * planets.length)];
-}
-
-/**
  * Wählt einen zufälligen Planetennamen aus allen verfügbaren Planeten
  * @returns {string} Planetname
  */
@@ -101,6 +91,5 @@ module.exports = {
   DUNE_PLANETS,
   DUNE_NAMES,
   getRandomFaction,
-  getRandomPlanetForFaction,
   getRandomPlanet,
 };

@@ -381,16 +381,13 @@ ControllerRoom.prototype._initializeDuneIdentity = function () {
   }
 
   // Initialisiere nur einmal
-  if (!roomMemory.duneFaction || !roomMemory.dunePlanet) {
+  if (!roomMemory.duneFaction) {
     const duneConfig = require("./config.dune");
 
     // Wähle eine zufällige Fraktion
     roomMemory.duneFaction = duneConfig.getRandomFaction();
 
-    // Wähle einen zufälligen Planeten für diese Fraktion
-    roomMemory.dunePlanet = duneConfig.getRandomPlanetForFaction(roomMemory.duneFaction);
-
-    Log.info(`Room ${this.room.name} assigned to faction ${roomMemory.duneFaction} on planet ${roomMemory.dunePlanet}`, "DuneInit");
+    Log.info(`Room ${this.room.name} assigned to faction ${roomMemory.duneFaction}`, "DuneInit");
   }
 };
 
@@ -403,13 +400,5 @@ ControllerRoom.prototype.getDuneFaction = function () {
   return roomMemory.duneFaction || null;
 };
 
-/**
- * Gibt den Planeten dieses Raums zurück
- * @returns {string} Planetname
- */
-ControllerRoom.prototype.getDunePlanet = function () {
-  const roomMemory = this._ensureRoomMemory();
-  return roomMemory.dunePlanet || null;
-};
 
 module.exports = ControllerRoom;

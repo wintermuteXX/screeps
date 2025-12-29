@@ -32,7 +32,7 @@ class ControllerSpawn {
 
     // Fallback auf zufällige Fraktion wenn Raum noch keine hat
     const factionToUse = faction || duneConfig.getRandomFaction();
-    const factionData = duneConfig.DUNE_NAMES[factionToUse] || duneConfig.DUNE_NAMES.other;
+    const factionData = duneConfig.DUNE_NAMES[factionToUse];
 
     const maxAttempts = 20;
 

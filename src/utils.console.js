@@ -37,6 +37,7 @@ function help(category = "all") {
     utils: [
       { name: "json(x)", desc: "Pretty-print JSON", example: 'json({key: "value"})' },
       { name: "cleanMemory(type, property)", desc: "Cleans up memory by removing specified property from rooms or creeps", example: 'cleanMemory("rooms", "dunePlanet")' },
+      { name: "profileMemory(root, depth)", desc: "Profiles memory usage by calculating JSON string sizes", example: 'profileMemory(Memory, 2)' },
     ],
   };
 
@@ -454,6 +455,39 @@ function showMarket() {
  */
 function json(x) {
   return JSON.stringify(x, null, 2);
+}
+
+/**
+ * Recursively profiles memory objects to calculate sizes
+ * @param {Object} memoryObject - Memory object to profile
+ * @param {Object} sizes - Object to store sizes
+ * @param {number} currentDepth - Current recursion depth
+ * @returns {void}
+ */
+function recursiveMemoryProfile(memoryObject, sizes, currentDepth) {
+  for (const key in memoryObject) {
+    if (currentDepth == 0 || !_.keys(memoryObject[key]) || _.keys(memoryObject[key]).length == 0) {
+      sizes[key] = JSON.stringify(memoryObject[key]).length;
+    } else {
+      sizes[key] = {};
+      recursiveMemoryProfile(memoryObject[key], sizes[key], currentDepth - 1);
+    }
+  }
+}
+
+/**
+ * Profiles memory usage by calculating JSON string sizes
+ * @param {Object} root - Root memory object to profile (default: Memory)
+ * @param {number} depth - Recursion depth (default: 1)
+ * @returns {string} JSON string with memory sizes
+ */
+function profileMemory(root = Memory, depth = 1) {
+  const sizes = {};
+  console.log(`Profiling memory...`);
+  const start = Game.cpu.getUsed();
+  recursiveMemoryProfile(root, sizes, depth);
+  console.log(`Time elapsed: ${Game.cpu.getUsed() - start}`);
+  return JSON.stringify(sizes, undefined, "\t");
 }
 
 /**
@@ -937,6 +971,7 @@ module.exports = {
   showCPU,
   showScout,
   cleanMemory,
+  profileMemory,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 
