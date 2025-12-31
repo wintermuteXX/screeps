@@ -166,7 +166,7 @@ module.exports = {
   // Priority Values (lower = higher priority)
   PRIORITY: {
     // ===== NEEDS (needsResources) - Structures that need resources =====
-    CONTROLLER_CRITICAL: 10,         // [NEEDS] Controller about to downgrade
+    CONTROLLER_CRITICAL: 10,          // [NEEDS] Controller about to downgrade
     CONTROLLER_LOW: 25,               // [NEEDS] Controller low on time
     SPAWN: 15,                        // [NEEDS] Spawns
     EXTENSION: 20,                    // [NEEDS] Extensions

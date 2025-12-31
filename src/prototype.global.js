@@ -9,13 +9,13 @@ const createCreepConfigUtils = require("./utils.creeps");
 const utilsErrors = require("./utils.errors");
 require("./utils.roomPrototypes"); // Extends prototypes, no exports
 
-function initGlobal(g) {
+function initGlobal() {
   // ===== Username Utilities =====
-  g.getMyUsername = utilsUsername.getMyUsername;
-  g.isHostileUsername = utilsUsername.isHostileUsername;
+  global.getMyUsername = utilsUsername.getMyUsername;
+  global.isHostileUsername = utilsUsername.isHostileUsername;
 
   // ===== Room Analysis =====
-  g.analyzeRoom = utilsRoomAnalysis.analyzeRoom;
+  global.analyzeRoom = utilsRoomAnalysis.analyzeRoom;
 
   // ===== Resource Helpers =====
   global.fillLevel = utilsResources.fillLevelConfig;
@@ -25,30 +25,30 @@ function initGlobal(g) {
 
   // ===== Behavior Registry =====
   const behaviorRegistry = createBehaviorRegistry();
-  g._behaviors = {};
-  g.getBehavior = function(key) {
+  global._behaviors = {};
+  global.getBehavior = function(key) {
     const behavior = behaviorRegistry.getBehavior(key);
     if (behavior) {
       // Cache in global for backward compatibility
-      if (!g._behaviors[key]) {
-        g._behaviors[key] = behavior;
+      if (!global._behaviors[key]) {
+        global._behaviors[key] = behavior;
       }
       return behavior;
     }
     return null;
   };
-  g._registerBehavior = behaviorRegistry._registerBehavior;
+  global._registerBehavior = behaviorRegistry._registerBehavior;
 
   // ===== Creep Config =====
   const creepConfigUtils = createCreepConfigUtils();
-  g._creeps = creepConfigUtils.getCreepsConfig();
-  g.getCreepConfig = creepConfigUtils.getCreepConfig;
-  g.getCreepsConfig = creepConfigUtils.getCreepsConfig;
-  g.getCreepRoles = creepConfigUtils.getCreepRoles;
+  global._creeps = creepConfigUtils.getCreepsConfig();
+  global.getCreepConfig = creepConfigUtils.getCreepConfig;
+  global.getCreepsConfig = creepConfigUtils.getCreepsConfig;
+  global.getCreepRoles = creepConfigUtils.getCreepRoles;
 
   // ===== Console Helpers =====
-  g.showTerminals = utilsConsole.showTerminals;
-  g.numberOfTerminals = utilsConsole.numberOfTerminals;
+  global.showTerminals = utilsConsole.showTerminals;
+  global.numberOfTerminals = utilsConsole.numberOfTerminals;
   global.showLabs = utilsConsole.showLabs;
   global.showResources = utilsConsole.showResources;
   global.showMarket = utilsConsole.showMarket;
@@ -69,13 +69,13 @@ function initGlobal(g) {
   global.plannerOrphaned = utilsRoomPlanner.plannerOrphaned;
 
   // ===== Error Utilities =====
-  g.getErrorString = utilsErrors.getErrorString;
+  global.getErrorString = utilsErrors.getErrorString;
 
   // ===== Utility Functions =====
   /**
    * Kill all creeps (debug utility)
    */
-  g.killAll = function () {
+  global.killAll = function () {
     for (const c in Game.creeps) {
       Game.creeps[c].suicide();
     }

@@ -9,6 +9,24 @@ class ControllerTerminal {
   }
 
   /**
+   * Runs all terminal operations based on tick intervals
+   */
+  run() {
+    if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
+      this.buyEnergyOrder();
+    }
+    if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
+      this.internalTrade();
+    }
+    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
+      this.sellRoomMineralOverflow();
+    }
+    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
+      this.sellRoomMineral();
+    }
+  }
+
+  /**
    * Helper: Checks if terminal exists and is owned
    */
   _isTerminalValid() {
@@ -169,17 +187,6 @@ class ControllerTerminal {
     }
   }
 
-  adjustWallHits() {
-    if (!this._isTerminalValid()) {
-      return null;
-    }
-    const {terminal} = this;
-    if (ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "terminal") > terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
-      Log.success(`Increased the wallHits in room ${terminal.room.name}`);
-      terminal.room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
-    }
-  }
-
   internalTrade() {
     if (!this._isTerminalActive()) {
       return;
@@ -313,27 +320,6 @@ class ControllerTerminal {
       roomName: terminal.room.name,
     });
     this._handleOrderResult(result, "CreateOrder", RESOURCE_ENERGY, terminal.room, "buyEnergyOrder");
-  }
-
-  /**
-   * Runs all terminal operations based on tick intervals
-   */
-  run() {
-    if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
-      this.buyEnergyOrder();
-    }
-    if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
-      this.internalTrade();
-    }
-    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
-      this.sellRoomMineralOverflow();
-    }
-    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
-      this.sellRoomMineral();
-    }
-    if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
-      this.adjustWallHits();
-    }
   }
 
   /**

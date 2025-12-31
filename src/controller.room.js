@@ -67,6 +67,9 @@ ControllerRoom.prototype.run = function () {
   const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > this.room.getRoomThreshold(RESOURCE_ENERGY, "all");
   const shouldRepair = hasEnoughEnergy || (Game.time % CONSTANTS.TICKS.REPAIR_TOWER === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
   this.towers.run(shouldRepair);
+  if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
+    this.structures.adjustWallHits();
+  }
 
   // ============================================
   // 5. Trading & Resources
@@ -136,10 +139,10 @@ ControllerRoom.prototype._hasCpuAvailable = function (bucketThreshold) {
 };
 
 /**
- * Helper function to ensure Memory.rooms[roomName] exists
+ * Gets or creates the room memory object for this room
  * @returns {Object} Room memory object
  */
-ControllerRoom.prototype._ensureRoomMemory = function () {
+ControllerRoom.prototype._getOrCreateRoomMemory = function () {
   if (!Memory.rooms) {
     Memory.rooms = {};
   }
@@ -282,8 +285,6 @@ ControllerRoom.prototype.findStructuresToRepair = function () {
   return this.structures.findStructuresToRepair();
 };
 
-// _shouldCreateCreep is now in CreepManager
-
 /**
  * Measures the time it takes to upgrade from one RCL level to the next
  * Stores upgrade times in Memory.rooms[roomName].rclUpgradeTimes
@@ -296,7 +297,7 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
   }
 
   const currentLevel = this.room.controller.level;
-  const roomMemory = this._ensureRoomMemory();
+  const roomMemory = this._getOrCreateRoomMemory();
 
   // Initialize rclUpgradeTimes if not exists
   if (!roomMemory.rclUpgradeTimes) {

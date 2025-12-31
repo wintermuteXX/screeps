@@ -21,10 +21,10 @@ function needsAnalysis(roomName) {
 }
 
 /**
- * Ensures Memory.rooms[roomName] exists and is initialized
+ * Ensures Memory.rooms[roomName] exists and is initialized (global memory)
  * @param {string} roomName - Name of the room
  */
-function ensureRoomMemory(roomName) {
+function _ensureGlobalRoomMemory(roomName) {
   if (!Memory.rooms) {
     Memory.rooms = {};
   }
@@ -51,7 +51,7 @@ function isHostileRoom(roomName) {
   // 2. If we have vision, check controller directly and update memory
   const room = Game.rooms[roomName];
   if (room && room.controller) {
-    ensureRoomMemory(roomName);
+    _ensureGlobalRoomMemory(roomName);
 
     const myUsername = global.getMyUsername();
     const isHostile = (room.controller.owner && !room.controller.my) ||
@@ -157,7 +157,7 @@ b.completed = function (creep, rc) {
     const isInHomeRoom = homeRoom && roomName === homeRoom;
 
     // Check if we've been in this room before (has lastCheck in memory)
-    ensureRoomMemory(roomName);
+    _ensureGlobalRoomMemory(roomName);
     const roomMemory = Memory.rooms[roomName];
     const hasBeenInRoom = creep.memory.lastRoom === roomName && roomMemory.lastCheck !== undefined;
 
@@ -175,7 +175,7 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   const roomName = creep.room.name;
-  ensureRoomMemory(roomName);
+  _ensureGlobalRoomMemory(roomName);
 
   // Track current room for next tick
   const {lastRoom} = creep.memory;

@@ -1,4 +1,6 @@
 const CONSTANTS = require("./config.constants");
+const ResourceManager = require("./service.resource");
+const Log = require("./lib.log");
 
 class StructuresManager {
   constructor(roomController) {
@@ -74,6 +76,21 @@ class StructuresManager {
     }
     
     return nearbyLinks[0];
+  }
+
+  /**
+   * Adjusts wall hits target based on available energy in terminal
+   * Increases wallHits when terminal has excess energy
+   */
+  adjustWallHits() {
+    const {room} = this.rc;
+    if (!room.terminal || !room.terminal.my) {
+      return null;
+    }
+    if (ResourceManager.getResourceAmount(room, RESOURCE_ENERGY, "terminal") > room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
+      Log.success(`Increased the wallHits in room ${room.name}`);
+      room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
+    }
   }
 }
 

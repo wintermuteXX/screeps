@@ -37,8 +37,6 @@ module.exports = {
   },
 
   miner: {
-    // TODO miner - if idle - repair container
-    // TODO miner - if link empty + container filled -> transfer to link.
     priority: 2,
     levelMin: 2,
     minParts: 3,

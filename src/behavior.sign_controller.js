@@ -5,10 +5,10 @@ const duneConfig = require("./config.dune");
 const b = new Behavior("sign_controller");
 
 /**
- * Ensures Memory.rooms[roomName] exists and is initialized
+ * Ensures Memory.rooms[roomName] exists and is initialized (global memory)
  * @param {string} roomName - Name of the room
  */
-function ensureRoomMemory(roomName) {
+function _ensureGlobalRoomMemory(roomName) {
   if (!Memory.rooms) {
     Memory.rooms = {};
   }
@@ -28,7 +28,7 @@ function signController(creep, roomName) {
     return;
   }
 
-  ensureRoomMemory(roomName);
+  _ensureGlobalRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
   if (roomMemory.controllerSigned === true) {
     return;
@@ -64,7 +64,7 @@ function signController(creep, roomName) {
 b.when = function (creep, rc) {
   // Only sign controllers in rooms that have been analyzed but not yet signed
   const roomName = creep.room.name;
-  ensureRoomMemory(roomName);
+  _ensureGlobalRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
 
   // Check if room has been analyzed (has lastCheck) but controller not signed
@@ -87,7 +87,7 @@ b.when = function (creep, rc) {
 
 b.completed = function (creep, rc) {
   const roomName = creep.room.name;
-  ensureRoomMemory(roomName);
+  _ensureGlobalRoomMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
 
   // Completed if controller is signed
@@ -96,7 +96,7 @@ b.completed = function (creep, rc) {
 
 b.work = function (creep, rc) {
   const roomName = creep.room.name;
-  ensureRoomMemory(roomName);
+  _ensureGlobalRoomMemory(roomName);
 
   // Check if we're on an exit tile - move to center first
   const isOnExitTile = creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49;

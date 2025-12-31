@@ -4,7 +4,7 @@
  * This file initializes all prototype extensions by requiring the individual modules.
  */
 
-require("./prototype.global")(global);
+require("./prototype.global")();
 
 // Load prototype extensions
 require("./prototype.creep");
