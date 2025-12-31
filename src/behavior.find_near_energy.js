@@ -11,11 +11,6 @@ function findEnergy(obj, rc) {
   return obj.pos.findInRange(dropped, RANGE_TO_ENERGY);
 }
 
-function findNearLink(obj, rc) {
-  const links = rc.links.receivers;
-  const [thelink] = obj.pos.findInRange(links, 3);
-  if (thelink && thelink.energy !== 0) return thelink;
-}
 
 const b = new Behavior("find_near_energy");
 
@@ -44,8 +39,8 @@ b.work = function (creep, rc) {
   const {controller} = rc.room;
 
   if (!target && controller) {
-    const link = findNearLink(controller, rc);
-    if (link && link.energy > 0) {
+    const link = rc.findNearLink(controller, { linkType: 'receivers', requireEnergy: true });
+    if (link) {
       Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Link: ${link}`, "find_near_energy");
       creep.target = link.id;
       target = creep.getTarget();

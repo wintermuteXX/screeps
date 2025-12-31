@@ -2,48 +2,56 @@ const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
 
 class ControllerTower {
-  constructor(tower, ControllerRoom) {
-    this.tower = tower;
-    this.ControllerRoom = ControllerRoom;
+  constructor(rc) {
+    this.room = rc;
+    this.towers = rc.room.towers;
   }
 
-  fire() {
-    const targetList = this.ControllerRoom.getEnemys();
+  /**
+   * Fire at closest enemy
+   * @param {StructureTower} tower - The tower to operate
+   */
+  _fire(tower) {
+    const targetList = this.room.getEnemys();
     if (targetList.length === 0) {
       return;
     }
 
-    const closestHostile = this.tower.pos.findClosestByRange(targetList);
+    const closestHostile = tower.pos.findClosestByRange(targetList);
     if (closestHostile) {
-      this.tower.attack(closestHostile);
+      tower.attack(closestHostile);
     }
   }
 
-  // TODO Create parameter to repair/upgrade even if needsRepair is not true
-  repair() {
+  /**
+   * Repairs structures
+   * @param {StructureTower} tower - The tower to operate
+   */
+  _repair(tower) {
     // Don't repair if enemies are present
-    if (this.ControllerRoom.getEnemys().length > 0) {
+    if (this.room.getEnemys().length > 0) {
       return;
     }
-    if (this.tower.store[RESOURCE_ENERGY] <= CONSTANTS.STRUCTURE_ENERGY.TOWER_MIN) {
+    if (tower.store[RESOURCE_ENERGY] <= CONSTANTS.STRUCTURE_ENERGY.TOWER_MIN) {
       return;
     }
 
     // Use cached structures from ControllerRoom
-    const structures = this.ControllerRoom.findStructuresToRepair();
+    const structures = this.room.findStructuresToRepair();
     if (structures.length > 0) {
-      this.tower.repair(structures[0]);
+      tower.repair(structures[0]);
     }
   }
 
   /**
    * Heals damaged own creeps
    * Priority: Most damaged creep first
+   * @param {StructureTower} tower - The tower to operate
    */
-  heal() {
+  _heal(tower) {
     // Find all own creeps and filter damaged ones
     // Note: ControllerRoom.find() ignores filter, so filter manually
-    const allCreeps = this.ControllerRoom.find(FIND_MY_CREEPS);
+    const allCreeps = this.room.find(FIND_MY_CREEPS);
     const damagedCreeps = allCreeps.filter((creep) => creep.hits < creep.hitsMax);
 
     if (damagedCreeps.length === 0) {
@@ -54,7 +62,7 @@ class ControllerTower {
     damagedCreeps.sort((a, b) => (a.hits / a.hitsMax) - (b.hits / b.hitsMax));
 
     // Heile den am meisten verletzten Creep
-    const result = this.tower.heal(damagedCreeps[0]);
+    const result = tower.heal(damagedCreeps[0]);
 
     if (result === OK) {
       Log.debug(`Tower healing ${damagedCreeps[0].name} (${damagedCreeps[0].hits}/${damagedCreeps[0].hitsMax})`, "Tower");
@@ -62,6 +70,20 @@ class ControllerTower {
     }
 
     return false;
+  }
+
+  /**
+   * Runs all tower operations for all towers (fire, heal, and optionally repair)
+   * @param {boolean} shouldRepair - Whether to perform repair operations
+   */
+  run(shouldRepair) {
+    for (const tower of this.towers) {
+      this._fire(tower);
+      this._heal(tower);
+      if (shouldRepair) {
+        this._repair(tower);
+      }
+    }
   }
 }
 

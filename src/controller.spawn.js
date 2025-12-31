@@ -2,16 +2,18 @@ const Log = require("./lib.log");
 const duneConfig = require("./config.dune");
 
 class ControllerSpawn {
-  constructor(spawn, ControllerRoom) {
-    this.spawn = spawn;
-    this.ControllerRoom = ControllerRoom;
+  constructor(rc) {
+    this.room = rc;
+    this.spawns = rc.room.spawns.filter(s => s.my);
   }
 
-  isIdle() {
-    if (!this.spawn.spawning) {
-      return this.spawn;
-    }
-    return null;
+  /**
+   * Checks if a spawn is idle
+   * @param {StructureSpawn} spawn - The spawn to check
+   * @returns {boolean} True if spawn is idle
+   */
+  _isIdle(spawn) {
+    return !spawn.spawning;
   }
 
   /**
@@ -21,33 +23,10 @@ class ControllerSpawn {
    * @param {Object} creepConfig - Die Creep-Konfiguration
    * @returns {string} Ein verfügbarer Name
    */
-  generateCreepName(role, creepConfig) {
+  _generateCreepName(role, creepConfig) {
     // Prüfe ob ein namePrefix in der Config definiert ist
     if (creepConfig && creepConfig.namePrefix) {
       return this._generateDuneName(creepConfig.namePrefix);
-    }
-
-    // Fallback: Verwende Dune-Personennamen basierend auf Fraktion
-    const faction = this.ControllerRoom.getDuneFaction();
-
-    // Fallback auf zufällige Fraktion wenn Raum noch keine hat
-    const factionToUse = faction || duneConfig.getRandomFaction();
-    const factionData = duneConfig.DUNE_NAMES[factionToUse];
-
-    const maxAttempts = 20;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      // Wähle zufällig einen Vornamen und Nachnamen
-      const firstName = factionData.firstNames[Math.floor(Math.random() * factionData.firstNames.length)];
-      const lastName = factionData.lastNames[Math.floor(Math.random() * factionData.lastNames.length)];
-
-      // Kombiniere zu einem vollständigen Namen (Unterstriche statt Leerzeichen, da Screeps keine Leerzeichen erlaubt)
-      const fullName = `${firstName  }_${  lastName}`;
-
-      // Prüfe ob der Name bereits existiert
-      if (!Game.creeps[fullName]) {
-        return fullName;
-      }
     }
 
     // Fallback: Verwende das alte System wenn alle Namen belegt sind
@@ -78,26 +57,66 @@ class ControllerSpawn {
     return `${prefix}_${(Game.time % 1000).toString().padStart(3, "0")}`;
   }
 
-  createCreep(role, creepConfig, memory) {
+  /**
+   * Creates a wrapper object that represents a single spawn controller
+   * This is needed for backward compatibility with getIdleSpawn()
+   * @param {StructureSpawn} spawn - The spawn object
+   * @returns {Object} Wrapper object with createCreep method
+   */
+  _createSpawnWrapper(spawn) {
+    const self = this;
+    return {
+      spawn: spawn,
+      createCreep: function(role, creepConfig, memory) {
+        return self.createCreep(spawn, role, creepConfig, memory);
+      },
+      isIdle: function() {
+        return self._isIdle(spawn) ? spawn : null;
+      }
+    };
+  }
+
+  /**
+   * Gets the first idle spawn controller
+   * @returns {Object|null} Spawn wrapper or null
+   */
+  getIdle() {
+    for (const spawn of this.spawns) {
+      if (this._isIdle(spawn)) {
+        return this._createSpawnWrapper(spawn);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Creates a creep using the specified spawn
+   * @param {StructureSpawn} spawn - The spawn to use
+   * @param {string} role - The role of the creep
+   * @param {Object} creepConfig - The creep configuration
+   * @param {Object} memory - Optional memory object
+   * @returns {boolean} True if successful
+   */
+  createCreep(spawn, role, creepConfig, memory) {
     // TODO createCreep. Calculate Move parts dynamically
     // Initialize memory if not provided
     memory = memory || {};
 
-    const theName = this.generateCreepName(role, creepConfig);
+    const theName = this._generateCreepName(role, creepConfig);
 
     // Use getUpgraderBody() if available, otherwise body
     let bodyTemplate = creepConfig.body;
     if (typeof creepConfig.getUpgraderBody === "function") {
-      bodyTemplate = creepConfig.getUpgraderBody(this.ControllerRoom);
+      bodyTemplate = creepConfig.getUpgraderBody(this.room);
     }
 
-    const bodyConfig = this.evalCreepBody(bodyTemplate, creepConfig.minParts, theName);
+    const bodyConfig = this._evalCreepBody(spawn, bodyTemplate, creepConfig.minParts, theName);
     let result = null;
     if (bodyConfig !== null && bodyConfig.length) {
       memory.role = role;
       memory.born = Game.time;
-      memory.home = this.spawn.room.name;
-      memory.bornEnergyLevel = this.spawn.room.energyCapacityAvailable;
+      memory.home = spawn.room.name;
+      memory.bornEnergyLevel = spawn.room.energyCapacityAvailable;
 
       // Spezielle Behandlung für Claimer: Setze Zielraum im Memory
       if (role === "claimer" && Memory.roomToClaim) {
@@ -111,7 +130,7 @@ class ControllerSpawn {
         // NICHT löschen - roomToClaim wird erst gelöscht wenn Raum RCL 3 erreicht hat
       }
 
-      result = this.spawn.spawnCreep(bodyConfig, theName, {
+      result = spawn.spawnCreep(bodyConfig, theName, {
         memory: memory,
       });
     }
@@ -119,26 +138,34 @@ class ControllerSpawn {
     switch (result) {
       case OK:
         if (role === "claimer" && memory.targetRoom) {
-          Log.success(`🏰 ${this.spawn} spawns claimer ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+          Log.success(`🏰 ${spawn} spawns claimer ${theName} targeting room ${memory.targetRoom}`, "createCreep");
         } else if (role === "supporter" && memory.targetRoom) {
-          Log.success(`🚀 ${this.spawn} spawns supporter ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+          Log.success(`🚀 ${spawn} spawns supporter ${theName} targeting room ${memory.targetRoom}`, "createCreep");
         } else {
-          Log.info(`${this.spawn} spawns creep: ${role}`, "createCreep");
+          Log.info(`${spawn} spawns creep: ${role}`, "createCreep");
         }
         return true;
       case null:
-        Log.debug(`${this.spawn} createCreep returns: ${result}`, "createCreep");
+        Log.debug(`${spawn} createCreep returns: ${result}`, "createCreep");
         return false;
       default:
-        Log.warn(`${this.spawn} unknown result in createCreep: ${global.getErrorString(result)}`, "createCreep");
+        Log.warn(`${spawn} unknown result in createCreep: ${global.getErrorString(result)}`, "createCreep");
         return false;
     }
   }
 
-  evalCreepBody(body, minParts, theName) {
+  /**
+   * Evaluates the creep body by trying different sizes
+   * @param {StructureSpawn} spawn - The spawn to use for dry run
+   * @param {Array} body - The body template
+   * @param {number} minParts - Minimum number of parts
+   * @param {string} theName - The name to use for dry run
+   * @returns {Array|null} Valid body array or null
+   */
+  _evalCreepBody(spawn, body, minParts, theName) {
     const parts = _.clone(body);
     while (parts.length >= minParts) {
-      if (this.spawn.spawnCreep(parts, theName, {
+      if (spawn.spawnCreep(parts, theName, {
         dryRun: true,
       }) === 0) {
         return parts;

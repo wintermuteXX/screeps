@@ -37,13 +37,43 @@ class StructuresManager {
     });
   }
 
-  findNearLink(obj) {
-    const allLinks = this.rc.room.links;
-    const thelink = obj.pos.findInRange(allLinks, 3);
-    if (thelink.length > 0) {
-      return thelink[0];
+  /**
+   * Finds a link near the specified object
+   * @param {RoomObject} obj - The object to search near
+   * @param {Object} options - Optional parameters
+   * @param {string} options.linkType - Type of links to search: 'all', 'receivers', or 'senders' (default: 'all')
+   * @param {boolean} options.requireEnergy - If true, only return links with energy > 0 (default: false)
+   * @returns {StructureLink|null} The nearest link or null
+   */
+  findNearLink(obj, options = {}) {
+    const { linkType = 'all', requireEnergy = false } = options;
+    
+    let links;
+    if (linkType === 'receivers') {
+      links = this.rc.links.receivers;
+    } else if (linkType === 'senders') {
+      links = this.rc.links.senders;
+    } else {
+      links = this.rc.room.links;
     }
-    return null;
+    
+    const nearbyLinks = obj.pos.findInRange(links, 3);
+    
+    if (nearbyLinks.length === 0) {
+      return null;
+    }
+    
+    // If energy is required, find first link with energy
+    if (requireEnergy) {
+      for (const link of nearbyLinks) {
+        if (link.energy > 0) {
+          return link;
+        }
+      }
+      return null;
+    }
+    
+    return nearbyLinks[0];
   }
 }
 

@@ -1091,24 +1091,27 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
     (s) => !(s.specialIdentifier && s.specialIdentifier === identifier),
   );
 
-  // Add new entry with special identifier
-  // Priority assignment:
+  /// Priority assignment:
   // - Containers: 1000+
   // - First source link (source_link_0): 85 (before spawn link at 86)
   // - Spawn link: 86 (from BUNKER_LAYOUT)
-  // - Other source links and controller link: 87+
+  // - Second source link (source_link_1): 87 (after spawn link)
+  // - Other source links: 88+
+  // - Controller link: after all source links
   let priority;
   if (structureType === STRUCTURE_CONTAINER) {
     priority = 1000;
   } else if (structureType === STRUCTURE_LINK) {
     if (identifier === "source_link_0") {
       priority = 85; // First source link - before spawn link
+    } else if (identifier === "source_link_1") {
+      priority = 87; // Second source link - after spawn link
     } else if (identifier.startsWith("source_link_")) {
-      // Other source links - after spawn link
+      // Other source links (source_link_2, source_link_3, etc.) - after source_link_1
       const linkIndex = parseInt(identifier.split("_")[2]) || 0;
-      priority = 87 + linkIndex; // 87, 88, etc.
+      priority = 88 + (linkIndex - 2); // 88, 89, etc. for source_link_2, source_link_3...
     } else if (identifier === "controller_link") {
-      priority = 90; // Controller link - after all source links
+      priority = 95; // Controller link - after all source links (increased from 90 to ensure it's last)
     } else {
       priority = 1100; // Fallback for other links
     }

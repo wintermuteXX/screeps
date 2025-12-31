@@ -24,6 +24,10 @@
  *   Example: "Failed to spawn creep: ERR_NOT_ENOUGH_ENERGY"
  *   Always include error codes using global.getErrorString() when available
  *
+ * - Log.test(): Test messages for development/debugging (always displayed, bypasses level checks)
+ *   Example: "Testing creep behavior in room E1N1"
+ *   NOTE: This log level should NOT be used in final production code
+ *
  * BEST PRACTICES:
  * - Always use tags to categorize logs (e.g., "transport", "spawn", "defense")
  * - Include relevant context (creep names, room names, resource amounts)
@@ -60,6 +64,15 @@ class Log {
   /** */
   static success(msg, tag) {
     this.log(Log.LEVEL_SUCCESS, msg, tag);
+  }
+
+  /**
+   * Test log level - always displayed, bypasses level checks
+   * Should NOT be used in final production code
+   */
+  static test(msg, tag) {
+    // Always display test logs, bypass level check
+    this.toConsole(msg, Log.color[Log.LEVEL_TEST], tag);
   }
 
   /** */
@@ -108,6 +121,7 @@ class Log {
 }
 
 /** Log levels */
+Log.LEVEL_TEST = -1; // Always displayed, bypasses level checks
 Log.LEVEL_DEBUG = 0;
 Log.LEVEL_INFO = 1;
 Log.LEVEL_WARN = 2;
@@ -116,6 +130,7 @@ Log.LEVEL_SUCCESS = 4;
 
 /** Log colors */
 Log.color = {
+  [Log.LEVEL_TEST]: "magenta",
   [Log.LEVEL_DEBUG]: "yellow",
   [Log.LEVEL_INFO]: "cyan",
   [Log.LEVEL_WARN]: "orange",

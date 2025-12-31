@@ -4,38 +4,22 @@ const ControllerTower = require("./controller.tower");
 const ControllerTerminal = require("./controller.terminal");
 const ControllerFactory = require("./controller.factory");
 const ControllerLab = require("./controller.lab");
-const RoomPlanner = require("./service.planner");
 const CONSTANTS = require("./config.constants");
 const CreepManager = require("./controller.room.creeps");
 const LogisticsManager = require("./controller.room.logistics");
 const StructuresManager = require("./controller.room.structures");
+const RoomPlanner = require("./service.planner");
 const CacheManager = require("./utils.cache");
 const Log = require("./lib.log");
 
 function ControllerRoom(room, ControllerGame) {
   this.room = room;
   this.cache = new CacheManager();
-  this._spawns = [];
-  this._towers = [];
   this._creepsByRole = null;  // Cache for getAllCreeps
 
-  // Initialize Dune faction and planet for this room
-  this._initializeDuneIdentity();
-
-  // Nutze gecachten room.spawns Getter (filtert nach my)
-  const spawns = this.room.spawns.filter(s => s.my);
-  for (const spawn of spawns) {
-    this._spawns.push(new ControllerSpawn(spawn, this));
-  }
-
   this.links = new ControllerLink(this);
-
-  const {towers} = this.room;
-
-  for (const tower of towers) {
-    this._towers.push(new ControllerTower(tower, this));
-  }
-
+  this.spawns = new ControllerSpawn(this);
+  this.towers = new ControllerTower(this);
   this.terminal = new ControllerTerminal(this);
   this.factory = new ControllerFactory(this);
   this.labs = new ControllerLab(this);
@@ -48,86 +32,78 @@ function ControllerRoom(room, ControllerGame) {
 }
 
 ControllerRoom.prototype.run = function () {
-  // Reset caches at the start of each tick
-  // CacheManager automatically clears on tick change, but we still need to reset manual caches
+  // ============================================
+  // 1. Cache Reset
+  // ============================================
   this._creepsByRole = null;
   this._givesResources = null;
   this._needsResources = null;
 
+  // ============================================
+  // 2. Core Operations (always executed)
+  // ============================================
   this.creeps.populate();
+  this.links.transferEnergy();
+  this.measureRclUpgradeTime();
+  this.creeps.commandCreeps();
 
-  // Run RoomPlanner (every 50 ticks to save CPU)
+  // ============================================
+  // 3. Planning
+  // ============================================
   if (Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
     this.planner.run();
   }
-
   // Draw visualization every tick if active (independent of planner.run())
   if (this.room.memory.planner && this.room.memory.planner.visualizeUntil && Game.time <= this.room.memory.planner.visualizeUntil) {
     this.planner._drawVisualization();
-    // Auto-disable after 15 ticks
     if (Game.time >= this.room.memory.planner.visualizeUntil) {
       this.room.memory.planner.visualizeUntil = null;
     }
   }
 
-  this.links.transferEnergy();
-
-  this.measureRclUpgradeTime();
-
-  this.creeps.commandCreeps();
-
-  // Tower operations - fire always, repair based on energy level
+  // ============================================
+  // 4. Defense & Structures
+  // ============================================
   const hasEnoughEnergy = this.room.getResourceAmount(RESOURCE_ENERGY, "all") > this.room.getRoomThreshold(RESOURCE_ENERGY, "all");
   const shouldRepair = hasEnoughEnergy || (Game.time % CONSTANTS.TICKS.REPAIR_TOWER === 0 && !(this.getLevel() === 8 && Math.random() >= 0.5));
+  this.towers.run(shouldRepair);
 
-  for (const tower of this._towers) {
-    tower.fire();
-    tower.heal();
-    if (shouldRepair) {
-      tower.repair();
-    }
-  }
+  // ============================================
+  // 5. Trading & Resources
+  // ============================================
+  this.terminal.run();
 
-  if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
-    this.terminal.buyEnergyOrder();
-  }
-  if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
-    this.terminal.internalTrade();
-  }
-  if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
-    this.terminal.sellRoomMineralOverflow();
-  }
-  if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
-    this.terminal.sellRoomMineral();
-  }
-  if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
-    this.terminal.adjustWallHits();
-  }
-
+  // ============================================
+  // 6. Production (CPU-dependent operations)
+  // ============================================
   if (this._hasCpuAvailable()) {
-    if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
-      this.room.powerSpawn.processPower();
-    }
-  }
-
-  if (this._hasCpuAvailable()) {
-    // Find lab partners periodically (when new labs are built or memory is reset)
+    // Labs: Find partners and check status
     if (this.room.labs && this.room.labs.length > 0 && Game.time % CONSTANTS.TICKS.ROOM_PLANNER === 0) {
       this.labs.findLabPartner();
     }
     if (Game.time % CONSTANTS.TICKS.LAB_CHECK_STATUS === 0) {
       this.labs.checkStatus();
     }
-  }
-  if (this._hasCpuAvailable()) {
+    // Labs: Produce reactions
     this.labs.produce();
   }
-  // Automatically assign factory levels (each level 1-5 only once)
+
+  // Factory: Assign level (no CPU check needed)
   if (this.room.factory) {
     this.factory.assignLevel();
   }
+  // Factory: Produce commodities (low CPU threshold)
   if (this._hasCpuAvailable(CONSTANTS.CPU.BUCKET_LOW)) {
     this.factory.produce();
+  }
+
+  // ============================================
+  // 7. Power Management
+  // ============================================
+  if (this._hasCpuAvailable()) {
+    if (this.room.powerSpawn && this.room.powerSpawn.store.energy > 0 && this.room.powerSpawn.store.power > 0) {
+      this.room.powerSpawn.processPower();
+    }
   }
 };
 
@@ -198,8 +174,8 @@ ControllerRoom.prototype.getAllCreeps = function (role) {
 };
 
 // Structure methods delegated to StructuresManager
-ControllerRoom.prototype.findNearLink = function (obj) {
-  return this.structures.findNearLink(obj);
+ControllerRoom.prototype.findNearLink = function (obj, options) {
+  return this.structures.findNearLink(obj, options);
 };
 
 ControllerRoom.prototype.getEnemys = function () {
@@ -247,12 +223,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
 };
 
 ControllerRoom.prototype.getIdleSpawn = function () {
-  for (const sc of this._spawns) {
-    if (sc.isIdle()) {
-      return sc;
-    }
-  }
-  return null;
+  return this.spawns.getIdle();
 };
 
 ControllerRoom.prototype.getIdleSpawnObject = function () {
@@ -367,38 +338,5 @@ ControllerRoom.prototype.measureRclUpgradeTime = function () {
   }
   // If level is the same, do nothing - tracking continues
 };
-
-/**
- * Initialisiert die Dune-Identität für diesen Raum (Fraktion und Planet)
- * Wird nur einmal beim ersten Mal ausgeführt
- */
-ControllerRoom.prototype._initializeDuneIdentity = function () {
-  const roomMemory = this._ensureRoomMemory();
-
-  // Nur für eigene Räume mit Controller
-  if (!this.room.controller || !this.room.controller.my) {
-    return;
-  }
-
-  // Initialisiere nur einmal
-  if (!roomMemory.duneFaction) {
-    const duneConfig = require("./config.dune");
-
-    // Wähle eine zufällige Fraktion
-    roomMemory.duneFaction = duneConfig.getRandomFaction();
-
-    Log.info(`Room ${this.room.name} assigned to faction ${roomMemory.duneFaction}`, "DuneInit");
-  }
-};
-
-/**
- * Gibt die Fraktion dieses Raums zurück
- * @returns {string} Fraktionsname
- */
-ControllerRoom.prototype.getDuneFaction = function () {
-  const roomMemory = this._ensureRoomMemory();
-  return roomMemory.duneFaction || null;
-};
-
 
 module.exports = ControllerRoom;

@@ -316,6 +316,27 @@ class ControllerTerminal {
   }
 
   /**
+   * Runs all terminal operations based on tick intervals
+   */
+  run() {
+    if (Game.time % CONSTANTS.TICKS.BUY_ENERGY_ORDER === 0) {
+      this.buyEnergyOrder();
+    }
+    if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
+      this.internalTrade();
+    }
+    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL_OVERFLOW === 0) {
+      this.sellRoomMineralOverflow();
+    }
+    if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
+      this.sellRoomMineral();
+    }
+    if (Game.time % CONSTANTS.TICKS.ADJUST_WALL_HITS === 0) {
+      this.adjustWallHits();
+    }
+  }
+
+  /**
    * Finds the best buy order for a resource type
    * @param {string} resourceType - The resource type to find orders for
    * @param {number} [energyPrice] - Energy price for profit calculation (optional)
