@@ -64,3 +64,47 @@ Room.prototype.toString = function (htmlLink = true) {
   return `[(${this.name}) #${this.name}]`;
 };
 
+/**
+ * Prüft ob ein Raum bereits geclaimt ist
+ * @param {string} roomName - Name des Raums
+ * @returns {boolean} True wenn Raum bereits geclaimt ist
+ */
+Room.isRoomClaimed = function (roomName) {
+  const roomMemory = Memory.rooms && Memory.rooms[roomName];
+  const gameRoom = Game.rooms[roomName];
+  return (roomMemory && roomMemory.controller && roomMemory.controller.my) ||
+         (gameRoom && gameRoom.controller && gameRoom.controller.my);
+};
+
+/**
+ * Prüft ob bereits ein Claimer für einen Raum existiert
+ * @param {string} roomName - Name des Raums
+ * @param {Array} existingClaimers - Array von existierenden Claimer Creeps
+ * @returns {boolean} True wenn bereits ein Claimer für den Raum existiert
+ */
+Room.hasClaimerForRoom = function (roomName, existingClaimers) {
+  return existingClaimers.some(c => 
+    c.memory.targetRoom === roomName || (c.room && c.room.name === roomName)
+  );
+};
+
+/**
+ * Prüft ob ein Raum für Claiming geeignet ist
+ * @param {string} roomName - Name des Raums
+ * @returns {boolean} True wenn Raum für Claiming geeignet ist
+ */
+Room.isRoomValidForClaiming = function (roomName) {
+  if (!Memory.rooms || !Memory.rooms[roomName]) {
+    return false;
+  }
+  if (Room.isRoomClaimed(roomName)) {
+    return false;
+  }
+  const roomMemory = Memory.rooms[roomName];
+  // Prüfe ob Raum bereits von jemand anderem geclaimt ist
+  if (roomMemory.controller && roomMemory.controller.owner && !roomMemory.controller.my) {
+    return false;
+  }
+  return true;
+};
+

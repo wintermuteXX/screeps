@@ -5,7 +5,6 @@ const utilsResources = require("./utils.resources");
 const utilsConsole = require("./utils.console");
 const utilsRoomPlanner = require("./utils.roomPlanner");
 const createBehaviorRegistry = require("./utils.behaviors");
-const createCreepConfigUtils = require("./utils.creeps");
 const utilsErrors = require("./utils.errors");
 require("./utils.roomPrototypes"); // Extends prototypes, no exports
 
@@ -38,13 +37,6 @@ function initGlobal() {
     return null;
   };
   global._registerBehavior = behaviorRegistry._registerBehavior;
-
-  // ===== Creep Config =====
-  const creepConfigUtils = createCreepConfigUtils();
-  global._creeps = creepConfigUtils.getCreepsConfig();
-  global.getCreepConfig = creepConfigUtils.getCreepConfig;
-  global.getCreepsConfig = creepConfigUtils.getCreepsConfig;
-  global.getCreepRoles = creepConfigUtils.getCreepRoles;
 
   // ===== Console Helpers =====
   global.showTerminals = utilsConsole.showTerminals;

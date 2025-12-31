@@ -31,6 +31,7 @@ module.exports = {
     MEMHACK_CLEANUP_ROOMS: 100,     // Clean up room memory every N ticks
     MEMHACK_CLEANUP_STRUCTURES: 10000, // Clean up structure memory every N ticks
     LAB_CHECK_STATUS: 10,            // Check lab status every N ticks
+    FIND_CLAIM_ROOM: 100,            // Find best room for claiming every N ticks
     ROOM_EXPIRE_TIME: 30000,         // Room memory expires after N ticks (~25 days)
     CHECK_POPULATION: 10,            // Check population every N ticks
     CHECK_CONSTRUCTIONS: 100,        // Check constructions every N ticks

@@ -1,3 +1,5 @@
+const { getCreepConfig } = require("./utils.creeps");
+
 class ControllerCreep {
   constructor(ControllerRoom) {
     this.ControllerRoom = ControllerRoom;
@@ -7,7 +9,7 @@ class ControllerCreep {
    * ControllerCreep.run(creep)
    */
   run(creep) {
-    const config = global.getCreepConfig(creep.role);
+    const config = getCreepConfig(creep.role);
     if (config !== null) {
       let behavior = global.getBehavior(creep.behavior);
 

@@ -1,6 +1,7 @@
 const ControllerCreep = require("./controller.creep");
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
+const { getCreepsConfig, getCreepRoles } = require("./utils.creeps");
 
 class CreepManager {
   constructor(roomController) {
@@ -94,8 +95,8 @@ class CreepManager {
 
     let spawn = null;
 
-    const roles = global.getCreepRoles();
-    const cfgCreeps = global.getCreepsConfig();
+    const roles = getCreepRoles();
+    const cfgCreeps = getCreepsConfig();
 
     if (spawn === null) {
       spawn = this.rc.getIdleSpawn();
@@ -110,7 +111,7 @@ class CreepManager {
       const cfg = cfgCreeps[role];
       if (!cfg.produceGlobal || cfg.produceGlobal === false) {
         if (this._shouldCreateCreep(role, cfg)) {
-          spawn.createCreep(role, cfg);
+          this.rc.spawns.createCreep(spawn, role, cfg);
           return;
         }
       }

@@ -55,7 +55,62 @@ class ControllerGame {
     // No need to update Memory.previousBucket anymore
   }
 
+  /**
+   * Findet den besten Raum für Claiming und setzt Memory.roomToClaim
+   * Wird zyklisch alle 100 Ticks ausgeführt
+   */
+  findBestRoomForClaiming() {
+    // Nur ausführen wenn roomToClaim nicht bereits gesetzt ist
+    if (Memory.roomToClaim) {
+      return;
+    }
+
+    // Prüfe CPU-Analyse
+    const decision = cpuAnalyzer.canConquerNewRoom();
+    if (!decision.canConquer) {
+      return;
+    }
+
+    // Finde den Raum mit der höchsten Bewertung, der noch nicht geclaimt ist
+    if (!Memory.rooms) {
+      return;
+    }
+
+    let bestRoom = null;
+    let bestScore = -1;
+
+    for (const roomName in Memory.rooms) {
+      const roomMemory = Memory.rooms[roomName];
+
+      // Prüfe ob Raum einen Score hat
+      if (!roomMemory.score || !roomMemory.score.total) {
+        continue;
+      }
+
+      // Prüfe ob Raum für Claiming geeignet ist
+      if (!Room.isRoomValidForClaiming(roomName)) {
+        continue;
+      }
+
+      // Prüfe ob Score höher ist als bisheriger bester Score
+      if (roomMemory.score.total > bestScore) {
+        bestScore = roomMemory.score.total;
+        bestRoom = roomName;
+      }
+    }
+
+    // Wenn ein geeigneter Raum gefunden wurde, setze roomToClaim
+    if (bestRoom) {
+      Memory.roomToClaim = bestRoom;
+    }
+  }
+
   processRooms() {
+    // Finde besten Raum für Claiming zyklisch (alle 100 Ticks)
+    if (Game.time % CONSTANTS.TICKS.FIND_CLAIM_ROOM === 0) {
+      this.findBestRoomForClaiming();
+    }
+
     for (const i in this._rooms) {
       this._rooms[i].run();
     }

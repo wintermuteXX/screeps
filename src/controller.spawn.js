@@ -58,32 +58,13 @@ class ControllerSpawn {
   }
 
   /**
-   * Creates a wrapper object that represents a single spawn controller
-   * This is needed for backward compatibility with getIdleSpawn()
-   * @param {StructureSpawn} spawn - The spawn object
-   * @returns {Object} Wrapper object with createCreep method
-   */
-  _createSpawnWrapper(spawn) {
-    const self = this;
-    return {
-      spawn: spawn,
-      createCreep: function(role, creepConfig, memory) {
-        return self.createCreep(spawn, role, creepConfig, memory);
-      },
-      isIdle: function() {
-        return self._isIdle(spawn) ? spawn : null;
-      }
-    };
-  }
-
-  /**
-   * Gets the first idle spawn controller
-   * @returns {Object|null} Spawn wrapper or null
+   * Gets the first idle spawn
+   * @returns {StructureSpawn|null} Spawn object or null
    */
   getIdle() {
     for (const spawn of this.spawns) {
       if (this._isIdle(spawn)) {
-        return this._createSpawnWrapper(spawn);
+        return spawn;
       }
     }
     return null;

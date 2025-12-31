@@ -367,23 +367,18 @@ module.exports = {
       if (existingSupporters.length >= CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX) {
         return false;
       }
-      // Prüfe ob roomToClaim gesetzt ist (enthält direkt den Raumnamen)
-      if (!Memory.roomToClaim || !Memory.rooms) {
+
+      // Prüfe ob roomToClaim gesetzt ist
+      if (!Memory.roomToClaim || !Memory.rooms || !Memory.rooms[Memory.roomToClaim]) {
         return false;
       }
 
       const targetRoomName = Memory.roomToClaim;
       const roomMemory = Memory.rooms[targetRoomName];
-      if (!roomMemory) {
-        return false;
-      }
-
-      // Prüfe ob Raum geclaimt ist (prüfe Memory und Game.rooms als Fallback)
       const gameRoom = Game.rooms[targetRoomName];
-      const isClaimed = (roomMemory.controller && roomMemory.controller.my) ||
-                        (gameRoom && gameRoom.controller && gameRoom.controller.my);
 
-      if (!isClaimed) {
+      // Prüfe ob Raum geclaimt ist
+      if (!Room.isRoomClaimed(targetRoomName)) {
         return false;
       }
 
@@ -397,22 +392,19 @@ module.exports = {
       }
 
       // Prüfe ob Raum noch RCL < 3 hat
-      const controllerLevel = roomMemory.controller ? roomMemory.controller.level : (gameRoom && gameRoom.controller ? gameRoom.controller.level : null);
+      const controllerLevel = (roomMemory.controller && roomMemory.controller.level) || 
+                              (gameRoom && gameRoom.controller && gameRoom.controller.level);
       if (!controllerLevel || controllerLevel >= 3) {
         return false;
       }
-      // Zähle wie viele Supporter bereits zu diesem Raum unterwegs sind oder dort sind
-      const supportersForRoom = existingSupporters.filter(s => {
-        return s.memory.targetRoom === targetRoomName ||
-               (s.room && s.room.name === targetRoomName);
-      });
-      // Wenn bereits zu viele Supporter für diesen Raum existieren
-      if (supportersForRoom.length >= 2) {
-        return false; // Max 2 Supporter pro Raum
-      }
 
-      // roomToClaim enthält bereits den Zielraum, keine separate Variable nötig
-      return true;
+      // Zähle wie viele Supporter bereits zu diesem Raum unterwegs sind oder dort sind
+      const supportersForRoom = existingSupporters.filter(s => 
+        s.memory.targetRoom === targetRoomName || (s.room && s.room.name === targetRoomName)
+      );
+
+      // Max 2 Supporter pro Raum
+      return supportersForRoom.length < 2;
     },
   },
 
@@ -433,66 +425,14 @@ module.exports = {
         return false;
       }
 
-      // Warte mit Spawning bis Memory.roomToClaim nicht mehr existiert
+      // Wenn roomToClaim gesetzt ist, prüfe ob Spawning erlaubt ist
       if (Memory.roomToClaim) {
-        return false;
-      }
-
-      // Prüfe CPU-Analyse
-      const decision = cpuAnalyzer.canConquerNewRoom();
-      if (!decision.canConquer) {
-        return false;
-      }
-
-      // Finde den Raum mit der höchsten Bewertung, der noch nicht geclaimt ist
-      let bestRoom = null;
-      let bestScore = -1;
-
-      if (!Memory.rooms) {
-        return false;
-      }
-
-      for (const roomName in Memory.rooms) {
-        const roomMemory = Memory.rooms[roomName];
-
-        // Prüfe ob Raum einen Score hat
-        if (!roomMemory.score || !roomMemory.score.total) {
-          continue;
+        if (Room.hasClaimerForRoom(Memory.roomToClaim, existingClaimers)) {
+          return false;
         }
-
-        // Prüfe ob Raum bereits geclaimt ist (prüfe Memory und Game.rooms als Fallback)
-        const gameRoom = Game.rooms[roomName];
-        const isClaimed = (roomMemory.controller && roomMemory.controller.my) ||
-                          (gameRoom && gameRoom.controller && gameRoom.controller.my);
-
-        if (isClaimed) {
-          continue;
-        }
-
-        // Prüfe ob Raum frei ist (wichtig für Claiming)
-        if (roomMemory.controller) {
-          // Wenn Controller existiert, prüfe ob er bereits besetzt ist
-          if (roomMemory.controller.owner && !roomMemory.controller.my) {
-            continue; // Raum ist bereits von jemand anderem geclaimt
-          }
-        }
-
-        // Prüfe ob Score höher ist als bisheriger bester Score
-        if (roomMemory.score.total > bestScore) {
-          bestScore = roomMemory.score.total;
-          bestRoom = roomName;
-        }
+        return Room.isRoomValidForClaiming(Memory.roomToClaim);
       }
-
-      // Wenn kein geeigneter Raum gefunden wurde
-      if (!bestRoom) {
-        return false;
-      }
-
-      // Speichere Zielraum direkt als String (nicht als Objekt)
-      Memory.roomToClaim = bestRoom;
-
-      return true;
+      return false;
     },
   },
 
