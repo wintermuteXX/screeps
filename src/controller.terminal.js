@@ -118,7 +118,6 @@ class ControllerTerminal {
     // Check if we have enough global resources before selling
     const globalAmount = global.globalResourcesAmount(theMineralType);
     const threshold = global.numberOfTerminals() * global.getRoomThreshold(theMineralType, "all");
-    Log.debug(`Mineral check: ${globalAmount} < ${threshold} (${global.numberOfTerminals()} terminals)`, "sellRoomMineral");
 
     if (globalAmount < threshold) {
       return null;
@@ -127,8 +126,6 @@ class ControllerTerminal {
     const existingOrder = this._findExistingOrder("sell", theMineralType, terminal.room.name);
 
     if (existingOrder) {
-      Log.debug(`${terminal.room.name} found an existing sell order for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
-
       // Adjust Price
       const newPrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
       if (Math.abs(existingOrder.price - newPrice) > 0.01) {
@@ -291,20 +288,13 @@ class ControllerTerminal {
       return null;
     }
 
-    Log.debug(`Less than ${minEnergyNeeded} energy in Terminal. Checking orders for room ${terminal.room.name}`, "buyEnergyOrder");
-
     const existingOrder = this._findExistingOrder("buy", RESOURCE_ENERGY, terminal.room.name);
 
     if (existingOrder) {
-      Log.debug(`Found an existing buy energy order for room ${terminal.room.name}`, "buyEnergyOrder");
       const totalNeeded = storageThreshold - energyInTerminal;
 
       if (existingOrder.remainingAmount < totalNeeded) {
         const extendAmount = totalNeeded - existingOrder.remainingAmount;
-        Log.debug(
-          `Extending order by ${extendAmount} (need ${totalNeeded}, have ${existingOrder.remainingAmount} remaining, ${energyInTerminal} in terminal)`,
-          "buyEnergyOrder",
-        );
         const result = Game.market.extendOrder(existingOrder.id, extendAmount);
         this._handleOrderResult(result, "ExtendOrder", RESOURCE_ENERGY, terminal.room, "buyEnergyOrder");
       }

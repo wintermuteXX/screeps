@@ -211,6 +211,7 @@ ControllerRoom.prototype.getControllerNotFull = function () {
   return this.cache.get("controllerNotFull", () => {
     const controllerz = this.room.controller;
     if (controllerz) {
+      // Access via controller.memory (now uses structures.controllers[controllerId])
       const containerId = controllerz.memory.containerID || null;
       if (containerId != null) {
         const container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));

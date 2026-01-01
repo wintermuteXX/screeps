@@ -32,30 +32,56 @@ Object.defineProperty(Room.prototype, "mineral", {
       return this._mineral;
     }
     // Initialize memory structure only if it doesn't exist
-    if (!this.memory.mineral) {
-      this.memory.mineral = {};
+    if (!this.memory.structures) this.memory.structures = {};
+    if (!this.memory.structures.minerals) this.memory.structures.minerals = {};
+    
+    // Find mineral ID (try to get from existing memory or find in room)
+    const [theMineral] = this.find(FIND_MINERALS);
+    const mineralId = theMineral ? theMineral.id : null;
+    
+    if (!mineralId) {
+      this._mineral = null;
+      return null;
     }
-    if (this.memory.mineral.mineralId === undefined) {
-      const [theMineral] = this.find(FIND_MINERALS);
-      if (!theMineral) {
-        this.memory.mineral.mineralId = null;
-        this._mineral = null;
-        return null;
-      }
-      this._mineral = theMineral;
-      this.memory.mineral.mineralId = theMineral.id;
-    } else {
-      this._mineral = Game.getObjectById(this.memory.mineral.mineralId);
-      // If mineral no longer exists, clear cache
-      if (!this._mineral) {
-        this.memory.mineral.mineralId = undefined;
-      }
+    
+    // Initialize mineral memory entry
+    if (!this.memory.structures.minerals[mineralId]) {
+      this.memory.structures.minerals[mineralId] = {};
+    }
+    
+    // Check if mineralId is stored, otherwise store it
+    if (this.memory.structures.minerals[mineralId].mineralId === undefined) {
+      this.memory.structures.minerals[mineralId].mineralId = mineralId;
+    }
+    
+    this._mineral = Game.getObjectById(this.memory.structures.minerals[mineralId].mineralId);
+    // If mineral no longer exists, clear cache
+    if (!this._mineral) {
+      this.memory.structures.minerals[mineralId].mineralId = undefined;
     }
     return this._mineral;
   },
   enumerable: false,
   configurable: true,
 });
+
+// Add memory property to StructureController (accessed via room.controller.memory)
+// In Screeps, StructureController is the type for room.controller
+if (typeof StructureController !== 'undefined') {
+  Object.defineProperty(StructureController.prototype, "memory", {
+    get: function () {
+      if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+      if (!Memory.rooms[this.room.name].structures.controllers) Memory.rooms[this.room.name].structures.controllers = {};
+      if (!Memory.rooms[this.room.name].structures.controllers[this.id]) Memory.rooms[this.room.name].structures.controllers[this.id] = {};
+      return Memory.rooms[this.room.name].structures.controllers[this.id];
+    },
+    set: function (v) {
+      if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+      if (!Memory.rooms[this.room.name].structures.controllers) Memory.rooms[this.room.name].structures.controllers = {};
+      return (Memory.rooms[this.room.name].structures.controllers[this.id] = v);
+    },
+  });
+}
 
 Room.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
@@ -72,7 +98,23 @@ Room.prototype.toString = function (htmlLink = true) {
 Room.isRoomClaimed = function (roomName) {
   const roomMemory = Memory.rooms && Memory.rooms[roomName];
   const gameRoom = Game.rooms[roomName];
-  return (roomMemory && roomMemory.controller && roomMemory.controller.my) ||
+  
+  // Check new structure first (structures.controllers), then fallback to old structure
+  let controllerMemory = null;
+  if (roomMemory) {
+    if (roomMemory.structures && roomMemory.structures.controllers) {
+      // Get first controller from structures.controllers
+      const controllerIds = Object.keys(roomMemory.structures.controllers);
+      if (controllerIds.length > 0) {
+        controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+      }
+    } else if (roomMemory.controller) {
+      // Fallback to old structure
+      controllerMemory = roomMemory.controller;
+    }
+  }
+  
+  return (controllerMemory && controllerMemory.my) ||
          (gameRoom && gameRoom.controller && gameRoom.controller.my);
 };
 
@@ -101,8 +143,20 @@ Room.isRoomValidForClaiming = function (roomName) {
     return false;
   }
   const roomMemory = Memory.rooms[roomName];
+  
+  // Check new structure first (structures.controllers), then fallback to old structure
+  let controllerMemory = null;
+  if (roomMemory.structures && roomMemory.structures.controllers) {
+    const controllerIds = Object.keys(roomMemory.structures.controllers);
+    if (controllerIds.length > 0) {
+      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+    }
+  } else if (roomMemory.controller) {
+    controllerMemory = roomMemory.controller;
+  }
+  
   // Prüfe ob Raum bereits von jemand anderem geclaimt ist
-  if (roomMemory.controller && roomMemory.controller.owner && !roomMemory.controller.my) {
+  if (controllerMemory && controllerMemory.owner && !controllerMemory.my) {
     return false;
   }
   

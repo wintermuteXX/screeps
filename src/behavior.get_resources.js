@@ -132,19 +132,11 @@ b._withdrawResource = function (creep, target, resourceType, plannedAmount) {
     : Math.min(available, freeCapacity);
 
   if (withdrawAmount <= 0) {
-    Log.debug(
-      `${creep} cannot withdraw ${resourceType}: available=${available}, freeCapacity=${freeCapacity}`,
-      "get_resources",
-    );
     creep.target = null;
     return ERR_NOT_ENOUGH_RESOURCES;
   }
 
   const result = creep.withdraw(target, resourceType, withdrawAmount);
-  Log.debug(
-    `${creep} tries to withdraw ${resourceType} (${withdrawAmount}) from ${target}: ${result}`,
-    "get_resources",
-  );
 
   return result;
 };
@@ -154,10 +146,6 @@ b._withdrawResource = function (creep, target, resourceType, plannedAmount) {
  */
 b._pickupResource = function (creep, target, resourceType) {
   const result = creep.pickup(target);
-  Log.debug(
-    `${creep} tries to pickup ${resourceType || "resource"} from ${target}: ${result}`,
-    "get_resources",
-  );
   return result;
 };
 

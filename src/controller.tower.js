@@ -65,7 +65,6 @@ class ControllerTower {
     const result = tower.heal(damagedCreeps[0]);
 
     if (result === OK) {
-      Log.debug(`Tower healing ${damagedCreeps[0].name} (${damagedCreeps[0].hits}/${damagedCreeps[0].hitsMax})`, "Tower");
       return true;
     }
 

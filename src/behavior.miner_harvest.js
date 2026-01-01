@@ -34,7 +34,6 @@ function moveAndAct(creep, target, action, statusPrefix, range = 1) {
   if (isNear) {
     return action();
   } else {
-    Log.debug(`${creep.name}: Status=${statusPrefix}_MOVING`, "miner_harvest");
     creep.travelTo(target);
     return true;
   }
@@ -55,7 +54,6 @@ function transferIfNear(creep, target, resourceType, statusPrefix) {
     () => {
       const amount = creep.store[resourceType] || 0;
       if (amount > 0) {
-        Log.debug(`${creep.name}: Status=${statusPrefix}_TRANSFERRING (${resourceType}=${amount})`, "miner_harvest");
         creep.transfer(target, resourceType);
         return true;
       }
@@ -133,7 +131,6 @@ function handleIdleRepair(creep, container) {
       if (creep.pos.isNearTo(container)) {
         const withdrawResult = creep.withdraw(container, RESOURCE_ENERGY);
         if (withdrawResult === OK) {
-          Log.debug(`${creep.name}: Status=WITHDREW_ENERGY_FOR_REPAIR (energy=${creep.store[RESOURCE_ENERGY]})`, "miner_harvest");
           // Now we have energy, continue to repair
         } else {
           // Withdraw failed, can't repair
@@ -141,7 +138,6 @@ function handleIdleRepair(creep, container) {
         }
       } else {
         // Move to container to withdraw energy
-        Log.debug(`${creep.name}: Status=MOVING_TO_CONTAINER_FOR_REPAIR_ENERGY`, "miner_harvest");
         creep.travelTo(container);
         return true;
       }
@@ -156,7 +152,6 @@ function handleIdleRepair(creep, container) {
     creep,
     container,
     () => {
-      Log.debug(`${creep.name}: Status=REPAIRING_CONTAINER (hits=${container.hits}/${container.hitsMax})`, "miner_harvest");
       creep.repair(container);
       return true;
     },
@@ -181,7 +176,6 @@ function transferResourcesToContainer(creep, container) {
     container,
     () => {
       const amount = creep.store[resourceType];
-      Log.debug(`${creep.name}: Status=IDLE_TRANSFERRING_TO_CONTAINER (${resourceType}=${amount})`, "miner_harvest");
       creep.transfer(container, resourceType);
       return true;
     },
@@ -212,7 +206,6 @@ function pickupDroppedResources(creep, container) {
     creep,
     closestResource,
     () => {
-      Log.debug(`${creep.name}: Status=IDLE_PICKING_UP_RESOURCE (${closestResource.resourceType}=${closestResource.amount})`, "miner_harvest");
       creep.pickup(closestResource);
       return true;
     },
@@ -226,7 +219,6 @@ function pickupDroppedResources(creep, container) {
 function handleIdleResourceManagement(creep, container) {
   // Ensure creep is at container position first
   if (!creep.pos.isEqualTo(container.pos)) {
-    Log.debug(`${creep.name}: Status=IDLE_MOVING_TO_CONTAINER`, "miner_harvest");
     creep.travelTo(container);
     return true;
   }
@@ -242,9 +234,6 @@ function handleIdleResourceManagement(creep, container) {
   }
 
   // Idle but nothing to do
-  if (Game.time % 10 === 0) {
-    Log.debug(`${creep.name}: Status=IDLE_WAITING (source empty, no tasks)`, "miner_harvest");
-  }
   return false;
 }
 
@@ -268,14 +257,12 @@ function transferEnergyToLink(creep, link) {
  */
 function withdrawAndTransferToLink(creep, container, link) {
   if (!creep.pos.isNearTo(container)) {
-    Log.debug(`${creep.name}: Status=MOVING_TO_CONTAINER_FOR_LINK_TRANSFER`, "miner_harvest");
     creep.travelTo(container);
     return true;
   }
 
   const withdrawResult = creep.withdraw(container, RESOURCE_ENERGY);
   if (withdrawResult === OK) {
-    Log.debug(`${creep.name}: Status=WITHDREW_FROM_CONTAINER_FOR_LINK (energy=${creep.store[RESOURCE_ENERGY]})`, "miner_harvest");
     // Now transfer to link (will move if needed)
     return transferEnergyToLink(creep, link);
   }
@@ -313,20 +300,17 @@ function handleLinkTransfer(creep, link, container) {
 function handleHarvesting(creep, source, container) {
   // Move to container position first (mining position)
   if (container && !creep.pos.isEqualTo(container.pos)) {
-    Log.debug(`${creep.name}: Status=MOVING_TO_CONTAINER_POSITION`, "miner_harvest");
     creep.travelTo(container);
     return;
   }
 
   // Move to source if not near
   if (!creep.pos.isNearTo(source)) {
-    Log.debug(`${creep.name}: Status=MOVING_TO_SOURCE (energy=${source.energy})`, "miner_harvest");
     creep.travelTo(source);
     return;
   }
 
   // Harvest source
-  Log.debug(`${creep.name}: Status=HARVESTING (source energy=${source.energy}, creep energy=${creep.store[RESOURCE_ENERGY] || 0})`, "miner_harvest");
   creep.harvest(source);
 }
 
@@ -349,7 +333,7 @@ b.work = function (creep, rc) {
   // Get source
   const source = getSource(creep, rc);
   if (!source) {
-    Log.warn(`${creep.name} does not find free source`, "miner_harvest");
+    Log.warn(`${creep} does not find free source in room ${creep.room}`, "miner_harvest");
     return;
   }
 

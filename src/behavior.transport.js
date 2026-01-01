@@ -99,7 +99,6 @@ b.work = function (creep, rc) {
       
       switch (result) {
         case OK:
-          Log.debug(`${creep} withdrew ${withdrawAmount} ${resourceType} from ${target}`, "transport");
           // Remove completed order from memory
           creep.memory.transport.shift();
           creep.target = null;
@@ -154,7 +153,6 @@ b.work = function (creep, rc) {
       
       switch (result) {
         case OK:
-          Log.debug(`${creep} transferred ${transferAmount} ${resourceType} to ${target}`, "transport");
           // Remove completed order from memory
           creep.memory.transport.shift();
           creep.target = null;

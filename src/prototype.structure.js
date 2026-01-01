@@ -16,7 +16,6 @@ Object.defineProperty(Structure.prototype, "container", {
           return this._container;
         } else {
           // Container no longer exists, delete ID from memory
-          Log.debug("Container does not exist anymore. Delete from memory", "Container");
           this.memory.containerID = null;
         }
       }
@@ -27,7 +26,6 @@ Object.defineProperty(Structure.prototype, "container", {
       });
 
       if (found) {
-        Log.debug("Container found -> Memory", "Container");
         this.memory.containerID = found.id;
         this._container = found;
       } else {
@@ -141,7 +139,6 @@ Object.defineProperty(Source.prototype, "container", {
           return this._container;
         } else {
           // Container no longer exists, delete ID from memory
-          Log.debug("Container does not exist anymore. Delete from memory", "Container");
           this.memory.containerID = null;
         }
       }
@@ -152,7 +149,6 @@ Object.defineProperty(Source.prototype, "container", {
       });
 
       if (found) {
-        Log.debug("Container found -> Memory", "Container");
         this.memory.containerID = found.id;
         this._container = found;
       } else {
@@ -168,13 +164,15 @@ Object.defineProperty(Source.prototype, "container", {
 
 Object.defineProperty(Source.prototype, "memory", {
   get: function () {
-    if (!Memory.rooms[this.room.name].sources) Memory.rooms[this.room.name].sources = {};
-    if (!Memory.rooms[this.room.name].sources[this.id]) Memory.rooms[this.room.name].sources[this.id] = {};
-    return Memory.rooms[this.room.name].sources[this.id];
+    if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures.sources) Memory.rooms[this.room.name].structures.sources = {};
+    if (!Memory.rooms[this.room.name].structures.sources[this.id]) Memory.rooms[this.room.name].structures.sources[this.id] = {};
+    return Memory.rooms[this.room.name].structures.sources[this.id];
   },
   set: function (v) {
-    if (!Memory.rooms[this.room.name].sources) Memory.rooms[this.room.name].sources = {};
-    return (Memory.rooms[this.room.name].sources[this.id] = v);
+    if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
+    if (!Memory.rooms[this.room.name].structures.sources) Memory.rooms[this.room.name].structures.sources = {};
+    return (Memory.rooms[this.room.name].structures.sources[this.id] = v);
   },
 });
 

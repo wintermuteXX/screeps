@@ -142,7 +142,6 @@ class Traveler {
       } else {
         travelData.path = ret.path;
         ret.incomplete = false;
-        Log.debug(`${Game.shard.name  } cached path retrieved in ${  Game.cpu.getUsed()-cpu}`, "traveler");
       }
       const cpuUsed = Game.cpu.getUsed() - cpu;
       state.cpu = _.round(cpuUsed + state.cpu);

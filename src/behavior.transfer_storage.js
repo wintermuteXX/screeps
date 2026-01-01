@@ -38,7 +38,6 @@ class TransferStorageBehavior extends Behavior {
 
     switch (result) {
       case OK:
-        Log.debug(`${creep} transfers ${resourceType} to ${target.structureType}`, "transfer_storage");
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);

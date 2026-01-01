@@ -2,6 +2,89 @@ const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
 
 /**
+ * Migrates old memory structure to new unified structure under structures
+ * Moves sources, controller, and mineral from root level to structures sub-objects
+ * @param {string} roomName - Name of the room to migrate
+ * @returns {boolean} True if migration was performed, false if already migrated
+ */
+function migrateRoomMemoryStructure(roomName) {
+  if (!Memory.rooms || !Memory.rooms[roomName]) {
+    return false;
+  }
+  
+  const roomMemory = Memory.rooms[roomName];
+  
+  // Check if already migrated (structures exists and has sources/controllers/minerals)
+  if (roomMemory.structures && 
+      (roomMemory.structures.sources || roomMemory.structures.controllers || roomMemory.structures.minerals)) {
+    return false; // Already migrated
+  }
+  
+  // Initialize structures if needed
+  if (!roomMemory.structures) {
+    roomMemory.structures = {};
+  }
+  
+  let migrated = false;
+  
+  // Migrate sources
+  if (roomMemory.sources && typeof roomMemory.sources === 'object' && !Array.isArray(roomMemory.sources)) {
+    if (!roomMemory.structures.sources) {
+      roomMemory.structures.sources = {};
+    }
+    // Copy all source entries
+    for (const sourceId in roomMemory.sources) {
+      if (!roomMemory.structures.sources[sourceId]) {
+        roomMemory.structures.sources[sourceId] = roomMemory.sources[sourceId];
+      }
+    }
+    // Don't delete old - keep for backward compatibility during transition
+    migrated = true;
+  }
+  
+  // Migrate controller
+  if (roomMemory.controller && typeof roomMemory.controller === 'object') {
+    if (!roomMemory.structures.controllers) {
+      roomMemory.structures.controllers = {};
+    }
+    // Get controller ID from room if available
+    const room = Game.rooms[roomName];
+    const controllerId = room && room.controller ? room.controller.id : null;
+    if (controllerId && !roomMemory.structures.controllers[controllerId]) {
+      roomMemory.structures.controllers[controllerId] = roomMemory.controller;
+    } else if (!controllerId) {
+      // Fallback: use a default key if controller ID not available
+      const defaultKey = 'default';
+      if (!roomMemory.structures.controllers[defaultKey]) {
+        roomMemory.structures.controllers[defaultKey] = roomMemory.controller;
+      }
+    }
+    migrated = true;
+  }
+  
+  // Migrate mineral
+  if (roomMemory.mineral && typeof roomMemory.mineral === 'object') {
+    if (!roomMemory.structures.minerals) {
+      roomMemory.structures.minerals = {};
+    }
+    // Get mineral ID from memory or room
+    const mineralId = roomMemory.mineral.mineralId || roomMemory.mineral.id;
+    if (mineralId && !roomMemory.structures.minerals[mineralId]) {
+      roomMemory.structures.minerals[mineralId] = roomMemory.mineral;
+    } else if (!mineralId) {
+      // Fallback: use a default key
+      const defaultKey = 'default';
+      if (!roomMemory.structures.minerals[defaultKey]) {
+        roomMemory.structures.minerals[defaultKey] = roomMemory.mineral;
+      }
+    }
+    migrated = true;
+  }
+  
+  return migrated;
+}
+
+/**
  * Calculates a score for a room based on various factors
  * Higher score = better room for claiming
  * @param {Room} room - The room to score
@@ -131,6 +214,7 @@ function calculateRoomScore(room, memory) {
  * @param {boolean} fullAnalysis - If true, performs full analysis including dynamic data (default: false)
  */
 function analyzeRoom(room, fullAnalysis = false) {
+  Log.test(`🔍 Analyzing room ${room.name}`, "roomAnalysis");
   if (!room || !room.memory) return;
 
   const {memory} = room;
@@ -142,6 +226,9 @@ function analyzeRoom(room, fullAnalysis = false) {
   if (!Memory.rooms[room.name]) {
     Memory.rooms[room.name] = {};
   }
+
+  // Migrate old memory structure to new unified structure
+  migrateRoomMemoryStructure(room.name);
 
   // Set lastCheck in Memory.rooms (works even without vision)
   Memory.rooms[room.name].lastCheck = Game.time;
@@ -171,21 +258,60 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Source information (static)
-      memory.sources = sources.map(s => ({
-        id: s.id,
-        x: s.pos.x,
-        y: s.pos.y,
-        freeSpaces: s.freeSpacesCount,
-      }));
+      // Use new unified structure: Memory.rooms[room.name].structures.sources[sourceId]
+      // room.memory.sources is an array used by analyzeRoom/Scout (for backward compatibility)
+      if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
+      if (!Memory.rooms[room.name].structures.sources) Memory.rooms[room.name].structures.sources = {};
+      
+      const existingSourcesMemory = Memory.rooms[room.name].structures.sources;
+      
+      // Create array with all source information
+      memory.sources = sources.map(s => {
+        const sourceMemory = existingSourcesMemory[s.id] || {};
+        return {
+          id: s.id,
+          x: s.pos.x,
+          y: s.pos.y,
+          freeSpaces: s.freeSpacesCount,
+          containerID: sourceMemory.containerID || null,
+          linkID: sourceMemory.linkID || null,
+        };
+      });
+      
+      // Ensure object structure exists for Source.prototype.memory
+      for (const source of sources) {
+        if (!Memory.rooms[room.name].structures.sources[source.id]) {
+          Memory.rooms[room.name].structures.sources[source.id] = {};
+        }
+        // Preserve existing containerID/linkID if they exist
+        const existing = existingSourcesMemory[source.id];
+        if (existing) {
+          if (existing.containerID) Memory.rooms[room.name].structures.sources[source.id].containerID = existing.containerID;
+          if (existing.linkID) Memory.rooms[room.name].structures.sources[source.id].linkID = existing.linkID;
+        }
+      }
 
       // Mineral information (static)
       if (room.mineral) {
-        memory.mineral = {
+        Log.test(`🔍 Mineral found in room ${room.name}`, "roomAnalysis");
+        // Use new unified structure: Memory.rooms[room.name].structures.minerals[mineralId]
+        if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
+        if (!Memory.rooms[room.name].structures.minerals) Memory.rooms[room.name].structures.minerals = {};
+        
+        const mineralId = room.mineral.id;
+        const existingMineral = Memory.rooms[room.name].structures.minerals[mineralId] || {};
+        
+        // Store in new structure
+        Memory.rooms[room.name].structures.minerals[mineralId] = {
           type: room.mineral.mineralType,
           x: room.mineral.pos.x,
           y: room.mineral.pos.y,
           id: room.mineral.id,
+          mineralId: existingMineral.mineralId || room.mineral.id,
         };
+        
+        // Also store in memory.mineral for backward compatibility (flat structure for analyzeRoom/Scout)
+        memory.mineral = Memory.rooms[room.name].structures.minerals[mineralId];
       }
 
       // Portal information (static)
@@ -234,7 +360,15 @@ function analyzeRoom(room, fullAnalysis = false) {
     if (fullAnalysis) {
       // Controller information
       if (room.controller) {
-        memory.controller = {
+        // Use new unified structure: Memory.rooms[room.name].structures.controllers[controllerId]
+        if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
+        if (!Memory.rooms[room.name].structures.controllers) Memory.rooms[room.name].structures.controllers = {};
+        
+        const controllerId = room.controller.id;
+        const existingController = Memory.rooms[room.name].structures.controllers[controllerId] || {};
+        
+        // Store in new structure
+        Memory.rooms[room.name].structures.controllers[controllerId] = {
           level: room.controller.level,
           progress: room.controller.progress,
           progressTotal: room.controller.progressTotal,
@@ -245,11 +379,21 @@ function analyzeRoom(room, fullAnalysis = false) {
           } : null,
           upgradeBlocked: room.controller.upgradeBlocked,
           my: room.controller.my,
+          containerID: existingController.containerID || null, // Preserve for controller.memory.containerID
         };
+        
+        // Also store in memory.controller for backward compatibility (flat structure for analyzeRoom/Scout)
+        memory.controller = Memory.rooms[room.name].structures.controllers[controllerId];
       }
 
       // Important structures
-      memory.structures = {
+      // Preserve existing nested structure memory (used by Structure.prototype.memory)
+      // Memory.rooms[room.name].structures[structureType + 's'][id] is the nested structure
+      // We store a flat summary in structuresSummary, but keep the nested structure intact
+      const existingStructures = Memory.rooms[room.name].structures || {};
+      
+      // Store flat summary for analyzeRoom/Scout (don't overwrite nested structure)
+      memory.structuresSummary = {
         spawn: room.find(FIND_MY_SPAWNS).length,
         extension: room.find(FIND_MY_STRUCTURES, {
           filter: (s) => s.structureType === STRUCTURE_EXTENSION,
@@ -276,6 +420,27 @@ function analyzeRoom(room, fullAnalysis = false) {
           filter: (s) => s.structureType === STRUCTURE_POWER_SPAWN,
         }).length,
       };
+      
+      // Ensure nested structure exists for Structure.prototype.memory compatibility
+      if (!Memory.rooms[room.name].structures || typeof Memory.rooms[room.name].structures !== 'object' || Array.isArray(Memory.rooms[room.name].structures)) {
+        Memory.rooms[room.name].structures = {};
+      }
+      
+      // Also store as structures for backward compatibility
+      // Note: Since room.memory === Memory.rooms[room.name], setting memory.structures
+      // will overwrite Memory.rooms[room.name].structures, so we need to restore the nested structure
+      memory.structures = Object.assign({}, memory.structuresSummary);
+      
+      // Restore nested structure after setting flat structure (since they share the same object)
+      // The nested structure is used by Structure.prototype.memory: structures[structureType + 's'][id]
+      if (existingStructures && Object.keys(existingStructures).length > 0) {
+        // Restore nested structure keys (labs, extractors, controllers, etc.)
+        for (const key in existingStructures) {
+          if (key.endsWith('s') && typeof existingStructures[key] === 'object' && !Array.isArray(existingStructures[key])) {
+            Memory.rooms[room.name].structures[key] = existingStructures[key];
+          }
+        }
+      }
 
       // Hostile information
       const hostiles = room.find(FIND_HOSTILE_CREEPS);
@@ -405,11 +570,12 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   // Structures (if full analysis and own room)
   if (fullAnalysis && memory.structures && memory.controller && memory.controller.my) {
     const structParts = [];
-    if (memory.structures.spawn > 0) structParts.push(`${memory.structures.spawn}S`);
-    if (memory.structures.tower > 0) structParts.push(`${memory.structures.tower}T`);
-    if (memory.structures.storage) structParts.push("Storage");
-    if (memory.structures.terminal) structParts.push("Terminal");
-    if (memory.structures.factory) structParts.push("Factory");
+    const structures = memory.structures || memory.structuresSummary || {};
+    if (structures.spawn > 0) structParts.push(`${structures.spawn}S`);
+    if (structures.tower > 0) structParts.push(`${structures.tower}T`);
+    if (structures.storage) structParts.push("Storage");
+    if (structures.terminal) structParts.push("Terminal");
+    if (structures.factory) structParts.push("Factory");
     if (structParts.length > 0) {
       parts.push(`Structures: ${structParts.join(", ")}`);
     }
@@ -443,5 +609,6 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
 
 module.exports = {
   analyzeRoom,
+  migrateRoomMemoryStructure,
 };
 

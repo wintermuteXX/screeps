@@ -41,24 +41,20 @@ b.work = function (creep, rc) {
   if (!target && controller) {
     const link = rc.findNearLink(controller, { linkType: 'receivers', requireEnergy: true });
     if (link) {
-      Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Link: ${link}`, "find_near_energy");
       creep.target = link.id;
       target = creep.getTarget();
     } else {
       const {container} = creep.room.controller;
       if (container && container.store && container.store[RESOURCE_ENERGY] > 0) {
-        Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from Container: ${container}`, "find_near_energy");
         creep.target = container.id;
         target = creep.getTarget();
       }
       if (!target) {
         const dropped = findEnergy(controller, rc);
         if (dropped.length) {
-          Log.debug(`${creep.room.name} ${creep.name} is trying to get energy from ground: ${dropped}`, "find_near_energy");
           target = dropped[0];
           creep.target = target.id;
         } else {
-          Log.debug(`${creep.room.name} ${creep.name} found no energy around Controller`, "find_near_energy");
           target = null;
         }
       }
@@ -67,7 +63,6 @@ b.work = function (creep, rc) {
 
   if (target && controller) {
     if (!creep.pos.isNearTo(target)) {
-      Log.debug(`${creep.room.name} ${creep.name} is moving to target: ${target}`, "find_near_energy");
       creep.travelTo(target);
     } else {
       let result;
@@ -79,7 +74,6 @@ b.work = function (creep, rc) {
           result = creep.pickup(target);
         } else {
           // Falsche Ressourcenart - Target löschen
-          Log.debug(`${creep.room.name} ${creep.name} found non-energy resource ${target.resourceType}, clearing target`, "find_near_energy");
           creep.target = null;
           result = ERR_INVALID_ARGS;
         }
@@ -87,14 +81,12 @@ b.work = function (creep, rc) {
 
       // Check if withdraw/pickup was successful, delete target if not
       if (result !== OK) {
-        Log.debug(`${creep.room.name} ${creep.name} failed to get energy from ${target} (result: ${global.getErrorString(result)}), clearing target`, "find_near_energy");
         creep.target = null;
       }
     }
   } else if (controller && !target) {
     // No energy found, but move to controller anyway to be ready when energy arrives
     if (!creep.pos.isNearTo(controller)) {
-      Log.debug(`${creep.room.name} ${creep.name} found no energy, moving to controller to wait`, "find_near_energy");
       creep.travelTo(controller, { range: 3 });
     }
   }

@@ -114,19 +114,18 @@ class ControllerSpawn {
         memory: memory,
       });
     }
-
+    Game.rooms[memory.targetRoom]
     switch (result) {
       case OK:
         if (role === "claimer" && memory.targetRoom) {
-          Log.success(`🏰 ${spawn} spawns claimer ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+          Log.success(`🏰 ${spawn} spawns claimer ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
         } else if (role === "supporter" && memory.targetRoom) {
-          Log.success(`🚀 ${spawn} spawns supporter ${theName} targeting room ${memory.targetRoom}`, "createCreep");
+          Log.success(`🚀 ${spawn} spawns supporter ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
         } else {
           Log.info(`${spawn} spawns creep: ${role}`, "createCreep");
         }
         return true;
       case null:
-        Log.debug(`${spawn} createCreep returns: ${result}`, "createCreep");
         return false;
       default:
         Log.warn(`${spawn} unknown result in createCreep: ${global.getErrorString(result)}`, "createCreep");

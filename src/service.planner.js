@@ -783,11 +783,6 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 
     if (result === OK) {
       sitesPlaced++;
-      if (structureType === STRUCTURE_SPAWN) {
-        Log.debug(`RoomPlanner: Construction site for Spawn "${planetName}" placed at (${x}, ${y})`, "RoomPlanner");
-      } else {
-        Log.debug(`RoomPlanner: Construction site for ${structureType} placed at (${x}, ${y})`, "RoomPlanner");
-      }
     } else if (result === ERR_FULL) {
       // Already too many sites
       break;
@@ -894,9 +889,6 @@ RoomPlanner.prototype._placeExtractor = function () {
 
   if (!existingExtractor && !existingSite) {
     const result = this.room.createConstructionSite(mineral.pos, STRUCTURE_EXTRACTOR);
-    if (result === OK) {
-      Log.debug("RoomPlanner: Extractor construction site placed at mineral", "RoomPlanner");
-    }
   }
 
   // Container next to mineral
@@ -1046,11 +1038,7 @@ RoomPlanner.prototype._placeStructureNear = function (
         // Position is free - rebuild here
         const result = this.room.createConstructionSite(storedPos, structureType);
         if (result === OK) {
-          const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
-          Log.debug(
-            `RoomPlanner: ${structureName} construction site placed at stored position (${storedPos.x}, ${storedPos.y}) for ${type}`,
-            "RoomPlanner",
-          );
+          // Construction site placed successfully
         }
         return;
       } else {
@@ -1142,12 +1130,6 @@ RoomPlanner.prototype._placeStructureNear = function (
   if (bestPos) {
     const result = this.room.createConstructionSite(bestPos, structureType);
     if (result === OK) {
-      const structureName = structureType === STRUCTURE_CONTAINER ? "Container" : "Link";
-      Log.debug(
-        `RoomPlanner: ${structureName} construction site placed at ${type} (${bestPos.x}, ${bestPos.y})`,
-        "RoomPlanner",
-      );
-
       // Store position in memory
       this._storeSpecialStructure(identifier, bestPos.x, bestPos.y, structureType, targetId);
     }
@@ -1204,11 +1186,6 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
     specialIdentifier: identifier,
     targetId: targetId,
   });
-
-  Log.debug(
-    `RoomPlanner: Stored ${structureType} position (${x}, ${y}) for ${identifier} with priority ${priority}`,
-    "RoomPlanner",
-  );
 };
 
 /**

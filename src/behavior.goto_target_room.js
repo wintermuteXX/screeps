@@ -21,7 +21,7 @@ class GotoTargetRoomBehavior extends Behavior {
     if (creep.memory.targetRoom === creep.room.name && isNotAtBorder) {
       // Log einmalig bei Ankunft
       if (creep.memory.travelingToTarget) {
-        Log.success(`🚀 ${creep} arrived at target room ${creep.room.name}`, "goto_target_room");
+        Log.success(`🚀 ${creep} arrived at target room ${creep.room}`, "goto_target_room");
         delete creep.memory.travelingToTarget;
       }
       return true;
@@ -36,7 +36,7 @@ class GotoTargetRoomBehavior extends Behavior {
 
     // Log einmalig wenn wir zum Zielraum reisen
     if (!creep.memory.travelingToTarget) {
-      Log.success(`🚀 ${creep} traveling to target room ${creep.memory.targetRoom}`, "goto_target_room");
+      Log.success(`🚀 ${creep} traveling to target room ${Game.rooms[creep.memory.targetRoom]}`, "goto_target_room");
       creep.memory.travelingToTarget = true;
     }
 

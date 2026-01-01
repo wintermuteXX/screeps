@@ -3,6 +3,7 @@ const cpuAnalyzer = require("./service.cpu");
 const ControllerRoom = require("./controller.room");
 const ControllerGame = require("./controller.game");
 const CONSTANTS = require("./config.constants");
+const Log = require("./lib.log");
 
 /**
  * Displays all available helper functions in a compact table format
@@ -712,6 +713,61 @@ function showCPU() {
  * @param {string} centerRoom - Center room name for distance calculation
  * @returns {boolean} True if room was visualized, false otherwise
  */
+/**
+ * Helper: Get controller memory from new or old structure
+ */
+function _getControllerMemory(roomMemory) {
+  // Check new structure first
+  if (roomMemory.structures && roomMemory.structures.controllers) {
+    const controllerIds = Object.keys(roomMemory.structures.controllers);
+    if (controllerIds.length > 0) {
+      return roomMemory.structures.controllers[controllerIds[0]];
+    }
+  }
+  // Fallback to old structure
+  return roomMemory.controller || null;
+}
+
+/**
+ * Helper: Get sources array from new or old structure
+ */
+function _getSourcesArray(roomMemory) {
+  // Check flat structure first (for backward compatibility)
+  if (roomMemory.sources && Array.isArray(roomMemory.sources)) {
+    return roomMemory.sources;
+  }
+  // Try to build array from new structure
+  if (roomMemory.structures && roomMemory.structures.sources) {
+    return Object.keys(roomMemory.structures.sources).map(sourceId => {
+      const sourceMem = roomMemory.structures.sources[sourceId];
+      return {
+        id: sourceId,
+        containerID: sourceMem.containerID || null,
+        linkID: sourceMem.linkID || null,
+      };
+    });
+  }
+  return null;
+}
+
+/**
+ * Helper: Get mineral memory from new or old structure
+ */
+function _getMineralMemory(roomMemory) {
+  // Check flat structure first (for backward compatibility)
+  if (roomMemory.mineral) {
+    return roomMemory.mineral;
+  }
+  // Check new structure
+  if (roomMemory.structures && roomMemory.structures.minerals) {
+    const mineralIds = Object.keys(roomMemory.structures.minerals);
+    if (mineralIds.length > 0) {
+      return roomMemory.structures.minerals[mineralIds[0]];
+    }
+  }
+  return null;
+}
+
 function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   // Skip if never checked
   if (!roomMemory.lastCheck) return false;
@@ -723,6 +779,11 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   // Get room status
   const roomStatus = Game.map.getRoomStatus(roomName);
   if (roomStatus.status !== "normal") return false;
+  
+  // Get data from new or old structure
+  const controllerMemory = _getControllerMemory(roomMemory);
+  const sourcesArray = _getSourcesArray(roomMemory);
+  const mineralMemory = _getMineralMemory(roomMemory);
 
   // Determine color and symbol based on room status
   let color = "#888888"; // Gray = unknown/old data
@@ -731,24 +792,23 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
 
   // Check how recent the data is
   const ticksSinceCheck = Game.time - roomMemory.lastCheck;
-  const isRecent = ticksSinceCheck < CONSTANTS.TRANSPORT.SCOUT_RECENT_THRESHOLD;
   const isOld = ticksSinceCheck > CONSTANTS.TRANSPORT.SCOUT_OLD_THRESHOLD;
 
   if (isOld) {
     color = "#444444"; // Very old data
     symbol = "·";
     size = 0.2;
-  } else if (isRecent) {
+  } else {
     // Recent data - show detailed info
     if (roomMemory.isHostile || roomMemory.avoid) {
       color = "#ff0000"; // Red = hostile
       symbol = "⚠";
       size = 0.4;
-    } else if (roomMemory.controller && roomMemory.controller.my) {
+    } else if (controllerMemory && controllerMemory.my) {
       color = "#00ff00"; // Green = owned
       symbol = "✓";
       size = 0.4;
-    } else if (roomMemory.controller && !roomMemory.controller.owner && !roomMemory.controller.reservation) {
+    } else if (controllerMemory && !controllerMemory.owner && !controllerMemory.reservation) {
       color = "#00ffff"; // Cyan = free to claim
       symbol = "○";
       size = 0.5;
@@ -756,7 +816,7 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
       color = "#ffff00"; // Yellow = core room (3 sources)
       symbol = "★";
       size = 0.4;
-    } else if (roomMemory.sources && roomMemory.sources.length === 2) {
+    } else if (sourcesArray && sourcesArray.length === 2) {
       color = "#ffaa00"; // Orange = 2 sources
       symbol = "●";
       size = 0.35;
@@ -805,9 +865,9 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   }
 
   // Mineral (colored based on owned rooms with this mineral) - top-left corner after score
-  if (roomMemory.mineral && roomMemory.mineral.type) {
-    const mineralShort = roomMemory.mineral.type.replace("RESOURCE_", "").substring(0, 2);
-    const mineralType = roomMemory.mineral.type;
+  if (mineralMemory && mineralMemory.type) {
+    const mineralShort = mineralMemory.type.replace("RESOURCE_", "").substring(0, 2);
+    const mineralType = mineralMemory.type;
     
     // Count how many owned rooms already have this mineral
     let ownedRoomsWithMineral = 0;
@@ -819,9 +879,11 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
         if (otherRoomName === roomName) continue;
         
         const otherRoomMemory = Memory.rooms[otherRoomName];
-        // Only count rooms we own
-        if (otherRoomMemory.controller && otherRoomMemory.controller.my) {
-          if (otherRoomMemory.mineral && otherRoomMemory.mineral.type === mineralType) {
+        // Only count rooms we own - check new or old structure
+        const otherControllerMemory = _getControllerMemory(otherRoomMemory);
+        if (otherControllerMemory && otherControllerMemory.my) {
+          const otherMineralMemory = _getMineralMemory(otherRoomMemory);
+          if (otherMineralMemory && otherMineralMemory.type === mineralType) {
             ownedRoomsWithMineral++;
           }
         }
@@ -861,7 +923,7 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   }
 
   // Source count as yellow dots (0-4 dots) - top-right corner
-  const sourceCount = roomMemory.sources ? roomMemory.sources.length : 0;
+  const sourceCount = sourcesArray ? sourcesArray.length : 0;
   const sourceDots = "•".repeat(Math.min(sourceCount, CONSTANTS.TRANSPORT.SCOUT_MAX_SOURCE_DOTS));
   if (sourceDots) {
     const dotsPos = new RoomPosition(49, 5, roomName);

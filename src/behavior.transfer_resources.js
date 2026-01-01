@@ -174,7 +174,6 @@ b._findMatchingNeed = function (creep, rc, carriedResources) {
     }
 
     creep.target = bestTarget.id;
-    Log.debug(`${creep} found matching need for ${bestNeed.resourceType} to ${bestTarget}`, "transfer_resources");
     return { target: bestTarget, orders: [bestNeed] };
   }
 

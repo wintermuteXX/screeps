@@ -174,8 +174,6 @@ class ControllerLab {
     // Remove array items if array can not be divided by 3
     const trimmedLabs = shuffledLabs.slice(0, shuffledLabs.length - (shuffledLabs.length % 3));
 
-    Log.debug(`calculate status for ${trimmedLabs.length} labs`, "findLabPartner");
-
     // Check if all lab groups are in range
     let allInRange = true;
     for (let i = 0; i < trimmedLabs.length; i += 3) {
@@ -183,7 +181,6 @@ class ControllerLab {
         allInRange = false;
         break;
       }
-      Log.debug(`${trimmedLabs[i]} is in Range to ${trimmedLabs[i + 1]} and ${trimmedLabs[i + 2]}`, "findLabPartner");
     }
 
     // Set status + labpartner in memory if all are in range
