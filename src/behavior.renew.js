@@ -75,12 +75,6 @@ function createRenewBehavior(behaviorName) {
   };
 
   b.completed = function (creep, rc) {
-    // Abbruch-Flag gesetzt
-    if (creep.memory.abort) {
-      creep.memory.abort = false;
-      return true;
-    }
-
     // Done when above completedThreshold
     return creep.ticksToLive > config.completedThreshold;
   };
@@ -93,13 +87,15 @@ function createRenewBehavior(behaviorName) {
     }
 
     if (!target) {
-      creep.memory.abort = true;
+      // Kein Target verfügbar -> Behavior beenden
+      creep.behavior = null;
       return;
     }
 
     // For normal renew: check if spawn has energy
     if (config.checkEnergy && (!target.store || target.store[RESOURCE_ENERGY] <= 0)) {
-      creep.memory.abort = true;
+      // Keine Energie -> Behavior beenden
+      creep.behavior = null;
       return;
     }
 
@@ -111,18 +107,22 @@ function createRenewBehavior(behaviorName) {
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
         Log.info(`${creep} not enough resources for renew in ${target}: ${global.getErrorString(result)}`, "renew");
-        creep.memory.abort = true;
+        // Keine Ressourcen -> Behavior beenden
+        creep.behavior = null;
         break;
       case ERR_NOT_IN_RANGE:
         creep.travelTo(target);
         break;
       case ERR_BUSY:
       case ERR_FULL:
-        creep.memory.abort = true;
+        // Spawn ist beschäftigt oder voll -> Behavior beenden
+        // (kann im nächsten Tick wieder versucht werden, wenn when() true ist)
+        creep.behavior = null;
         break;
       default:
         Log.warn(`${creep} unknown result from renew ${target}: ${global.getErrorString(result)}`, "renew");
-        creep.memory.abort = true;
+        // Unbekannter Fehler -> Behavior beenden
+        creep.behavior = null;
     }
   };
 

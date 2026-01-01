@@ -94,20 +94,20 @@ function plannerSetCenter(roomName, x, y) {
  * Lists orphaned structures (built but no longer in the layout)
  * Usage: plannerOrphaned('W1N1')
  * @param {string} roomName - Room name
- * @returns {Array} Array of orphaned structures
+ * @returns {string} JSON formatted string of orphaned structures
  */
 function plannerOrphaned(roomName) {
   const room = Game.rooms[roomName];
   if (!room) {
     Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
-    return [];
+    return JSON.stringify([]);
   }
   const planner = new RoomPlanner(room);
   const orphaned = planner._findOrphanedStructures();
 
   if (orphaned.length === 0) {
     Log.info(`No orphaned structures found in ${roomName}`, "RoomPlanner");
-    return [];
+    return JSON.stringify([]);
   }
 
   // Structure type names for display
@@ -127,17 +127,32 @@ function plannerOrphaned(roomName) {
     [STRUCTURE_CONTAINER]: "Container",
   };
 
-  Log.info(`Found ${orphaned.length} orphaned structure(s) in ${roomName}:`, "RoomPlanner");
-  for (const orphan of orphaned) {
+  // Convert to serializable format
+  const serializableOrphaned = orphaned.map((orphan) => {
     const name = structureNames[orphan.structureType] || orphan.structureType;
-    const id = orphan.structure.id;
+    return {
+      name: name,
+      structureType: orphan.structureType,
+      x: orphan.x,
+      y: orphan.y,
+      id: orphan.structure.id,
+      destroyCommand: `Game.getObjectById('${orphan.structure.id}').destroy()`,
+    };
+  });
+
+  Log.info(`Found ${orphaned.length} orphaned structure(s) in ${roomName}:`, "RoomPlanner");
+  for (const orphan of serializableOrphaned) {
     Log.info(
-      `  - ${name} at (${orphan.x}, ${orphan.y}) - ID: ${id} - Destroy with: Game.getObjectById('${id}').destroy()`,
+      `  - ${orphan.name} at (${orphan.x}, ${orphan.y}) - ID: ${orphan.id} - Destroy with: ${orphan.destroyCommand}`,
       "RoomPlanner",
     );
   }
 
-  return orphaned;
+  // Return JSON formatted string
+  const formatted = JSON.stringify(serializableOrphaned, null, 2);
+  Log.info(`JSON output:`, "RoomPlanner");
+  Log.info(formatted, "RoomPlanner");
+  return formatted;
 }
 
 module.exports = {

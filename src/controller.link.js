@@ -55,7 +55,6 @@ class ControllerLink {
   }
 
   transferEnergy() {
-    // TODO Link should transport to most empty link OR make a better system for distributing energy to Controller OR Store
     if (Game.time % CONSTANTS.TICKS.CHECK_LINKS !== 0) {
       return;
     }

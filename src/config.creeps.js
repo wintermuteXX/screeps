@@ -29,8 +29,7 @@ module.exports = {
       if (rc.getLevel() > 2) {
         return rc.getAllCreeps().length === 0;
       } else {
-        // TODO This is not dynamic enough. Supporters have a log way. Usually there are too much builders. Take FreeSpaces into account
-        return rc.getAllCreeps("builder").length + rc.getAllCreeps("supporter").length < CONSTANTS.CREEP_LIMITS.BUILDER_MAX_LOW_LEVEL;
+        return rc.getAllCreeps("builder").length + CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX < CONSTANTS.CREEP_LIMITS.BUILDER_MAX_LOW_LEVEL;
       }
     },
   },
@@ -296,7 +295,6 @@ module.exports = {
     },
   },
 
-  // TODO Supporter help rooms with RCL <= 3
   supporter: {
     produceGlobal: false,
     priority: 6,
@@ -307,7 +305,6 @@ module.exports = {
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
     behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "upgrade_controller"],
-    // TODO: "transfer_resources",
     canBuild: function (rc) {
       // Prüfe ob bereits genug Supporter existieren
       const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");

@@ -78,7 +78,6 @@ class ControllerSpawn {
    * @returns {boolean} True if successful
    */
   createCreep(spawn, role, creepConfig, memory) {
-    // TODO createCreep. Calculate Move parts dynamically
     // Initialize memory if not provided
     memory = memory || {};
 

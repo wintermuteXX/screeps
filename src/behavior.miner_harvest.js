@@ -89,7 +89,25 @@ function getSource(creep, rc) {
   if (source === null) {
     // Nutzt gecachten find() Cache statt getSources()
     source = _.find(rc.find(FIND_SOURCES), (s) => {
-      return (rc.getCreeps("miner", s.id).length === 0);
+      // Prüfe freie Plätze: freeSpacesCount - creepsTargeting > 0
+      const freeSpaces = s.freeSpacesCount;
+      const creepsTargeting = rc.getCreeps(null, s.id).length;
+      const availableSpaces = freeSpaces - creepsTargeting;
+      
+      if (availableSpaces <= 0) {
+        return false; // Keine freien Plätze
+      }
+      
+      // Prüfe ob aktuelle Harvest-Power unter 5 liegt
+      let currentHarvestPower = 0;
+      const harvestingCreeps = rc.getCreeps(null, s.id);
+      for (const hCreep of harvestingCreeps) {
+        if (hCreep.pos.isNearTo(s)) {
+          currentHarvestPower += hCreep.getHarvestPowerPerTick();
+        }
+      }
+      
+      return currentHarvestPower < 5;
     });
   }
   return source;
