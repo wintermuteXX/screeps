@@ -12,8 +12,25 @@ function calculateRoomScore(room, memory) {
   let score = 0;
   const breakdown = {};
 
+  // 0. Check if room has a controller - no controller = 0 points
+  const hasController = (room && room.controller) || (memory.controller !== undefined);
+  if (!hasController) {
+    // Room has no controller - return 0 points
+    return {
+      total: 0,
+      breakdown: {
+        isFree: 0,
+        hasTwoSources: 0,
+        lowSwamp: 0,
+        highFreeSpace: 0,
+        newMineral: 0,
+      },
+    };
+  }
+
   // 1. Is the room free? (highest priority - 1000 points)
-  const isFree = !memory.controller ||
+  // Only check if controller exists (already verified above)
+  const isFree = memory.controller &&
                  (!memory.controller.owner && !memory.controller.reservation);
   if (isFree) {
     score += 1000;

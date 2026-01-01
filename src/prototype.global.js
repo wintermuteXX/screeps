@@ -1,4 +1,3 @@
-const Log = require("./lib.log");
 const utilsUsername = require("./utils.username");
 const utilsRoomAnalysis = require("./utils.roomAnalysis");
 const utilsResources = require("./utils.resources");
@@ -49,6 +48,7 @@ function initGlobal() {
   global.showLogistic = utilsConsole.showLogistic;
   global.showCPU = utilsConsole.showCPU;
   global.showScout = utilsConsole.showScout;
+  global.showRclUpgradeTimes = utilsConsole.showRclUpgradeTimes;
   global.cleanMemory = utilsConsole.cleanMemory;
   global.profileMemory = utilsConsole.profileMemory;
 

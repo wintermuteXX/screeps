@@ -27,8 +27,6 @@ module.exports.loop = function () {
     Game.cpu.generatePixel();
   }
 
-  gc.updateBucketMemory();
-
   // Record CPU metrics for analysis
   cpuAnalyzer.recordTick();
 

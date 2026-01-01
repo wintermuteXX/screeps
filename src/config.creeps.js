@@ -7,7 +7,6 @@
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 const scoutBehavior = require("./behavior.scout");
-const cpuAnalyzer = require("./service.cpu");
 
 function generateBody(pattern, count) {
   const body = [];
@@ -89,21 +88,6 @@ module.exports = {
     canBuild: function (rc) {
       const miners = _.filter(Game.creeps, (c) => c.memory.role === "miner_commodity").length;
       return _.find(Game.flags, { color: COLOR_GREEN }) && miners < 1;
-    },
-  },
-
-  miner_raid: {
-    produceGlobal: false,
-    priority: 6,
-    levelMin: 5,
-    minParts: 16,
-    wait4maxEnergy: true,
-    namePrefix: "Raid_Harvester",
-    body: generateBody([MOVE, WORK], 25), // 25 MOVE, 25 WORK
-    behaviors: ["goto_flag:yellow", "miner_raid_room", "goto_home", "transfer_storage"],
-
-    canBuild: function (rc) {
-      return false;
     },
   },
 
@@ -243,44 +227,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: true,
     namePrefix: "Repair_Crawler",
-    body: [
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-      MOVE,
-      CARRY,
-      MOVE,
-      WORK,
-    ],
+    body:generateBody([MOVE, CARRY, MOVE, WORK], 8),
     behaviors: ["renew:emergency", "build_structures", "repair"],
 
     canBuild: function (rc) {

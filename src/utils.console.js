@@ -1,5 +1,3 @@
-const Log = require("./lib.log");
-const utilsUsername = require("./utils.username");
 const utilsResources = require("./utils.resources");
 const cpuAnalyzer = require("./service.cpu");
 const ControllerRoom = require("./controller.room");
@@ -30,6 +28,7 @@ function help(category = "all") {
       { name: "plannerOrphaned(room)", desc: "Lists orphaned structures (built but no longer in layout)", example: 'plannerOrphaned("W1N1")' },
       { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
       { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
+      { name: "showRclUpgradeTimes()", desc: "Shows RCL upgrade times for all owned rooms", example: "showRclUpgradeTimes()" },
     ],
     market: [
       { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
@@ -781,30 +780,83 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   let xOffsetLeft = 0.5;
   let hasInfo = false;
 
-  // Score (white) - top-left corner
+  // Score (colored based on value) - top-left corner
   if (roomMemory.score && roomMemory.score.total && roomMemory.score.total > CONSTANTS.TRANSPORT.SCOUT_SCORE_THRESHOLD) {
     const scoreText = roomMemory.score.total.toString();
-    const scorePos = new RoomPosition(xOffsetLeft, 1, roomName);
+    const scoreValue = roomMemory.score.total;
+    
+    // Determine color based on score
+    let scoreColor = "#ff0000"; // Red for < 1500
+    if (scoreValue >= 1600) {
+      scoreColor = "#00ff00"; // Green for >= 1600
+    } else if (scoreValue >= 1500) {
+      scoreColor = "#ffaa00"; // Orange for 1500-1599
+    }
+    
+    const scorePos = new RoomPosition(xOffsetLeft, 6, roomName);
     Game.map.visual.text(scoreText, scorePos, {
-      size: 0.2,
-      color: "#ffffff",
+      size: 0.20,  // 30% der ursprünglichen Größe (0.2 * 0.3 = 0.06)
+      color: scoreColor,
       align: "left",
       opacity: 0.8,
     });
-    xOffsetLeft += scoreText.length * 0.15 + 0.2; // Space after score
+    xOffsetLeft += scoreText.length * 0.05 + 0.2; // Space after score (angepasst für kleinere Schrift)
     hasInfo = true;
   }
 
-  // Mineral (orange) - top-left corner after score
-  if (roomMemory.mineral && roomMemory.mineral.type && isRecent) {
+  // Mineral (colored based on owned rooms with this mineral) - top-left corner after score
+  if (roomMemory.mineral && roomMemory.mineral.type) {
     const mineralShort = roomMemory.mineral.type.replace("RESOURCE_", "").substring(0, 2);
-    const mineralPos = new RoomPosition(xOffsetLeft, 1, roomName);
+    const mineralType = roomMemory.mineral.type;
+    
+    // Count how many owned rooms already have this mineral
+    let ownedRoomsWithMineral = 0;
+    
+    // Check Memory.rooms for owned rooms with this mineral
+    if (Memory.rooms) {
+      for (const otherRoomName in Memory.rooms) {
+        // Skip current room
+        if (otherRoomName === roomName) continue;
+        
+        const otherRoomMemory = Memory.rooms[otherRoomName];
+        // Only count rooms we own
+        if (otherRoomMemory.controller && otherRoomMemory.controller.my) {
+          if (otherRoomMemory.mineral && otherRoomMemory.mineral.type === mineralType) {
+            ownedRoomsWithMineral++;
+          }
+        }
+      }
+    }
+    
+    // Check Game.rooms for owned rooms with this mineral
+    for (const otherRoomName in Game.rooms) {
+      // Skip current room
+      if (otherRoomName === roomName) continue;
+      
+      const gameRoom = Game.rooms[otherRoomName];
+      if (gameRoom.controller && gameRoom.controller.my) {
+        if (gameRoom.mineral && gameRoom.mineral.mineralType === mineralType) {
+          ownedRoomsWithMineral++;
+        }
+      }
+    }
+    
+    // Determine color based on count
+    let mineralColor = "#00ff00"; // Green: no room with this mineral owned
+    if (ownedRoomsWithMineral === 1) {
+      mineralColor = "#ffff00"; // Yellow: one room with this mineral owned
+    } else if (ownedRoomsWithMineral > 1) {
+      mineralColor = "#ff0000"; // Red: more than one room with this mineral owned
+    }
+    
+    const mineralPos = new RoomPosition(xOffsetLeft, 15, roomName);
     Game.map.visual.text(mineralShort, mineralPos, {
-      size: 0.2,
-      color: "#ffaa00",
+      size: 0.20,  // 30% der ursprünglichen Größe (0.2 * 0.3 = 0.06), passend zur Score-Größe
+      color: mineralColor,
       align: "left",
       opacity: 0.8,
     });
+    xOffsetLeft += mineralShort.length * 0.05 + 0.2; // Space after mineral (angepasst für kleinere Schrift)
     hasInfo = true;
   }
 
@@ -812,9 +864,9 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   const sourceCount = roomMemory.sources ? roomMemory.sources.length : 0;
   const sourceDots = "•".repeat(Math.min(sourceCount, CONSTANTS.TRANSPORT.SCOUT_MAX_SOURCE_DOTS));
   if (sourceDots) {
-    const dotsPos = new RoomPosition(49, 1, roomName);
+    const dotsPos = new RoomPosition(49, 5, roomName);
     Game.map.visual.text(sourceDots, dotsPos, {
-      size: 0.25,
+      size: 1.5,  // Doppelt so groß (0.25 * 2 = 0.5)
       color: "#ffff00",
       align: "right",
       opacity: 0.9,
@@ -835,9 +887,9 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
     });
     // Background for right side (sources) if present
     if (sourceDots) {
-      const bgWidthRight = sourceDots.length * 0.15 + 0.5;
+      const bgWidthRight = sourceDots.length * 0.3 + 0.5;  // Angepasst für größere Schrift (0.15 * 2 = 0.3)
       const bgPosRight = new RoomPosition(49 - bgWidthRight + 0.3, 0.3, roomName);
-      Game.map.visual.rect(bgPosRight, bgWidthRight, 0.5, {
+      Game.map.visual.rect(bgPosRight, bgWidthRight, 0.7, {  // Höhe leicht erhöht für größere Schrift
         fill: "#000000",
         opacity: 0.6,
         stroke: "#000000",
@@ -959,6 +1011,168 @@ function _drawScoutVisualization(centerRoom) {
   }
 }
 
+/**
+ * Shows RCL upgrade times for all owned rooms
+ * Displays a table with rooms on Y-axis and RCL levels on X-axis
+ * @returns {string} HTML table string
+ */
+function showRclUpgradeTimes() {
+  const result = [];
+  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
+  result.push("<caption><strong>RCL UPGRADE TIMES</strong></caption>");
+
+  // Get all owned rooms
+  const ownedRooms = [];
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
+    if (room.controller && room.controller.my) {
+      ownedRooms.push({ roomName, room });
+    }
+  }
+
+  // Sort rooms by RCL level (descending - highest first)
+  ownedRooms.sort((a, b) => {
+    const rclA = a.room.controller ? a.room.controller.level : 0;
+    const rclB = b.room.controller ? b.room.controller.level : 0;
+    return rclB - rclA; // Descending order (8, 7, 6, ...)
+  });
+
+  if (ownedRooms.length === 0) {
+    result.push('<tr><td colspan="9" style="padding: 5px; color: #888;">No owned rooms found</td></tr>');
+    result.push("</table>");
+    const resultString = result.join("");
+    console.log(resultString);
+    return resultString;
+  }
+
+  // Collect all RCL levels that have data
+  const allLevels = new Set();
+  ownedRooms.forEach(({ roomName }) => {
+    const roomMemory = Memory.rooms && Memory.rooms[roomName];
+    if (roomMemory && roomMemory.rclUpgradeTimes) {
+      Object.keys(roomMemory.rclUpgradeTimes).forEach(level => {
+        // Skip tracking fields
+        if (level !== "lastLevel" && level !== "lastLevelTick") {
+          allLevels.add(parseInt(level));
+        }
+      });
+    }
+  });
+
+  // Sort levels
+  const sortedLevels = Array.from(allLevels).sort((a, b) => a - b);
+
+  if (sortedLevels.length === 0) {
+    result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No RCL upgrade time data available</td></tr>');
+    result.push("</table>");
+    const resultString = result.join("");
+    console.log(resultString);
+    return resultString;
+  }
+
+  // Table headers
+  result.push('<tr style="background-color: #333;">');
+  result.push('<th style="padding: 5px;">ROOM</th>');
+  result.push('<th style="padding: 5px;">CURRENT RCL</th>');
+  sortedLevels.forEach(level => {
+    result.push(`<th style="padding: 5px;">RCL ${level}</th>`);
+  });
+  result.push("</tr>");
+
+  // Helper function to format time (display ticks directly)
+  const formatTime = (ticks) => {
+    if (ticks === undefined || ticks === null) return "-";
+    return ticks.toLocaleString(); // Display ticks with thousand separators
+  };
+
+  // Helper function to get color based on time (shorter = better = green)
+  const getTimeColor = (ticks, level) => {
+    if (ticks === undefined || ticks === null) return "#888";
+    
+    // Rough estimates for "good" upgrade times per level
+    const goodTimes = {
+      1: 1000,   // ~16 minutes
+      2: 2000,   // ~33 minutes
+      3: 5000,   // ~83 minutes
+      4: 10000,  // ~2.7 hours
+      5: 20000,  // ~5.5 hours
+      6: 40000,  // ~11 hours
+      7: 80000,  // ~22 hours
+      8: 150000, // ~41 hours
+    };
+    
+    const goodTime = goodTimes[level] || 100000;
+    if (ticks <= goodTime) {
+      return "#00ff00"; // Green - good time
+    } else if (ticks <= goodTime * 1.5) {
+      return "#ffaa00"; // Orange - acceptable
+    } else {
+      return "#ff0000"; // Red - slow
+    }
+  };
+
+  // Room rows
+  ownedRooms.forEach(({ roomName, room }) => {
+    const roomMemory = Memory.rooms && Memory.rooms[roomName];
+    const currentRcl = room.controller ? room.controller.level : 0;
+    const upgradeTimes = roomMemory && roomMemory.rclUpgradeTimes ? roomMemory.rclUpgradeTimes : {};
+
+    result.push('<tr style="background-color: #1a1a1a;">');
+    
+    // Room name
+    result.push(`<td style="padding: 5px; color: #00ffff; font-weight: bold;">${roomName}</td>`);
+    
+    // Current RCL
+    result.push(`<td style="padding: 5px; text-align: center; color: #ffff00; font-weight: bold;">${currentRcl}</td>`);
+    
+    // Upgrade times for each level
+    sortedLevels.forEach(level => {
+      const upgradeTime = upgradeTimes[level.toString()];
+      const timeStr = formatTime(upgradeTime);
+      const color = getTimeColor(upgradeTime, level);
+      
+      result.push(`<td style="padding: 5px; text-align: center; color: ${color};">${timeStr}</td>`);
+    });
+    
+    result.push("</tr>");
+  });
+
+  // Summary row (average times per level)
+  result.push('<tr style="background-color: #333;">');
+  result.push('<td style="padding: 5px; font-weight: bold; color: #00ff00;">AVERAGE</td>');
+  result.push('<td style="padding: 5px;"></td>');
+  
+  sortedLevels.forEach(level => {
+    const times = [];
+    ownedRooms.forEach(({ roomName }) => {
+      const roomMemory = Memory.rooms && Memory.rooms[roomName];
+      const upgradeTimes = roomMemory && roomMemory.rclUpgradeTimes ? roomMemory.rclUpgradeTimes : {};
+      const time = upgradeTimes[level.toString()];
+      if (time !== undefined && time !== null) {
+        times.push(time);
+      }
+    });
+    
+    if (times.length > 0) {
+      const avgTime = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+      const timeStr = formatTime(avgTime);
+      const color = getTimeColor(avgTime, level);
+      result.push(`<td style="padding: 5px; text-align: center; font-weight: bold; color: ${color};">${timeStr}</td>`);
+    } else {
+      result.push('<td style="padding: 5px; text-align: center; color: #888;">-</td>');
+    }
+  });
+  
+  result.push("</tr>");
+
+  result.push("</table>");
+  result.push('<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>');
+  
+  const resultString = result.join("");
+  console.log(resultString);
+  return resultString;
+}
+
 module.exports = {
   showTerminals,
   numberOfTerminals,
@@ -970,6 +1184,7 @@ module.exports = {
   showLogistic,
   showCPU,
   showScout,
+  showRclUpgradeTimes,
   cleanMemory,
   profileMemory,
   _redrawScoutVisualization, // Internal function for automatic redraw

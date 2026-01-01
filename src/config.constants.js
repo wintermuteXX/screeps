@@ -302,8 +302,8 @@ module.exports = {
     VISUALIZATION_DURATION: 15,
 
     // Room Boundaries
-    ROOM_MIN: 1,
-    ROOM_MAX: 48,
+    ROOM_MIN: 2,
+    ROOM_MAX: 47,
     ROOM_EDGE_MIN: 2,
     ROOM_EDGE_MAX: 47,
   },

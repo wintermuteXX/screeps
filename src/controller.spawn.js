@@ -1,5 +1,4 @@
 const Log = require("./lib.log");
-const duneConfig = require("./config.dune");
 
 class ControllerSpawn {
   constructor(rc) {

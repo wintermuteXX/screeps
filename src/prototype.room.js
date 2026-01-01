@@ -105,6 +105,15 @@ Room.isRoomValidForClaiming = function (roomName) {
   if (roomMemory.controller && roomMemory.controller.owner && !roomMemory.controller.my) {
     return false;
   }
+  
+  // Prüfe ob Layout-Generierung fehlgeschlagen ist
+  // layoutGenerated === false bedeutet: geprüft und kann nicht generiert werden
+  // layoutGenerated === undefined bedeutet: noch nicht geprüft (erlauben)
+  // layoutGenerated === true bedeutet: Layout existiert (erlauben)
+  if (roomMemory.planner && roomMemory.planner.layoutGenerated === false) {
+    return false;
+  }
+  
   return true;
 };
 

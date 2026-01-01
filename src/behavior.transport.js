@@ -41,13 +41,12 @@ b.work = function (creep, rc) {
   if (creep.memory.transport.length === 0) {
     // No active orders - try to get new ones
     const newOrders = rc.getTransportOrderOrnithopter(creep);
-    console.log(`${creep.name} newOrders: ${JSON.stringify(newOrders, null, 2)}`);
     if (!newOrders || newOrders.length === 0) {
       // No new orders available
       return;
     }
-    // New orders assigned, continue with first one in next tick
-    return;
+    // Orders are already stored in creep.memory.transport by getTransportOrderOrnithopter
+    // Continue processing in same tick if possible
   }
 
   const currentOrder = creep.memory.transport[0];
@@ -60,12 +59,13 @@ b.work = function (creep, rc) {
   if (!target) {
     // Target no longer exists - remove order from memory
     Log.warn(`${creep} target ${currentOrder.id} no longer exists, removing order`, "transport");
-    creep.memory.transport.shift(); // Remove first order
+    creep.memory.transport.shift();
     return;
   }
 
   // Set creep target for movement
   creep.target = currentOrder.id;
+
   // Check if we're in range
   if (!creep.pos.inRangeTo(target, 1)) {
     // Move to target
@@ -73,39 +73,114 @@ b.work = function (creep, rc) {
     return;
   }
 
-  // We're at the target - simulate action
-  if (currentOrder.type === "give") {
-    // Simulate withdrawing/picking up
-    const resourceType = currentOrder.resourceType;
-    const amount = currentOrder.amount || 0;
-    const targetName = target.structureType || target.constructor.name || "Object";
-    
-    console.log(
-      `SIMULIERT: ${creep} nimmt ${amount} ${resourceType} von ${targetName} (${target.id})`,
-      "transport"
-    );
-    
-    // Remove completed order from memory
-    creep.memory.transport.shift();
-    
-  } else if (currentOrder.type === "need") {
-    // Simulate transferring/delivering
-    const resourceType = currentOrder.resourceType;
-    const amount = currentOrder.amount || 0;
-    const targetName = target.structureType || target.constructor.name || "Object";
-    
-    console.log(
-      `SIMULIERT: ${creep} liefert ${amount} ${resourceType} an ${targetName} (${target.id})`,
-      "transport"
-    );
-    
-    // Remove completed order from memory
-    creep.memory.transport.shift();
-  }
+  // We're at the target - execute action
+  const resourceType = currentOrder.resourceType;
+  const amount = currentOrder.amount || 0;
+  let result;
 
-  // Clear target after completing order
-  creep.target = null;
+  if (currentOrder.type === "give") {
+    // Withdraw/pick up resources from target
+    if (!target.store || target.store.getUsedCapacity(resourceType) === 0) {
+      // Target has no resources - remove order
+      Log.warn(`${creep} target ${target} has no ${resourceType}, removing order`, "transport");
+      creep.memory.transport.shift();
+      creep.target = null;
+      return;
+    }
+
+    const withdrawAmount = Math.min(
+      amount,
+      target.store.getUsedCapacity(resourceType),
+      creep.store.getFreeCapacity(resourceType)
+    );
+
+    if (withdrawAmount > 0) {
+      result = creep.withdraw(target, resourceType, withdrawAmount);
+      
+      switch (result) {
+        case OK:
+          Log.debug(`${creep} withdrew ${withdrawAmount} ${resourceType} from ${target}`, "transport");
+          // Remove completed order from memory
+          creep.memory.transport.shift();
+          creep.target = null;
+          break;
+        case ERR_NOT_ENOUGH_RESOURCES:
+          Log.warn(`${creep} not enough ${resourceType} in ${target}, removing order`, "transport");
+          creep.memory.transport.shift();
+          creep.target = null;
+          break;
+        case ERR_FULL:
+          Log.warn(`${creep} store full, cannot withdraw`, "transport");
+          // Don't remove order, try again next tick
+          break;
+        default:
+          Log.warn(`${creep} withdraw error: ${global.getErrorString(result)}`, "transport");
+          // Remove order on error to prevent infinite loop
+          creep.memory.transport.shift();
+          creep.target = null;
+      }
+    } else {
+      // No capacity or resources - remove order
+      creep.memory.transport.shift();
+      creep.target = null;
+    }
+
+  } else if (currentOrder.type === "need") {
+    // Transfer/deliver resources to target
+    if (creep.store.getUsedCapacity(resourceType) === 0) {
+      // Creep has no resources - this shouldn't happen if orders are correct
+      Log.warn(`${creep} has no ${resourceType} for order, removing order`, "transport");
+      creep.memory.transport.shift();
+      creep.target = null;
+      return;
+    }
+
+    if (!target.store || target.store.getFreeCapacity(resourceType) === 0) {
+      // Target has no capacity - remove order
+      Log.warn(`${creep} target ${target} has no capacity for ${resourceType}, removing order`, "transport");
+      creep.memory.transport.shift();
+      creep.target = null;
+      return;
+    }
+
+    const transferAmount = Math.min(
+      amount,
+      creep.store.getUsedCapacity(resourceType),
+      target.store.getFreeCapacity(resourceType)
+    );
+
+    if (transferAmount > 0) {
+      result = creep.transfer(target, resourceType, transferAmount);
+      
+      switch (result) {
+        case OK:
+          Log.debug(`${creep} transferred ${transferAmount} ${resourceType} to ${target}`, "transport");
+          // Remove completed order from memory
+          creep.memory.transport.shift();
+          creep.target = null;
+          break;
+        case ERR_NOT_ENOUGH_RESOURCES:
+          Log.warn(`${creep} not enough ${resourceType}, removing order`, "transport");
+          creep.memory.transport.shift();
+          creep.target = null;
+          break;
+        case ERR_FULL:
+          Log.warn(`${creep} target ${target} is full, removing order`, "transport");
+          creep.memory.transport.shift();
+          creep.target = null;
+          break;
+        default:
+          Log.warn(`${creep} transfer error: ${global.getErrorString(result)}`, "transport");
+          // Remove order on error to prevent infinite loop
+          creep.memory.transport.shift();
+          creep.target = null;
+      }
+    } else {
+      // No resources or capacity - remove order
+      creep.memory.transport.shift();
+      creep.target = null;
+    }
+  }
 };
 
 module.exports = b;
-

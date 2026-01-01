@@ -146,7 +146,7 @@ RoomPlanner.prototype._initMemory = function () {
     Memory.rooms[this.roomName].planner = {
       centerX: null,
       centerY: null,
-      layoutGenerated: false,
+      layoutGenerated: undefined,  // undefined = noch nicht geprüft, true = erfolgreich, false = fehlgeschlagen
       plannedStructures: [],
       visualizeUntil: null,
     };
@@ -167,21 +167,35 @@ RoomPlanner.prototype.run = function () {
 
   // Determine center (based on first spawn)
   if (!this._hasCenter()) {
-    this._findCenter();
+    const centerFound = this._findCenter();
+    if (!centerFound) {
+      // Center konnte nicht gefunden werden - Layout kann nicht generiert werden
+      this.memory.layoutGenerated = false;
+      return;
+    }
   }
 
   // Generate layout if not already done
-  if (!this.memory.layoutGenerated && this._hasCenter()) {
-    this._generateLayout();
+  if (this.memory.layoutGenerated !== true && this._hasCenter()) {
+    try {
+      this._generateLayout();
+      // _generateLayout() setzt layoutGenerated auf true
+    } catch (error) {
+      // Layout-Generierung fehlgeschlagen
+      this.memory.layoutGenerated = false;
+      Log.error(`RoomPlanner: Layout generation failed for ${this.roomName}: ${error}`, "RoomPlanner");
+    }
   }
 
   // Construction Sites platzieren
-  if (this.memory.layoutGenerated) {
+  if (this.memory.layoutGenerated === true) {
     this._placeConstructionSites(rcl);
   }
 
   // Place special structures (Extractor, Container at Sources)
-  this._placeSpecialStructures(rcl);
+  if (this.memory.layoutGenerated === true) {
+    this._placeSpecialStructures(rcl);
+  }
 
   // Draw visualization if active
   if (this.memory.visualizeUntil && Game.time <= this.memory.visualizeUntil) {
@@ -233,6 +247,51 @@ RoomPlanner.prototype._findCenter = function () {
 };
 
 /**
+ * Versucht ein Layout für einen Raum zu generieren (auch ohne Claim)
+ * Wird vom Scout aufgerufen, um zu prüfen ob ein Layout generiert werden kann
+ * @returns {boolean} True wenn Layout erfolgreich generiert wurde, false wenn fehlgeschlagen
+ */
+RoomPlanner.prototype.tryGenerateLayout = function () {
+  // Prüfe ob bereits ein Layout generiert wurde
+  if (this.memory.layoutGenerated === true) {
+    return true;
+  }
+
+  // Prüfe ob bereits bekannt ist, dass Layout-Generierung fehlschlägt
+  if (this.memory.layoutGenerated === false) {
+    return false;
+  }
+
+  // Prüfe ob Raum einen Controller hat (auch wenn nicht geclaimt)
+  if (!this.room.controller) {
+    this.memory.layoutGenerated = false;
+    return false;
+  }
+
+  // Versuche Center zu finden
+  if (!this._hasCenter()) {
+    const centerFound = this._findCenter();
+    if (!centerFound) {
+      // Center konnte nicht gefunden werden
+      this.memory.layoutGenerated = false;
+      return false;
+    }
+  }
+
+  // Versuche Layout zu generieren
+  try {
+    this._generateLayout();
+    // _generateLayout() setzt layoutGenerated auf true
+    return true;
+  } catch (error) {
+    // Layout-Generierung fehlgeschlagen
+    this.memory.layoutGenerated = false;
+    Log.error(`RoomPlanner: Layout generation failed for ${this.roomName}: ${error}`, "RoomPlanner");
+    return false;
+  }
+};
+
+/**
  * Calculates the optimal center position
  */
 RoomPlanner.prototype._calculateOptimalCenter = function () {
@@ -274,24 +333,42 @@ RoomPlanner.prototype._calculateOptimalCenter = function () {
  */
 RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
   const terrain = this.room.getTerrain();
-  const range = CONSTANTS.PLANNER.CENTER_FREE_RANGE;
+  
+  // Berechne den benötigten Bereich aus BUNKER_LAYOUT
+  let minOffsetX = 0;
+  let maxOffsetX = 0;
+  let minOffsetY = 0;
+  let maxOffsetY = 0;
+  
+  // Durchlaufe alle Strukturen im BUNKER_LAYOUT
+  for (const key in BUNKER_LAYOUT) {
+    if (!BUNKER_LAYOUT[key] || !Array.isArray(BUNKER_LAYOUT[key])) continue;
+    
+    for (const pos of BUNKER_LAYOUT[key]) {
+      if (pos.x < minOffsetX) minOffsetX = pos.x;
+      if (pos.x > maxOffsetX) maxOffsetX = pos.x;
+      if (pos.y < minOffsetY) minOffsetY = pos.y;
+      if (pos.y > maxOffsetY) maxOffsetY = pos.y;
+    }
+  }
+  
+  // Prüfe alle Positionen im benötigten Bereich
+  for (let offsetX = minOffsetX; offsetX <= maxOffsetX; offsetX++) {
+    for (let offsetY = minOffsetY; offsetY <= maxOffsetY; offsetY++) {
+      const checkX = x + offsetX;
+      const checkY = y + offsetY;
 
-  for (let dx = -range; dx <= range; dx++) {
-    for (let dy = -range; dy <= range; dy++) {
-      const checkX = x + dx;
-      const checkY = y + dy;
-
-      // Border check
+      // Border check - prüfe ob Position innerhalb der Raumgrenzen liegt
       if (
-        checkX < CONSTANTS.PLANNER.ROOM_EDGE_MIN ||
-        checkX > CONSTANTS.PLANNER.ROOM_EDGE_MAX ||
-        checkY < CONSTANTS.PLANNER.ROOM_EDGE_MIN ||
-        checkY > CONSTANTS.PLANNER.ROOM_EDGE_MAX
+        checkX < CONSTANTS.PLANNER.ROOM_MIN ||
+        checkX > CONSTANTS.PLANNER.ROOM_MAX ||
+        checkY < CONSTANTS.PLANNER.ROOM_MIN ||
+        checkY > CONSTANTS.PLANNER.ROOM_MAX
       ) {
         return false;
       }
 
-      // Wall check
+      // Wall check - prüfe ob Position eine Wand ist
       if (terrain.get(checkX, checkY) === TERRAIN_MASK_WALL) {
         return false;
       }
@@ -1164,7 +1241,7 @@ RoomPlanner.prototype._removeStoredSpecialStructure = function (identifier) {
  * Activates visualization for 15 ticks
  */
 RoomPlanner.prototype.visualize = function () {
-  if (!this.memory.layoutGenerated) {
+  if (this.memory.layoutGenerated !== true) {
     Log.warn(`Cannot visualize: Layout not generated for ${this.roomName}`, "RoomPlanner");
     return;
   }
@@ -1183,7 +1260,7 @@ RoomPlanner.prototype.visualize = function () {
  * @returns {Array} Array of orphaned structures with their positions
  */
 RoomPlanner.prototype._findOrphanedStructures = function () {
-  if (!this.memory.layoutGenerated || !this._hasCenter()) {
+  if (this.memory.layoutGenerated !== true || !this._hasCenter()) {
     return [];
   }
 
@@ -1251,7 +1328,7 @@ RoomPlanner.prototype._findOrphanedStructures = function () {
  * Draws the visualization (internal method)
  */
 RoomPlanner.prototype._drawVisualization = function () {
-  if (!this.memory.layoutGenerated) return;
+  if (this.memory.layoutGenerated !== true) return;
 
   const {visual} = this.room;
 
@@ -1444,7 +1521,7 @@ RoomPlanner.prototype._drawVisualization = function () {
 RoomPlanner.prototype.reset = function () {
   this.memory.centerX = null;
   this.memory.centerY = null;
-  this.memory.layoutGenerated = false;
+  this.memory.layoutGenerated = undefined;  // Reset auf undefined = noch nicht geprüft
   this.memory.plannedStructures = [];
   Log.info(`RoomPlanner: Layout for ${this.roomName} reset`, "RoomPlanner");
 };
@@ -1453,7 +1530,10 @@ RoomPlanner.prototype.reset = function () {
  * Returns statistics about the planned layout
  */
 RoomPlanner.prototype.getStats = function () {
-  if (!this.memory.layoutGenerated) {
+  if (this.memory.layoutGenerated !== true) {
+    if (this.memory.layoutGenerated === false) {
+      return { status: "Layout-Generierung fehlgeschlagen" };
+    }
     return { status: "nicht generiert" };
   }
 

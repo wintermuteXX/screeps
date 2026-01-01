@@ -1,5 +1,6 @@
 const Behavior = require("./behavior.base");
 const Log = require("./lib.log");
+const RoomPlanner = require("./service.planner");
 
 const b = new Behavior("scout");
 
@@ -220,6 +221,21 @@ b.work = function (creep, rc) {
   if (!isOnExitTile && needsAnalysis(roomName)) {
     Log.success(`🔍 ${creep} Analyzing room ${roomName}`, "scout");
     global.analyzeRoom(creep.room, true);
+    
+    // Versuche Layout zu generieren wenn Raum gerade betreten wurde
+    if (justEnteredRoom) {
+      try {
+        const planner = new RoomPlanner(creep.room);
+        const layoutGenerated = planner.tryGenerateLayout();
+        if (layoutGenerated) {
+          Log.success(`✅ ${creep} Layout für ${roomName} erfolgreich generiert`, "scout");
+        } else {
+          Log.warn(`⚠️ ${creep} Layout-Generierung für ${roomName} fehlgeschlagen`, "scout");
+        }
+      } catch (error) {
+        Log.error(`❌ ${creep} Fehler bei Layout-Generierung für ${roomName}: ${error}`, "scout");
+      }
+    }
   }
 
   // Determine target room

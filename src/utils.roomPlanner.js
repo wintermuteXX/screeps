@@ -83,7 +83,7 @@ function plannerSetCenter(roomName, x, y) {
   Memory.rooms[roomName].planner = {
     centerX: x,
     centerY: y,
-    layoutGenerated: false,
+    layoutGenerated: undefined,  // undefined = noch nicht geprüft, wird beim nächsten run() generiert
     plannedStructures: [],
   };
 

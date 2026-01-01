@@ -46,16 +46,6 @@ class ControllerGame {
   }
 
   /**
-   * Updates the previous bucket value in memory
-   * Note: This is now handled automatically by cpuAnalyzer.recordTick()
-   * This method is kept for compatibility but does nothing.
-   */
-  updateBucketMemory() {
-    // Bucket is now stored in Memory.cpuHistory via cpuAnalyzer.recordTick()
-    // No need to update Memory.previousBucket anymore
-  }
-
-  /**
    * Findet den besten Raum für Claiming und setzt Memory.roomToClaim
    * Wird zyklisch alle 100 Ticks ausgeführt
    */
