@@ -319,11 +319,18 @@ function analyzeRoom(room, fullAnalysis = false) {
       // Important structures
       // Preserve existing nested structure memory (used by Structure.prototype.memory)
       // Memory.rooms[room.name].structures[structureType + 's'][id] is the nested structure
-      // We store a flat summary in structuresSummary, but keep the nested structure intact
+      // We store a flat summary in structures, but keep the nested structure intact
       const existingStructures = Memory.rooms[room.name].structures || {};
       
-      // Store flat summary for analyzeRoom/Scout (don't overwrite nested structure)
-      memory.structuresSummary = {
+      // Ensure nested structure exists for Structure.prototype.memory compatibility
+      if (!Memory.rooms[room.name].structures || typeof Memory.rooms[room.name].structures !== 'object' || Array.isArray(Memory.rooms[room.name].structures)) {
+        Memory.rooms[room.name].structures = {};
+      }
+      
+      // Store flat summary for analyzeRoom/Scout
+      // Note: Since room.memory === Memory.rooms[room.name], setting memory.structures
+      // will overwrite Memory.rooms[room.name].structures, so we need to restore the nested structure
+      memory.structures = {
         spawn: room.find(FIND_MY_SPAWNS).length,
         extension: room.find(FIND_MY_STRUCTURES, {
           filter: (s) => s.structureType === STRUCTURE_EXTENSION,
@@ -351,16 +358,6 @@ function analyzeRoom(room, fullAnalysis = false) {
         }).length,
       };
       
-      // Ensure nested structure exists for Structure.prototype.memory compatibility
-      if (!Memory.rooms[room.name].structures || typeof Memory.rooms[room.name].structures !== 'object' || Array.isArray(Memory.rooms[room.name].structures)) {
-        Memory.rooms[room.name].structures = {};
-      }
-      
-      // Store as structures for analyzeRoom/Scout
-      // Note: Since room.memory === Memory.rooms[room.name], setting memory.structures
-      // will overwrite Memory.rooms[room.name].structures, so we need to restore the nested structure
-      memory.structures = Object.assign({}, memory.structuresSummary);
-      
       // Restore nested structure after setting flat structure (since they share the same object)
       // The nested structure is used by Structure.prototype.memory: structures[structureType + 's'][id]
       if (existingStructures && Object.keys(existingStructures).length > 0) {
@@ -371,15 +368,6 @@ function analyzeRoom(room, fullAnalysis = false) {
           }
         }
       }
-
-      // Hostile information
-      const hostiles = room.find(FIND_HOSTILE_CREEPS);
-      const hostileStructures = room.find(FIND_HOSTILE_STRUCTURES);
-      memory.hostiles = {
-        creeps: hostiles.length,
-        structures: hostileStructures.length,
-        usernames: hostiles.map(c => c.owner.username).filter((v, i, a) => a.indexOf(v) === i), // unique usernames
-      };
 
       // Invader cores
       const invaderCores = room.find(FIND_STRUCTURES, {
@@ -394,12 +382,6 @@ function analyzeRoom(room, fullAnalysis = false) {
           ticksToDeploy: c.ticksToDeploy,
         }));
       }
-
-      // Energy available
-      memory.energy = {
-        available: room.energyAvailable,
-        capacity: room.energyCapacityAvailable,
-      };
 
       // Calculate room score for claiming priority
       memory.score = calculateRoomScore(room, memory);
@@ -461,23 +443,6 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
     }
   }
 
-  // Hostiles (if full analysis)
-  if (fullAnalysis && memory.hostiles) {
-    if (memory.hostiles.creeps > 0 || memory.hostiles.structures > 0) {
-      const hostileInfo = [];
-      if (memory.hostiles.creeps > 0) {
-        hostileInfo.push(`${memory.hostiles.creeps} creeps`);
-      }
-      if (memory.hostiles.structures > 0) {
-        hostileInfo.push(`${memory.hostiles.structures} structures`);
-      }
-      if (memory.hostiles.usernames && memory.hostiles.usernames.length > 0) {
-        hostileInfo.push(`(${memory.hostiles.usernames.join(", ")})`);
-      }
-      parts.push(`⚠️ Hostiles: ${hostileInfo.join(" ")}`);
-    }
-  }
-
   // Special features
   if (memory.portal) {
     const dest = memory.portal.destination;
@@ -500,7 +465,7 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   // Structures (if full analysis and own room)
   if (fullAnalysis && memory.structures && memory.controller && memory.controller.my) {
     const structParts = [];
-    const structures = memory.structures || memory.structuresSummary || {};
+    const structures = memory.structures || {};
     if (structures.spawn > 0) structParts.push(`${structures.spawn}S`);
     if (structures.tower > 0) structParts.push(`${structures.tower}T`);
     if (structures.storage) structParts.push("Storage");
