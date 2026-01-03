@@ -190,6 +190,235 @@ Creep.prototype.getHarvestPowerPerTick = function() {
   return totalHarvestPower;
 };
 
+/**
+ * Get first resource type from creep store
+ * @returns {string|null} Resource type or null if store is empty
+ */
+Creep.prototype.getFirstResourceType = function () {
+  for (const resourceType in this.store) {
+    if (this.store[resourceType] > 0) {
+      return resourceType;
+    }
+  }
+  return null;
+};
+
+/**
+ * Move to target and execute action if near
+ * @param {RoomObject|Structure|Creep|Source|Resource} target - Target to move to
+ * @param {Function} action - Action to execute when near (returns true if action was taken)
+ * @param {string} statusPrefix - Status prefix for logging (optional)
+ * @param {number} range - Range to consider "near" (default: 1)
+ * @returns {boolean} True if action was taken or movement initiated
+ */
+Creep.prototype.moveAndAct = function (target, action, statusPrefix, range = 1) {
+  if (!target) return false;
+
+  const isNear = range === 1
+    ? this.pos.isNearTo(target)
+    : this.pos.inRangeTo(target, range);
+
+  if (isNear) {
+    return action();
+  } else {
+    this.travelTo(target);
+    return true;
+  }
+};
+
+/**
+ * Transfer resource to target if near, otherwise move
+ * @param {Structure|Creep} target - Target to transfer to
+ * @param {string} resourceType - Resource type to transfer
+ * @param {string} statusPrefix - Status prefix for logging (optional)
+ * @returns {boolean} True if transfer was attempted or movement initiated
+ */
+Creep.prototype.transferIfNear = function (target, resourceType, statusPrefix) {
+  return this.moveAndAct(
+    target,
+    () => {
+      const amount = this.store[resourceType] || 0;
+      if (amount > 0) {
+        this.transfer(target, resourceType);
+        return true;
+      }
+      return false;
+    },
+    statusPrefix,
+  );
+};
+
+/**
+ * Get available source for this creep (finds source with free spaces and low harvest power)
+ * @param {ControllerRoom} rc - The room controller
+ * @returns {Source|null} Available source or null if none found
+ */
+Creep.prototype.getAvailableSource = function (rc) {
+  let source = this.getTarget();
+  if (source === null) {
+    // Use cached find() instead of getSources()
+    source = _.find(rc.find(FIND_SOURCES), (s) => {
+      // Check free spaces: freeSpacesCount - creepsTargeting > 0
+      const freeSpaces = s.freeSpacesCount;
+      const creepsTargeting = rc.getCreeps(null, s.id).length;
+      const availableSpaces = freeSpaces - creepsTargeting;
+      
+      if (availableSpaces <= 0) {
+        return false; // No free spaces
+      }
+      
+      // Check if current harvest power is below 5
+      let currentHarvestPower = 0;
+      const harvestingCreeps = rc.getCreeps(null, s.id);
+      for (const hCreep of harvestingCreeps) {
+        if (hCreep.pos.isNearTo(s)) {
+          currentHarvestPower += hCreep.getHarvestPowerPerTick();
+        }
+      }
+      
+      return currentHarvestPower < 5;
+    });
+  }
+  return source;
+};
+
+/**
+ * Transfer resources from creep to container
+ * @param {StructureContainer} container - Container to transfer to
+ * @returns {boolean} True if transfer was attempted or movement initiated
+ */
+Creep.prototype.transferResourcesToContainer = function (container) {
+  const containerFreeCapacity = container.store ? container.store.getFreeCapacity() : 0;
+  if (this.store.getUsedCapacity() === 0 || containerFreeCapacity === 0) {
+    return false;
+  }
+
+  const resourceType = this.getFirstResourceType();
+  if (!resourceType) return false;
+
+  return this.moveAndAct(
+    container,
+    () => {
+      const amount = this.store[resourceType];
+      this.transfer(container, resourceType);
+      return true;
+    },
+    "IDLE_MOVING_TO_CONTAINER",
+  );
+};
+
+/**
+ * Pick up dropped resources near container
+ * @param {StructureContainer} container - Container to use as reference point
+ * @returns {boolean} True if pickup was attempted or movement initiated
+ */
+Creep.prototype.pickupDroppedResources = function (container) {
+  const containerFreeCapacity = container.store ? container.store.getFreeCapacity() : 0;
+  if (this.store.getFreeCapacity() === 0 || containerFreeCapacity === 0) {
+    return false;
+  }
+
+  const droppedResources = container.pos.findInRange(FIND_DROPPED_RESOURCES, 5);
+  if (droppedResources.length === 0) {
+    return false;
+  }
+
+  const closestResource = container.pos.findClosestByRange(droppedResources);
+  if (!closestResource) {
+    return false;
+  }
+
+  return this.moveAndAct(
+    closestResource,
+    () => {
+      this.pickup(closestResource);
+      return true;
+    },
+    "IDLE_MOVING_TO_RESOURCE",
+  );
+};
+
+/**
+ * Transfer energy from creep to link
+ * @param {StructureLink} link - Link to transfer to
+ * @returns {boolean} True if transfer was attempted or movement initiated
+ */
+Creep.prototype.transferEnergyToLink = function (link) {
+  if (this.store[RESOURCE_ENERGY] === 0) {
+    return false;
+  }
+
+  return this.transferIfNear(link, RESOURCE_ENERGY, "TRANSFERRING_TO_LINK");
+};
+
+/**
+ * Finds an unvisited room within 2 hops from the start room that needs analysis
+ * @returns {Object|null} Object with roomName and distance, or null if none found
+ */
+Creep.prototype.findUnvisitedRoom = function () {
+  const currentRoom = this.room.name;
+
+  // Find start room (home room from memory, fallback to current room)
+  const startRoom = this.memory.home || currentRoom;
+
+  // Calculate distance from start room
+  const distanceFromStart = Game.map.getRoomLinearDistance(startRoom, currentRoom);
+
+  const candidates = [];
+
+  // Get exits from current room
+  const exits = Game.map.describeExits(currentRoom);
+
+  // Level 1: Directly adjacent rooms (max 1 hop from start)
+  for (const direction in exits) {
+    const roomName = exits[direction];
+    const roomStatus = Game.map.getRoomStatus(roomName);
+    const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
+
+    // Check if room is normal AND not hostile AND needs analysis
+    if (roomStatus.status === "normal" &&
+        distFromStart <= 2 &&
+        !Room.isHostile(roomName) &&
+        Room.needsAnalysis(roomName)) {
+      candidates.push({ roomName, distance: distFromStart });
+    }
+  }
+
+  // Level 2: Rooms 2 hops from start (only if no Level-1 rooms found)
+  if (candidates.length === 0 && distanceFromStart < 2) {
+    for (const direction in exits) {
+      const level1Room = exits[direction];
+      const level1Status = Game.map.getRoomStatus(level1Room);
+      if (level1Status.status === "normal" && !Room.isHostile(level1Room)) {
+        const level1Exits = Game.map.describeExits(level1Room);
+        for (const dir2 in level1Exits) {
+          const roomName = level1Exits[dir2];
+          const roomStatus = Game.map.getRoomStatus(roomName);
+          const distFromStart = Game.map.getRoomLinearDistance(startRoom, roomName);
+          // Don't go back to current room and max 2 hops from start
+          if (roomName !== currentRoom &&
+              roomStatus.status === "normal" &&
+              distFromStart <= 2 &&
+              !Room.isHostile(roomName) &&
+              Room.needsAnalysis(roomName)) {
+            candidates.push({ roomName, distance: distFromStart });
+          }
+        }
+      }
+    }
+  }
+
+  if (candidates.length > 0) {
+    // Sort by distance (closest first) and randomly choose from the closest
+    candidates.sort((a, b) => a.distance - b.distance);
+    const minDist = candidates[0].distance;
+    const closestCandidates = candidates.filter(c => c.distance === minDist);
+    return closestCandidates[Math.floor(Math.random() * closestCandidates.length)];
+  }
+
+  return null;
+};
+
 Creep.prototype.toString = function (htmlLink = true) {
   if (htmlLink) {
     let onClick = "";

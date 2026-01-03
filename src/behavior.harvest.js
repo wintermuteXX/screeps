@@ -1,39 +1,5 @@
 const Behavior = require("./behavior.base");
 
-/**
- * Selects the best source using canHarvestSource and chooses the closest one
- * @param {Source[]} sources - Array of available sources
- * @param {Creep} creep - The creep that wants to harvest
- * @param {any} rc - The room controller
- * @returns {Source|null} Best source or null if none available
- */
-function selectBestSource(sources, creep, rc) {
-  const availableSources = [];
-
-  for (const source of sources) {
-    const harvestInfo = source.canHarvestSource(creep, rc);
-
-    if (harvestInfo.canHarvest) {
-      const distance = creep.pos.getRangeTo(source);
-      availableSources.push({
-        source: source,
-        distance: distance,
-        harvestInfo: harvestInfo,
-      });
-    }
-  }
-
-  if (availableSources.length === 0) {
-    return null;
-  }
-
-  // Sort by distance (ascending) - closest first
-  availableSources.sort((a, b) => a.distance - b.distance);
-
-  // Return the closest source
-  return availableSources[0].source;
-}
-
 class HarvestBehavior extends Behavior {
   constructor() {
     super("harvest");
@@ -61,7 +27,7 @@ class HarvestBehavior extends Behavior {
     if (target === null) {
       const sources = rc.getSourcesNotEmpty();
       if (sources && sources.length) {
-        target = selectBestSource(sources, creep, rc);
+        target = sources.selectBestSource(creep, rc);
       }
     }
 

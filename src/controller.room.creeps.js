@@ -109,6 +109,11 @@ class CreepManager {
       const role = roles[i];
 
       const cfg = cfgCreeps[role];
+      // Skip if config doesn't exist or is not an object
+      if (!cfg || typeof cfg !== 'object') {
+        continue;
+      }
+      // Check produceGlobal property (default to false if not set)
       if (!cfg.produceGlobal || cfg.produceGlobal === false) {
         if (this._shouldCreateCreep(role, cfg)) {
           this.rc.spawns.createCreep(spawn, role, cfg);

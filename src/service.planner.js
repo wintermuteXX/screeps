@@ -204,8 +204,27 @@ RoomPlanner.prototype._isTooCloseToController = function (x, y) {
 };
 
 /**
+ * Helper: Checks if position is too close to mineral (Range=2)
+ */
+RoomPlanner.prototype._isTooCloseToMineral = function (x, y) {
+  const minerals = this.room.find(FIND_MINERALS);
+  if (minerals.length === 0) {
+    return false;
+  }
+  
+  const pos = new RoomPosition(x, y, this.roomName);
+  for (const mineral of minerals) {
+    if (pos.getRangeTo(mineral.pos) <= 2) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
+/**
  * Helper: Validates position for structure placement (BUNKER_LAYOUT, Extensions, Labs)
- * Checks: boundaries, walls, sources (Range=2), controller (Range=3)
+ * Checks: boundaries, walls, sources (Range=2), controller (Range=3), mineral (Range=2)
  */
 RoomPlanner.prototype._isValidStructurePosition = function (x, y) {
   // 1. Check boundaries and walls
@@ -220,6 +239,11 @@ RoomPlanner.prototype._isValidStructurePosition = function (x, y) {
   
   // 3. Check if too close to controller (Range=3)
   if (this._isTooCloseToController(x, y)) {
+    return false;
+  }
+  
+  // 4. Check if too close to mineral (Range=2)
+  if (this._isTooCloseToMineral(x, y)) {
     return false;
   }
   

@@ -2,8 +2,6 @@ const Behavior = require("./behavior.base");
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
-const b = new Behavior("recycle");
-
 /**
  * Recycle behavior for creeps that are no longer needed
  * Brings the creep to a spawn to recycle it and recover energy
@@ -11,8 +9,12 @@ const b = new Behavior("recycle");
  * Usage: Add as last behavior in the list
  * z.B.: behaviors: ["miner_harvest_mineral", "recycle"]
  */
+class RecycleBehavior extends Behavior {
+  constructor() {
+    super("recycle");
+  }
 
-b.when = function (creep, rc) {
+  when(creep, rc) {
   // Recycle when:
   // 1. Scout has nothing more to scout
   if (creep.memory.role === "scout" && creep.memory.scoutCompleted) {
@@ -33,16 +35,16 @@ b.when = function (creep, rc) {
     Log.info(`♻️ ${creep} ready for recycling - low ticks remaining (${creep.ticksToLive})`, "recycle");
     return true;
   }
-  Log.warn(`♻️ ${creep} not ready for recycling - no reason found`, "recycle");
-  return false;
-};
+    Log.warn(`♻️ ${creep} not ready for recycling - no reason found`, "recycle");
+    return false;
+  }
 
-b.completed = function (creep, rc) {
-  // Never "completed" - Creep will be recycled and disappear
-  return false;
-};
+  completed(creep, rc) {
+    // Never "completed" - Creep will be recycled and disappear
+    return false;
+  }
 
-b.work = function (creep, rc) {
+  work(creep, rc) {
   // First: Try to find spawn in current room (only own spawns)
   let spawn = rc.getIdleSpawnObject();
   if (spawn && !spawn.my) {
@@ -101,7 +103,7 @@ b.work = function (creep, rc) {
     creep.travelTo(spawn);
     creep.say("♻️");
   }
-};
+}
 
-module.exports = b;
+module.exports = new RecycleBehavior();
 

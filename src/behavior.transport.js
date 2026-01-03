@@ -1,37 +1,41 @@
 const Behavior = require("./behavior.base");
 const Log = require("./lib.log");
-const b = new Behavior("transport");
 
-/**
- * When: Behavior is active if creep has transport orders or needs new ones
- */
-b.when = function (creep, rc) {
-  // Check if creep has transport orders
-  if (!creep.memory.transport || !Array.isArray(creep.memory.transport)) {
-    // No transport memory - behavior should be active to request new orders
-    return true;
+class TransportBehavior extends Behavior {
+  constructor() {
+    super("transport");
   }
 
-  // Active if there are orders OR if we need to request new ones (empty creep)
-  return creep.memory.transport.length > 0 || creep.store.getUsedCapacity() === 0;
-};
+  /**
+   * When: Behavior is active if creep has transport orders or needs new ones
+   */
+  when(creep, rc) {
+    // Check if creep has transport orders
+    if (!creep.memory.transport || !Array.isArray(creep.memory.transport)) {
+      // No transport memory - behavior should be active to request new orders
+      return true;
+    }
 
-/**
- * Completed: Behavior is completed when all transport orders are done
- */
-b.completed = function (creep, rc) {
-  if (!creep.memory.transport || !Array.isArray(creep.memory.transport)) {
-    return true;
+    // Active if there are orders OR if we need to request new ones (empty creep)
+    return creep.memory.transport.length > 0 || creep.store.getUsedCapacity() === 0;
   }
 
-  // Check if all orders are done (array is empty)
-  return creep.memory.transport.length === 0;
-};
+  /**
+   * Completed: Behavior is completed when all transport orders are done
+   */
+  completed(creep, rc) {
+    if (!creep.memory.transport || !Array.isArray(creep.memory.transport)) {
+      return true;
+    }
 
-/**
- * Work: Main logic for processing transport orders
- */
-b.work = function (creep, rc) {
+    // Check if all orders are done (array is empty)
+    return creep.memory.transport.length === 0;
+  }
+
+  /**
+   * Work: Main logic for processing transport orders
+   */
+  work(creep, rc) {
   // Initialize transport memory if it doesn't exist
   if (!creep.memory.transport || !Array.isArray(creep.memory.transport)) {
     creep.memory.transport = [];
@@ -179,6 +183,6 @@ b.work = function (creep, rc) {
       creep.target = null;
     }
   }
-};
+}
 
-module.exports = b;
+module.exports = new TransportBehavior();

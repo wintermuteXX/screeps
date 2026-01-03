@@ -162,6 +162,40 @@ Object.defineProperty(Source.prototype, "container", {
   configurable: true,
 });
 
+Object.defineProperty(Source.prototype, "link", {
+  get: function () {
+    if (this._link === undefined) {
+      // Check if link ID is stored in memory
+      if (this.memory.linkID) {
+        const link = Game.getObjectById(this.memory.linkID);
+        if (link) {
+          this._link = link;
+          return this._link;
+        } else {
+          // Link no longer exists, delete ID from memory
+          this.memory.linkID = null;
+        }
+      }
+
+      // Search for existing link nearby (range 2, same as container)
+      const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: { structureType: STRUCTURE_LINK },
+      });
+
+      if (found) {
+        this.memory.linkID = found.id;
+        this._link = found;
+      } else {
+        // No link present
+        this._link = null;
+      }
+    }
+    return this._link;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
 Object.defineProperty(Source.prototype, "memory", {
   get: function () {
     if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
@@ -273,5 +307,53 @@ Source.prototype.toString = function (htmlLink = true) {
     return `<a href="#!/room/${Game.shard.name}/${this.room.name}" onClick="${onClick}">[Source:${energy}]</a>`;
   }
   return `[(Source) #${this.id}]`;
+};
+
+/**
+ * Array Prototype Extension for Source Arrays
+ * Selects the best source using canHarvestSource and chooses the closest one
+ * @param {Creep} creep - The creep that wants to harvest
+ * @param {any} rc - The room controller
+ * @returns {Source|null} Best source or null if none available
+ */
+Array.prototype.selectBestSource = function(creep, rc) {
+  const availableSources = [];
+
+  for (const source of this) {
+    const harvestInfo = source.canHarvestSource(creep, rc);
+
+    if (harvestInfo.canHarvest) {
+      const distance = creep.pos.getRangeTo(source);
+      availableSources.push({
+        source: source,
+        distance: distance,
+        harvestInfo: harvestInfo,
+      });
+    }
+  }
+
+  if (availableSources.length === 0) {
+    return null;
+  }
+
+  // Sort by distance (ascending) - closest first
+  availableSources.sort((a, b) => a.distance - b.distance);
+
+  // Return the closest source
+  return availableSources[0].source;
+};
+
+/**
+ * Finds dropped energy resources near this structure
+ * @param {number} range - Range to search (default: 3)
+ * @returns {Resource[]} Array of dropped energy resources within range
+ */
+Structure.prototype.findNearbyDroppedEnergy = function (range = 3) {
+  const dropped = this.room.find(FIND_DROPPED_RESOURCES, {
+    filter: {
+      resourceType: RESOURCE_ENERGY,
+    },
+  });
+  return this.pos.findInRange(dropped, range);
 };
 

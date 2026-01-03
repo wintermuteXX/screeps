@@ -101,25 +101,38 @@ class ControllerSpawn {
       if (role === "claimer" && Memory.roomToClaim) {
         memory.targetRoom = Memory.roomToClaim;
         // NICHT löschen - wird erst gelöscht wenn Raum RCL 3 erreicht hat
+      } else if (role === "claimer") {
+        // Warnung wenn Claimer ohne targetRoom erstellt wird
+        Log.warn(`⚠️ Claimer ${theName} created without targetRoom (Memory.roomToClaim not set)`, "createCreep");
       }
 
       // Spezielle Behandlung für Supporter: Setze Zielraum im Memory (nutzt roomToClaim)
       if (role === "supporter" && Memory.roomToClaim) {
         memory.targetRoom = Memory.roomToClaim;
         // NICHT löschen - roomToClaim wird erst gelöscht wenn Raum RCL 3 erreicht hat
+      } else if (role === "supporter") {
+        // Warnung wenn Supporter ohne targetRoom erstellt wird
+        Log.warn(`⚠️ Supporter ${theName} created without targetRoom (Memory.roomToClaim not set)`, "createCreep");
       }
 
       result = spawn.spawnCreep(bodyConfig, theName, {
         memory: memory,
       });
     }
-    Game.rooms[memory.targetRoom]
     switch (result) {
       case OK:
-        if (role === "claimer" && memory.targetRoom) {
-          Log.success(`🏰 ${spawn} spawns claimer ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
-        } else if (role === "supporter" && memory.targetRoom) {
-          Log.success(`🚀 ${spawn} spawns supporter ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
+        if (role === "claimer") {
+          if (memory.targetRoom) {
+            Log.success(`🏰 ${spawn} spawns claimer ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
+          } else {
+            Log.warn(`🏰 ${spawn} spawns claimer ${theName} without target room`, "createCreep");
+          }
+        } else if (role === "supporter") {
+          if (memory.targetRoom) {
+            Log.success(`🚀 ${spawn} spawns supporter ${theName} targeting room ${Game.rooms[memory.targetRoom]}`, "createCreep");
+          } else {
+            Log.warn(`🚀 ${spawn} spawns supporter ${theName} without target room`, "createCreep");
+          }
         } else {
           Log.info(`${spawn} spawns creep: ${role}`, "createCreep");
         }

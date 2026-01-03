@@ -1,17 +1,21 @@
 const Behavior = require("./behavior.base");
-const b = new Behavior("miner_harvest_commodities");
 
-b.when = function (creep, rc) {
-  const deposits = rc.find(FIND_DEPOSITS);
-  return deposits.length > 0 && creep.store.getFreeCapacity() !== 0 && creep.ticksToLive >= 350;
-};
+class MinerHarvestCommoditiesBehavior extends Behavior {
+  constructor() {
+    super("miner_harvest_commodities");
+  }
 
-b.completed = function (creep, rc) {
-  const deposits = rc.find(FIND_DEPOSITS);
-  return creep.store.getFreeCapacity() === 0 || creep.ticksToLive < 250 || deposits.length === 0;
-};
+  when(creep, rc) {
+    const deposits = rc.find(FIND_DEPOSITS);
+    return deposits.length > 0 && creep.store.getFreeCapacity() !== 0 && creep.ticksToLive >= 350;
+  }
 
-b.work = function (creep, rc) {
+  completed(creep, rc) {
+    const deposits = rc.find(FIND_DEPOSITS);
+    return creep.store.getFreeCapacity() === 0 || creep.ticksToLive < 250 || deposits.length === 0;
+  }
+
+  work(creep, rc) {
   let target = creep.getTarget();
 
   if (target === null) {
@@ -27,6 +31,6 @@ b.work = function (creep, rc) {
   } else {
     creep.travelTo(target);
   }
-};
+}
 
-module.exports = b;
+module.exports = new MinerHarvestCommoditiesBehavior();

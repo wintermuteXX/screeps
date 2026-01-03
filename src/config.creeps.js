@@ -6,7 +6,6 @@
  */
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
-const scoutBehavior = require("./behavior.scout");
 
 function generateBody(pattern, count) {
   const body = [];
@@ -425,8 +424,9 @@ module.exports = {
       const mockCreep = {
         room: rc.room,
         memory: { home: homeRoom },
+        findUnvisitedRoom: Creep.prototype.findUnvisitedRoom,
       };
-      const unvisitedRoom = scoutBehavior.findUnvisitedRoom(mockCreep);
+      const unvisitedRoom = mockCreep.findUnvisitedRoom();
       return unvisitedRoom !== null;
     },
   },

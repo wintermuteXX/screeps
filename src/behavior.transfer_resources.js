@@ -1,12 +1,16 @@
 const Behavior = require("./behavior.base");
 const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
-const b = new Behavior("transfer_resources");
 
-/**
- * Helper: Gets all resource types currently in creep's store
- */
-b._getCarriedResources = function (creep) {
+class TransferResourcesBehavior extends Behavior {
+  constructor() {
+    super("transfer_resources");
+  }
+
+  /**
+   * Helper: Gets all resource types currently in creep's store
+   */
+  _getCarriedResources(creep) {
   const resources = [];
   for (const resourceType in creep.store) {
     const amount = creep.store[resourceType];
@@ -17,14 +21,14 @@ b._getCarriedResources = function (creep) {
       });
     }
   }
-  return resources;
-};
+    return resources;
+  }
 
-/**
- * Helper: Updates memory with current store contents, preserving existing targets
- */
-b._updateMemoryWithCarriedResources = function (creep) {
-  const carriedResources = this._getCarriedResources(creep);
+  /**
+   * Helper: Updates memory with current store contents, preserving existing targets
+   */
+  _updateMemoryWithCarriedResources(creep) {
+    const carriedResources = this._getCarriedResources(creep);
   if (!creep.memory.resources) {
     creep.memory.resources = [];
   }
@@ -39,20 +43,20 @@ b._updateMemoryWithCarriedResources = function (creep) {
       };
     });
   }
-};
+  }
 
-/**
- * Helper: Gets delivery orders for creep
- */
-b._getDeliveryOrders = function (creep, rc) {
-  const orders = rc.getDeliveryOrder(creep, null);
-  return Array.isArray(orders) ? orders : (orders ? [orders] : []);
-};
+  /**
+   * Helper: Gets delivery orders for creep
+   */
+  _getDeliveryOrders(creep, rc) {
+    const orders = rc.getDeliveryOrder(creep, null);
+    return Array.isArray(orders) ? orders : (orders ? [orders] : []);
+  }
 
-/**
- * Helper: Groups orders by target ID
- */
-b._groupOrdersByTarget = function (orders) {
+  /**
+   * Helper: Groups orders by target ID
+   */
+  _groupOrdersByTarget(orders) {
   const ordersByTarget = {};
   for (const order of orders) {
     if (!order || !order.id) continue;
@@ -61,13 +65,13 @@ b._groupOrdersByTarget = function (orders) {
     }
     ordersByTarget[order.id].push(order);
   }
-  return ordersByTarget;
-};
+    return ordersByTarget;
+  }
 
-/**
- * Helper: Checks if target is still valid (has free capacity and needs resources)
- */
-b._isTargetValid = function (target, orders, creep) {
+  /**
+   * Helper: Checks if target is still valid (has free capacity and needs resources)
+   */
+  _isTargetValid(target, orders, creep) {
   for (const order of orders) {
     const targetObj = Game.getObjectById(order.id);
     if (!targetObj) continue;
@@ -83,13 +87,13 @@ b._isTargetValid = function (target, orders, creep) {
       return true;
     }
   }
-  return false;
-};
+    return false;
+  }
 
-/**
- * Helper: Finds best target from available orders
- */
-b._findBestTargetFromOrders = function (ordersByTarget, carriedResources, currentTargetId) {
+  /**
+   * Helper: Finds best target from available orders
+   */
+  _findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId) {
   let bestTarget = null;
   let bestTargetOrders = null;
   let bestPriority = Infinity;
@@ -111,13 +115,13 @@ b._findBestTargetFromOrders = function (ordersByTarget, carriedResources, curren
     }
   }
 
-  return { bestTarget, bestTargetOrders };
-};
+    return { bestTarget, bestTargetOrders };
+  }
 
-/**
- * Helper: Finds matching need from needsResources as fallback
- */
-b._findMatchingNeed = function (creep, rc, carriedResources) {
+  /**
+   * Helper: Finds matching need from needsResources as fallback
+   */
+  _findMatchingNeed(creep, rc, carriedResources) {
   const needsResources = rc.needsResources();
   if (!needsResources || needsResources.length === 0) {
     return null;
@@ -177,13 +181,13 @@ b._findMatchingNeed = function (creep, rc, carriedResources) {
     return { target: bestTarget, orders: [bestNeed] };
   }
 
-  return null;
-};
+    return null;
+  }
 
-/**
- * Helper: Tries terminal as fallback target
- */
-b._findTerminalFallback = function (creep, carriedResources) {
+  /**
+   * Helper: Tries terminal as fallback target
+   */
+  _findTerminalFallback(creep, carriedResources) {
   const {terminal} = creep.room;
   if (!terminal || !terminal.my) {
     return null;
@@ -207,24 +211,24 @@ b._findTerminalFallback = function (creep, carriedResources) {
     }
   }
 
-  return null;
-};
+    return null;
+  }
 
-/**
- * Helper: Drops all resources as last resort
- */
-b._dropAllResources = function (creep, carriedResources, reason) {
+  /**
+   * Helper: Drops all resources as last resort
+   */
+  _dropAllResources(creep, carriedResources, reason) {
   Log.warn(`${creep} ${reason}. Dropping resources.`, "transfer_resources");
   for (const resource of carriedResources) {
     creep.drop(resource.resourceType);
   }
-  creep.memory.resources = [];
-};
+    creep.memory.resources = [];
+  }
 
-/**
- * Helper: Updates memory after successful transfer
- */
-b._updateMemoryAfterTransfer = function (creep, resourceType, transferAmount) {
+  /**
+   * Helper: Updates memory after successful transfer
+   */
+  _updateMemoryAfterTransfer(creep, resourceType, transferAmount) {
   if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
     return;
   }
@@ -236,12 +240,12 @@ b._updateMemoryAfterTransfer = function (creep, resourceType, transferAmount) {
       creep.memory.resources = creep.memory.resources.filter(r => r.resourceType !== resourceType);
     }
   }
-};
+  }
 
-/**
- * Helper: Calculates transfer amount based on order and target capacity
- */
-b._calculateTransferAmount = function (order, targetObj, creep) {
+  /**
+   * Helper: Calculates transfer amount based on order and target capacity
+   */
+  _calculateTransferAmount(order, targetObj, creep) {
   const amount = creep.store[order.resourceType] || 0;
 
   if (order.exact === true) {
@@ -253,13 +257,13 @@ b._calculateTransferAmount = function (order, targetObj, creep) {
     return Math.min(amount, freeCapacity);
   }
 
-  return amount;
-};
+    return amount;
+  }
 
-/**
- * Helper: Handles transfer result
- */
-b._handleTransferResult = function (creep, target, resourceType, transferAmount, result) {
+  /**
+   * Helper: Handles transfer result
+   */
+  _handleTransferResult(creep, target, resourceType, transferAmount, result) {
   switch (result) {
     case OK:
       Log.info(`${creep} successfully transfers ${resourceType} (${transferAmount}) to ${target}`, "transfer_resources");
@@ -291,13 +295,13 @@ b._handleTransferResult = function (creep, target, resourceType, transferAmount,
       Log.warn(`${creep} has unknown result from transfer ${resourceType} to ${target}: ${global.getErrorString(result)}`, "transfer_resources");
       return false;
   }
-};
+  }
 
-/**
- * Helper: Validates current target without fetching new orders
- * Returns true if target is still valid (exists, has capacity, needs resources)
- */
-b._validateCurrentTarget = function (creep, target, carriedResources) {
+  /**
+   * Helper: Validates current target without fetching new orders
+   * Returns true if target is still valid (exists, has capacity, needs resources)
+   */
+  _validateCurrentTarget(creep, target, carriedResources) {
   if (!target) return false;
 
   // Check if target still exists
@@ -322,14 +326,14 @@ b._validateCurrentTarget = function (creep, target, carriedResources) {
     }
   }
 
-  return hasMatchingResource;
-};
+    return hasMatchingResource;
+  }
 
-/**
- * Helper: Creates pseudo-orders from memory for current target
- * Used when we keep the current target without calling getDeliveryOrder
- */
-b._createOrdersFromMemory = function (creep, target, carriedResources) {
+  /**
+   * Helper: Creates pseudo-orders from memory for current target
+   * Used when we keep the current target without calling getDeliveryOrder
+   */
+  _createOrdersFromMemory(creep, target, carriedResources) {
   const orders = [];
 
   for (const resource of carriedResources) {
@@ -353,13 +357,13 @@ b._createOrdersFromMemory = function (creep, target, carriedResources) {
     }
   }
 
-  return orders;
-};
+    return orders;
+  }
 
-/**
- * Helper: Performs batch delivery to target
- */
-b._performBatchDelivery = function (creep, target, orders) {
+  /**
+   * Helper: Performs batch delivery to target
+   */
+  _performBatchDelivery(creep, target, orders) {
   orders.sort((a, b) => a.priority - b.priority);
 
   let transferredAny = false;
@@ -394,129 +398,130 @@ b._performBatchDelivery = function (creep, target, orders) {
       transferredAny = true;
     }
   }
-};
-
-/**
- * When: Behavior is active if creep has resources
- */
-b.when = function (creep, rc) {
-  if (creep.store.getUsedCapacity() === 0) {
-    return false;
   }
 
-  // Ensure memory.resources exists
-  if (!creep.memory.resources) {
-    creep.memory.resources = [];
-  }
-  this._updateMemoryWithCarriedResources(creep);
+  /**
+   * When: Behavior is active if creep has resources
+   */
+  when(creep, rc) {
+    if (creep.store.getUsedCapacity() === 0) {
+      return false;
+    }
 
-  // Check if there's a delivery order
-  const orders = this._getDeliveryOrders(creep, rc);
-  if (orders.length > 0) {
+    // Ensure memory.resources exists
+    if (!creep.memory.resources) {
+      creep.memory.resources = [];
+    }
+    this._updateMemoryWithCarriedResources(creep);
+
+    // Check if there's a delivery order
+    const orders = this._getDeliveryOrders(creep, rc);
+    if (orders.length > 0) {
+      return true;
+    }
+
+    // No order assigned, but creep has resources - keep behavior active
     return true;
   }
 
-  // No order assigned, but creep has resources - keep behavior active
-  return true;
-};
-
-/**
- * Completed: Behavior is completed when creep has no resources left
- */
-b.completed = function (creep, rc) {
-  return creep.store.getUsedCapacity() === 0;
-};
-
-/**
- * Work: Main logic for transferring resources to targets
- */
-b.work = function (creep, rc) {
-  // Ensure memory.resources exists
-  if (!creep.memory.resources) {
-    creep.memory.resources = [];
+  /**
+   * Completed: Behavior is completed when creep has no resources left
+   */
+  completed(creep, rc) {
+    return creep.store.getUsedCapacity() === 0;
   }
 
-  const carriedResources = this._getCarriedResources(creep);
-  if (carriedResources.length === 0) {
-    return;
-  }
-
-  const currentTarget = creep.getTarget();
-  const currentTargetId = currentTarget ? currentTarget.id : null;
-
-  // Check if current target is still valid (without calling getDeliveryOrder)
-  let bestTarget = null;
-  let bestTargetOrders = null;
-
-  if (currentTarget) {
-    // Validate current target without fetching new orders
-    const isValid = this._validateCurrentTarget(creep, currentTarget, carriedResources);
-    if (isValid) {
-      // Current target is still valid - use it without calling getDeliveryOrder
-      bestTarget = currentTarget;
-      // Create pseudo-orders from memory for current target
-      bestTargetOrders = this._createOrdersFromMemory(creep, currentTarget, carriedResources);
+  /**
+   * Work: Main logic for transferring resources to targets
+   */
+  work(creep, rc) {
+    // Ensure memory.resources exists
+    if (!creep.memory.resources) {
+      creep.memory.resources = [];
     }
-  }
 
-  // Only call getDeliveryOrder if no valid target exists
-  if (!bestTarget) {
-    // Get delivery orders
-    const allOrders = this._getDeliveryOrders(creep, rc);
-    const ordersByTarget = this._groupOrdersByTarget(allOrders);
+    const carriedResources = this._getCarriedResources(creep);
+    if (carriedResources.length === 0) {
+      return;
+    }
 
-    // Check if current target is in new orders (if it still exists)
-    if (currentTarget && ordersByTarget[currentTarget.id]) {
-      const currentOrders = ordersByTarget[currentTarget.id];
-      if (this._isTargetValid(currentTarget, currentOrders, creep)) {
+    const currentTarget = creep.getTarget();
+    const currentTargetId = currentTarget ? currentTarget.id : null;
+
+    // Check if current target is still valid (without calling getDeliveryOrder)
+    let bestTarget = null;
+    let bestTargetOrders = null;
+
+    if (currentTarget) {
+      // Validate current target without fetching new orders
+      const isValid = this._validateCurrentTarget(creep, currentTarget, carriedResources);
+      if (isValid) {
+        // Current target is still valid - use it without calling getDeliveryOrder
         bestTarget = currentTarget;
-        bestTargetOrders = currentOrders;
+        // Create pseudo-orders from memory for current target
+        bestTargetOrders = this._createOrdersFromMemory(creep, currentTarget, carriedResources);
       }
     }
 
-    // Find best target from orders
+    // Only call getDeliveryOrder if no valid target exists
     if (!bestTarget) {
-      const result = this._findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId);
-      bestTarget = result.bestTarget;
-      bestTargetOrders = result.bestTargetOrders;
-    }
+      // Get delivery orders
+      const allOrders = this._getDeliveryOrders(creep, rc);
+      const ordersByTarget = this._groupOrdersByTarget(allOrders);
 
-    // Try fallback: matching need
-    if (!bestTarget) {
-      const fallback = this._findMatchingNeed(creep, rc, carriedResources);
-      if (fallback) {
-        bestTarget = fallback.target;
-        bestTargetOrders = fallback.orders;
+      // Check if current target is in new orders (if it still exists)
+      if (currentTarget && ordersByTarget[currentTarget.id]) {
+        const currentOrders = ordersByTarget[currentTarget.id];
+        if (this._isTargetValid(currentTarget, currentOrders, creep)) {
+          bestTarget = currentTarget;
+          bestTargetOrders = currentOrders;
+        }
+      }
+
+      // Find best target from orders
+      if (!bestTarget) {
+        const result = this._findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId);
+        bestTarget = result.bestTarget;
+        bestTargetOrders = result.bestTargetOrders;
+      }
+
+      // Try fallback: matching need
+      if (!bestTarget) {
+        const fallback = this._findMatchingNeed(creep, rc, carriedResources);
+        if (fallback) {
+          bestTarget = fallback.target;
+          bestTargetOrders = fallback.orders;
+        }
+      }
+
+      // Try fallback: terminal
+      if (!bestTarget) {
+        const terminalFallback = this._findTerminalFallback(creep, carriedResources);
+        if (terminalFallback) {
+          bestTarget = terminalFallback.target;
+          bestTargetOrders = terminalFallback.orders;
+        } else {
+          // Last resort: drop resources
+          this._dropAllResources(
+            creep,
+            carriedResources,
+            "has resources but no delivery target found and terminal is full or missing",
+          );
+          return;
+        }
       }
     }
 
-    // Try fallback: terminal
-    if (!bestTarget) {
-      const terminalFallback = this._findTerminalFallback(creep, carriedResources);
-      if (terminalFallback) {
-        bestTarget = terminalFallback.target;
-        bestTargetOrders = terminalFallback.orders;
-      } else {
-        // Last resort: drop resources
-        this._dropAllResources(
-          creep,
-          carriedResources,
-          "has resources but no delivery target found and terminal is full or missing",
-        );
-        return;
-      }
+    // Update creep target if needed
+    if (bestTarget && creep.target !== bestTarget.id) {
+      creep.target = bestTarget.id;
+    }
+
+    // Perform batch delivery
+    if (bestTarget && bestTargetOrders && bestTargetOrders.length > 0) {
+      this._performBatchDelivery(creep, bestTarget, bestTargetOrders);
     }
   }
+}
 
-  // Update creep target if needed
-  if (bestTarget && creep.target !== bestTarget.id) {
-    creep.target = bestTarget.id;
-  }
-
-  // Perform batch delivery
-  if (bestTarget && bestTargetOrders && bestTargetOrders.length > 0) {
-    this._performBatchDelivery(creep, bestTarget, bestTargetOrders);
-  }
-};
-
-module.exports = b;
+module.exports = new TransferResourcesBehavior();

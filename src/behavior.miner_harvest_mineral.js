@@ -1,16 +1,20 @@
 const Behavior = require("./behavior.base");
 const Log = require("./lib.log");
-const b = new Behavior("miner_harvest_mineral");
 
-b.when = function (creep, rc) {
-  return creep.room.extractor && creep.room.mineral.mineralAmount > 0;
-};
+class MinerHarvestMineralBehavior extends Behavior {
+  constructor() {
+    super("miner_harvest_mineral");
+  }
 
-b.completed = function (creep) {
-  return creep.room.mineral.mineralAmount === 0;
-};
+  when(creep, rc) {
+    return creep.room.extractor && creep.room.mineral.mineralAmount > 0;
+  }
 
-b.work = function (creep, rc) {
+  completed(creep) {
+    return creep.room.mineral.mineralAmount === 0;
+  }
+
+  work(creep, rc) {
   let target = creep.getTarget();
 
   if (target === null) {
@@ -37,6 +41,6 @@ b.work = function (creep, rc) {
       }
     }
   }
-};
+}
 
-module.exports = b;
+module.exports = new MinerHarvestMineralBehavior();
