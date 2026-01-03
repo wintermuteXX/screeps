@@ -99,18 +99,13 @@ Room.isRoomClaimed = function (roomName) {
   const roomMemory = Memory.rooms && Memory.rooms[roomName];
   const gameRoom = Game.rooms[roomName];
   
-  // Check new structure first (structures.controllers), then fallback to old structure
+  // Use new structure (structures.controllers)
   let controllerMemory = null;
-  if (roomMemory) {
-    if (roomMemory.structures && roomMemory.structures.controllers) {
-      // Get first controller from structures.controllers
-      const controllerIds = Object.keys(roomMemory.structures.controllers);
-      if (controllerIds.length > 0) {
-        controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
-      }
-    } else if (roomMemory.controller) {
-      // Fallback to old structure
-      controllerMemory = roomMemory.controller;
+  if (roomMemory && roomMemory.structures && roomMemory.structures.controllers) {
+    // Get first controller from structures.controllers
+    const controllerIds = Object.keys(roomMemory.structures.controllers);
+    if (controllerIds.length > 0) {
+      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
     }
   }
   
@@ -144,15 +139,13 @@ Room.isRoomValidForClaiming = function (roomName) {
   }
   const roomMemory = Memory.rooms[roomName];
   
-  // Check new structure first (structures.controllers), then fallback to old structure
+  // Use new structure (structures.controllers)
   let controllerMemory = null;
   if (roomMemory.structures && roomMemory.structures.controllers) {
     const controllerIds = Object.keys(roomMemory.structures.controllers);
     if (controllerIds.length > 0) {
       controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
     }
-  } else if (roomMemory.controller) {
-    controllerMemory = roomMemory.controller;
   }
   
   // Prüfe ob Raum bereits von jemand anderem geclaimt ist

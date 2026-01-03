@@ -29,6 +29,7 @@ function help(category = "all") {
       { name: "plannerOrphaned(room)", desc: "Lists orphaned structures (built but no longer in layout)", example: 'plannerOrphaned("W1N1")' },
       { name: "plannerRecalculateExtensions(room)", desc: "Recalculates extension placements (removes old and recalculates)", example: 'plannerRecalculateExtensions("W1N1")' },
       { name: "plannerRecalculateExtensionsAll()", desc: "Recalculates extension placements for all owned rooms", example: 'plannerRecalculateExtensionsAll()' },
+      { name: "plannerRecalculateLabs(room)", desc: "Recalculates lab placements (removes old and recalculates)", example: 'plannerRecalculateLabs("W1N1")' },
       { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
       { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
       { name: "showRclUpgradeTimes()", desc: "Shows RCL upgrade times for all owned rooms", example: "showRclUpgradeTimes()" },
@@ -715,60 +716,6 @@ function showCPU() {
  * @param {string} centerRoom - Center room name for distance calculation
  * @returns {boolean} True if room was visualized, false otherwise
  */
-/**
- * Helper: Get controller memory from new or old structure
- */
-function _getControllerMemory(roomMemory) {
-  // Check new structure first
-  if (roomMemory.structures && roomMemory.structures.controllers) {
-    const controllerIds = Object.keys(roomMemory.structures.controllers);
-    if (controllerIds.length > 0) {
-      return roomMemory.structures.controllers[controllerIds[0]];
-    }
-  }
-  // Fallback to old structure
-  return roomMemory.controller || null;
-}
-
-/**
- * Helper: Get sources array from new or old structure
- */
-function _getSourcesArray(roomMemory) {
-  // Check flat structure first (for backward compatibility)
-  if (roomMemory.sources && Array.isArray(roomMemory.sources)) {
-    return roomMemory.sources;
-  }
-  // Try to build array from new structure
-  if (roomMemory.structures && roomMemory.structures.sources) {
-    return Object.keys(roomMemory.structures.sources).map(sourceId => {
-      const sourceMem = roomMemory.structures.sources[sourceId];
-      return {
-        id: sourceId,
-        containerID: sourceMem.containerID || null,
-        linkID: sourceMem.linkID || null,
-      };
-    });
-  }
-  return null;
-}
-
-/**
- * Helper: Get mineral memory from new or old structure
- */
-function _getMineralMemory(roomMemory) {
-  // Check flat structure first (for backward compatibility)
-  if (roomMemory.mineral) {
-    return roomMemory.mineral;
-  }
-  // Check new structure
-  if (roomMemory.structures && roomMemory.structures.minerals) {
-    const mineralIds = Object.keys(roomMemory.structures.minerals);
-    if (mineralIds.length > 0) {
-      return roomMemory.structures.minerals[mineralIds[0]];
-    }
-  }
-  return null;
-}
 
 function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   // Skip if never checked
@@ -782,10 +729,40 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   const roomStatus = Game.map.getRoomStatus(roomName);
   if (roomStatus.status !== "normal") return false;
   
-  // Get data from new or old structure
-  const controllerMemory = _getControllerMemory(roomMemory);
-  const sourcesArray = _getSourcesArray(roomMemory);
-  const mineralMemory = _getMineralMemory(roomMemory);
+  // Get data from new structure
+  let controllerMemory = null;
+  if (roomMemory.structures && roomMemory.structures.controllers) {
+    const controllerIds = Object.keys(roomMemory.structures.controllers);
+    if (controllerIds.length > 0) {
+      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+    }
+  }
+  
+  // Get sources array from new structure or flat structure (set by analyzeRoom)
+  let sourcesArray = null;
+  if (roomMemory.sources && Array.isArray(roomMemory.sources)) {
+    sourcesArray = roomMemory.sources;
+  } else if (roomMemory.structures && roomMemory.structures.sources) {
+    sourcesArray = Object.keys(roomMemory.structures.sources).map(sourceId => {
+      const sourceMem = roomMemory.structures.sources[sourceId];
+      return {
+        id: sourceId,
+        containerID: sourceMem.containerID || null,
+        linkID: sourceMem.linkID || null,
+      };
+    });
+  }
+  
+  // Get mineral memory from new structure or flat structure (set by analyzeRoom)
+  let mineralMemory = null;
+  if (roomMemory.mineral) {
+    mineralMemory = roomMemory.mineral;
+  } else if (roomMemory.structures && roomMemory.structures.minerals) {
+    const mineralIds = Object.keys(roomMemory.structures.minerals);
+    if (mineralIds.length > 0) {
+      mineralMemory = roomMemory.structures.minerals[mineralIds[0]];
+    }
+  }
 
   // Determine color and symbol based on room status
   let color = "#888888"; // Gray = unknown/old data
@@ -881,10 +858,25 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
         if (otherRoomName === roomName) continue;
         
         const otherRoomMemory = Memory.rooms[otherRoomName];
-        // Only count rooms we own - check new or old structure
-        const otherControllerMemory = _getControllerMemory(otherRoomMemory);
+        // Only count rooms we own - use new structure
+        let otherControllerMemory = null;
+        if (otherRoomMemory.structures && otherRoomMemory.structures.controllers) {
+          const controllerIds = Object.keys(otherRoomMemory.structures.controllers);
+          if (controllerIds.length > 0) {
+            otherControllerMemory = otherRoomMemory.structures.controllers[controllerIds[0]];
+          }
+        }
         if (otherControllerMemory && otherControllerMemory.my) {
-          const otherMineralMemory = _getMineralMemory(otherRoomMemory);
+          // Get mineral from new structure or flat structure (set by analyzeRoom)
+          let otherMineralMemory = null;
+          if (otherRoomMemory.mineral) {
+            otherMineralMemory = otherRoomMemory.mineral;
+          } else if (otherRoomMemory.structures && otherRoomMemory.structures.minerals) {
+            const mineralIds = Object.keys(otherRoomMemory.structures.minerals);
+            if (mineralIds.length > 0) {
+              otherMineralMemory = otherRoomMemory.structures.minerals[mineralIds[0]];
+            }
+          }
           if (otherMineralMemory && otherMineralMemory.type === mineralType) {
             ownedRoomsWithMineral++;
           }

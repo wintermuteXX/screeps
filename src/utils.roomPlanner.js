@@ -211,6 +211,27 @@ function plannerRecalculateExtensionsAll() {
   return summary;
 }
 
+/**
+ * Recalculates lab placements for a room
+ * Removes all existing dynamically placed lab positions and recalculates them
+ * Usage: plannerRecalculateLabs('W1N1')
+ * @param {string} roomName - Room name
+ * @returns {boolean} True if successful, false otherwise
+ */
+function plannerRecalculateLabs(roomName) {
+  const room = Game.rooms[roomName];
+  if (!room) {
+    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    return false;
+  }
+  const planner = new RoomPlanner(room);
+  const success = planner.recalculateLabs();
+  if (success) {
+    Log.info(`Labs for ${roomName} recalculated successfully`, "RoomPlanner");
+  }
+  return success;
+}
+
 module.exports = {
   plannerVisualize,
   plannerStats,
@@ -220,5 +241,6 @@ module.exports = {
   plannerOrphaned,
   plannerRecalculateExtensions,
   plannerRecalculateExtensionsAll,
+  plannerRecalculateLabs,
 };
 

@@ -249,23 +249,6 @@ RoomPlanner.prototype._initMemory = function () {
     };
   }
   
-  // Migration: Convert old structure (plannedStructures as array) to new structure (plannedStructures as object)
-  if (Array.isArray(Memory.rooms[this.roomName].planner.plannedStructures)) {
-    const oldArray = Memory.rooms[this.roomName].planner.plannedStructures;
-    const extensions = oldArray.filter((s) => s.structureType === STRUCTURE_EXTENSION);
-    const otherStructures = oldArray.filter((s) => s.structureType !== STRUCTURE_EXTENSION);
-    
-    Memory.rooms[this.roomName].planner.plannedStructures = {
-      list: otherStructures,
-      extensions: extensions,
-    };
-    
-    Log.info(
-      `RoomPlanner: Migrated structure for ${this.roomName}. Moved ${extensions.length} extensions and ${otherStructures.length} other structures`,
-      "RoomPlanner",
-    );
-  }
-  
   // Ensure plannedStructures is an object with list and extensions
   if (!Memory.rooms[this.roomName].planner.plannedStructures || typeof Memory.rooms[this.roomName].planner.plannedStructures !== 'object' || Array.isArray(Memory.rooms[this.roomName].planner.plannedStructures)) {
     Memory.rooms[this.roomName].planner.plannedStructures = {
@@ -642,28 +625,48 @@ RoomPlanner.prototype._placeExtensionsDynamically = function (plannedStructures,
 };
 
 /**
- * Places remaining labs dynamically in 3er-blocks (9 labs total, 1 already in core)
- * Labs are placed in groups of 3, but not necessarily in perfect 3x3 squares
+ * Places remaining labs dynamically in groups of 3 (9 labs total, 1 already in core)
+ * Uses extension positions as candidates for lab placement
+ * Each group of 3 labs: middle lab at extension position, outer labs within range 2 of middle
  */
 RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, centerX, centerY, addStructure) {
-  const terrain = this.room.getTerrain();
   const usedPositions = new Set();
   
   // Mark all already planned positions as used
   for (const planned of plannedStructures) {
     usedPositions.add(`${planned.x},${planned.y}`);
   }
+  
+  // Mark extension positions as used (we'll use them as candidates for labs)
+  if (this.memory.plannedStructures.extensions) {
+    for (const ext of this.memory.plannedStructures.extensions) {
+      usedPositions.add(`${ext.x},${ext.y}`);
+    }
+  }
 
-  // We need 9 more labs (1 already in core)
+  // We need 9 more labs (1 already in core) = 3 groups of 3 labs
   const labsNeeded = 9;
   let labsPlaced = 0;
   let priority = 76; // Start after core lab (priority 75)
 
-  // Search for available positions outside the core
-  const searchRange = 20;
-  const coreExclusionRadius = 4;
+  // Get extension positions as candidates for lab placement
+  const extensionCandidates = [];
+  if (this.memory.plannedStructures.extensions) {
+    for (const ext of this.memory.plannedStructures.extensions) {
+      extensionCandidates.push({
+        x: ext.x,
+        y: ext.y,
+        distance: Math.sqrt(
+          Math.pow(ext.x - centerX, 2) + Math.pow(ext.y - centerY, 2)
+        ),
+      });
+    }
+  }
+  
+  // Sort extension candidates by distance from center (closer first)
+  extensionCandidates.sort((a, b) => a.distance - b.distance);
 
-  // Helper function to check if a position is available
+  // Helper function to check if a position is available for a lab
   const isPositionAvailable = (x, y) => {
     // Validate position (boundaries, walls, sources, controller)
     if (!this._isValidStructurePosition(x, y)) {
@@ -676,94 +679,85 @@ RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, cente
       return false;
     }
 
-    // Check if position is free
-    return this._isPositionFree(x, y);
+    // Check if position is free (allow existing labs)
+    const hasExistingLab = this._hasStructureAt(x, y, STRUCTURE_LAB);
+    if (!hasExistingLab && !this._isPositionFree(x, y)) {
+      return false;
+    }
+
+    return true;
   };
 
-  // Try to find 3 labs per block, placing them close together
-  while (labsPlaced < labsNeeded) {
-    let blockFound = false;
+  // Try to place labs in groups of 3
+  for (const candidate of extensionCandidates) {
+    if (labsPlaced >= labsNeeded) break;
 
-    // Search for a starting position for a new block
-    for (let startX = -searchRange; startX <= searchRange && !blockFound && labsPlaced < labsNeeded; startX++) {
-      for (let startY = -searchRange; startY <= searchRange && !blockFound && labsPlaced < labsNeeded; startY++) {
-        const absStartX = centerX + startX;
-        const absStartY = centerY + startY;
+    const middleX = candidate.x;
+    const middleY = candidate.y;
 
-        // Skip if too close to center
-        const distFromCenter = Math.max(Math.abs(startX), Math.abs(startY));
-        if (distFromCenter < coreExclusionRadius) {
-          continue;
-        }
-
-        // Check if starting position is available
-        if (!isPositionAvailable(absStartX, absStartY)) {
-          continue;
-        }
-
-        // Try to find 2 more positions nearby for a 3-lab block
-        const blockPositions = [{ x: startX, y: startY, absX: absStartX, absY: absStartY }];
-        const searchRadius = 3; // Search within 3 tiles for other labs in the block
-
-        for (let dx = -searchRadius; dx <= searchRadius && blockPositions.length < 3; dx++) {
-          for (let dy = -searchRadius; dy <= searchRadius && blockPositions.length < 3; dy++) {
-            if (dx === 0 && dy === 0) continue; // Skip starting position
-
-            const x = absStartX + dx;
-            const y = absStartY + dy;
-
-            if (isPositionAvailable(x, y)) {
-              // Check if this position is not too close to center
-              const relX = startX + dx;
-              const relY = startY + dy;
-              const dist = Math.max(Math.abs(relX), Math.abs(relY));
-              if (dist >= coreExclusionRadius) {
-                blockPositions.push({ x: relX, y: relY, absX: x, absY: y });
-              }
-            }
-          }
-        }
-
-        // If we found at least 3 positions, place the labs
-        if (blockPositions.length >= 3) {
-          const labsToPlace = Math.min(3, labsNeeded - labsPlaced);
-          for (let i = 0; i < labsToPlace; i++) {
-            const pos = blockPositions[i];
-            addStructure(pos.x, pos.y, STRUCTURE_LAB, priority);
-            usedPositions.add(`${pos.absX},${pos.absY}`);
-            priority++;
-            labsPlaced++;
-          }
-          blockFound = true;
-        }
-      }
+    // Check if middle position is available
+    if (!isPositionAvailable(middleX, middleY)) {
+      continue;
     }
 
-    // If we couldn't find a block, try placing labs individually
-    if (!blockFound && labsPlaced < labsNeeded) {
-      for (let x = -searchRange; x <= searchRange && labsPlaced < labsNeeded; x++) {
-        for (let y = -searchRange; y <= searchRange && labsPlaced < labsNeeded; y++) {
-          const absX = centerX + x;
-          const absY = centerY + y;
+    // Try to find 2 positions within range 2 of the middle lab
+    const labGroup = [{ x: middleX, y: middleY }];
+    const maxRange = 2; // Outer labs must be within range 2 of middle lab
 
-          const distFromCenter = Math.max(Math.abs(x), Math.abs(y));
-          if (distFromCenter < coreExclusionRadius) {
-            continue;
-          }
+    // Search for 2 more positions near the middle lab
+    for (let dx = -maxRange; dx <= maxRange && labGroup.length < 3; dx++) {
+      for (let dy = -maxRange; dy <= maxRange && labGroup.length < 3; dy++) {
+        if (dx === 0 && dy === 0) continue; // Skip middle position
 
-          if (isPositionAvailable(absX, absY)) {
-            addStructure(x, y, STRUCTURE_LAB, priority);
-            usedPositions.add(`${absX},${absY}`);
-            priority++;
-            labsPlaced++;
+        const x = middleX + dx;
+        const y = middleY + dy;
+
+        // Check if within range 2 (Chebyshev distance)
+        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+        if (dist > maxRange) {
+          continue;
+        }
+
+        // Check if position is available
+        if (isPositionAvailable(x, y)) {
+          // Check if this position is also an extension position (preferred)
+          // or at least follows the extension rule (dx + dy even relative to center)
+          const offsetX = x - centerX;
+          const offsetY = y - centerY;
+          if ((offsetX + offsetY) % 2 === 0) {
+            labGroup.push({ x, y });
           }
         }
       }
     }
 
-    // If we still haven't placed all labs, break to avoid infinite loop
-    if (labsPlaced < labsNeeded && !blockFound) {
-      break;
+    // If we found 3 positions, place the lab group
+    if (labGroup.length >= 3) {
+      const labsToPlace = Math.min(3, labsNeeded - labsPlaced);
+      for (let i = 0; i < labsToPlace; i++) {
+        const pos = labGroup[i];
+        addStructure(pos.x - centerX, pos.y - centerY, STRUCTURE_LAB, priority);
+        usedPositions.add(`${pos.x},${pos.y}`);
+        priority++;
+        labsPlaced++;
+      }
+    }
+  }
+
+  // If we still need more labs, try placing them individually near extension positions
+  if (labsPlaced < labsNeeded) {
+    for (const candidate of extensionCandidates) {
+      if (labsPlaced >= labsNeeded) break;
+
+      const x = candidate.x;
+      const y = candidate.y;
+
+      if (isPositionAvailable(x, y)) {
+        addStructure(x - centerX, y - centerY, STRUCTURE_LAB, priority);
+        usedPositions.add(`${x},${y}`);
+        priority++;
+        labsPlaced++;
+      }
     }
   }
 };
@@ -1904,6 +1898,62 @@ RoomPlanner.prototype.recalculateExtensions = function () {
   const newExtensionCount = this.memory.plannedStructures.extensions ? this.memory.plannedStructures.extensions.length : 0;
   Log.info(
     `RoomPlanner: Recalculated extensions for ${this.roomName}. Removed ${removedCount}, placed ${newExtensionCount} extensions`,
+    "RoomPlanner",
+  );
+
+  return true;
+};
+
+/**
+ * Recalculates lab placements
+ * Removes all existing dynamically placed lab positions from the layout and recalculates them
+ * Note: The core lab from BUNKER_LAYOUT is preserved
+ */
+RoomPlanner.prototype.recalculateLabs = function () {
+  if (this.memory.layoutGenerated !== true || !this._hasCenter()) {
+    Log.warn(`Cannot recalculate labs: Layout not generated or center not found for ${this.roomName}`, "RoomPlanner");
+    return false;
+  }
+
+  const centerX = this.memory.centerX;
+  const centerY = this.memory.centerY;
+
+  // Remove all dynamically placed labs from plannedStructures.list
+  // Keep the core lab from BUNKER_LAYOUT (priority 75)
+  const beforeCount = this.memory.plannedStructures.list.length;
+  this.memory.plannedStructures.list = this.memory.plannedStructures.list.filter(
+    (s) => !(s.structureType === STRUCTURE_LAB && s.priority !== 75),
+  );
+  const removedCount = beforeCount - this.memory.plannedStructures.list.length;
+
+  // Create a copy of current planned structures for _placeLabsDynamically
+  const plannedStructures = [...this.memory.plannedStructures.list];
+
+  // Helper function to add a structure (same as in _generateLayout)
+  const addStructure = (offsetX, offsetY, structureType, priority) => {
+    const x = centerX + offsetX;
+    const y = centerY + offsetY;
+
+    // Validate position (boundaries, walls, sources, controller)
+    if (!this._isValidStructurePosition(x, y)) {
+      return;
+    }
+
+    plannedStructures.push({ x, y, structureType, priority });
+  };
+
+  // Recalculate labs (will add to plannedStructures)
+  this._placeLabsDynamically(plannedStructures, centerX, centerY, addStructure);
+
+  // Sort by priority
+  plannedStructures.sort((a, b) => a.priority - b.priority);
+
+  // Update memory
+  this.memory.plannedStructures.list = plannedStructures;
+
+  const newLabCount = plannedStructures.filter((s) => s.structureType === STRUCTURE_LAB && s.priority !== 75).length;
+  Log.info(
+    `RoomPlanner: Recalculated labs for ${this.roomName}. Removed ${removedCount}, placed ${newLabCount} labs`,
     "RoomPlanner",
   );
 

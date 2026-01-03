@@ -61,6 +61,7 @@ function initGlobal() {
   global.plannerOrphaned = utilsRoomPlanner.plannerOrphaned;
   global.plannerRecalculateExtensions = utilsRoomPlanner.plannerRecalculateExtensions;
   global.plannerRecalculateExtensionsAll = utilsRoomPlanner.plannerRecalculateExtensionsAll;
+  global.plannerRecalculateLabs = utilsRoomPlanner.plannerRecalculateLabs;
 
   // ===== Error Utilities =====
   global.getErrorString = utilsErrors.getErrorString;

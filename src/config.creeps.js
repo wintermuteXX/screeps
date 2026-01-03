@@ -337,17 +337,10 @@ module.exports = {
         }
         roomMemory.structures.controllers[controllerId].my = true;
         roomMemory.structures.controllers[controllerId].level = gameRoom.controller.level;
-        
-        // Also update flat structure for backward compatibility
-        if (!roomMemory.controller) {
-          roomMemory.controller = {};
-        }
-        roomMemory.controller.my = true;
-        roomMemory.controller.level = gameRoom.controller.level;
       }
 
       // Prüfe ob Raum noch RCL < 3 hat
-      // Check new structure first, then fallback to old structure
+      // Use new structure
       let controllerLevel = null;
       if (roomMemory.structures && roomMemory.structures.controllers) {
         const controllerIds = Object.keys(roomMemory.structures.controllers);
@@ -355,9 +348,8 @@ module.exports = {
           controllerLevel = roomMemory.structures.controllers[controllerIds[0]].level;
         }
       }
-      if (!controllerLevel) {
-        controllerLevel = (roomMemory.controller && roomMemory.controller.level) || 
-                          (gameRoom && gameRoom.controller && gameRoom.controller.level);
+      if (!controllerLevel && gameRoom && gameRoom.controller) {
+        controllerLevel = gameRoom.controller.level;
       }
       if (!controllerLevel || controllerLevel >= 3) {
         return false;
