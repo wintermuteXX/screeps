@@ -65,21 +65,6 @@ const STRUCTURE_TYPE_MAP = {
  * Format: { x: offsetX, y: offsetY, structureType: STRUCTURE_TYPE, priority: number }
  * Priority determines build order (lower = earlier)
  */
-/**
- * Extension pattern template from JSON (relative to center)
- * Used as template for dynamic placement
- */
-const EXTENSION_PATTERN = [
-  { x: 2, y: 2 }, { x: 2, y: 4 }, { x: 1, y: 3 }, { x: 0, y: 4 }, { x: 0, y: 2 },
-  { x: -3, y: 3 }, { x: -2, y: 4 }, { x: -3, y: 1 }, { x: -2, y: 0 }, { x: -3, y: -1 },
-  { x: -2, y: -2 }, { x: -3, y: -3 }, { x: -3, y: -5 }, { x: -2, y: -6 }, { x: -1, y: -5 },
-  { x: 0, y: -4 }, { x: 0, y: -6 }, { x: 1, y: -5 }, { x: 2, y: -6 }, { x: 2, y: -4 },
-  { x: 3, y: -5 }, { x: 4, y: -6 }, { x: 4, y: -4 }, { x: 5, y: -5 }, { x: 3, y: -3 },
-  { x: 5, y: -3 }, { x: 6, y: -6 }, { x: 6, y: -4 }, { x: 4, y: -2 }, { x: 6, y: -2 },
-  { x: 5, y: -1 }, { x: 4, y: 0 }, { x: 6, y: 0 }, { x: 5, y: 1 }, { x: 5, y: 3 },
-  { x: 4, y: 4 }, { x: 6, y: 4 }, { x: 6, y: 2 }, { x: 1, y: -3 }, { x: -1, y: -1 },
-  { x: 0, y: -2 }, { x: -1, y: 1 }, { x: 3, y: 1 },
-];
 
 const BUNKER_LAYOUT = {
   // Spawn in center (used as reference point)
@@ -88,35 +73,35 @@ const BUNKER_LAYOUT = {
   ],
 
   // Storage central for short paths
-  storage: [{ x: 1, y: 1, priority: 10 }],
+  storage: [{ x: -1, y: 1, priority: 10 }],
 
-  // Terminal next to Storage
-  terminal: [{ x: 2, y: 0, priority: 20 }],
+  // Terminal at old spawn position
+  terminal: [{ x: -2, y: 0, priority: 20 }],
 
   // Factory
-  factory: [{ x: 0, y: -1, priority: 25 }],
+  factory: [{ x: -2, y: -1, priority: 25 }],
 
   // Towers in strategic positions (protection of the core)
   towers: [
-    { x: 2, y: -2, priority: 5 },
-    { x: 3, y: -1, priority: 6 },
+    { x: 0, y: -2, priority: 5 },
+    { x: 1, y: -1, priority: 6 },
   ],
 
   // Links in strategic positions
   links: [
-    { x: 1, y: -1, priority: 86 }, // At spawn
+    { x: -1, y: -1, priority: 86 },
     // Additional links are placed dynamically at Sources/Controller
   ],
 
   // Power Spawn
-  powerSpawn: [{ x: 1, y: -2, priority: 96 }],
+  powerSpawn: [{ x: -1, y: -2, priority: 96 }],
 
   // Nuker (far from center)
-  nuker: [{ x: 3, y: 0, priority: 97 }],
+  nuker: [{ x: 1, y: 0, priority: 97 }],
 
   // 1 Lab in core (rest will be placed dynamically)
   labs: [
-    { x: 2, y: 1, priority: 75 },
+    { x: 0, y: 1, priority: 75 },
   ],
 
   // Extensions and remaining labs are placed dynamically
@@ -130,7 +115,116 @@ function RoomPlanner(room) {
   this.room = room;
   this.roomName = room.name;
   this.memory = this._initMemory();
+  this._structureCounts = null; // Cache for structure counts
 }
+
+/**
+ * Helper: Checks if coordinates are within room boundaries
+ */
+RoomPlanner.prototype._isWithinBounds = function (x, y) {
+  return (
+    x >= CONSTANTS.PLANNER.ROOM_MIN &&
+    x <= CONSTANTS.PLANNER.ROOM_MAX &&
+    y >= CONSTANTS.PLANNER.ROOM_MIN &&
+    y <= CONSTANTS.PLANNER.ROOM_MAX
+  );
+};
+
+/**
+ * Helper: Checks if position is valid (not a wall and within bounds)
+ */
+RoomPlanner.prototype._isValidPosition = function (x, y) {
+  if (!this._isWithinBounds(x, y)) {
+    return false;
+  }
+  const terrain = this.room.getTerrain();
+  return terrain.get(x, y) !== TERRAIN_MASK_WALL;
+};
+
+/**
+ * Helper: Checks if position is free (no structures or construction sites)
+ */
+RoomPlanner.prototype._isPositionFree = function (x, y, allowRoads = false) {
+  const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+  const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
+
+  if (allowRoads) {
+    // Allow roads/ramparts, but block other structures
+    const hasBlockingStructure = structures.some(
+      (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
+    );
+    const hasBlockingSite = sites.some(
+      (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
+    );
+    return !hasBlockingStructure && !hasBlockingSite;
+  } else {
+    // No structures or sites allowed
+    return structures.length === 0 && sites.length === 0;
+  }
+};
+
+/**
+ * Helper: Checks if structure of given type exists at position
+ */
+RoomPlanner.prototype._hasStructureAt = function (x, y, structureType) {
+  const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
+  const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
+  return (
+    structures.some((s) => s.structureType === structureType) ||
+    sites.some((s) => s.structureType === structureType)
+  );
+};
+
+/**
+ * Helper: Checks if position is too close to sources (Range=2)
+ */
+RoomPlanner.prototype._isTooCloseToSource = function (x, y) {
+  const sources = this.room.find(FIND_SOURCES);
+  const pos = new RoomPosition(x, y, this.roomName);
+  
+  for (const source of sources) {
+    if (pos.getRangeTo(source.pos) <= 2) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
+/**
+ * Helper: Checks if position is too close to controller (Range=3)
+ */
+RoomPlanner.prototype._isTooCloseToController = function (x, y) {
+  if (!this.room.controller) {
+    return false;
+  }
+  
+  const pos = new RoomPosition(x, y, this.roomName);
+  return pos.getRangeTo(this.room.controller.pos) <= 3;
+};
+
+/**
+ * Helper: Validates position for structure placement (BUNKER_LAYOUT, Extensions, Labs)
+ * Checks: boundaries, walls, sources (Range=2), controller (Range=3)
+ */
+RoomPlanner.prototype._isValidStructurePosition = function (x, y) {
+  // 1. Check boundaries and walls
+  if (!this._isValidPosition(x, y)) {
+    return false;
+  }
+  
+  // 2. Check if too close to sources (Range=2)
+  if (this._isTooCloseToSource(x, y)) {
+    return false;
+  }
+  
+  // 3. Check if too close to controller (Range=3)
+  if (this._isTooCloseToController(x, y)) {
+    return false;
+  }
+  
+  return true;
+};
 
 /**
  * Initializes the memory for the room
@@ -147,10 +241,51 @@ RoomPlanner.prototype._initMemory = function () {
       centerX: null,
       centerY: null,
       layoutGenerated: undefined,  // undefined = noch nicht geprüft, true = erfolgreich, false = fehlgeschlagen
-      plannedStructures: [],
+      plannedStructures: {
+        list: [],  // Other structures (non-extensions)
+        extensions: [],  // Extensions stored separately for better organization
+      },
       visualizeUntil: null,
     };
   }
+  
+  // Migration: Convert old structure (plannedStructures as array) to new structure (plannedStructures as object)
+  if (Array.isArray(Memory.rooms[this.roomName].planner.plannedStructures)) {
+    const oldArray = Memory.rooms[this.roomName].planner.plannedStructures;
+    const extensions = oldArray.filter((s) => s.structureType === STRUCTURE_EXTENSION);
+    const otherStructures = oldArray.filter((s) => s.structureType !== STRUCTURE_EXTENSION);
+    
+    Memory.rooms[this.roomName].planner.plannedStructures = {
+      list: otherStructures,
+      extensions: extensions,
+    };
+    
+    Log.info(
+      `RoomPlanner: Migrated structure for ${this.roomName}. Moved ${extensions.length} extensions and ${otherStructures.length} other structures`,
+      "RoomPlanner",
+    );
+  }
+  
+  // Ensure plannedStructures is an object with list and extensions
+  if (!Memory.rooms[this.roomName].planner.plannedStructures || typeof Memory.rooms[this.roomName].planner.plannedStructures !== 'object' || Array.isArray(Memory.rooms[this.roomName].planner.plannedStructures)) {
+    Memory.rooms[this.roomName].planner.plannedStructures = {
+      list: Array.isArray(Memory.rooms[this.roomName].planner.plannedStructures) 
+        ? Memory.rooms[this.roomName].planner.plannedStructures.filter((s) => s.structureType !== STRUCTURE_EXTENSION)
+        : [],
+      extensions: [],
+    };
+  }
+  
+  // Ensure extensions array exists
+  if (!Memory.rooms[this.roomName].planner.plannedStructures.extensions) {
+    Memory.rooms[this.roomName].planner.plannedStructures.extensions = [];
+  }
+  
+  // Ensure list array exists
+  if (!Memory.rooms[this.roomName].planner.plannedStructures.list) {
+    Memory.rooms[this.roomName].planner.plannedStructures.list = [];
+  }
+  
   return Memory.rooms[this.roomName].planner;
 };
 
@@ -379,62 +514,129 @@ RoomPlanner.prototype._isValidCenterPosition = function (x, y) {
 };
 
 /**
- * Places extensions dynamically based on pattern template, only where space is available
+ * Places extensions dynamically using a spiral algorithm
+ * Extensions are placed at positions where the sum of x and y is even
+ * starting from the center and expanding outward in order of distance
+ * Extensions are stored in memory.plannedStructures.extensions, not in plannedStructures.list
  */
 RoomPlanner.prototype._placeExtensionsDynamically = function (plannedStructures, centerX, centerY, addStructure) {
-  const terrain = this.room.getTerrain();
   const usedPositions = new Set();
   
   // Mark all already planned positions as used
   for (const planned of plannedStructures) {
     usedPositions.add(`${planned.x},${planned.y}`);
   }
+  
+  // Also mark extension positions as used
+  if (this.memory.plannedStructures.extensions) {
+    for (const ext of this.memory.plannedStructures.extensions) {
+      usedPositions.add(`${ext.x},${ext.y}`);
+    }
+  }
+
+  // Clear existing extensions - will be recalculated
+  this.memory.plannedStructures.extensions = [];
 
   // Priority starts at 11 (RCL 2) and increases
   let priority = 11;
 
-  // Try to place extensions following the pattern
-  for (const patternPos of EXTENSION_PATTERN) {
-    const x = centerX + patternPos.x;
-    const y = centerY + patternPos.y;
-
-    // Border check
-    if (
-      x < CONSTANTS.PLANNER.ROOM_MIN ||
-      x > CONSTANTS.PLANNER.ROOM_MAX ||
-      y < CONSTANTS.PLANNER.ROOM_MIN ||
-      y > CONSTANTS.PLANNER.ROOM_MAX
-    ) {
-      continue;
+  // Maximum range to search (room is 50x50, so max distance from center is about 25)
+  const maxRange = 25;
+  
+  // Minimum range to avoid placing extensions too close to the core
+  // Range 0-3 are reserved for core structures (spawn, storage, terminal, etc.)
+  const minRange = 4;
+  
+  // Collect all candidate positions with even coordinates, sorted by distance from center
+  const candidates = [];
+  
+  for (let range = minRange; range <= maxRange; range++) {
+    // Search in a square pattern for this range
+    // Only consider positions with even coordinates (divisible by 2)
+    for (let dx = -range; dx <= range; dx++) {
+      for (let dy = -range; dy <= range; dy++) {
+        // Only consider positions at the edge of the current range (to maintain spiral order)
+        const dist = Math.max(Math.abs(dx), Math.abs(dy));
+        if (dist !== range) {
+          continue;
+        }
+        
+        // Check if coordinates meet the extension placement rule
+        // Extensions can only be built at positions where the sum of the offset (dx + dy) is even
+        // This rule is relative to the center, not absolute
+        // Examples: offset (0,0), (1,1), (2,0), (0,2), (2,2), (-1,1), etc.
+        if ((dx + dy) % 2 !== 0) {
+          continue;
+        }
+        
+        const x = centerX + dx;
+        const y = centerY + dy;
+        
+        // Calculate distance from center for sorting (Euclidean distance)
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        candidates.push({
+          offsetX: dx,
+          offsetY: dy,
+          absX: x,
+          absY: y,
+          distance: distance,
+        });
+      }
     }
-
+  }
+  
+  // Sort by distance (closer positions first), then by x, then by y for deterministic ordering
+  candidates.sort((a, b) => {
+    if (Math.abs(a.distance - b.distance) < 0.001) {
+      // If distances are very close, sort by x, then y
+      if (a.absX !== b.absX) {
+        return a.absX - b.absX;
+      }
+      return a.absY - b.absY;
+    }
+    return a.distance - b.distance;
+  });
+  
+  // Try to place extensions at candidate positions
+  for (const candidate of candidates) {
+    const { offsetX, offsetY, absX, absY } = candidate;
+    
     // Check if position is already used
-    const posKey = `${x},${y}`;
+    const posKey = `${absX},${absY}`;
     if (usedPositions.has(posKey)) {
       continue;
     }
-
-    // Wall check
-    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
-      // Try to find alternative position nearby
-      const altPos = this._findAlternativePosition(x, y, STRUCTURE_EXTENSION);
-      if (altPos && !usedPositions.has(`${altPos.x},${altPos.y}`)) {
-        addStructure(altPos.x - centerX, altPos.y - centerY, STRUCTURE_EXTENSION, priority);
-        usedPositions.add(`${altPos.x},${altPos.y}`);
-        priority++;
-      }
+    
+    // Validate position (boundaries, walls, sources, controller)
+    if (!this._isValidStructurePosition(absX, absY)) {
       continue;
     }
-
-    // Check if position is free (no existing structures or construction sites)
-    const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-    const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
     
-    if (structures.length === 0 && sites.length === 0) {
-      // Position is free, place extension
-      addStructure(patternPos.x, patternPos.y, STRUCTURE_EXTENSION, priority);
-      usedPositions.add(posKey);
-      priority++;
+    // Check if position is free OR if an extension already exists at this position
+    // If an extension already exists, we should still include it in the plan
+    const hasExistingExtension = this._hasStructureAt(absX, absY, STRUCTURE_EXTENSION);
+    if (!hasExistingExtension && !this._isPositionFree(absX, absY)) {
+      // Position is blocked by something other than an extension
+      continue;
+    }
+    
+    // Position is valid and either free or has an existing extension
+    // Store extension in memory.plannedStructures.extensions
+    this.memory.plannedStructures.extensions.push({
+      x: absX,
+      y: absY,
+      structureType: STRUCTURE_EXTENSION,
+      priority: priority,
+    });
+    usedPositions.add(posKey);
+    priority++;
+    
+    // Stop if we've placed enough extensions (max 60 at RCL 8)
+    // We continue searching to find all valid positions, but the actual
+    // placement limit is enforced by RCL in _placeConstructionSites
+    if (priority > 11 + 60) {
+      break;
     }
   }
 };
@@ -463,18 +665,8 @@ RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, cente
 
   // Helper function to check if a position is available
   const isPositionAvailable = (x, y) => {
-    // Border check
-    if (
-      x < CONSTANTS.PLANNER.ROOM_MIN ||
-      x > CONSTANTS.PLANNER.ROOM_MAX ||
-      y < CONSTANTS.PLANNER.ROOM_MIN ||
-      y > CONSTANTS.PLANNER.ROOM_MAX
-    ) {
-      return false;
-    }
-
-    // Wall check
-    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+    // Validate position (boundaries, walls, sources, controller)
+    if (!this._isValidStructurePosition(x, y)) {
       return false;
     }
 
@@ -485,10 +677,7 @@ RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, cente
     }
 
     // Check if position is free
-    const structures = this.room.lookForAt(LOOK_STRUCTURES, x, y);
-    const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, x, y);
-    
-    return structures.length === 0 && sites.length === 0;
+    return this._isPositionFree(x, y);
   };
 
   // Try to find 3 labs per block, placing them close together
@@ -573,8 +762,97 @@ RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, cente
     }
 
     // If we still haven't placed all labs, break to avoid infinite loop
-    if (!blockFound && labsPlaced < labsNeeded) {
+    if (labsPlaced < labsNeeded && !blockFound) {
       break;
+    }
+  }
+};
+
+/**
+ * Detects existing containers and links for sources and controller
+ * and stores their positions in memory for use in the layout
+ */
+RoomPlanner.prototype._detectExistingSpecialStructures = function () {
+  // Detect containers and links at sources
+  const sources = this.room.find(FIND_SOURCES);
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i];
+    const containerIdentifier = `source_${i}`;
+    const linkIdentifier = `source_link_${i}`;
+
+    // Check for existing container near source
+    const containerRange = CONSTANTS.PLANNER.CONTAINER_DEFAULT_RANGE;
+    const nearbyContainers = source.pos.findInRange(FIND_STRUCTURES, containerRange, {
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER,
+    });
+    const nearbyContainerSites = source.pos.findInRange(FIND_CONSTRUCTION_SITES, containerRange, {
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER,
+    });
+
+    if (nearbyContainers.length > 0) {
+      const containerPos = nearbyContainers[0].pos;
+      this._storeSpecialStructure(containerIdentifier, containerPos.x, containerPos.y, STRUCTURE_CONTAINER, source.id);
+    } else if (nearbyContainerSites.length > 0) {
+      const containerPos = nearbyContainerSites[0].pos;
+      this._storeSpecialStructure(containerIdentifier, containerPos.x, containerPos.y, STRUCTURE_CONTAINER, source.id);
+    }
+
+    // Check for existing link near source
+    const linkRange = CONSTANTS.PLANNER.LINK_PLACEMENT_RANGE;
+    const nearbyLinks = source.pos.findInRange(FIND_STRUCTURES, linkRange, {
+      filter: (s) => s.structureType === STRUCTURE_LINK,
+    });
+    const nearbyLinkSites = source.pos.findInRange(FIND_CONSTRUCTION_SITES, linkRange, {
+      filter: (s) => s.structureType === STRUCTURE_LINK,
+    });
+
+    if (nearbyLinks.length > 0) {
+      const linkPos = nearbyLinks[0].pos;
+      this._storeSpecialStructure(linkIdentifier, linkPos.x, linkPos.y, STRUCTURE_LINK, source.id);
+    } else if (nearbyLinkSites.length > 0) {
+      const linkPos = nearbyLinkSites[0].pos;
+      this._storeSpecialStructure(linkIdentifier, linkPos.x, linkPos.y, STRUCTURE_LINK, source.id);
+    }
+  }
+
+  // Detect container and link at controller
+  if (this.room.controller) {
+    const controller = this.room.controller;
+    const containerIdentifier = "controller";
+    const linkIdentifier = "controller_link";
+
+    // Check for existing container near controller
+    const containerRange = CONSTANTS.PLANNER.CONTAINER_CONTROLLER_RANGE;
+    const nearbyContainers = controller.pos.findInRange(FIND_STRUCTURES, containerRange, {
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER,
+    });
+    const nearbyContainerSites = controller.pos.findInRange(FIND_CONSTRUCTION_SITES, containerRange, {
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER,
+    });
+
+    if (nearbyContainers.length > 0) {
+      const containerPos = nearbyContainers[0].pos;
+      this._storeSpecialStructure(containerIdentifier, containerPos.x, containerPos.y, STRUCTURE_CONTAINER, controller.id);
+    } else if (nearbyContainerSites.length > 0) {
+      const containerPos = nearbyContainerSites[0].pos;
+      this._storeSpecialStructure(containerIdentifier, containerPos.x, containerPos.y, STRUCTURE_CONTAINER, controller.id);
+    }
+
+    // Check for existing link near controller
+    const linkRange = CONSTANTS.PLANNER.LINK_PLACEMENT_RANGE;
+    const nearbyLinks = controller.pos.findInRange(FIND_STRUCTURES, linkRange, {
+      filter: (s) => s.structureType === STRUCTURE_LINK,
+    });
+    const nearbyLinkSites = controller.pos.findInRange(FIND_CONSTRUCTION_SITES, linkRange, {
+      filter: (s) => s.structureType === STRUCTURE_LINK,
+    });
+
+    if (nearbyLinks.length > 0) {
+      const linkPos = nearbyLinks[0].pos;
+      this._storeSpecialStructure(linkIdentifier, linkPos.x, linkPos.y, STRUCTURE_LINK, controller.id);
+    } else if (nearbyLinkSites.length > 0) {
+      const linkPos = nearbyLinkSites[0].pos;
+      this._storeSpecialStructure(linkIdentifier, linkPos.x, linkPos.y, STRUCTURE_LINK, controller.id);
     }
   }
 };
@@ -588,25 +866,20 @@ RoomPlanner.prototype._generateLayout = function () {
   const terrain = this.room.getTerrain();
   const plannedStructures = [];
 
+  // Detect existing containers and links for sources and controller
+  // This ensures their positions are preserved in the new layout
+  this._detectExistingSpecialStructures();
+
   // Helper function to add a structure
   const addStructure = (offsetX, offsetY, structureType, priority) => {
     const x = centerX + offsetX;
     const y = centerY + offsetY;
 
-    // Border check
-    if (
-      x < CONSTANTS.PLANNER.ROOM_MIN ||
-      x > CONSTANTS.PLANNER.ROOM_MAX ||
-      y < CONSTANTS.PLANNER.ROOM_MIN ||
-      y > CONSTANTS.PLANNER.ROOM_MAX
-    )
-      return;
-
-    // Wall check
-    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+    // Validate position (boundaries, walls, sources, controller)
+    if (!this._isValidStructurePosition(x, y)) {
       // Try to find alternative position
       const altPos = this._findAlternativePosition(x, y, structureType);
-      if (altPos) {
+      if (altPos && this._isValidStructurePosition(altPos.x, altPos.y)) {
         plannedStructures.push({
           x: altPos.x,
           y: altPos.y,
@@ -646,6 +919,7 @@ RoomPlanner.prototype._generateLayout = function () {
   }
 
   // Place extensions dynamically (only where space is available)
+  // Extensions are stored in memory.plannedStructures.extensions, not in plannedStructures.list
   this._placeExtensionsDynamically(plannedStructures, centerX, centerY, addStructure);
 
   // Place remaining labs dynamically in 3x3 blocks (9 labs total, 1 already in core)
@@ -653,8 +927,13 @@ RoomPlanner.prototype._generateLayout = function () {
 
   // Sort by priority
   plannedStructures.sort((a, b) => a.priority - b.priority);
+  
+  // Sort extensions by priority
+  if (this.memory.plannedStructures.extensions) {
+    this.memory.plannedStructures.extensions.sort((a, b) => a.priority - b.priority);
+  }
 
-  this.memory.plannedStructures = plannedStructures;
+  this.memory.plannedStructures.list = plannedStructures;
   this.memory.layoutGenerated = true;
 
   Log.success(
@@ -675,20 +954,12 @@ RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) 
       const newX = x + dx;
       const newY = y + dy;
 
-      if (
-        newX < CONSTANTS.PLANNER.ROOM_MIN ||
-        newX > CONSTANTS.PLANNER.ROOM_MAX ||
-        newY < CONSTANTS.PLANNER.ROOM_MIN ||
-        newY > CONSTANTS.PLANNER.ROOM_MAX
-      )
+      if (!this._isValidPosition(newX, newY)) {
         continue;
-      if (terrain.get(newX, newY) === TERRAIN_MASK_WALL) continue;
+      }
 
-      // Check if position is already occupied
-      const structures = this.room.lookForAt(LOOK_STRUCTURES, newX, newY);
-      const sites = this.room.lookForAt(LOOK_CONSTRUCTION_SITES, newX, newY);
-
-      if (structures.length === 0 && sites.length === 0) {
+      // Check if position is free
+      if (this._isPositionFree(newX, newY)) {
         return { x: newX, y: newY };
       }
     }
@@ -713,13 +984,66 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
 
   let sitesPlaced = 0;
 
-  for (const planned of this.memory.plannedStructures) {
+  // Process extensions from memory.plannedStructures.extensions first
+  if (this.memory.plannedStructures.extensions) {
+    for (const ext of this.memory.plannedStructures.extensions) {
+      if (sitesPlaced >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES - existingSites.length) break;
+
+      const { x, y, structureType } = ext;
+
+      // Check if structure can be built at current RCL
+      if (!this._canBuildStructure(structureType, rcl, structureCounts)) {
+        continue;
+      }
+
+      // Check if structure or construction site already exists
+      const pos = new RoomPosition(x, y, this.roomName);
+      const existingStructures = pos.lookFor(LOOK_STRUCTURES);
+      const existingConstSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+
+      // Check if structure of this type already exists
+      if (this._hasStructureAt(x, y, structureType)) {
+        continue;
+      }
+
+      // Check if there's a blocking non-road, non-rampart structure
+      const blockingStructure = existingStructures.find(
+        (s) => s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
+      );
+      if (blockingStructure) {
+        continue;
+      }
+
+      // Try to place construction site
+      const result = this.room.createConstructionSite(x, y, structureType);
+
+      if (result === OK) {
+        sitesPlaced++;
+      } else if (result === ERR_FULL) {
+        // Already too many sites
+        break;
+      } else if (result !== ERR_INVALID_TARGET && result !== ERR_RCL_NOT_ENOUGH) {
+        Log.warn(
+          `RoomPlanner: Could not place ${structureType} at (${x}, ${y}). Error: ${global.getErrorString(result)}`,
+          "RoomPlanner",
+        );
+      }
+    }
+  }
+
+  // Process other structures from plannedStructures.list
+  for (const planned of this.memory.plannedStructures.list) {
     if (sitesPlaced >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES - existingSites.length) break;
 
     const { x, y, structureType } = planned;
 
     // Skip special structures (Container/Links) - they are handled by _placeSpecialStructures
     if (planned.specialIdentifier) {
+      continue;
+    }
+
+    // Temporarily skip labs - only planning, not construction
+    if (structureType === STRUCTURE_LAB) {
       continue;
     }
 
@@ -752,12 +1076,7 @@ RoomPlanner.prototype._placeConstructionSites = function (rcl) {
       }
     } else {
       // For non-road structures: check if structure of this type already exists
-      const hasStructure = existingStructures.some(
-        (s) =>
-          s.structureType === structureType || (s.structureType !== STRUCTURE_ROAD && structureType !== STRUCTURE_ROAD),
-      );
-      const hasSite = existingConstSites.some((s) => s.structureType === structureType);
-      if (hasStructure || hasSite) {
+      if (this._hasStructureAt(x, y, structureType)) {
         continue;
       }
 
@@ -820,6 +1139,13 @@ RoomPlanner.prototype._getStructureCounts = function () {
   }
 
   return this._structureCounts;
+};
+
+/**
+ * Resets the structure counts cache (call when structures change)
+ */
+RoomPlanner.prototype._resetStructureCountsCache = function () {
+  this._structureCounts = null;
 };
 
 /**
@@ -889,6 +1215,12 @@ RoomPlanner.prototype._placeExtractor = function () {
 
   if (!existingExtractor && !existingSite) {
     const result = this.room.createConstructionSite(mineral.pos, STRUCTURE_EXTRACTOR);
+    if (result !== OK && result !== ERR_RCL_NOT_ENOUGH) {
+      Log.warn(
+        `RoomPlanner: Could not place extractor at mineral. Error: ${global.getErrorString(result)}`,
+        "RoomPlanner",
+      );
+    }
   }
 
   // Container next to mineral
@@ -1068,7 +1400,7 @@ RoomPlanner.prototype._placeStructureNear = function (
   }
 
   // Check if structure limit reached
-  if (!this._canBuildStructure(structureType, this.room.controller.level)) {
+  if (!this.room.controller || !this._canBuildStructure(structureType, this.room.controller.level)) {
     return;
   }
 
@@ -1084,33 +1416,15 @@ RoomPlanner.prototype._placeStructureNear = function (
       const x = pos.x + dx;
       const y = pos.y + dy;
 
-      if (
-        x < CONSTANTS.PLANNER.ROOM_MIN ||
-        x > CONSTANTS.PLANNER.ROOM_MAX ||
-        y < CONSTANTS.PLANNER.ROOM_MIN ||
-        y > CONSTANTS.PLANNER.ROOM_MAX
-      )
+      if (!this._isValidPosition(x, y)) {
         continue;
-      if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
+      }
 
       const checkPos = new RoomPosition(x, y, this.roomName);
 
       // Check if position is free
-      const structures = checkPos.lookFor(LOOK_STRUCTURES);
-      const sites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
-
-      if (allowRoads) {
-        // For links: allow roads/ramparts, but block other structures
-        const hasBlockingStructure = structures.some(
-          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
-        );
-        const hasBlockingSite = sites.some(
-          (s) => s.structureType && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
-        );
-        if (hasBlockingStructure || hasBlockingSite) continue;
-      } else {
-        // For containers: no structures or sites allowed
-        if (structures.length > 0 || sites.length > 0) continue;
+      if (!this._isPositionFree(x, y, allowRoads)) {
+        continue;
       }
 
       // Score: Distance to center (if available)
@@ -1141,12 +1455,18 @@ RoomPlanner.prototype._placeStructureNear = function (
  */
 RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, structureType, targetId) {
   // Ensure plannedStructures exists
-  if (!this.memory.plannedStructures) {
-    this.memory.plannedStructures = [];
+  if (!this.memory.plannedStructures || typeof this.memory.plannedStructures !== 'object' || Array.isArray(this.memory.plannedStructures)) {
+    this.memory.plannedStructures = {
+      list: Array.isArray(this.memory.plannedStructures) ? this.memory.plannedStructures : [],
+      extensions: [],
+    };
+  }
+  if (!this.memory.plannedStructures.list) {
+    this.memory.plannedStructures.list = [];
   }
 
   // Remove existing entry with same identifier
-  this.memory.plannedStructures = this.memory.plannedStructures.filter(
+  this.memory.plannedStructures.list = this.memory.plannedStructures.list.filter(
     (s) => !(s.specialIdentifier && s.specialIdentifier === identifier),
   );
 
@@ -1178,7 +1498,7 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
     priority = 1100; // Fallback
   }
 
-  this.memory.plannedStructures.push({
+  this.memory.plannedStructures.list.push({
     x: x,
     y: y,
     structureType: structureType,
@@ -1192,11 +1512,11 @@ RoomPlanner.prototype._storeSpecialStructure = function (identifier, x, y, struc
  * Gets stored special structure position from memory
  */
 RoomPlanner.prototype._getStoredSpecialStructure = function (identifier) {
-  if (!this.memory.plannedStructures) {
+  if (!this.memory.plannedStructures || !this.memory.plannedStructures.list) {
     return null;
   }
 
-  const stored = this.memory.plannedStructures.find((s) => s.specialIdentifier && s.specialIdentifier === identifier);
+  const stored = this.memory.plannedStructures.list.find((s) => s.specialIdentifier && s.specialIdentifier === identifier);
 
   return stored ? { x: stored.x, y: stored.y, structureType: stored.structureType } : null;
 };
@@ -1205,11 +1525,11 @@ RoomPlanner.prototype._getStoredSpecialStructure = function (identifier) {
  * Removes stored special structure from memory
  */
 RoomPlanner.prototype._removeStoredSpecialStructure = function (identifier) {
-  if (!this.memory.plannedStructures) {
+  if (!this.memory.plannedStructures || !this.memory.plannedStructures.list) {
     return;
   }
 
-  this.memory.plannedStructures = this.memory.plannedStructures.filter(
+  this.memory.plannedStructures.list = this.memory.plannedStructures.list.filter(
     (s) => !(s.specialIdentifier && s.specialIdentifier === identifier),
   );
 };
@@ -1246,14 +1566,26 @@ RoomPlanner.prototype._findOrphanedStructures = function () {
 
   // Create a map of planned positions: "x,y" -> structureType
   const plannedPositions = new Map();
-  for (const planned of this.memory.plannedStructures) {
-    // Skip special structures (containers/links at sources) - they're dynamic
-    if (planned.specialIdentifier) continue;
+  const plannedExtensionPositions = new Set(); // Track extension positions separately
+  
+  // Add extensions from memory.plannedStructures.extensions
+  if (this.memory.plannedStructures.extensions) {
+    for (const ext of this.memory.plannedStructures.extensions) {
+      const key = `${ext.x},${ext.y}`;
+      plannedExtensionPositions.add(key);
+    }
+  }
+  
+  // Add other structures from plannedStructures.list
+  for (const planned of this.memory.plannedStructures.list) {
     const key = `${planned.x},${planned.y}`;
+    // Include all structures, even those with specialIdentifier (like links)
+    // They are still planned structures and should not be marked as orphaned
     plannedPositions.set(key, planned.structureType);
   }
 
   // Find all structures in the room that could be planned by the planner
+  // Exclude roads from orphaned structures check
   const plannerStructureTypes = [
     STRUCTURE_SPAWN,
     STRUCTURE_EXTENSION,
@@ -1266,7 +1598,7 @@ RoomPlanner.prototype._findOrphanedStructures = function () {
     STRUCTURE_OBSERVER,
     STRUCTURE_POWER_SPAWN,
     STRUCTURE_NUKER,
-    STRUCTURE_ROAD,
+    // STRUCTURE_ROAD - excluded from orphaned check
   ];
 
   const structures = this.room.find(FIND_STRUCTURES, {
@@ -1275,25 +1607,46 @@ RoomPlanner.prototype._findOrphanedStructures = function () {
 
   for (const structure of structures) {
     const key = `${structure.pos.x},${structure.pos.y}`;
-    const plannedType = plannedPositions.get(key);
-
-    // Structure is orphaned if:
-    // 1. No structure is planned at this position, OR
-    // 2. A different structure type is planned at this position
-    if (!plannedType || plannedType !== structure.structureType) {
-      // Check if it's within reasonable range of the center (to avoid flagging structures far away)
-      const distanceFromCenter = Math.max(
-        Math.abs(structure.pos.x - centerX),
-        Math.abs(structure.pos.y - centerY),
-      );
-      // Only flag structures within 20 tiles of center (reasonable bunker range)
-      if (distanceFromCenter <= 20) {
-        orphanedStructures.push({
-          structure: structure,
-          x: structure.pos.x,
-          y: structure.pos.y,
-          structureType: structure.structureType,
-        });
+    
+    // For extensions, check if position is in the extension positions set
+    if (structure.structureType === STRUCTURE_EXTENSION) {
+      if (!plannedExtensionPositions.has(key)) {
+        // Extension exists but not planned at this position
+        const distanceFromCenter = Math.max(
+          Math.abs(structure.pos.x - centerX),
+          Math.abs(structure.pos.y - centerY),
+        );
+        if (distanceFromCenter <= 20) {
+          orphanedStructures.push({
+            structure: structure,
+            x: structure.pos.x,
+            y: structure.pos.y,
+            structureType: structure.structureType,
+          });
+        }
+      }
+    } else {
+      // For other structures, check the map
+      const plannedType = plannedPositions.get(key);
+      
+      // Structure is orphaned if:
+      // 1. No structure is planned at this position, OR
+      // 2. A different structure type is planned at this position
+      if (!plannedType || plannedType !== structure.structureType) {
+        // Check if it's within reasonable range of the center (to avoid flagging structures far away)
+        const distanceFromCenter = Math.max(
+          Math.abs(structure.pos.x - centerX),
+          Math.abs(structure.pos.y - centerY),
+        );
+        // Only flag structures within 20 tiles of center (reasonable bunker range)
+        if (distanceFromCenter <= 20) {
+          orphanedStructures.push({
+            structure: structure,
+            x: structure.pos.x,
+            y: structure.pos.y,
+            structureType: structure.structureType,
+          });
+        }
       }
     }
   }
@@ -1372,8 +1725,12 @@ RoomPlanner.prototype._drawVisualization = function () {
 
   // Collect unique structure types for legend
   const usedStructures = new Set();
-  for (const planned of this.memory.plannedStructures) {
+  for (const planned of this.memory.plannedStructures.list) {
     usedStructures.add(planned.structureType);
+  }
+  // Also include extensions
+  if (this.memory.plannedStructures.extensions && this.memory.plannedStructures.extensions.length > 0) {
+    usedStructures.add(STRUCTURE_EXTENSION);
   }
 
   // Draw legend in top-left corner (doubled size)
@@ -1410,7 +1767,7 @@ RoomPlanner.prototype._drawVisualization = function () {
   }
 
   // Draw planned structures
-  for (const planned of this.memory.plannedStructures) {
+  for (const planned of this.memory.plannedStructures.list) {
     const color = structureColors[planned.structureType] || "#ffffff";
     visual.rect(planned.x - 0.4, planned.y - 0.4, 0.8, 0.8, {
       fill: color,
@@ -1428,6 +1785,29 @@ RoomPlanner.prototype._drawVisualization = function () {
       stroke: "#ffffff",
       strokeWidth: 0.1,
     });
+  }
+  
+  // Draw extensions from memory.plannedStructures.extensions
+  if (this.memory.plannedStructures.extensions) {
+    const extensionColor = structureColors[STRUCTURE_EXTENSION] || "#888888";
+    for (const ext of this.memory.plannedStructures.extensions) {
+      visual.rect(ext.x - 0.4, ext.y - 0.4, 0.8, 0.8, {
+        fill: extensionColor,
+        opacity: 0.8,
+        stroke: extensionColor,
+        strokeWidth: 0.1,
+      });
+
+      // Draw structure initial letter
+      const letter = structureLetters[STRUCTURE_EXTENSION] || "E";
+      visual.text(letter, ext.x, ext.y + 0.3, {
+        color: "#000000",
+        font: "0.6 Arial",
+        align: "center",
+        stroke: "#ffffff",
+        strokeWidth: 0.1,
+      });
+    }
   }
 
   // Draw orphaned structures (structures that exist but are no longer in the layout)
@@ -1493,13 +1873,54 @@ RoomPlanner.prototype._drawVisualization = function () {
 };
 
 /**
+ * Recalculates extension placements
+ * Removes all existing extension positions from the layout and recalculates them
+ */
+RoomPlanner.prototype.recalculateExtensions = function () {
+  if (this.memory.layoutGenerated !== true || !this._hasCenter()) {
+    Log.warn(`Cannot recalculate extensions: Layout not generated or center not found for ${this.roomName}`, "RoomPlanner");
+    return false;
+  }
+
+  const centerX = this.memory.centerX;
+  const centerY = this.memory.centerY;
+
+  // Remove all existing extensions from memory.plannedStructures.extensions
+  const removedCount = this.memory.plannedStructures.extensions ? this.memory.plannedStructures.extensions.length : 0;
+  this.memory.plannedStructures.extensions = [];
+
+  // Create a copy of current planned structures for _placeExtensionsDynamically
+  const plannedStructures = [...this.memory.plannedStructures.list];
+
+  // Helper function to add a structure (not used for extensions, but needed for signature)
+  const addStructure = (offsetX, offsetY, structureType, priority) => {
+    // Extensions are handled directly in _placeExtensionsDynamically
+    // This function is not used for extensions anymore
+  };
+
+  // Recalculate extensions (will store in memory.plannedStructures.extensions)
+  this._placeExtensionsDynamically(plannedStructures, centerX, centerY, addStructure);
+
+  const newExtensionCount = this.memory.plannedStructures.extensions ? this.memory.plannedStructures.extensions.length : 0;
+  Log.info(
+    `RoomPlanner: Recalculated extensions for ${this.roomName}. Removed ${removedCount}, placed ${newExtensionCount} extensions`,
+    "RoomPlanner",
+  );
+
+  return true;
+};
+
+/**
  * Resets the layout (for replanning)
  */
 RoomPlanner.prototype.reset = function () {
   this.memory.centerX = null;
   this.memory.centerY = null;
   this.memory.layoutGenerated = undefined;  // Reset auf undefined = noch nicht geprüft
-  this.memory.plannedStructures = [];
+  this.memory.plannedStructures = {
+    list: [],
+    extensions: [],
+  };
   Log.info(`RoomPlanner: Layout for ${this.roomName} reset`, "RoomPlanner");
 };
 
@@ -1514,17 +1935,23 @@ RoomPlanner.prototype.getStats = function () {
     return { status: "nicht generiert" };
   }
 
+  const extensionCount = this.memory.plannedStructures.extensions ? this.memory.plannedStructures.extensions.length : 0;
   const stats = {
     center: { x: this.memory.centerX, y: this.memory.centerY },
-    totalPlanned: this.memory.plannedStructures.length,
+    totalPlanned: this.memory.plannedStructures.list.length + extensionCount,
     byType: {},
   };
 
-  for (const planned of this.memory.plannedStructures) {
+  for (const planned of this.memory.plannedStructures.list) {
     if (!stats.byType[planned.structureType]) {
       stats.byType[planned.structureType] = 0;
     }
     stats.byType[planned.structureType]++;
+  }
+  
+  // Add extensions count
+  if (extensionCount > 0) {
+    stats.byType[STRUCTURE_EXTENSION] = extensionCount;
   }
 
   return stats;

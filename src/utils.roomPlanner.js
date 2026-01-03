@@ -155,6 +155,62 @@ function plannerOrphaned(roomName) {
   return formatted;
 }
 
+/**
+ * Recalculates extension placements for a room
+ * Removes all existing extension positions and recalculates them
+ * Usage: plannerRecalculateExtensions('W1N1')
+ * @param {string} roomName - Room name
+ * @returns {boolean} True if successful, false otherwise
+ */
+function plannerRecalculateExtensions(roomName) {
+  const room = Game.rooms[roomName];
+  if (!room) {
+    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    return false;
+  }
+  const planner = new RoomPlanner(room);
+  const success = planner.recalculateExtensions();
+  if (success) {
+    Log.info(`Extensions for ${roomName} recalculated successfully`, "RoomPlanner");
+  }
+  return success;
+}
+
+/**
+ * Recalculates extension placements for all owned rooms
+ * Usage: plannerRecalculateExtensionsAll()
+ * @returns {Object} Summary with success and failed room counts
+ */
+function plannerRecalculateExtensionsAll() {
+  const ownedRooms = Object.values(Game.rooms).filter(r => r.controller && r.controller.my);
+  
+  if (ownedRooms.length === 0) {
+    Log.warn("No owned rooms found", "RoomPlanner");
+    return { success: 0, failed: 0, total: 0 };
+  }
+  
+  let successCount = 0;
+  let failedCount = 0;
+  
+  for (const room of ownedRooms) {
+    const success = plannerRecalculateExtensions(room.name);
+    if (success) {
+      successCount++;
+    } else {
+      failedCount++;
+    }
+  }
+  
+  const summary = {
+    success: successCount,
+    failed: failedCount,
+    total: ownedRooms.length,
+  };
+  
+  Log.info(`Recalculated extensions for ${successCount}/${ownedRooms.length} rooms. Failed: ${failedCount}`, "RoomPlanner");
+  return summary;
+}
+
 module.exports = {
   plannerVisualize,
   plannerStats,
@@ -162,5 +218,7 @@ module.exports = {
   plannerRun,
   plannerSetCenter,
   plannerOrphaned,
+  plannerRecalculateExtensions,
+  plannerRecalculateExtensionsAll,
 };
 

@@ -27,6 +27,8 @@ function help(category = "all") {
       { name: "plannerRun(room)", desc: "Runs RoomPlanner manually", example: 'plannerRun("W1N1")' },
       { name: "plannerSetCenter(room, x, y)", desc: "Sets center coordinates for planning", example: 'plannerSetCenter("W1N1", 25, 25)' },
       { name: "plannerOrphaned(room)", desc: "Lists orphaned structures (built but no longer in layout)", example: 'plannerOrphaned("W1N1")' },
+      { name: "plannerRecalculateExtensions(room)", desc: "Recalculates extension placements (removes old and recalculates)", example: 'plannerRecalculateExtensions("W1N1")' },
+      { name: "plannerRecalculateExtensionsAll()", desc: "Recalculates extension placements for all owned rooms", example: 'plannerRecalculateExtensionsAll()' },
       { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
       { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
       { name: "showRclUpgradeTimes()", desc: "Shows RCL upgrade times for all owned rooms", example: "showRclUpgradeTimes()" },

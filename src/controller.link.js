@@ -29,6 +29,46 @@ class ControllerLink {
   }
 
   /**
+   * Helper function to check if a link is a controller link (close to controller)
+   * @param {StructureLink} link - The link to check
+   * @returns {boolean} True if it's a controller link
+   */
+  _isControllerLink(link) {
+    if (!link || !this.room.room.controller) {
+      return false;
+    }
+    // Controller link should be within range 3 of the controller
+    return link.pos.getRangeTo(this.room.room.controller) <= 3;
+  }
+
+  /**
+   * Helper function to check if a link is a base link (close to storage/spawn)
+   * @param {StructureLink} link - The link to check
+   * @returns {boolean} True if it's a base link
+   */
+  _isBaseLink(link) {
+    if (!link) {
+      return false;
+    }
+    const room = this.room.room;
+    
+    // Check if link is close to storage
+    if (room.storage && link.pos.getRangeTo(room.storage) <= 3) {
+      return true;
+    }
+    
+    // Check if link is close to spawns
+    const spawns = room.find(FIND_MY_SPAWNS);
+    for (const spawn of spawns) {
+      if (link.pos.getRangeTo(spawn) <= 3) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  /**
    * Helper function to check if a sender link is ready to send energy
    * @param {StructureLink} sender - The sender link
    * @returns {boolean} True if ready to send
@@ -62,8 +102,31 @@ class ControllerLink {
     // Get ready senders (filtered and ready to transfer)
     const readySenders = _.filter(this.senders, (s) => this._isSenderReady(s));
 
-    // Get receivers that need energy (shuffled for better distribution)
-    const needingReceivers = _.shuffle(_.filter(this.receivers, (r) => this._isReceiverNeedingEnergy(r)));
+    // Get receivers that need energy
+    let needingReceivers = _.filter(this.receivers, (r) => this._isReceiverNeedingEnergy(r));
+
+    // Check if storage exists and has less than 30000 energy (from fillLevelConfig)
+    const storage = this.room.room.storage;
+    const storageEnergyThreshold = global.fillLevel && global.fillLevel[RESOURCE_ENERGY] 
+      ? global.fillLevel[RESOURCE_ENERGY].storage 
+      : 30000; // Fallback to 30000 if fillLevel not available
+    
+    const shouldPreferBaseLink = storage && storage.store && 
+      storage.store.getUsedCapacity(RESOURCE_ENERGY) < storageEnergyThreshold;
+
+    // Sort receivers: prefer base link over controller link when storage is low
+    if (shouldPreferBaseLink && needingReceivers.length > 1) {
+      // Separate receivers into priority groups and shuffle within each group
+      const baseLinks = _.shuffle(needingReceivers.filter(r => this._isBaseLink(r)));
+      const controllerLinks = _.shuffle(needingReceivers.filter(r => this._isControllerLink(r)));
+      const otherLinks = _.shuffle(needingReceivers.filter(r => !this._isBaseLink(r) && !this._isControllerLink(r)));
+      
+      // Base links first, then controller links, then others
+      needingReceivers = [...baseLinks, ...controllerLinks, ...otherLinks];
+    } else {
+      // Normal random distribution when storage is fine
+      needingReceivers = _.shuffle(needingReceivers);
+    }
 
     // Early return if no work to do
     if (readySenders.length === 0 || needingReceivers.length === 0) {
