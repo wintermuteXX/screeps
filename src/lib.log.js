@@ -42,26 +42,47 @@ class Log {
     throw new Error("Log is a static class");
   }
 
+  /**
+   * Log a debug message
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static debug(msg, tag) {
     this.log(Log.LEVEL_DEBUG, msg, tag);
   }
 
-  /** */
+  /**
+   * Log an info message for important operational events
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static info(msg, tag) {
     this.log(Log.LEVEL_INFO, msg, tag);
   }
 
-  /** */
+  /**
+   * Log a warning message for potential problems or unexpected situations
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static warn(msg, tag) {
     this.log(Log.LEVEL_WARN, msg, tag);
   }
 
-  /** */
+  /**
+   * Log an error message for critical errors that affect functionality
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static error(msg, tag) {
     this.log(Log.LEVEL_ERROR, msg, tag);
   }
 
-  /** */
+  /**
+   * Log a success message for successful completion of important operations
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static success(msg, tag) {
     this.log(Log.LEVEL_SUCCESS, msg, tag);
   }
@@ -75,7 +96,12 @@ class Log {
     this.toConsole(msg, Log.color[Log.LEVEL_TEST], tag);
   }
 
-  /** */
+  /**
+   * Internal logging method that handles level checking and formatting
+   * @param {number} [level=Log.LEVEL_DEBUG] - The log level
+   * @param {string} msg - The message to log
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static log(level = Log.LEVEL_DEBUG, msg, tag) {
     const color = Log.color[level];
     if (tag && this.getLogLevel(tag) > level) return;
@@ -83,8 +109,11 @@ class Log {
   }
 
   /**
-   * HTML table in console
-   * ex: Log.table(['a','b'], [[1,2],[3,4]])
+   * Generate HTML table for console display
+   * @param {string[]} headers - Array of column headers
+   * @param {Array[]} rows - Array of row arrays
+   * @returns {string} HTML table string
+   * @example Log.table(['a','b'], [[1,2],[3,4]])
    */
   static table(headers, rows) {
     let msg = "<table>";
@@ -95,26 +124,45 @@ class Log {
     return msg;
   }
 
-  /** */
+  /**
+   * Send a notification message (both console and Game.notify)
+   * @param {string} msg - The message to notify
+   * @param {number} [group=0] - Notification group ID
+   * @param {string} [color="red"] - Color for console output
+   */
   static notify(msg, group = 0, color = "red") {
     this.toConsole(msg, color);
     Game.notify(msg, group);
   }
 
-  /** */
+  /**
+   * Get the log level for a specific tag
+   * @param {string} tag - The log tag
+   * @returns {number} The log level for this tag (defaults to LEVEL_WARN)
+   */
   static getLogLevel(tag) {
     if (!Memory.logging) Memory.logging = {};
     if (Memory.logging[tag] == null) return Log.LEVEL_WARN;
     return Memory.logging[tag];
   }
 
-  /** */
+  /**
+   * Internal method to output formatted message to console
+   * @param {string} msg - The message to output
+   * @param {string} color - The color for the message
+   * @param {string} [tag] - Optional tag for filtering logs
+   */
   static toConsole(msg, color, tag) {
     if (tag) console.log(`<font color=${color}>[${Game.time}][${tag}] ${msg}</font>`);
     else console.log(`<font color=${color}>[${Game.time}] ${msg}</font>`);
   }
 
-  /** */
+  /**
+   * Generate HTML progress bar element
+   * @param {number} v - Current value
+   * @param {number} m - Maximum value
+   * @returns {string} HTML progress bar string
+   */
   static progress(v, m) {
     return `<progress value="${v}" max="${m}"/>`;
   }

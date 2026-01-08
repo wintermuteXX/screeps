@@ -52,6 +52,7 @@ module.exports = {
   RESOURCES: {
     TOMBSTONE_MIN: 100,             // Minimum amount in tombstone to consider
     DROPPED_MIN: 100,               // Minimum dropped resource amount to collect
+    DROPPED_MULTIPLIER: 50,         // Multiplier for dropped resources threshold (DROPPED_MIN * MULTIPLIER)
     CONTAINER_MIN: 750,              // Minimum amount in container to consider
     TERMINAL_MIN_SELL: 10000,       // Minimum mineral amount before selling
     TERMINAL_MAX_STORE: 270000,     // Maximum terminal storage before stopping mining
@@ -81,6 +82,11 @@ module.exports = {
     MINER_PER_SOURCE: 1,             // Miners per source
     MINER_MINERAL_MAX: 1,            // Max mineral miners
     MINER_COMMODITY_MAX: 1,          // Max commodity miners
+  },
+
+  // Creep Energy Limits
+  CREEP_ENERGY: {
+    RCL8_MAX_PER_TICK: 15,           // Maximum energy per tick at RCL 8
   },
 
   // Structure Energy Thresholds
@@ -252,6 +258,8 @@ module.exports = {
     BORDER_MAX: 48,                   // Maximum coordinate (avoid edge)
     EDGE_MIN: 0,                      // Room edge minimum
     EDGE_MAX: 49,                     // Room edge maximum
+    CENTER_POSITION_X: 25,            // Default X coordinate for room center (used for travel targeting)
+    CENTER_POSITION_Y: 25,            // Default Y coordinate for room center (used for travel targeting)
   },
 
   // Defense

@@ -1,4 +1,5 @@
 const Behavior = require("./behavior.base");
+const Log = require("./lib.log");
 
 class RepairBehavior extends Behavior {
   constructor() {
@@ -36,8 +37,19 @@ class RepairBehavior extends Behavior {
 
     if (target) {
       const result = creep.repair(target);
-      if (result === ERR_NOT_IN_RANGE) {
-        creep.travelTo(target);
+      switch (result) {
+        case OK:
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.travelTo(target);
+          break;
+        case ERR_INVALID_TARGET:
+        case ERR_NOT_ENOUGH_RESOURCES:
+          Log.warn(`${creep} repair error for ${target}: ${global.getErrorString(result)}. Clearing target.`, "repair");
+          creep.target = null;
+          break;
+        default:
+          Log.warn(`${creep} unknown repair result for ${target}: ${global.getErrorString(result)}`, "repair");
       }
     }
   }

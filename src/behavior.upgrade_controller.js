@@ -26,8 +26,15 @@ class UpgradeControllerBehavior extends Behavior {
         case ERR_NOT_IN_RANGE:
           creep.travelTo(target);
           break;
+        case ERR_NOT_OWNER:
+        case ERR_INVALID_TARGET:
+          Log.error(`${creep} critical error upgrading controller ${target}: ${global.getErrorString(result)}`, "upgrade_controller");
+          break;
+        case ERR_NOT_ENOUGH_RESOURCES:
+          // This is expected when energy runs out, no need to log
+          break;
         default:
-          Log.warn(`${creep} has unknown result from upgradeController(${target}): ${global.getErrorString(result)}`, "upgrade_controller");
+          Log.warn(`${creep} unknown result from upgradeController(${target}): ${global.getErrorString(result)}`, "upgrade_controller");
       }
     }
   }

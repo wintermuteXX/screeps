@@ -1,4 +1,5 @@
 const Behavior = require("./behavior.base");
+const Log = require("./lib.log");
 
 class HarvestBehavior extends Behavior {
   constructor() {
@@ -36,7 +37,11 @@ class HarvestBehavior extends Behavior {
       if (!creep.pos.isNearTo(target)) {
         creep.travelTo(target);
       } else {
-        creep.harvest(target);
+        const result = creep.harvest(target);
+        if (result !== OK && result !== ERR_NOT_IN_RANGE) {
+          // ERR_NOT_IN_RANGE is handled by travelTo above, only log other errors
+          Log.warn(`${creep} harvest error from ${target}: ${global.getErrorString(result)}`, "harvest");
+        }
       }
     }
   }

@@ -113,7 +113,7 @@ module.exports = {
         limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
       }
 
-      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * 50) { // 50x the minimum
+      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * CONSTANTS.RESOURCES.DROPPED_MULTIPLIER) {
         modifier = 1;
         // Only warn if we can actually build an additional transporter
         if (transporters.length < limit + modifier) {
@@ -125,21 +125,6 @@ module.exports = {
     },
   },
 
-  ornithopter: {
-    priority: 3,
-    levelMin: 2,
-    minParts: 6,
-    wait4maxEnergy: false,
-    namePrefix: "Thopter",
-    body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    behaviors: ["renew:emergency", "transport", "renew"],
-
-    canBuild: function (rc) {
-      // Only manual creation for test phase
-      return false;
-    },
-  },
-
   upgrader: {
     priority: 4,
     levelMin: 1,
@@ -148,12 +133,12 @@ module.exports = {
     namePrefix: "Spice_Refiner",
 
     // Dynamischer Body basierend auf RCL
-    // RCL 8: Max 15 Energy/tick Limit, daher kleinerer Body
+    // RCL 8: Max energy per tick limit (CONSTANTS.CREEP_ENERGY.RCL8_MAX_PER_TICK), daher kleinerer Body
     // RCL 1-7: Larger body for faster upgrading
     getUpgraderBody: function (rc) {
       const level = rc.getLevel();
       if (level === 8) {
-        // RCL 8: Optimized for 15 Energy/tick limit (15 WORK parts)
+        // RCL 8: Optimized for RCL8_MAX_PER_TICK energy/tick limit (15 WORK parts)
         return [
           MOVE, WORK, MOVE, CARRY, MOVE, WORK, MOVE, CARRY,
           MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, CARRY,
@@ -372,7 +357,7 @@ module.exports = {
     wait4maxEnergy: true,
     namePrefix: "Colonizer",
     body: generateBody([MOVE, CLAIM], 2), // 2 MOVE, 2 CLAIM
-    behaviors: ["claim_controller", "place_spawn"],
+    behaviors: ["claim_controller"],
 
     canBuild: function (rc) {
       //temp
