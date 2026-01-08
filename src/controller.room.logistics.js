@@ -2,6 +2,15 @@ const ResourceManager = require("./service.resource");
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
+/**
+ * LogisticsManager - Central coordinator for resource distribution
+ * 
+ * Manages two resource lists:
+ * - givesResources: All sources that can provide resources
+ * - needsResources: All destinations that need resources
+ * 
+ * Uses priority-based matching: need.priority < give.priority
+ */
 class LogisticsManager {
   /**
    * @param {ControllerRoom} roomController - Room controller instance
@@ -9,6 +18,10 @@ class LogisticsManager {
   constructor(roomController) {
     this.rc = roomController;
   }
+
+  // ========================================================================
+  // PUBLIC API - Order Management
+  // ========================================================================
 
   /**
    * Get transport order for an empty creep
@@ -107,7 +120,7 @@ class LogisticsManager {
    * @returns {Object|Array|null} Delivery order(s), or null if no order available
    */
   getDeliveryOrder(Creep, resourceType = null) {
-    const givesResources = this.givesResources(); // Need to check priority
+    // const givesResources = this.givesResources(); // Need to check priority
     const needsResources = this.needsResources();
 
     // Get resources the creep is carrying
@@ -145,7 +158,7 @@ class LogisticsManager {
       if (Creep.store[resType] <= 0) continue;
 
       // Find corresponding give for this resource type to check priority
-      const correspondingGive = givesResources.find(g => g.resourceType === resType && g.id !== Creep.id);
+      //const correspondingGive = givesResources.find(g => g.resourceType === resType && g.id !== Creep.id);
 
       for (const need of needsResources) {
 
@@ -154,7 +167,7 @@ class LogisticsManager {
         if (need.id === Creep.id) continue;
 
         // PRIORITY CHECK: Only match if need.priority < give.priority (same as showLogistic)
-        if (correspondingGive && need.priority >= correspondingGive.priority) continue;
+        // if (correspondingGive && need.priority >= correspondingGive.priority) continue;
 
         // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
         // Use cached allCreeps instead of calling getAllCreeps() again
@@ -206,6 +219,64 @@ class LogisticsManager {
   }
 
   /**
+   * Get all resources that can be given (sources)
+   * @returns {Array} Array of give resource orders, sorted by priority (highest first)
+   */
+  givesResources() {
+    if (!this.rc._givesResources) {
+      this.rc._givesResources = [];
+
+      // Process all resource sources in priority order
+      this._processTombstones();
+      this._processRuins();
+      this._processLinks();
+      this._processDroppedResources();
+      this._processContainers();
+      this._processLabs();
+      this._processFactory();
+      this._processStorage();
+      this._processTerminal();
+
+      // Sort by priority (highest first)
+      this.rc._givesResources.sort((a, b) => b.priority - a.priority);
+    }
+
+    return this.rc._givesResources;
+  }
+
+  /**
+   * Get all resources that are needed (destinations)
+   * @returns {Array} Array of need resource orders, sorted by priority (lowest first = highest priority)
+   */
+  needsResources() {
+    if (!this.rc._needsResources) {
+      this.rc._needsResources = [];
+
+      // Get controller priority (dynamic based on ticksToDowngrade)
+      const controllerPriority = this._getControllerPriority();
+
+      // Process all resource needs
+      this._processUpgraders(controllerPriority);
+      this._processController(controllerPriority);
+      this._processConstructors();
+      this._processLabsNeeds();
+      this._processStructures();
+      this._processFactoryNeeds();
+      this._processStorageNeeds();
+      this._processTerminalNeeds();
+
+      // Sort by priority (lowest first = highest priority)
+      this.rc._needsResources.sort((a, b) => a.priority - b.priority);
+    }
+
+    return this.rc._needsResources;
+  }
+
+  // ========================================================================
+  // HELPER METHODS - Validation & Memory Management
+  // ========================================================================
+
+  /**
    * Validate that a resource target exists and has capacity
    * @param {string} targetId - Target object ID
    * @param {string} resourceType - Resource type to check capacity for
@@ -225,6 +296,9 @@ class LogisticsManager {
     return { obj: targetObj, freeCapacity: Infinity };
   }
 
+  /**
+   * Update creep memory with resource order information
+   */
   _updateCreepResourceMemory(creep, resourceType, targetId, orderType, amount) {
     if (!creep.memory.resources) {
       creep.memory.resources = [];
@@ -245,6 +319,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Add a resource source entry to the gives list
+   */
   _addGivesResource(entry) {
     if (!this.rc._givesResources) {
       this.rc._givesResources = [];
@@ -252,12 +329,29 @@ class LogisticsManager {
     this.rc._givesResources.push(entry);
   }
 
+  /**
+   * Add a resource need entry to the needs list
+   */
+  _addNeedsResource(entry) {
+    if (!this.rc._needsResources) {
+      this.rc._needsResources = [];
+    }
+    this.rc._needsResources.push(entry);
+  }
+
+  /**
+   * Check if position is too close to controller (avoid collecting dropped resources there)
+   */
   _isTooCloseToController(pos) {
     if (!this.rc.room.controller) {
       return false;
     }
     return pos.inRangeTo(this.rc.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
   }
+
+  // ========================================================================
+  // PRIORITY CALCULATION METHODS
+  // ========================================================================
 
   /**
    * Determines priority for storage resource availability (gives) based on amount and fill level
@@ -413,6 +507,42 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Determines controller priority based on ticks until downgrade
+   * 
+   * Priority tiers:
+   * - < 100 ticks → CONTROLLER_CRITICAL (highest priority, prevent downgrade)
+   * - < 5000 ticks → CONTROLLER_LOW (medium priority, maintain level)
+   * - >= 5000 ticks → STORAGE_ENERGY_HIGH (normal priority, no urgent need)
+   * 
+   * @returns {number} Priority value for controller/upgrader energy needs
+   */
+  _getControllerPriority() {
+    if (!this.rc.room.controller) {
+      // No controller - return normal priority (shouldn't happen in owned rooms)
+      return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+    }
+
+    const {ticksToDowngrade} = this.rc.room.controller;
+    if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
+      // Critical: Controller will downgrade soon - highest priority
+      return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
+    } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
+      // Low: Controller needs energy but not critical - medium priority
+      return CONSTANTS.PRIORITY.CONTROLLER_LOW;
+    }
+
+    // Normal: Controller has enough time - normal priority
+    return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
+  }
+
+  // ========================================================================
+  // GIVES RESOURCES PROCESSING - Resource Sources
+  // ========================================================================
+
+  /**
+   * Process generic store resources (tombstones, ruins)
+   */
   _processStoreResources(findType, minAmount, priority, defaultStructureType) {
     this.rc.find(findType).forEach((item) => {
       // Use Object.keys() for better performance than for...in
@@ -433,6 +563,9 @@ class LogisticsManager {
     });
   }
 
+  /**
+   * Process tombstone resources
+   */
   _processTombstones() {
     this._processStoreResources(
       FIND_TOMBSTONES,
@@ -442,6 +575,9 @@ class LogisticsManager {
     );
   }
 
+  /**
+   * Process ruin resources (destroyed structures)
+   */
   _processRuins() {
     this._processStoreResources(
       FIND_RUINS,
@@ -451,6 +587,9 @@ class LogisticsManager {
     );
   }
 
+  /**
+   * Process link resources (receiver links only)
+   */
   _processLinks() {
     if (!this.rc.links.receivers) return;
 
@@ -467,6 +606,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process dropped resources on the ground
+   */
   _processDroppedResources() {
     for (const resource of this.rc.find(FIND_DROPPED_RESOURCES)) {
       if (resource.amount > CONSTANTS.RESOURCES.DROPPED_MIN && !this._isTooCloseToController(resource.pos)) {
@@ -480,6 +622,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process container resources (at sources and extractor)
+   */
   _processContainers() {
     const containers = [];
 
@@ -515,6 +660,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process lab resources (labs with status "empty" that need emptying)
+   */
   _processLabs() {
     if (!this.rc.room.labs) return;
 
@@ -534,6 +682,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process factory overflow resources
+   */
   _processFactory() {
     const {factory} = this.rc.room;
     if (!factory) return;
@@ -555,6 +706,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process storage resources (with priority based on fill level)
+   */
   _processStorage() {
     const {storage} = this.rc.room;
     if (!storage) return;
@@ -579,6 +733,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process terminal resources (with priority based on energy threshold)
+   */
   _processTerminal() {
     const {terminal} = this.rc.room;
     if (!terminal) return;
@@ -600,68 +757,13 @@ class LogisticsManager {
     }
   }
 
-  /**
-   * Get all resources that can be given (sources)
-   * @returns {Array} Array of give resource orders, sorted by priority (highest first)
-   */
-  givesResources() {
-    if (!this.rc._givesResources) {
-      this.rc._givesResources = [];
-
-      // Process all resource sources
-      this._processTombstones();
-      this._processRuins();
-      this._processLinks();
-      this._processDroppedResources();
-      this._processContainers();
-      this._processLabs();
-      this._processFactory();
-      this._processStorage();
-      this._processTerminal();
-
-      // Sort by priority (highest first)
-      this.rc._givesResources.sort((a, b) => b.priority - a.priority);
-    }
-
-    return this.rc._givesResources;
-  }
-
-  _addNeedsResource(entry) {
-    if (!this.rc._needsResources) {
-      this.rc._needsResources = [];
-    }
-    this.rc._needsResources.push(entry);
-  }
+  // ========================================================================
+  // NEEDS RESOURCES PROCESSING - Resource Destinations
+  // ========================================================================
 
   /**
-   * Determines controller priority based on ticks until downgrade
-   * 
-   * Priority tiers:
-   * - < 100 ticks → CONTROLLER_CRITICAL (highest priority, prevent downgrade)
-   * - < 5000 ticks → CONTROLLER_LOW (medium priority, maintain level)
-   * - >= 5000 ticks → STORAGE_ENERGY_HIGH (normal priority, no urgent need)
-   * 
-   * @returns {number} Priority value for controller/upgrader energy needs
+   * Process upgrader creeps that need energy
    */
-  _getControllerPriority() {
-    if (!this.rc.room.controller) {
-      // No controller - return normal priority (shouldn't happen in owned rooms)
-      return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
-    }
-
-    const {ticksToDowngrade} = this.rc.room.controller;
-    if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
-      // Critical: Controller will downgrade soon - highest priority
-      return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
-    } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
-      // Low: Controller needs energy but not critical - medium priority
-      return CONSTANTS.PRIORITY.CONTROLLER_LOW;
-    }
-
-    // Normal: Controller has enough time - normal priority
-    return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
-  }
-
   _processUpgraders(priority) {
     if (!this.rc.room.controller || this.rc.room.controller.container) return;
 
@@ -679,6 +781,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process controller container that needs energy
+   */
   _processController(priority) {
     const controllerContainer = this.rc.getControllerNotFull();
     if (controllerContainer) {
@@ -695,6 +800,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process constructor creeps that need energy
+   */
   _processConstructors() {
     const constructors = this.rc.creeps.getCreeps("constructor");
     for (const constructor of constructors) {
@@ -715,6 +823,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process labs that need resources (status "fill")
+   */
   _processLabsNeeds() {
     if (!this.rc.room.labs) return;
 
@@ -737,6 +848,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process structure needs (towers, spawns, extensions, labs, power spawn, nuker)
+   */
   _processStructures() {
     if (!this.rc.room.controller || !this.rc.room.controller.my) return;
 
@@ -839,6 +953,9 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Process storage resource needs (with priority based on fill level)
+   */
   _processStorageNeeds() {
     const {storage} = this.rc.room;
     if (!storage || storage.store.getFreeCapacity() === 0) return;
@@ -914,33 +1031,6 @@ class LogisticsManager {
         });
       }
     }
-  }
-
-  /**
-   * Get all resources that are needed (destinations)
-   * @returns {Array} Array of need resource orders, sorted by priority (lowest first = highest priority)
-   */
-  needsResources() {
-    if (!this.rc._needsResources) {
-      this.rc._needsResources = [];
-
-      // Get controller priority
-      const controllerPriority = this._getControllerPriority();
-
-      this._processUpgraders(controllerPriority);
-      this._processController(controllerPriority);
-      this._processConstructors();
-      this._processLabsNeeds();
-      this._processStructures();
-      this._processFactoryNeeds();
-      this._processStorageNeeds();
-      this._processTerminalNeeds();
-
-      // Sort by priority (lowest first = highest priority)
-      this.rc._needsResources.sort((a, b) => a.priority - b.priority);
-    }
-
-    return this.rc._needsResources;
   }
 }
 
