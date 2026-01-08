@@ -174,7 +174,7 @@ class GetResourcesBehavior extends Behavior {
         break;
 
       case ERR_FULL:
-        Log.info(`${creep} is full, cannot collect more ${resourceType}`, "get_resources");
+        Log.warn(`${creep} is full, cannot collect more ${resourceType}`, "get_resources");
         this._updateMemoryWithActualAmount(creep, resourceType);
         creep.target = null;
         break;

@@ -86,9 +86,12 @@ module.exports = {
   // Structure Energy Thresholds
   STRUCTURE_ENERGY: {
     TOWER_MIN: 500,                 // Minimum energy in tower before repair
+    TOWER_ENERGY_THRESHOLD: 400,    // Minimum energy threshold for tower needs (below this = needs energy)
     LINK_SENDER_THRESHOLD: 100,      // Energy threshold for link sender
     LINK_RECEIVER_THRESHOLD: 200,    // Energy threshold for link receiver
     CONTROLLER_ENERGY_HIGH: 2000,   // High energy around controller
+    POWER_SPAWN_ENERGY_THRESHOLD: 400, // Minimum energy threshold for power spawn needs
+    POWER_SPAWN_POWER_THRESHOLD: 90,   // Minimum power threshold for power spawn needs (below this = needs power)
   },
 
   // Controller Downgrade Thresholds
@@ -168,9 +171,9 @@ module.exports = {
   PRIORITY: {
     // ===== NEEDS (needsResources) - Structures that need resources =====
     CONTROLLER_CRITICAL: 10,          // [NEEDS] Controller about to downgrade
-    CONTROLLER_LOW: 25,               // [NEEDS] Controller low on time
     SPAWN: 15,                        // [NEEDS] Spawns
     EXTENSION: 20,                    // [NEEDS] Extensions
+    CONTROLLER_LOW: 25,               // [NEEDS] Controller low on time
     TOWER_ENEMY: 30,                  // [NEEDS] Towers when enemies present
     TERMINAL_ENERGY_LOW: 35,          // [NEEDS/GIVES] Terminal energy very low (used in both)
     STORAGE_ENERGY_MID: 55,           // [NEEDS] Storage energy medium
@@ -216,6 +219,12 @@ module.exports = {
     RENEW_EMERGENCY: 100,             // Renew if ticks to live below this
     RENEW_NORMAL: 500,                // Normal renew threshold
     RECYCLE_THRESHOLD: 200,           // Recycle if ticks to live below this
+    CONSTRUCTOR_CAPACITY_THRESHOLD: 0.5, // Constructor needs energy if more than this % of capacity is free
+  },
+  
+  // Logistics System Constants
+  LOGISTICS: {
+    MAX_DISTANCE_FALLBACK: 999,      // Maximum distance value used as fallback when target object not found
   },
 
   // Link Ranges

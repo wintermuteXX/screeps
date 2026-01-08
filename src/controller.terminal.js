@@ -207,15 +207,26 @@ class ControllerTerminal {
         break;
       }
 
+      // Skip invalid resource types
+      if (!resourceType || resourceType === "") {
+        continue;
+      }
+
       const amount = terminal.store[resourceType];
       if (amount === 0) {
         continue;
       }
 
       // Check if we should keep this resource
-      if (terminal.room.getResourceAmount(resourceType, "storage") < terminal.room.getRoomThreshold(resourceType, "storage")) {
+      // Use "all" to check storage + terminal together
+      const totalAmount = terminal.room.getResourceAmount(resourceType, "all");
+      const threshold = terminal.room.getRoomThreshold(resourceType, "storage");
+      if (totalAmount < threshold) {
         continue;
       }
+
+      // Calculate available amount for sending (total - threshold, but limited by terminal amount)
+      const availableAmount = Math.min(totalAmount - threshold, amount);
 
       // Try to send to other rooms first
       for (const targetRoom of roomsWithTerminal) {
@@ -223,28 +234,24 @@ class ControllerTerminal {
           continue;
         }
 
-        const resourceAmountInRoom = targetRoom.getResourceAmount(resourceType, "storage");
+        // Check total amount in target room (storage + terminal)
+        const resourceAmountInRoom = targetRoom.getResourceAmount(resourceType, "all");
         const needed = targetRoom.getRoomThreshold(resourceType, "storage") - resourceAmountInRoom;
 
         if (needed <= 0) {
           continue;
         }
 
-        const sendAmount = resourceType === RESOURCE_ENERGY
-          ? Math.min(
-            ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "storage") -
-              terminal.room.getRoomThreshold(resourceType, "storage"),
-            needed,
-          )
-          : Math.min(amount, needed);
+        // Send the minimum of: available amount, needed amount
+        const sendAmount = Math.min(availableAmount, needed);
 
         if (sendAmount > 0) {
           const result = terminal.send(resourceType, sendAmount, targetRoom.name, "internal");
           if (result === OK) {
             cancelTrading = true;
-            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}`, "internalTrade");
+            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to ${targetRoom}`, "internalTrade");
           } else {
-            Log.warn(`${terminal.room} failed to transfer ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}: ${global.getErrorString(result)}`, "internalTrade");
+            Log.warn(`${terminal.room} failed to transfer ${sendAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to ${targetRoom}: ${global.getErrorString(result)}`, "internalTrade");
           }
           break;
         }
@@ -254,13 +261,14 @@ class ControllerTerminal {
       if (!cancelTrading && _.includes(sellableResources, resourceType)) {
         const order = this.findBestBuyOrder(resourceType);
         if (order) {
-          const dealAmount = Math.min(order.amount, amount);
+          // Use availableAmount instead of amount to respect threshold
+          const dealAmount = Math.min(order.amount, availableAmount);
           const result = Game.market.deal(order.id, dealAmount, terminal.room.name);
           if (result === OK) {
             cancelTrading = true;
-            Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} for ${order.price}`, "internalTrade");
+            Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} (${resourceType}) for ${order.price}`, "internalTrade");
           } else {
-            Log.warn(`${terminal.room} failed to sell ${dealAmount} ${global.resourceImg(resourceType)} to market: ${global.getErrorString(result)}`, "internalTrade");
+            Log.warn(`${terminal.room} failed to sell ${dealAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to market: ${global.getErrorString(result)}`, "internalTrade");
           }
         }
       }

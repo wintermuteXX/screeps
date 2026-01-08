@@ -51,6 +51,7 @@ function initGlobal() {
   global.showRclUpgradeTimes = utilsConsole.showRclUpgradeTimes;
   global.cleanMemory = utilsConsole.cleanMemory;
   global.profileMemory = utilsConsole.profileMemory;
+  global.cc = utilsConsole.cc;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;

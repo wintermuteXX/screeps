@@ -2,525 +2,247 @@ const Behavior = require("./behavior.base");
 const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
 
+/**
+ * Simplified Transfer Resources Behavior
+ * 
+ * CLEANER DESIGN:
+ * - Single responsibility: Transfer resources to best available target
+ * - Less fallback logic: Trust the logistics manager
+ * - Simpler memory: Store target, not complex resource arrays
+ * - Better error handling: Clear state on errors
+ */
 class TransferResourcesBehavior extends Behavior {
   constructor() {
     super("transfer_resources");
   }
 
   /**
-   * Helper: Gets all resource types currently in creep's store
-   */
-  _getCarriedResources(creep) {
-  const resources = [];
-  for (const resourceType in creep.store) {
-    const amount = creep.store[resourceType];
-    if (amount > 0) {
-      resources.push({
-        resourceType: resourceType,
-        amount: amount,
-      });
-    }
-  }
-    return resources;
-  }
-
-  /**
-   * Helper: Updates memory with current store contents, preserving existing targets
-   */
-  _updateMemoryWithCarriedResources(creep) {
-    const carriedResources = this._getCarriedResources(creep);
-  if (!creep.memory.resources) {
-    creep.memory.resources = [];
-  }
-
-  if (carriedResources.length > 0) {
-    creep.memory.resources = carriedResources.map(res => {
-      const existing = creep.memory.resources.find(r => r.resourceType === res.resourceType);
-      return {
-        resourceType: res.resourceType,
-        amount: res.amount,
-        target: existing ? existing.target : null,
-      };
-    });
-  }
-  }
-
-  /**
-   * Helper: Gets delivery orders for creep
-   */
-  _getDeliveryOrders(creep, rc) {
-    const orders = rc.getDeliveryOrder(creep, null);
-    return Array.isArray(orders) ? orders : (orders ? [orders] : []);
-  }
-
-  /**
-   * Helper: Groups orders by target ID
-   */
-  _groupOrdersByTarget(orders) {
-  const ordersByTarget = {};
-  for (const order of orders) {
-    if (!order || !order.id) continue;
-    if (!ordersByTarget[order.id]) {
-      ordersByTarget[order.id] = [];
-    }
-    ordersByTarget[order.id].push(order);
-  }
-    return ordersByTarget;
-  }
-
-  /**
-   * Helper: Checks if target is still valid (has free capacity and needs resources)
-   */
-  _isTargetValid(target, orders, creep) {
-  for (const order of orders) {
-    const targetObj = Game.getObjectById(order.id);
-    if (!targetObj) continue;
-
-    if (targetObj.store) {
-      const freeCapacity = targetObj.store.getFreeCapacity(order.resourceType) || 0;
-      const hasResource = creep.store[order.resourceType] > 0;
-      if (freeCapacity > 0 && hasResource) {
-        return true;
-      }
-    } else {
-      // No store (e.g., controller) - assume still valid
-      return true;
-    }
-  }
-    return false;
-  }
-
-  /**
-   * Helper: Finds best target from available orders
-   */
-  _findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId) {
-  let bestTarget = null;
-  let bestTargetOrders = null;
-  let bestPriority = Infinity;
-
-  // Find best target from available orders
-  for (const targetId in ordersByTarget) {
-    const targetOrders = ordersByTarget[targetId];
-    const minPriority = Math.min(...targetOrders.map(o => o.priority));
-
-    // Prefer current target if priorities are similar
-    if (targetId === currentTargetId && minPriority < bestPriority + 5) {
-      bestPriority = minPriority;
-      bestTarget = Game.getObjectById(targetId);
-      bestTargetOrders = targetOrders;
-    } else if (minPriority < bestPriority) {
-      bestPriority = minPriority;
-      bestTarget = Game.getObjectById(targetId);
-      bestTargetOrders = targetOrders;
-    }
-  }
-
-    return { bestTarget, bestTargetOrders };
-  }
-
-  /**
-   * Helper: Finds matching need from needsResources as fallback
-   */
-  _findMatchingNeed(creep, rc, carriedResources) {
-  const needsResources = rc.needsResources();
-  if (!needsResources || needsResources.length === 0) {
-    return null;
-  }
-
-  let bestNeed = null;
-  let bestTarget = null;
-  let bestNeedPriority = Infinity;
-
-  for (const resource of carriedResources) {
-    const matchingNeeds = needsResources.filter(need =>
-      need.resourceType === resource.resourceType && need.amount > 0,
-    );
-
-    for (const need of matchingNeeds) {
-      const targetObj = Game.getObjectById(need.id);
-      if (!targetObj) continue;
-
-      const freeCapacity = targetObj.store ? targetObj.store.getFreeCapacity(need.resourceType) || 0 : 0;
-      if (freeCapacity <= 0) continue;
-
-      // Check if this is a special case
-      const isSpecialCase = need.id === creep.room.controller.memory.containerID;
-      const hasOtherTransporters = rc.getCreeps(null, need.id).length > 0;
-
-      if (hasOtherTransporters && !isSpecialCase) {
-        continue;
-      }
-
-      if (need.priority < bestNeedPriority) {
-        bestNeedPriority = need.priority;
-        bestNeed = need;
-        bestTarget = targetObj;
-      }
-    }
-  }
-
-  if (bestNeed && bestTarget) {
-    // Update memory with this resource-target pair
-    if (!creep.memory.resources) {
-      creep.memory.resources = [];
-    }
-
-    const resourceEntry = creep.memory.resources.find(r => r.resourceType === bestNeed.resourceType);
-    if (resourceEntry) {
-      resourceEntry.target = bestTarget.id;
-      resourceEntry.amount = creep.store[bestNeed.resourceType] || 0;
-    } else {
-      creep.memory.resources.push({
-        resourceType: bestNeed.resourceType,
-        amount: creep.store[bestNeed.resourceType] || 0,
-        target: bestTarget.id,
-      });
-    }
-
-    creep.target = bestTarget.id;
-    return { target: bestTarget, orders: [bestNeed] };
-  }
-
-    return null;
-  }
-
-  /**
-   * Helper: Tries terminal as fallback target
-   */
-  _findTerminalFallback(creep, carriedResources) {
-  const {terminal} = creep.room;
-  if (!terminal || !terminal.my) {
-    return null;
-  }
-
-  for (const resource of carriedResources) {
-    const freeCapacity = terminal.store.getFreeCapacity(resource.resourceType);
-    if (freeCapacity > 0) {
-      creep.target = terminal.id;
-      const pseudoOrder = {
-        resourceType: resource.resourceType,
-        id: terminal.id,
-        amount: Math.min(resource.amount, freeCapacity),
-        exact: false,
-      };
-      Log.info(
-        `${creep} has resources (${resource.resourceType}) but no delivery order found. Delivering to terminal.`,
-        "transfer_resources",
-      );
-      return { target: terminal, orders: [pseudoOrder] };
-    }
-  }
-
-    return null;
-  }
-
-  /**
-   * Helper: Drops all resources as last resort
-   */
-  _dropAllResources(creep, carriedResources, reason) {
-  Log.warn(`${creep} ${reason}. Dropping resources.`, "transfer_resources");
-  for (const resource of carriedResources) {
-    creep.drop(resource.resourceType);
-  }
-    creep.memory.resources = [];
-  }
-
-  /**
-   * Helper: Updates memory after successful transfer
-   */
-  _updateMemoryAfterTransfer(creep, resourceType, transferAmount) {
-  if (!creep.memory.resources || !Array.isArray(creep.memory.resources)) {
-    return;
-  }
-
-  const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
-  if (resourceEntry) {
-    resourceEntry.amount = Math.max(0, resourceEntry.amount - transferAmount);
-    if (resourceEntry.amount <= 0) {
-      creep.memory.resources = creep.memory.resources.filter(r => r.resourceType !== resourceType);
-    }
-  }
-  }
-
-  /**
-   * Helper: Calculates transfer amount based on order and target capacity
-   */
-  _calculateTransferAmount(order, targetObj, creep) {
-  const amount = creep.store[order.resourceType] || 0;
-
-  if (order.exact === true) {
-    return Math.min(order.amount, amount);
-  }
-
-  if (targetObj.store) {
-    const freeCapacity = targetObj.store.getFreeCapacity(order.resourceType) || 0;
-    return Math.min(amount, freeCapacity);
-  }
-
-    return amount;
-  }
-
-  /**
-   * Helper: Handles transfer result
-   */
-  _handleTransferResult(creep, target, resourceType, transferAmount, result) {
-  switch (result) {
-    case OK:
-      Log.info(`${creep} successfully transfers ${resourceType} (${transferAmount}) to ${target}`, "transfer_resources");
-      this._updateMemoryAfterTransfer(creep, resourceType, transferAmount);
-
-      if (creep.store.getUsedCapacity() === 0) {
-        creep.target = null;
-        creep.exact = false;
-        creep.amount = 0;
-      }
-      return true;
-
-    case ERR_NOT_ENOUGH_RESOURCES:
-      Log.warn(`${creep} had not enough resources for ${resourceType}. Why is this happening?`, "transfer_resources");
-      creep.target = null;
-      creep.exact = false;
-      creep.amount = 0;
-      return false;
-
-    case ERR_FULL:
-      Log.info(`${creep} ${target} is full for ${resourceType}`, "transfer_resources");
-      creep.target = null;
-      return false;
-
-    case ERR_NOT_IN_RANGE:
-      return null; // Signal to move
-
-    default:
-      Log.warn(`${creep} has unknown result from transfer ${resourceType} to ${target}: ${global.getErrorString(result)}`, "transfer_resources");
-      return false;
-  }
-  }
-
-  /**
-   * Helper: Validates current target without fetching new orders
-   * Returns true if target is still valid (exists, has capacity, needs resources)
-   */
-  _validateCurrentTarget(creep, target, carriedResources) {
-  if (!target) return false;
-
-  // Check if target still exists
-  const targetObj = Game.getObjectById(target.id);
-  if (!targetObj) return false;
-
-  // Check if creep has resources that target needs
-  let hasMatchingResource = false;
-  for (const resource of carriedResources) {
-    if (targetObj.store) {
-      const freeCapacity = targetObj.store.getFreeCapacity(resource.resourceType) || 0;
-      if (freeCapacity > 0) {
-        hasMatchingResource = true;
-        break;
-      }
-    } else {
-      // No store (e.g., controller) - assume valid if we have energy
-      if (resource.resourceType === RESOURCE_ENERGY) {
-        hasMatchingResource = true;
-        break;
-      }
-    }
-  }
-
-    return hasMatchingResource;
-  }
-
-  /**
-   * Helper: Creates pseudo-orders from memory for current target
-   * Used when we keep the current target without calling getDeliveryOrder
-   */
-  _createOrdersFromMemory(creep, target, carriedResources) {
-  const orders = [];
-
-  for (const resource of carriedResources) {
-    const freeCapacity = target.store
-      ? target.store.getFreeCapacity(resource.resourceType) || 0
-      : Infinity;
-
-    if (freeCapacity > 0) {
-      // Check if memory has this resource with this target (for priority)
-      const memoryEntry = creep.memory.resources.find(
-        r => r.resourceType === resource.resourceType && r.target === target.id,
-      );
-
-      orders.push({
-        resourceType: resource.resourceType,
-        id: target.id,
-        amount: Math.min(resource.amount, freeCapacity),
-        priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID, // Default priority
-        exact: false,
-      });
-    }
-  }
-
-    return orders;
-  }
-
-  /**
-   * Helper: Performs batch delivery to target
-   */
-  _performBatchDelivery(creep, target, orders) {
-  orders.sort((a, b) => a.priority - b.priority);
-
-  let transferredAny = false;
-
-  for (const order of orders) {
-    const {resourceType} = order;
-    const amount = creep.store[resourceType] || 0;
-
-    if (amount <= 0) continue;
-
-    const targetObj = Game.getObjectById(order.id);
-    if (!targetObj) continue;
-
-    const transferAmount = this._calculateTransferAmount(order, targetObj, creep);
-    if (transferAmount <= 0) continue;
-
-    const result = order.exact === true
-      ? creep.transfer(target, resourceType, transferAmount)
-      : creep.transfer(target, resourceType);
-
-    const transferResult = this._handleTransferResult(creep, target, resourceType, transferAmount, result);
-
-    if (transferResult === null) {
-      // Need to move
-      if (!transferredAny) {
-        creep.travelTo(target, { maxRooms: 0});
-      }
-      return; // Stop processing, move first
-    }
-
-    if (transferResult === true) {
-      transferredAny = true;
-    }
-  }
-  }
-
-  /**
-   * When: Behavior is active if creep has resources
+   * When: Active if creep has resources
    */
   when(creep, rc) {
-    if (creep.store.getUsedCapacity() === 0) {
-      return false;
-    }
-
-    // Ensure memory.resources exists
-    if (!creep.memory.resources) {
-      creep.memory.resources = [];
-    }
-    this._updateMemoryWithCarriedResources(creep);
-
-    // Check if there's a delivery order
-    const orders = this._getDeliveryOrders(creep, rc);
-    if (orders.length > 0) {
-      return true;
-    }
-
-    // No order assigned, but creep has resources - keep behavior active
-    return true;
+    return creep.store.getUsedCapacity() > 0;
   }
 
   /**
-   * Completed: Behavior is completed when creep has no resources left
+   * Completed: When creep is empty
    */
   completed(creep, rc) {
     return creep.store.getUsedCapacity() === 0;
   }
 
   /**
-   * Work: Main logic for transferring resources to targets
+   * Work: Transfer resources to best target
    */
   work(creep, rc) {
-    // Ensure memory.resources exists
-    if (!creep.memory.resources) {
-      creep.memory.resources = [];
-    }
-
-    const carriedResources = this._getCarriedResources(creep);
-    if (carriedResources.length === 0) {
-      return;
-    }
-
-    const currentTarget = creep.getTarget();
-    const currentTargetId = currentTarget ? currentTarget.id : null;
-
-    // Check if current target is still valid (without calling getDeliveryOrder)
-    let bestTarget = null;
-    let bestTargetOrders = null;
-
-    if (currentTarget) {
-      // Validate current target without fetching new orders
-      const isValid = this._validateCurrentTarget(creep, currentTarget, carriedResources);
-      if (isValid) {
-        // Current target is still valid - use it without calling getDeliveryOrder
-        bestTarget = currentTarget;
-        // Create pseudo-orders from memory for current target
-        bestTargetOrders = this._createOrdersFromMemory(creep, currentTarget, carriedResources);
-      }
-    }
-
-    // Only call getDeliveryOrder if no valid target exists
-    if (!bestTarget) {
-      // Get delivery orders
-      const allOrders = this._getDeliveryOrders(creep, rc);
-      const ordersByTarget = this._groupOrdersByTarget(allOrders);
-
-      // Check if current target is in new orders (if it still exists)
-      if (currentTarget && ordersByTarget[currentTarget.id]) {
-        const currentOrders = ordersByTarget[currentTarget.id];
-        if (this._isTargetValid(currentTarget, currentOrders, creep)) {
-          bestTarget = currentTarget;
-          bestTargetOrders = currentOrders;
-        }
-      }
-
-      // Find best target from orders
-      if (!bestTarget) {
-        const result = this._findBestTargetFromOrders(ordersByTarget, carriedResources, currentTargetId);
-        bestTarget = result.bestTarget;
-        bestTargetOrders = result.bestTargetOrders;
-      }
-
-      // Try fallback: matching need
-      if (!bestTarget) {
-        const fallback = this._findMatchingNeed(creep, rc, carriedResources);
-        if (fallback) {
-          bestTarget = fallback.target;
-          bestTargetOrders = fallback.orders;
-        }
-      }
-
-      // Try fallback: terminal
-      if (!bestTarget) {
-        const terminalFallback = this._findTerminalFallback(creep, carriedResources);
-        if (terminalFallback) {
-          bestTarget = terminalFallback.target;
-          bestTargetOrders = terminalFallback.orders;
-        } else {
-          // Last resort: drop resources
-          this._dropAllResources(
-            creep,
-            carriedResources,
-            "has resources but no delivery target found and terminal is full or missing",
-          );
+    // Get current target
+    let target = creep.getTarget();
+    
+    // Validate or get new target
+    if (!this._isTargetValid(creep, target)) {
+      target = this._findBestTarget(creep, rc);
+      if (!target) {
+        // No valid target - try fallbacks: Terminal → Storage → Drop
+        target = this._getFallbackTarget(creep);
+        if (!target) {
+          Log.warn(`${creep} has resources but no valid delivery target and all fallbacks failed`, "transfer_resources");
           return;
         }
       }
+      creep.target = target.id;
     }
 
-    // Update creep target if needed
-    if (bestTarget && creep.target !== bestTarget.id) {
-      creep.target = bestTarget.id;
+    // Transfer all resources to target
+    this._transferAllResources(creep, target);
+  }
+
+  /**
+   * Check if current target is still valid
+   */
+  _isTargetValid(creep, target) {
+    if (!target) return false;
+    
+    const targetObj = Game.getObjectById(target.id);
+    if (!targetObj) return false;
+
+    // Check if target can accept any resource we're carrying
+    for (const resourceType of Object.keys(creep.store)) {
+      const amount = creep.store[resourceType];
+      if (amount > 0) {
+        if (targetObj.store) {
+          const freeCapacity = targetObj.store.getFreeCapacity(resourceType);
+          if (freeCapacity > 0) return true;
+        } else {
+          // No store (e.g., controller) - valid if we have energy
+          if (resourceType === RESOURCE_ENERGY) return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Find best delivery target using logistics manager
+   */
+  _findBestTarget(creep, rc) {
+    // Get delivery orders from logistics
+    const orders = rc.getDeliveryOrder(creep);
+    
+    if (!orders || (Array.isArray(orders) && orders.length === 0)) {
+      return null;
     }
 
-    // Perform batch delivery
-    if (bestTarget && bestTargetOrders && bestTargetOrders.length > 0) {
-      this._performBatchDelivery(creep, bestTarget, bestTargetOrders);
+    // If single order, return it
+    if (!Array.isArray(orders)) {
+      return Game.getObjectById(orders.id);
     }
+
+    // Multiple orders - pick best one (first = highest priority)
+    const bestOrder = orders[0];
+    return Game.getObjectById(bestOrder.id);
+  }
+
+  /**
+   * Get fallback target in order: Terminal → Storage → Drop
+   * Returns target object or null if all fallbacks fail
+   */
+  _getFallbackTarget(creep) {
+    // 1. Try Terminal
+    const terminal = this._tryTerminalFallback(creep);
+    if (terminal) return terminal;
+
+    // 2. Try Storage
+    const storage = this._tryStorageFallback(creep);
+    if (storage) return storage;
+
+    // 3. Last resort: Drop resources
+    this._dropAllResources(creep);
+    return null; // No target to move to after dropping
+  }
+
+  /**
+   * Try Terminal as fallback target
+   */
+  _tryTerminalFallback(creep) {
+    const terminal = creep.room.terminal;
+    if (!terminal || !terminal.my) return null;
+
+    // Check if terminal can accept any of our resources
+    for (const resourceType of Object.keys(creep.store)) {
+      const amount = creep.store[resourceType];
+      if (amount > 0 && terminal.store.getFreeCapacity(resourceType) > 0) {
+        Log.info(`${creep} using terminal as fallback target`, "transfer_resources");
+        return terminal;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Try Storage as fallback target
+   */
+  _tryStorageFallback(creep) {
+    const storage = creep.room.storage;
+    if (!storage || !storage.my) return null;
+
+    // Check if storage can accept any of our resources
+    for (const resourceType of Object.keys(creep.store)) {
+      const amount = creep.store[resourceType];
+      if (amount > 0 && storage.store.getFreeCapacity(resourceType) > 0) {
+        Log.info(`${creep} using storage as fallback target`, "transfer_resources");
+        return storage;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Drop all resources as last resort
+   */
+  _dropAllResources(creep) {
+    Log.warn(`${creep} dropping all resources - no delivery target available (terminal and storage full/missing)`, "transfer_resources");
+    for (const resourceType of Object.keys(creep.store)) {
+      const amount = creep.store[resourceType];
+      if (amount > 0) {
+        creep.drop(resourceType);
+      }
+    }
+  }
+
+  /**
+   * Transfer all resources to target (sorted by priority)
+   */
+  _transferAllResources(creep, target) {
+    const targetObj = Game.getObjectById(target.id);
+    if (!targetObj) {
+      creep.target = null;
+      return;
+    }
+
+    // Get all resources, sorted by priority (energy first, then others)
+    const resources = this._getResourcesSorted(creep);
+    
+    let moved = false;
+    
+    for (const resourceType of resources) {
+      const amount = creep.store[resourceType] || 0;
+      if (amount === 0) continue;
+
+      // Check capacity
+      let transferAmount = amount;
+      if (targetObj.store) {
+        const freeCapacity = targetObj.store.getFreeCapacity(resourceType);
+        if (freeCapacity <= 0) continue;
+        transferAmount = Math.min(amount, freeCapacity);
+      }
+
+      // Transfer
+      const result = creep.transfer(targetObj, resourceType, transferAmount);
+      
+      switch (result) {
+        case OK:
+          moved = true;
+          break;
+        case ERR_NOT_IN_RANGE:
+          creep.travelTo(targetObj, { maxRooms: 0 });
+          return; // Stop, need to move first
+        case ERR_FULL:
+          // Target full for this resource, try next
+          continue;
+        case ERR_INVALID_TARGET:
+        case ERR_NOT_ENOUGH_RESOURCES:
+          // Unexpected errors - clear target
+          creep.target = null;
+          return;
+        default:
+          Log.warn(`${creep} transfer error: ${global.getErrorString(result)}`, "transfer_resources");
+          creep.target = null;
+          return;
+      }
+    }
+
+    // Clear target if all resources transferred
+    if (creep.store.getUsedCapacity() === 0) {
+      creep.target = null;
+    }
+  }
+
+  /**
+   * Get resource types sorted by priority (energy first, then alphabetical)
+   */
+  _getResourcesSorted(creep) {
+    const resources = Object.keys(creep.store).filter(rt => (creep.store[rt] || 0) > 0);
+    
+    // Energy first, then alphabetical
+    resources.sort((a, b) => {
+      if (a === RESOURCE_ENERGY) return -1;
+      if (b === RESOURCE_ENERGY) return 1;
+      return a.localeCompare(b);
+    });
+    
+    return resources;
   }
 }
 

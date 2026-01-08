@@ -151,6 +151,14 @@ function analyzeRoom(room, fullAnalysis = false) {
   if (!room || !room.memory) return;
 
   const {memory} = room;
+  
+  // Create cache for this analysis run (analysis runs infrequently, so tick-based cache is fine)
+  // Initialize cache on room object if not exists (shared across analysis calls in same tick)
+  if (!room._analysisCache || room._analysisCache._tick !== Game.time) {
+    const CacheManager = require("./utils.cache");
+    room._analysisCache = new CacheManager();
+  }
+  const cache = room._analysisCache;
 
   // Initialize Memory.rooms if needed
   if (!Memory.rooms) {
@@ -169,8 +177,10 @@ function analyzeRoom(room, fullAnalysis = false) {
     // ===== Static Data (only set once) =====
     if (!memory.roomType) {
       // Source keeper rooms
-      const lairs = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_KEEPER_LAIR,
+      const lairs = cache.get('lairs', () => {
+        return room.find(FIND_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_KEEPER_LAIR,
+        });
       });
       if (lairs.length > 0) {
         memory.roomType = "ROOMTYPE_SOURCEKEEPER";
@@ -179,7 +189,9 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Core rooms (3 sources)
-      const sources = room.find(FIND_SOURCES);
+      const sources = cache.get('sources', () => {
+        return room.find(FIND_SOURCES);
+      });
       if (sources.length === CONSTANTS.ROOM.SOURCE_COUNT_CORE) {
         memory.roomType = "ROOMTYPE_CORE";
       } else if (room.controller) {
@@ -245,8 +257,10 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Portal information (static)
-      const portals = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_PORTAL,
+      const portals = cache.get('portals', () => {
+        return room.find(FIND_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_PORTAL,
+        });
       });
       if (portals.length > 0) {
         memory.portal = {
@@ -261,8 +275,10 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Power Bank information (static)
-      const powerBanks = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_POWER_BANK,
+      const powerBanks = cache.get('powerBanks', () => {
+        return room.find(FIND_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_POWER_BANK,
+        });
       });
       if (powerBanks.length > 0) {
         memory.powerBank = {
@@ -274,7 +290,9 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Deposit information (static)
-      const deposits = room.find(FIND_DEPOSITS);
+      const deposits = cache.get('deposits', () => {
+        return room.find(FIND_DEPOSITS);
+      });
       if (deposits.length > 0) {
         memory.deposits = deposits.map(d => ({
           id: d.id,
@@ -330,32 +348,56 @@ function analyzeRoom(room, fullAnalysis = false) {
       // Store flat summary for analyzeRoom/Scout
       // Note: Since room.memory === Memory.rooms[room.name], setting memory.structures
       // will overwrite Memory.rooms[room.name].structures, so we need to restore the nested structure
-      memory.structures = {
-        spawn: room.find(FIND_MY_SPAWNS).length,
-        extension: room.find(FIND_MY_STRUCTURES, {
+      // Use cached find() or Room Prototype getters where available
+      const mySpawns = cache.get('mySpawns', () => room.find(FIND_MY_SPAWNS));
+      const extensions = cache.get('myExtensions', () => {
+        return room.find(FIND_MY_STRUCTURES, {
           filter: (s) => s.structureType === STRUCTURE_EXTENSION,
-        }).length,
+        });
+      });
+      const towers = room.towers || cache.get('myTowers', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_TOWER,
+        });
+      });
+      const links = room.links || cache.get('myLinks', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_LINK,
+        });
+      });
+      const labs = room.labs || cache.get('myLabs', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_LAB,
+        });
+      });
+      const nukers = cache.get('myNukers', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_NUKER,
+        });
+      });
+      const observers = cache.get('myObservers', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_OBSERVER,
+        });
+      });
+      const powerSpawns = room.powerSpawn ? [room.powerSpawn] : cache.get('myPowerSpawns', () => {
+        return room.find(FIND_MY_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_POWER_SPAWN,
+        });
+      });
+      
+      memory.structures = {
+        spawn: mySpawns.length,
+        extension: extensions.length,
         storage: room.storage ? { id: room.storage.id, x: room.storage.pos.x, y: room.storage.pos.y } : null,
         terminal: room.terminal ? { id: room.terminal.id, x: room.terminal.pos.x, y: room.terminal.pos.y } : null,
         factory: room.factory ? { id: room.factory.id, x: room.factory.pos.x, y: room.factory.pos.y } : null,
-        tower: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_TOWER,
-        }).length,
-        link: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_LINK,
-        }).length,
-        lab: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_LAB,
-        }).length,
-        nuker: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_NUKER,
-        }).length,
-        observer: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_OBSERVER,
-        }).length,
-        powerSpawn: room.find(FIND_MY_STRUCTURES, {
-          filter: (s) => s.structureType === STRUCTURE_POWER_SPAWN,
-        }).length,
+        tower: towers.length,
+        link: links.length,
+        lab: labs.length,
+        nuker: nukers.length,
+        observer: observers.length,
+        powerSpawn: powerSpawns.length,
       };
       
       // Restore nested structure after setting flat structure (since they share the same object)
@@ -370,8 +412,10 @@ function analyzeRoom(room, fullAnalysis = false) {
       }
 
       // Invader cores
-      const invaderCores = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_INVADER_CORE,
+      const invaderCores = cache.get('invaderCores', () => {
+        return room.find(FIND_STRUCTURES, {
+          filter: (s) => s.structureType === STRUCTURE_INVADER_CORE,
+        });
       });
       if (invaderCores.length > 0) {
         memory.invaderCores = invaderCores.map(c => ({

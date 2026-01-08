@@ -375,6 +375,8 @@ module.exports = {
     behaviors: ["claim_controller", "place_spawn"],
 
     canBuild: function (rc) {
+      //temp
+      return false;
       // Prüfe ob bereits ein Claimer existiert
       const existingClaimers = _.filter(Game.creeps, (c) => c.memory.role === "claimer");
       if (existingClaimers.length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) {
@@ -403,9 +405,10 @@ module.exports = {
 
     canBuild: function (rc) {
       // Don't spawn scouts if room has an Observer
-      const observers = rc.room.find(FIND_MY_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_OBSERVER,
-      });
+      // Use cached find() and filter manually (rc.find() doesn't support filter parameter)
+      const observers = rc.find(FIND_MY_STRUCTURES).filter(s => 
+        s.structureType === STRUCTURE_OBSERVER
+      );
       if (observers.length > 0) {
         return false;
       }

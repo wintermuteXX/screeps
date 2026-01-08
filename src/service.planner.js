@@ -12,6 +12,7 @@
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 const duneConfig = require("./config.dune");
+const CacheManager = require("./utils.cache");
 
 /**
  * RoomPlanner Constants - now imported from config.constants.js
@@ -116,6 +117,7 @@ function RoomPlanner(room) {
   this.roomName = room.name;
   this.memory = this._initMemory();
   this._structureCounts = null; // Cache for structure counts
+  this.cache = new CacheManager(); // Cache for expensive find() operations
 }
 
 /**
@@ -179,7 +181,9 @@ RoomPlanner.prototype._hasStructureAt = function (x, y, structureType) {
  * Helper: Checks if position is too close to sources (Range=2)
  */
 RoomPlanner.prototype._isTooCloseToSource = function (x, y) {
-  const sources = this.room.find(FIND_SOURCES);
+  const sources = this.cache.get('sources', () => {
+    return this.room.find(FIND_SOURCES);
+  });
   const pos = new RoomPosition(x, y, this.roomName);
   
   for (const source of sources) {
@@ -207,7 +211,9 @@ RoomPlanner.prototype._isTooCloseToController = function (x, y) {
  * Helper: Checks if position is too close to mineral (Range=2)
  */
 RoomPlanner.prototype._isTooCloseToMineral = function (x, y) {
-  const minerals = this.room.find(FIND_MINERALS);
+  const minerals = this.cache.get('minerals', () => {
+    return this.room.find(FIND_MINERALS);
+  });
   if (minerals.length === 0) {
     return false;
   }
@@ -360,7 +366,9 @@ RoomPlanner.prototype._hasCenter = function () {
  * Findet das Zentrum basierend auf dem ersten Spawn
  */
 RoomPlanner.prototype._findCenter = function () {
-  const spawns = this.room.find(FIND_MY_SPAWNS);
+  const spawns = this.cache.get('mySpawns', () => {
+    return this.room.find(FIND_MY_SPAWNS);
+  });
 
   if (spawns.length > 0) {
     // Use first spawn as center
@@ -437,7 +445,9 @@ RoomPlanner.prototype.tryGenerateLayout = function () {
  * Calculates the optimal center position
  */
 RoomPlanner.prototype._calculateOptimalCenter = function () {
-  const sources = this.room.find(FIND_SOURCES);
+  const sources = this.cache.get('sources', () => {
+    return this.room.find(FIND_SOURCES);
+  });
   const {controller} = this.room;
 
   if (!controller) return null;
@@ -792,7 +802,9 @@ RoomPlanner.prototype._placeLabsDynamically = function (plannedStructures, cente
  */
 RoomPlanner.prototype._detectExistingSpecialStructures = function () {
   // Detect containers and links at sources
-  const sources = this.room.find(FIND_SOURCES);
+  const sources = this.cache.get('sources', () => {
+    return this.room.find(FIND_SOURCES);
+  });
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
     const containerIdentifier = `source_${i}`;
@@ -990,7 +1002,9 @@ RoomPlanner.prototype._findAlternativePosition = function (x, y, structureType) 
  * Platziert Construction Sites basierend auf RCL
  */
 RoomPlanner.prototype._placeConstructionSites = function (rcl) {
-  const existingSites = this.room.find(FIND_CONSTRUCTION_SITES);
+  const existingSites = this.cache.get('constructionSites', () => {
+    return this.room.find(FIND_CONSTRUCTION_SITES);
+  });
 
   // Limit for Construction Sites (max 100 per room, but we limit to fewer for efficiency)
   if (existingSites.length >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES) {
@@ -1143,14 +1157,18 @@ RoomPlanner.prototype._getStructureCounts = function () {
   this._structureCounts = {};
 
   // Count structures by type
-  const structures = this.room.find(FIND_STRUCTURES);
+  const structures = this.cache.get('structures', () => {
+    return this.room.find(FIND_STRUCTURES);
+  });
   for (const s of structures) {
     const type = s.structureType;
     this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;
   }
 
   // Count construction sites by type
-  const sites = this.room.find(FIND_CONSTRUCTION_SITES);
+  const sites = this.cache.get('constructionSites', () => {
+    return this.room.find(FIND_CONSTRUCTION_SITES);
+  });
   for (const s of sites) {
     const type = s.structureType;
     this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;
@@ -1220,7 +1238,9 @@ RoomPlanner.prototype._placeSpecialStructures = function (rcl) {
  * Platziert Extractor beim Mineral
  */
 RoomPlanner.prototype._placeExtractor = function () {
-  const minerals = this.room.find(FIND_MINERALS);
+  const minerals = this.cache.get('minerals', () => {
+    return this.room.find(FIND_MINERALS);
+  });
   if (minerals.length === 0) return;
 
   const mineral = minerals[0];
@@ -1249,7 +1269,9 @@ RoomPlanner.prototype._placeExtractor = function () {
  * Platziert Container bei Sources
  */
 RoomPlanner.prototype._placeSourceContainers = function () {
-  const sources = this.room.find(FIND_SOURCES);
+  const sources = this.cache.get('sources', () => {
+    return this.room.find(FIND_SOURCES);
+  });
 
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
@@ -1284,7 +1306,9 @@ RoomPlanner.prototype._placeContainerNear = function (pos, type, identifier, tar
  * Platziert Links bei Sources
  */
 RoomPlanner.prototype._placeSourceLinks = function () {
-  const sources = this.room.find(FIND_SOURCES);
+  const sources = this.cache.get('sources', () => {
+    return this.room.find(FIND_SOURCES);
+  });
 
   for (let i = 0; i < sources.length; i++) {
     const source = sources[i];
@@ -1619,8 +1643,10 @@ RoomPlanner.prototype._findOrphanedStructures = function () {
     // STRUCTURE_ROAD - excluded from orphaned check
   ];
 
-  const structures = this.room.find(FIND_STRUCTURES, {
-    filter: (s) => plannerStructureTypes.includes(s.structureType),
+  const structures = this.cache.get('structures_filtered', () => {
+    return this.room.find(FIND_STRUCTURES, {
+      filter: (s) => plannerStructureTypes.includes(s.structureType),
+    });
   });
 
   for (const structure of structures) {

@@ -164,9 +164,9 @@ class LogisticsManager {
         const targetValidation = this._validateResourceTarget(need.id, resType);
         if (!targetValidation) continue;
 
-        // Calculate distance for secondary sorting
+        // Calculate distance for secondary sorting (for prioritizing closer targets)
         const needObj = Game.getObjectById(need.id);
-        const needDistance = needObj ? creepPos.getRangeTo(needObj) : 999;
+        const needDistance = needObj ? creepPos.getRangeTo(needObj) : CONSTANTS.LOGISTICS.MAX_DISTANCE_FALLBACK;
 
         // Found matching order - set orderType and add to list with distance
         need.orderType = "D";
@@ -186,7 +186,8 @@ class LogisticsManager {
         return (a.priority || 0) - (b.priority || 0);
       }
       // Secondary sort: distance (prefer closer needs)
-      return (a._sortDistance || 999) - (b._sortDistance || 999);
+      // Use fallback distance if distance not calculated (shouldn't happen, but safety check)
+      return (a._sortDistance || CONSTANTS.LOGISTICS.MAX_DISTANCE_FALLBACK) - (b._sortDistance || CONSTANTS.LOGISTICS.MAX_DISTANCE_FALLBACK);
     });
 
     // Return format: if resourceType specified, return single order; otherwise return array
@@ -202,360 +203,6 @@ class LogisticsManager {
     }
 
     return null;
-  }
-
-  /**
-   * Get transport orders for ornithopter creeps
-   * Implements intelligent batching: finds multiple give orders nearby and assigns matching need orders
-   * @param {Creep} creep - Ornithopter creep to get orders for
-   * @returns {Array|null} Array of transport orders, or null if no orders available
-   */
-  getTransportOrderOrnithopter(creep) {
-    // Check if creep already has active transport orders
-    if (creep.memory.transport && Array.isArray(creep.memory.transport) && creep.memory.transport.length > 0) {
-      // Already has active orders, don't assign new ones
-      return creep.memory.transport;
-    }
-
-    // Check if creep is empty
-    const isEmpty = creep.store.getUsedCapacity() === 0;
-    if (!isEmpty) {
-      return null;
-    }
-
-    const givesResources = this.givesResources();
-    const needsResources = this.needsResources();
-    const allCreeps = this.rc.creeps.getAllCreeps();
-    const creepPos = creep.pos;
-
-    // Get all ornithopter creeps to check for already assigned orders
-    const ornithopters = allCreeps.filter(c => c.memory.role === "ornithopter");
-    const assignedGiveIds = new Set();
-    const assignedNeedIds = new Set();
-
-    // Collect already assigned orders from other ornithopters
-    for (const ornithopter of ornithopters) {
-      if (ornithopter.id === creep.id) continue;
-      if (!ornithopter.memory.transport || !Array.isArray(ornithopter.memory.transport)) continue;
-
-      for (const order of ornithopter.memory.transport) {
-        if (order.type === "give") {
-          assignedGiveIds.add(order.id);
-        } else if (order.type === "need") {
-          assignedNeedIds.add(order.id);
-        }
-      }
-    }
-
-    // Find all matching give-need pairs
-    const matchingPairs = [];
-    for (const give of givesResources) {
-      // Skip if already assigned to another ornithopter
-      if (assignedGiveIds.has(give.id)) continue;
-
-      // Skip if already assigned to a transporter (empty creeps collect resources)
-      if (allCreeps.some(c => c.memory.target === give.id && c.store.getUsedCapacity() === 0 && c.memory.role !== "ornithopter")) {
-        continue;
-      }
-
-      const giveObj = Game.getObjectById(give.id);
-      if (!giveObj) continue;
-
-      const giveDistance = creepPos.getRangeTo(giveObj);
-
-      // Find matching needs for this give
-      for (const need of needsResources) {
-        if (give.resourceType !== need.resourceType) continue;
-        if (need.id === give.id) continue;
-        if (need.priority >= give.priority) continue; // Priority check
-        if (assignedNeedIds.has(need.id)) continue; // Already assigned
-
-        // Check if target still exists and has capacity
-        const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
-        if (!targetValidation) continue;
-
-        const needObj = Game.getObjectById(need.id);
-        if (!needObj) continue;
-
-        const needDistance = creepPos.getRangeTo(needObj);
-        const totalDistance = giveDistance + needDistance;
-
-        matchingPairs.push({
-          give: give,
-          need: need,
-          priority: need.priority,
-          totalDistance: totalDistance,
-          giveDistance: giveDistance,
-          needDistance: needDistance,
-        });
-      }
-    }
-
-    // Sort by priority, then by distance
-    matchingPairs.sort((a, b) => {
-      if (a.priority !== b.priority) {
-        return (a.priority || 0) - (b.priority || 0);
-      }
-      return a.totalDistance - b.totalDistance;
-    });
-
-    if (matchingPairs.length === 0) {
-      return null;
-    }
-
-    // Intelligent batching: collect multiple give orders
-    const transportOrders = [];
-    const usedGiveIds = new Set();
-    const usedNeedIds = new Set();
-    const MAX_DISTANCE_FOR_BATCHING = CONSTANTS.TRANSPORT.ORNITHOPTER_BATCH_DISTANCE;
-    const creepCapacity = creep.store.getCapacity();
-
-    // Start with first matching pair
-    let currentPair = matchingPairs[0];
-    let totalPlannedAmount = 0;
-
-    while (currentPair && totalPlannedAmount < creepCapacity) {
-      const give = currentPair.give;
-      const need = currentPair.need;
-
-      // Check if we can add this give order
-      if (usedGiveIds.has(give.id)) {
-        // Already used this give, find next pair with different give
-        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
-        continue;
-      }
-
-      // Calculate how much we can take from this give
-      const giveObj = Game.getObjectById(give.id);
-      if (!giveObj) {
-        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
-        continue;
-      }
-
-      const availableAmount = giveObj.store ? (giveObj.store[give.resourceType] || 0) : 0;
-      const remainingCapacity = creepCapacity - totalPlannedAmount;
-      const takeAmount = Math.min(availableAmount, remainingCapacity, give.amount || availableAmount);
-
-      if (takeAmount <= 0) {
-        currentPair = matchingPairs.find(p => !usedGiveIds.has(p.give.id) && !usedNeedIds.has(p.need.id));
-        continue;
-      }
-
-      // Add give order
-      const giveOrder = {
-        type: "give",
-        id: give.id,
-        resourceType: give.resourceType,
-        amount: takeAmount,
-        priority: give.priority,
-        roomName: giveObj.room ? giveObj.room.name : this.rc.room.name,
-      };
-      transportOrders.push(giveOrder);
-      usedGiveIds.add(give.id);
-      totalPlannedAmount += takeAmount;
-
-      // Find all matching needs for this give order
-      const matchingNeeds = matchingPairs
-        .filter(p => p.give.id === give.id && !usedNeedIds.has(p.need.id))
-        .sort((a, b) => {
-          if (a.priority !== b.priority) {
-            return (a.priority || 0) - (b.priority || 0);
-          }
-          return a.needDistance - b.needDistance;
-        });
-
-      // Add need orders for this give
-      let remainingFromGive = takeAmount;
-      for (const needPair of matchingNeeds) {
-        if (remainingFromGive <= 0) break;
-
-        const need = needPair.need;
-        const needObj = Game.getObjectById(need.id);
-        if (!needObj) continue;
-
-        const targetValidation = this._validateResourceTarget(need.id, need.resourceType);
-        if (!targetValidation) continue;
-
-        const needAmount = Math.min(need.amount || targetValidation.freeCapacity, remainingFromGive, targetValidation.freeCapacity);
-
-        if (needAmount > 0) {
-          const needOrder = {
-            type: "need",
-            id: need.id,
-            resourceType: need.resourceType,
-            amount: needAmount,
-            priority: need.priority,
-            roomName: needObj.room ? needObj.room.name : this.rc.room.name,
-          };
-          transportOrders.push(needOrder);
-          usedNeedIds.add(need.id);
-          remainingFromGive -= needAmount;
-        }
-      }
-
-      // Look for additional give orders nearby (batching)
-      if (totalPlannedAmount < creepCapacity) {
-        const nearbyPairs = matchingPairs.filter(p => {
-          if (usedGiveIds.has(p.give.id)) return false;
-          if (usedNeedIds.has(p.need.id)) return false;
-
-          const nearbyGiveObj = Game.getObjectById(p.give.id);
-          if (!nearbyGiveObj) return false;
-
-          const distanceToGive = giveObj.pos.getRangeTo(nearbyGiveObj.pos);
-          return distanceToGive <= MAX_DISTANCE_FOR_BATCHING;
-        });
-
-        if (nearbyPairs.length > 0) {
-          // Sort by priority and distance
-          nearbyPairs.sort((a, b) => {
-            if (a.priority !== b.priority) {
-              return (a.priority || 0) - (b.priority || 0);
-            }
-            const aDist = giveObj.pos.getRangeTo(Game.getObjectById(a.give.id).pos);
-            const bDist = giveObj.pos.getRangeTo(Game.getObjectById(b.give.id).pos);
-            return aDist - bDist;
-          });
-
-          currentPair = nearbyPairs[0];
-        } else {
-          currentPair = null;
-        }
-      } else {
-        currentPair = null;
-      }
-    }
-
-    // Store orders in creep memory
-    if (transportOrders.length > 0) {
-      creep.memory.transport = transportOrders;
-
-      // Log assigned orders
-      const orderSummary = transportOrders.map(order => {
-        const obj = Game.getObjectById(order.id);
-        const objName = obj ? (obj.structureType || obj.constructor.name || "Object") : "Unknown";
-        return `${order.type}: ${objName} (${order.resourceType}: ${order.amount})`;
-      }).join(", ");
-
-      Log.info(`${creep} Zugewiesen: [${orderSummary}]`, "transport");
-    }
-
-    return transportOrders;
-  }
-
-  /**
-   * Get delivery orders for ornithopter creeps that have resources
-   * @param {Creep} creep - Ornithopter creep carrying resources
-   * @returns {Array|null} Array of delivery orders, or null if no orders available
-   */
-  getDeliveryOrderOrnithopter(creep) {
-    // Get resources the creep is carrying
-    const carriedResources = [];
-    for (const resourceType of Object.keys(creep.store)) {
-      if (creep.store[resourceType] > 0) {
-        carriedResources.push(resourceType);
-      }
-    }
-
-    if (carriedResources.length === 0) {
-      return null;
-    }
-
-    const needsResources = this.needsResources();
-    const allCreeps = this.rc.creeps.getAllCreeps();
-    const creepPos = creep.pos;
-
-    // Get all ornithopter creeps to check for already assigned orders
-    const ornithopters = allCreeps.filter(c => c.memory.role === "ornithopter");
-    const assignedNeedIds = new Set();
-
-    // Collect already assigned need orders from other ornithopters
-    for (const ornithopter of ornithopters) {
-      if (ornithopter.id === creep.id) continue;
-      if (!ornithopter.memory.transport || !Array.isArray(ornithopter.memory.transport)) continue;
-
-      for (const order of ornithopter.memory.transport) {
-        if (order.type === "need") {
-          assignedNeedIds.add(order.id);
-        }
-      }
-    }
-
-    // Find matching need orders
-    const matchingNeeds = [];
-    for (const resType of carriedResources) {
-      if (creep.store[resType] <= 0) continue;
-
-      for (const need of needsResources) {
-        if (need.resourceType !== resType) continue;
-        if (need.id === creep.id) continue;
-        if (assignedNeedIds.has(need.id)) continue;
-
-        // Check if target still exists and has capacity
-        const targetValidation = this._validateResourceTarget(need.id, resType);
-        if (!targetValidation) continue;
-
-        // Skip if another creep is already targeting this
-        if (allCreeps.some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0 && c.id !== creep.id)) {
-          continue;
-        }
-
-        const needObj = Game.getObjectById(need.id);
-        if (!needObj) continue;
-
-        const needDistance = creepPos.getRangeTo(needObj);
-
-        matchingNeeds.push({
-          need: need,
-          priority: need.priority,
-          distance: needDistance,
-          resourceType: resType,
-        });
-      }
-    }
-
-    // Sort by priority, then by distance
-    matchingNeeds.sort((a, b) => {
-      if (a.priority !== b.priority) {
-        return (a.priority || 0) - (b.priority || 0);
-      }
-      return a.distance - b.distance;
-    });
-
-    // Add need orders to transport memory
-    if (matchingNeeds.length > 0 && (!creep.memory.transport || !Array.isArray(creep.memory.transport))) {
-      creep.memory.transport = [];
-    }
-
-    for (const match of matchingNeeds) {
-      const need = match.need;
-      const needObj = Game.getObjectById(need.id);
-      if (!needObj) continue;
-
-      const targetValidation = this._validateResourceTarget(need.id, match.resourceType);
-      if (!targetValidation) continue;
-
-      const needAmount = Math.min(
-        match.need.amount || targetValidation.freeCapacity,
-        creep.store[match.resourceType] || 0,
-        targetValidation.freeCapacity
-      );
-
-      if (needAmount > 0) {
-        const needOrder = {
-          type: "need",
-          id: need.id,
-          resourceType: match.resourceType,
-          amount: needAmount,
-          priority: need.priority,
-          roomName: needObj.room ? needObj.room.name : this.rc.room.name,
-        };
-
-        creep.memory.transport.push(needOrder);
-      }
-    }
-
-    return creep.memory.transport ? creep.memory.transport.filter(o => o.type === "need") : null;
   }
 
   /**
@@ -612,14 +259,32 @@ class LogisticsManager {
     return pos.inRangeTo(this.rc.room.controller.pos, CONSTANTS.CONTROLLER.RANGE_FOR_DROPPED_RESOURCES);
   }
 
+  /**
+   * Determines priority for storage resource availability (gives) based on amount and fill level
+   * 
+   * Priority Logic:
+   * - Energy:
+   *   * At or below fillLevel → STORAGE_ENERGY_LOW priority (can give, but below ideal)
+   *   * Above fillLevel → STORAGE_ENERGY_OVERFLOW priority (excess can be distributed)
+   * - Minerals:
+   *   * Above fillLevel → STORAGE_MINERAL_OVERFLOW priority (excess can be distributed)
+   *   * At or below fillLevel → STORAGE_MINERAL_HIGH priority (can give, but try to maintain)
+   * 
+   * @param {string} resourceType - Resource type (RESOURCE_ENERGY or mineral)
+   * @param {number} amount - Current amount in storage
+   * @param {number} fillLevel - Target fill level from room configuration
+   * @returns {Object} Object with {priority, amount} indicating what can be given
+   */
   _getStorageGivesPriority(resourceType, amount, fillLevel) {
     if (resourceType === RESOURCE_ENERGY) {
       if (amount <= fillLevel) {
+        // Storage has energy but below/at fill level - lower priority to give away
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_LOW,
           amount: amount,
         };
       } else {
+        // Storage has excess energy above fill level - can give overflow
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
           amount: amount - fillLevel,
@@ -628,11 +293,13 @@ class LogisticsManager {
     } else {
       // Minerals
       if (amount > fillLevel) {
+        // Storage has excess minerals above fill level - can give overflow
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_OVERFLOW,
           amount: amount - fillLevel,
         };
       } else {
+        // Storage has minerals but at/below fill level - higher priority to maintain
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL_HIGH,
           amount: amount,
@@ -641,57 +308,108 @@ class LogisticsManager {
     }
   }
 
+  /**
+   * Determines priority for storage resource needs based on current amount and fill level
+   * 
+   * PARAMETER EXPLANATION:
+   * - currentAmount: IST-Zustand - wie viel Ressourcen aktuell im Storage sind (z.B. 15000)
+   * - fillLevel: SOLL-Zustand - wie viel Ressourcen im Storage sein SOLLTEN (Zielwert aus Konfiguration)
+   *              Beispiel: 30000 für Energy, 21000 für Mineralien
+   *              Wird über room.getRoomThreshold(resourceType, "storage") berechnet
+   * 
+   * PRIORITY LOGIC:
+   * - Energy: 
+   *   * currentAmount < fillLevel → STORAGE_ENERGY_MID priority (normal need to reach target)
+   *     Beispiel: currentAmount=15000, fillLevel=30000 → needs 15000 more
+   *   * fillLevel <= currentAmount < MAX_ENERGY_THRESHOLD → STORAGE_ENERGY_OVERFLOW priority (fill to max)
+   *     Beispiel: currentAmount=30000, fillLevel=30000, MAX=100000 → needs up to 70000 more (lower priority)
+   *   * currentAmount >= MAX_ENERGY_THRESHOLD → null (no need, already at max)
+   * - Minerals:
+   *   * currentAmount < fillLevel → STORAGE_MINERAL priority (normal need to reach target)
+   *     Beispiel: currentAmount=10000, fillLevel=21000 → needs 11000 more
+   *   * currentAmount >= fillLevel → null (no need, already at fill level)
+   * 
+   * @param {string} resourceType - Resource type (RESOURCE_ENERGY or mineral)
+   * @param {number} currentAmount - Current amount in storage (IST-Zustand)
+   * @param {number} fillLevel - Target fill level from room configuration (SOLL-Zustand)
+   * @returns {Object|null} Object with {priority, amount} or null if no need
+   */
   _getStorageNeedsPriority(resourceType, currentAmount, fillLevel) {
     if (resourceType === RESOURCE_ENERGY) {
+      // Energy: Three-tier priority system
       if (currentAmount < fillLevel) {
+        // Below target fill level - normal priority to reach target
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_MID,
           amount: fillLevel - currentAmount,
         };
       } else if (currentAmount < CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD) {
+        // Between fill level and max threshold - lower priority to fill beyond target
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_ENERGY_OVERFLOW,
           amount: CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD - currentAmount,
         };
       }
-      return null; // Skip if already at max
+      // Already at or above max threshold - no need
+      return null;
     } else {
-      // Minerals
+      // Minerals: Simple two-tier system
       if (currentAmount < fillLevel) {
+        // Below fill level - normal priority to reach target
         return {
           priority: CONSTANTS.PRIORITY.STORAGE_MINERAL,
           amount: fillLevel - currentAmount,
         };
       }
-      return null; // Skip if already at fill level
+      // Already at or above fill level - no need
+      return null;
     }
   }
 
+  /**
+   * Determines priority for terminal resource availability (gives) based on amount and threshold
+   * 
+   * Priority Logic:
+   * - Energy:
+   *   * No energy → null (can't give)
+   *   * At or below energyThreshold → TERMINAL_ENERGY_LOW priority (can give, but low)
+   *   * Above energyThreshold → TERMINAL_ENERGY_HIGH priority (can give excess)
+   * - Minerals:
+   *   * Has minerals → TERMINAL_MINERAL priority (can give all)
+   *   * No minerals → null (can't give)
+   * 
+   * @param {string} resourceType - Resource type (RESOURCE_ENERGY or mineral)
+   * @param {number} amount - Current amount in terminal
+   * @param {number} energyThreshold - Energy threshold for terminal (below this = low priority)
+   * @returns {Object|null} Object with {priority, amount} or null if can't give
+   */
   _getTerminalGivesPriority(resourceType, amount, energyThreshold) {
     if (resourceType === RESOURCE_ENERGY) {
       if (amount <= 0) {
-        return null; // Skip if no energy
+        return null; // Skip if no energy to give
       }
       if (amount <= energyThreshold) {
+        // Terminal has energy but below threshold - lower priority to give
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_LOW,
           amount: amount,
         };
       } else {
+        // Terminal has excess energy above threshold - can give overflow
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_ENERGY_HIGH,
           amount: amount - energyThreshold,
         };
       }
     } else {
-      // Minerals
+      // Minerals: Terminal can give all minerals (they're usually for trading)
       if (amount > 0) {
         return {
           priority: CONSTANTS.PRIORITY.TERMINAL_MINERAL,
           amount: amount,
         };
       }
-      return null; // Skip if no minerals
+      return null; // Skip if no minerals to give
     }
   }
 
@@ -915,18 +633,32 @@ class LogisticsManager {
     this.rc._needsResources.push(entry);
   }
 
+  /**
+   * Determines controller priority based on ticks until downgrade
+   * 
+   * Priority tiers:
+   * - < 100 ticks → CONTROLLER_CRITICAL (highest priority, prevent downgrade)
+   * - < 5000 ticks → CONTROLLER_LOW (medium priority, maintain level)
+   * - >= 5000 ticks → STORAGE_ENERGY_HIGH (normal priority, no urgent need)
+   * 
+   * @returns {number} Priority value for controller/upgrader energy needs
+   */
   _getControllerPriority() {
     if (!this.rc.room.controller) {
+      // No controller - return normal priority (shouldn't happen in owned rooms)
       return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
     }
 
     const {ticksToDowngrade} = this.rc.room.controller;
     if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
+      // Critical: Controller will downgrade soon - highest priority
       return CONSTANTS.PRIORITY.CONTROLLER_CRITICAL;
     } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
+      // Low: Controller needs energy but not critical - medium priority
       return CONSTANTS.PRIORITY.CONTROLLER_LOW;
     }
 
+    // Normal: Controller has enough time - normal priority
     return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
   }
 
@@ -969,8 +701,9 @@ class LogisticsManager {
       const freeCapacity = constructor.store.getFreeCapacity(RESOURCE_ENERGY);
       const capacity = constructor.store.getCapacity();
 
-      // Only add if more than half capacity is free
-      if (freeCapacity > capacity / 2) {
+      // Only add need if constructor has significant free capacity
+      // This prevents micro-management and focuses on creeps that actually need energy
+      if (freeCapacity > capacity * CONSTANTS.CREEP_LIFECYCLE.CONSTRUCTOR_CAPACITY_THRESHOLD) {
         this._addNeedsResource({
           priority: CONSTANTS.PRIORITY.CONSTRUCTOR,
           structureType: constructor.structureType,
@@ -1013,7 +746,13 @@ class LogisticsManager {
       : CONSTANTS.PRIORITY.TOWER_NORMAL;
 
     // Process towers
-    const towerNeeds = this.rc.structures.structuresNeedResource(this.rc.room.towers, RESOURCE_ENERGY, towerPriority, 400);
+    // Towers need energy if below threshold (below this amount = needs refill)
+    const towerNeeds = this.rc.structures.structuresNeedResource(
+      this.rc.room.towers, 
+      RESOURCE_ENERGY, 
+      towerPriority, 
+      CONSTANTS.STRUCTURE_ENERGY.TOWER_ENERGY_THRESHOLD
+    );
     for (const need of towerNeeds) {
       this._addNeedsResource(need);
     }
@@ -1038,12 +777,24 @@ class LogisticsManager {
 
     // Process power spawn
     if (this.rc.room.powerSpawn) {
-      const powerSpawnEnergyNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
+      // Power spawn needs energy if below threshold
+      const powerSpawnEnergyNeeds = this.rc.structures.structuresNeedResource(
+        [this.rc.room.powerSpawn], 
+        RESOURCE_ENERGY, 
+        CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 
+        CONSTANTS.STRUCTURE_ENERGY.POWER_SPAWN_ENERGY_THRESHOLD
+      );
       for (const need of powerSpawnEnergyNeeds) {
         this._addNeedsResource(need);
       }
 
-      const powerSpawnPowerNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
+      // Power spawn needs power if below threshold (needed for processing power)
+      const powerSpawnPowerNeeds = this.rc.structures.structuresNeedResource(
+        [this.rc.room.powerSpawn], 
+        RESOURCE_POWER, 
+        CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 
+        CONSTANTS.STRUCTURE_ENERGY.POWER_SPAWN_POWER_THRESHOLD
+      );
       for (const need of powerSpawnPowerNeeds) {
         this._addNeedsResource(need);
       }

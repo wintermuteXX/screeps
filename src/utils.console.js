@@ -23,24 +23,30 @@ function help(category = "all") {
     planner: [
       { name: "plannerVisualize(room)", desc: "Visualizes planned layout in game view", example: 'plannerVisualize("W1N1")' },
       { name: "plannerStats(room)", desc: "Statistics about planned layout", example: 'plannerStats("W1N1")' },
-      { name: "plannerReset(room)", desc: "Resets layout for a room", example: 'plannerReset("W1N1")' },
       { name: "plannerRun(room)", desc: "Runs RoomPlanner manually", example: 'plannerRun("W1N1")' },
       { name: "plannerSetCenter(room, x, y)", desc: "Sets center coordinates for planning", example: 'plannerSetCenter("W1N1", 25, 25)' },
-      { name: "plannerOrphaned(room)", desc: "Lists orphaned structures (built but no longer in layout)", example: 'plannerOrphaned("W1N1")' },
-      { name: "plannerRecalculateExtensions(room)", desc: "Recalculates extension placements (removes old and recalculates)", example: 'plannerRecalculateExtensions("W1N1")' },
-      { name: "plannerRecalculateExtensionsAll()", desc: "Recalculates extension placements for all owned rooms", example: 'plannerRecalculateExtensionsAll()' },
-      { name: "plannerRecalculateLabs(room)", desc: "Recalculates lab placements (removes old and recalculates)", example: 'plannerRecalculateLabs("W1N1")' },
+      { name: "plannerReset(room)", desc: "Resets layout for a room", example: 'plannerReset("W1N1")' },
+      { name: "plannerOrphaned(room)", desc: "Lists orphaned structures", example: 'plannerOrphaned("W1N1")' },
+      { sub: "Recalculate" },
+      { name: "plannerRecalculateExtensions(room)", desc: "Recalculates extension placements", example: 'plannerRecalculateExtensions("W1N1")' },
+      { name: "plannerRecalculateExtensionsAll()", desc: "Recalculates extensions for all rooms", example: "plannerRecalculateExtensionsAll()" },
+      { name: "plannerRecalculateLabs(room)", desc: "Recalculates lab placements", example: 'plannerRecalculateLabs("W1N1")' },
+    ],
+    stats: [
       { name: "showCPU()", desc: "Shows CPU usage statistics", example: "showCPU()" },
-      { name: "showScout(room, duration)", desc: "Shows scout data on world map (persists for 100 ticks)", example: 'showScout("W1N1") or showScout(false) to disable' },
       { name: "showRclUpgradeTimes()", desc: "Shows RCL upgrade times for all owned rooms", example: "showRclUpgradeTimes()" },
+      { name: "showScout(room, duration)", desc: "Shows scout data on world map", example: 'showScout("W1N1")' },
     ],
     market: [
       { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
     ],
+    creeps: [
+      { name: "cc(spawn, role, memory?)", desc: "Create a creep manually at a specific spawn", example: 'cc("Spawn3", "supporter")' },
+    ],
     utils: [
       { name: "json(x)", desc: "Pretty-print JSON", example: 'json({key: "value"})' },
-      { name: "cleanMemory(type, property)", desc: "Cleans up memory by removing specified property from rooms or creeps", example: 'cleanMemory("rooms", "dunePlanet")' },
-      { name: "profileMemory(root, depth)", desc: "Profiles memory usage by calculating JSON string sizes", example: 'profileMemory(Memory, 2)' },
+      { name: "cleanMemory(type, property)", desc: "Cleans up memory by removing specified property", example: 'cleanMemory("rooms", "dunePlanet")' },
+      { name: "profileMemory(root, depth)", desc: "Profiles memory usage by calculating JSON sizes", example: "profileMemory(Memory, 2)" },
     ],
   };
 
@@ -53,35 +59,39 @@ function help(category = "all") {
   result.push('<th style="padding: 5px; background-color: #333;">EXAMPLE</th>');
   result.push("</tr>");
 
-  if (category === "all" || !category) {
-    // Show all categories
-    for (const [cat, funcs] of Object.entries(functions)) {
-      result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${cat.toUpperCase()}</td></tr>`);
-      funcs.forEach(func => {
-        result.push("<tr>");
-        result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
-        result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
-        result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
-        result.push("</tr>");
-      });
-    }
-  } else if (functions[category]) {
-    // Show specific category
-    result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${category.toUpperCase()}</td></tr>`);
-    functions[category].forEach(func => {
+  // Helper to render a single function entry
+  const renderFunc = (func) => {
+    if (func.sub) {
+      // Subheading row
+      result.push(`<tr><td colspan="3" style="padding: 3px 5px 3px 15px; background-color: #1a1a1a; color: #888; font-style: italic; font-size: 11px;">── ${func.sub} ──</td></tr>`);
+    } else {
+      // Normal function row
       result.push("<tr>");
       result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
       result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
       result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
       result.push("</tr>");
-    });
+    }
+  };
+
+  if (category === "all" || !category) {
+    // Show all categories
+    for (const [cat, funcs] of Object.entries(functions)) {
+      result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${cat.toUpperCase()}</td></tr>`);
+      funcs.forEach(renderFunc);
+    }
+  } else if (functions[category]) {
+    // Show specific category
+    result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${category.toUpperCase()}</td></tr>`);
+    functions[category].forEach(renderFunc);
   } else {
     result.push(`<tr><td colspan="3" style="padding: 5px; color: #ff0000;">Unknown category: ${category}</td></tr>`);
     result.push(`<tr><td colspan="3" style="padding: 5px; color: #cccccc;">Available: ${Object.keys(functions).join(", ")}</td></tr>`);
   }
 
   result.push("</table>");
-  result.push('<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: all, resources, planner, market, utils</p>');
+  const categories = Object.keys(functions).join(", ");
+  result.push(`<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: ${categories}</p>`);
 
   const resultString = result.join("");
   console.log(resultString);
@@ -1229,6 +1239,89 @@ function showRclUpgradeTimes() {
   return resultString;
 }
 
+/**
+ * Create a creep manually at a specific spawn
+ * Usage: cc("Spawn3", "supporter") or cc("Spawn1", "miner", { targetRoom: "W1N1" })
+ * @param {string} spawnName - Name of the spawn to use (e.g., "Spawn1", "Spawn3")
+ * @param {string} role - Role of the creep to spawn (e.g., "supporter", "miner", "transporter")
+ * @param {Object} [extraMemory={}] - Additional memory properties to set on the creep
+ * @returns {string} Result message
+ */
+function cc(spawnName, role, extraMemory = {}) {
+  // Validate spawn
+  const spawn = Game.spawns[spawnName];
+  if (!spawn) {
+    const availableSpawns = Object.keys(Game.spawns).join(", ");
+    return `❌ Spawn "${spawnName}" not found. Available spawns: ${availableSpawns}`;
+  }
+
+  // Load creep configs
+  const creepConfigs = require("./config.creeps");
+
+  // Validate role
+  const config = creepConfigs[role];
+  if (!config) {
+    const availableRoles = Object.keys(creepConfigs).join(", ");
+    return `❌ Role "${role}" not found. Available roles: ${availableRoles}`;
+  }
+
+  // Get body (handle dynamic body functions like upgrader.getUpgraderBody)
+  let body;
+  if (typeof config.getUpgraderBody === "function") {
+    // Special case for upgrader with dynamic body
+    const rc = spawn.room.controller;
+    body = config.getUpgraderBody({ getLevel: () => rc ? rc.level : 1 });
+  } else {
+    body = config.body;
+  }
+
+  if (!body || body.length === 0) {
+    return `❌ No body defined for role "${role}"`;
+  }
+
+  // Generate name
+  const namePrefix = config.namePrefix || role;
+  const name = `${namePrefix}_${Game.time}`;
+
+  // Build memory
+  const memory = {
+    role: role,
+    home: spawn.room.name,
+    behaviors: config.behaviors || [],
+    ...extraMemory,
+  };
+
+  // Check if spawn is busy
+  if (spawn.spawning) {
+    return `⏳ Spawn "${spawnName}" is busy spawning ${spawn.spawning.name}`;
+  }
+
+  // Calculate energy cost
+  const energyCost = body.reduce((sum, part) => sum + BODYPART_COST[part], 0);
+  const availableEnergy = spawn.room.energyAvailable;
+
+  if (availableEnergy < energyCost) {
+    return `⚡ Not enough energy. Need ${energyCost}, have ${availableEnergy}`;
+  }
+
+  // Spawn the creep
+  const result = spawn.spawnCreep(body, name, { memory });
+
+  if (result === OK) {
+    return `✅ Spawning "${name}" (${role}) at ${spawnName}. Energy: ${energyCost}`;
+  } else {
+    const errorMessages = {
+      [ERR_NOT_OWNER]: "Not owner of spawn",
+      [ERR_NAME_EXISTS]: "Name already exists",
+      [ERR_BUSY]: "Spawn is busy",
+      [ERR_NOT_ENOUGH_ENERGY]: "Not enough energy",
+      [ERR_INVALID_ARGS]: "Invalid body or name",
+      [ERR_RCL_NOT_ENOUGH]: "RCL too low for this body",
+    };
+    return `❌ Failed to spawn: ${errorMessages[result] || `Error code ${result}`}`;
+  }
+}
+
 module.exports = {
   showTerminals,
   numberOfTerminals,
@@ -1243,6 +1336,7 @@ module.exports = {
   showRclUpgradeTimes,
   cleanMemory,
   profileMemory,
+  cc,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 

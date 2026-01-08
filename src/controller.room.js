@@ -120,13 +120,6 @@ ControllerRoom.prototype.getDeliveryOrder = function (Creep, resourceType = null
   return this.logistics.getDeliveryOrder(Creep, resourceType);
 };
 
-ControllerRoom.prototype.getTransportOrderOrnithopter = function (creep) {
-  return this.logistics.getTransportOrderOrnithopter(creep);
-};
-
-ControllerRoom.prototype.getDeliveryOrderOrnithopter = function (creep) {
-  return this.logistics.getDeliveryOrderOrnithopter(creep);
-};
 
 /**
  * Helper function to check if CPU is available for optional operations
