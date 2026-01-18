@@ -253,7 +253,7 @@ Object.defineProperty(Source.prototype, "freeSpacesCount", {
 
 Object.defineProperty(Source.prototype, "canHarvestSource", {
   value: function(creep, rc) {
-    // 1. Prüfe freie Plätze
+    // 1. Check free spots
     const freeSpaces = this.freeSpacesCount;
     const creepsTargeting = rc.getCreeps(null, this.id).length;
     const availableSpaces = freeSpaces - creepsTargeting;
@@ -262,7 +262,7 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
       return { canHarvest: false, reason: "no_free_spaces" };
     }
 
-    // 2. Berechne aktuelle Harvest-Power (inkl. Boosts)
+    // 2. Calculate current harvest power (including boosts)
     let totalHarvestPower = 0;
     const harvestingCreeps = rc.getCreeps(null, this.id);
     for (const hCreep of harvestingCreeps) {
@@ -271,7 +271,7 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
       }
     }
 
-    // 3. Berechne verfügbare Energy bei Ankunft
+    // 3. Calculate available energy on arrival
     const ticksToArrive = creep.pos.getRangeTo(this);
     const regenRate = SOURCE_ENERGY_CAPACITY / ENERGY_REGEN_TIME;
     const currentEnergy = this.energy;
@@ -280,7 +280,7 @@ Object.defineProperty(Source.prototype, "canHarvestSource", {
       currentEnergy + (regenRate * ticksToArrive) - (totalHarvestPower * ticksToArrive),
     );
 
-    // 4. Prüfe ob genug Energy verfügbar sein wird
+    // 4. Check if enough energy will be available
     const creepHarvestPower = creep.getHarvestPowerPerTick();
     const willHaveEnergy = energyWhenArriving > 0;
 

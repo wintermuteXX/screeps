@@ -2,19 +2,29 @@ const Log = require("./lib.log");
 const RoomPlanner = require("./service.planner");
 
 /**
+ * Get a clickable room label when visible
+ * @param {string} roomName - Room name
+ * @returns {Room|string} Room object if visible, otherwise room name
+ */
+function getRoomLabel(roomName) {
+  return Game.rooms[roomName] || roomName;
+}
+
+/**
  * Visualizes the planned layout for a room
  * Usage: plannerVisualize('W1N1')
  * @param {string} roomName - Room name
  */
 function plannerVisualize(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return;
   }
   const planner = new RoomPlanner(room);
   planner.visualize();
-  Log.info(`Layout for ${roomName} visualized. Check the room!`, "RoomPlanner");
+  Log.info(`Layout for ${roomLabel} visualized. Check the room!`, "RoomPlanner");
 }
 
 /**
@@ -25,14 +35,15 @@ function plannerVisualize(roomName) {
  */
 function plannerStats(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return "Room not visible";
   }
   const planner = new RoomPlanner(room);
   const stats = planner.getStats();
   const formatted = JSON.stringify(stats, null, 2);
-  Log.info(`RoomPlanner stats for ${roomName}:`, "RoomPlanner");
+  Log.info(`RoomPlanner stats for ${roomLabel}:`, "RoomPlanner");
   Log.info(formatted, "RoomPlanner");
   return formatted; // Return formatted string instead of object
 }
@@ -44,13 +55,14 @@ function plannerStats(roomName) {
  */
 function plannerReset(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return;
   }
   const planner = new RoomPlanner(room);
   planner.reset();
-  Log.info(`Layout for ${roomName} has been reset`, "RoomPlanner");
+  Log.info(`Layout for ${roomLabel} has been reset`, "RoomPlanner");
 }
 
 /**
@@ -60,13 +72,14 @@ function plannerReset(roomName) {
  */
 function plannerRun(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return;
   }
   const planner = new RoomPlanner(room);
   planner.run();
-  Log.info(`RoomPlanner for ${roomName} executed`, "RoomPlanner");
+  Log.info(`RoomPlanner for ${roomLabel} executed`, "RoomPlanner");
 }
 
 /**
@@ -79,15 +92,16 @@ function plannerRun(roomName) {
 function plannerSetCenter(roomName, x, y) {
   if (!Memory.rooms) Memory.rooms = {};
   if (!Memory.rooms[roomName]) Memory.rooms[roomName] = {};
+  const roomLabel = getRoomLabel(roomName);
   // Initialize or reset planner with all required properties
   Memory.rooms[roomName].planner = {
     centerX: x,
     centerY: y,
-    layoutGenerated: undefined,  // undefined = noch nicht geprüft, wird beim nächsten run() generiert
+    layoutGenerated: undefined,  // undefined = not checked yet, will be generated on next run()
     plannedStructures: [],
   };
 
-  Log.info(`Center for ${roomName} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
+  Log.info(`Center for ${roomLabel} set to (${x}, ${y}). Layout will be regenerated on next run.`, "RoomPlanner");
 }
 
 /**
@@ -98,15 +112,16 @@ function plannerSetCenter(roomName, x, y) {
  */
 function plannerOrphaned(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return JSON.stringify([]);
   }
   const planner = new RoomPlanner(room);
   const orphaned = planner._findOrphanedStructures();
 
   if (orphaned.length === 0) {
-    Log.info(`No orphaned structures found in ${roomName}`, "RoomPlanner");
+    Log.info(`No orphaned structures found in ${roomLabel}`, "RoomPlanner");
     return JSON.stringify([]);
   }
 
@@ -140,7 +155,7 @@ function plannerOrphaned(roomName) {
     };
   });
 
-  Log.info(`Found ${orphaned.length} orphaned structure(s) in ${roomName}:`, "RoomPlanner");
+  Log.info(`Found ${orphaned.length} orphaned structure(s) in ${roomLabel}:`, "RoomPlanner");
   for (const orphan of serializableOrphaned) {
     Log.info(
       `  - ${orphan.name} at (${orphan.x}, ${orphan.y}) - ID: ${orphan.id} - Destroy with: ${orphan.destroyCommand}`,
@@ -164,14 +179,15 @@ function plannerOrphaned(roomName) {
  */
 function plannerRecalculateExtensions(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return false;
   }
   const planner = new RoomPlanner(room);
   const success = planner.recalculateExtensions();
   if (success) {
-    Log.info(`Extensions for ${roomName} recalculated successfully`, "RoomPlanner");
+    Log.info(`Extensions for ${roomLabel} recalculated successfully`, "RoomPlanner");
   }
   return success;
 }
@@ -220,14 +236,15 @@ function plannerRecalculateExtensionsAll() {
  */
 function plannerRecalculateLabs(roomName) {
   const room = Game.rooms[roomName];
+  const roomLabel = getRoomLabel(roomName);
   if (!room) {
-    Log.warn(`Room ${roomName} not visible`, "RoomPlanner");
+    Log.warn(`Room ${roomLabel} not visible`, "RoomPlanner");
     return false;
   }
   const planner = new RoomPlanner(room);
   const success = planner.recalculateLabs();
   if (success) {
-    Log.info(`Labs for ${roomName} recalculated successfully`, "RoomPlanner");
+    Log.info(`Labs for ${roomLabel} recalculated successfully`, "RoomPlanner");
   }
   return success;
 }

@@ -56,13 +56,13 @@ class ControllerFactory {
     }
 
     if (nextLevel === null) {
-      Log.warn(`${this.factory.room.name} All factory levels (1-5) are already assigned. Cannot assign level to factory ${this.factory.id}`, "FactoryLevel");
+      Log.warn(`${this.factory.room} All factory levels (1-5) are already assigned. Cannot assign level to factory ${this.factory.id}`, "FactoryLevel");
       return false;
     }
 
     // Assign the level to this factory in memory
     Memory.factoryLevels[this.factory.id] = nextLevel;
-    Log.success(`${this.factory.room.name} Assigned factory level ${nextLevel} to factory ${this.factory.id}`, "FactoryLevel");
+    Log.success(`${this.factory.room} Assigned factory level ${nextLevel} to factory ${this.factory.id}`, "FactoryLevel");
 
     // Set the factory level using Power Creep
     return this.setFactoryLevel(nextLevel);
@@ -98,7 +98,7 @@ class ControllerFactory {
     if (powerCreeps.length === 0) {
       // No Power Creep available - log and wait
       if (Game.time % CONSTANTS.TICKS.FACTORY_POWER_CHECK === 0) {
-        Log.warn(`${this.factory.room.name} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory.id} needs level ${level}`, "FactoryLevel");
+        Log.warn(`${this.factory.room} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory.id} needs level ${level}`, "FactoryLevel");
       }
       return false;
     }
@@ -117,16 +117,16 @@ class ControllerFactory {
 
     switch (result) {
       case OK:
-        Log.success(`${this.factory.room.name} Power Creep ${powerCreep.name} set factory ${this.factory.id} to level ${level}`, "FactoryLevel");
+        Log.success(`${this.factory.room} Power Creep ${powerCreep} set factory ${this.factory.id} to level ${level}`, "FactoryLevel");
         return true;
       case ERR_TIRED:
         // Power Creep is tired, will try again next tick
         return false;
       case ERR_NOT_ENOUGH_RESOURCES:
-        Log.warn(`${this.factory.room.name} Power Creep ${powerCreep.name} doesn't have enough resources to use OPERATE_FACTORY`, "FactoryLevel");
+        Log.warn(`${this.factory.room} Power Creep ${powerCreep} doesn't have enough resources to use OPERATE_FACTORY`, "FactoryLevel");
         return false;
       default:
-        Log.warn(`${this.factory.room.name} Failed to set factory level: ${global.getErrorString(result)}`, "FactoryLevel");
+        Log.warn(`${this.factory.room} Failed to set factory level: ${global.getErrorString(result)}`, "FactoryLevel");
         return false;
     }
   }

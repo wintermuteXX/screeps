@@ -24,7 +24,7 @@ const RENEW_CONFIGS = {
 };
 
 /**
- * Erstellt ein Renew-Behavior
+ * Create a renew behavior
  * Supports: "renew", "renew:normal", "renew:emergency"
  */
 function createRenewBehavior(behaviorName) {
@@ -34,7 +34,7 @@ function createRenewBehavior(behaviorName) {
   }
 
   // Parse mode from behavior name (format: "renew:mode")
-  let mode = "normal"; // Standard
+  let mode = "normal"; // Default
   if (behaviorName.indexOf(":") !== -1) {
     mode = behaviorName.split(":")[1];
   }
@@ -60,7 +60,7 @@ function createRenewBehavior(behaviorName) {
     }
 
     // Spawn must be available
-    const spawn = rc.getIdleSpawnObject();
+    const spawn = rc.getIdleSpawn();
     if (!spawn) {
       return false;
     }
@@ -70,7 +70,7 @@ function createRenewBehavior(behaviorName) {
       return false;
     }
 
-    // Ticks unter Schwellwert
+    // Ticks below threshold
     return creep.ticksToLive < config.whenThreshold;
   };
 
@@ -83,18 +83,18 @@ function createRenewBehavior(behaviorName) {
     let target = creep.getTarget();
 
     if (!target) {
-      target = rc.getIdleSpawnObject();
+      target = rc.getIdleSpawn();
     }
 
     if (!target) {
-      // Kein Target verfügbar -> Behavior beenden
+      // No target available -> stop behavior
       creep.behavior = null;
       return;
     }
 
     // For normal renew: check if spawn has energy
     if (config.checkEnergy && (!target.store || target.store[RESOURCE_ENERGY] <= 0)) {
-      // Keine Energie -> Behavior beenden
+      // No energy -> stop behavior
       creep.behavior = null;
       return;
     }
@@ -107,7 +107,7 @@ function createRenewBehavior(behaviorName) {
         break;
       case ERR_NOT_ENOUGH_RESOURCES:
         Log.info(`${creep} not enough resources for renew in ${target}: ${global.getErrorString(result)}`, "renew");
-        // Keine Ressourcen -> Behavior beenden
+        // No resources -> stop behavior
         creep.behavior = null;
         break;
       case ERR_NOT_IN_RANGE:
@@ -115,21 +115,21 @@ function createRenewBehavior(behaviorName) {
         break;
       case ERR_BUSY:
       case ERR_FULL:
-        // Spawn ist beschäftigt oder voll -> Behavior beenden
-        // (kann im nächsten Tick wieder versucht werden, wenn when() true ist)
+        // Spawn is busy or full -> stop behavior
+        // (can be retried on the next tick when when() is true)
         creep.behavior = null;
         break;
       default:
         Log.warn(`${creep} unknown result from renew ${target}: ${global.getErrorString(result)}`, "renew");
-        // Unbekannter Fehler -> Behavior beenden
+        // Unknown error -> stop behavior
         creep.behavior = null;
     }
   };
 
-  // Cache speichern
+  // Store in cache
   behaviorCache[behaviorName] = b;
   return b;
 }
 
-// Export als Factory-Funktion
+// Export as factory function
 module.exports = createRenewBehavior;

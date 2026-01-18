@@ -8,6 +8,10 @@ require("./prototype.init"); // Initialize prototypes once
 const ControllerGame = require("./controller.game");
 const cpuAnalyzer = require("./service.cpu");
 const utilsConsole = require("./utils.console");
+const { validateCreepConfigs } = require("./utils.creeps");
+
+// Validate creep configs once per global reset
+validateCreepConfigs();
 
 module.exports.loop = function () {
   // Run memhack first to optimize memory access for the entire tick

@@ -16,43 +16,43 @@ class ControllerSpawn {
   }
 
   /**
-   * Generiert einen zufälligen Dune-Namen für einen Creep
-   * Verwendet die Fraktion des Raums oder namePrefix aus der Config
-   * @param {string} role - Die Rolle des Creeps
-   * @param {Object} creepConfig - Die Creep-Konfiguration
-   * @returns {string} Ein verfügbarer Name
+   * Generate a random Dune-style name for a creep
+   * Uses the room faction or namePrefix from config
+   * @param {string} role - Creep role
+   * @param {Object} creepConfig - Creep config
+   * @returns {string} An available name
    */
   _generateCreepName(role, creepConfig) {
-    // Prüfe ob ein namePrefix in der Config definiert ist
+    // Use namePrefix from config when available
     if (creepConfig && creepConfig.namePrefix) {
       return this._generateDuneName(creepConfig.namePrefix);
     }
 
-    // Fallback: Verwende das alte System wenn alle Namen belegt sind
+    // Fallback: use the legacy naming scheme
     return `${role  }_${  Math.round(Math.random() * 999)}`;
   }
 
   /**
-   * Generische Hilfsfunktion zum Generieren von Dune-Namen mit Präfix und 3-stelliger Nummer
-   * @param {string} prefix - Der Präfix für den Namen (z.B. "Ornithopter", "Spice_Harvester")
-   * @returns {string} Ein verfügbarer Name
+   * Helper for generating Dune-style names with prefix and 3-digit number
+   * @param {string} prefix - Name prefix (e.g. "Ornithopter", "Spice_Harvester")
+   * @returns {string} An available name
    */
   _generateDuneName(prefix) {
     const maxAttempts = 100;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      // Generiere 3-stellige Zufallszahl (000-999)
+      // Generate 3-digit random number (000-999)
       const randomNumber = Math.floor(Math.random() * 1000);
       const numberString = randomNumber.toString().padStart(3, "0");
       const name = `${prefix}_${numberString}`;
 
-      // Prüfe ob der Name bereits existiert
+      // Check if the name already exists
       if (!Game.creeps[name]) {
         return name;
       }
     }
 
-    // Fallback: Verwende Timestamp wenn alle Namen belegt sind
+    // Fallback: use a timestamp-based suffix
     return `${prefix}_${(Game.time % 1000).toString().padStart(3, "0")}`;
   }
 
@@ -97,21 +97,21 @@ class ControllerSpawn {
       memory.home = spawn.room.name;
       memory.bornEnergyLevel = spawn.room.energyCapacityAvailable;
 
-      // Spezielle Behandlung für Claimer: Setze Zielraum im Memory
+      // Special handling for claimers: set target room in memory
       if (role === "claimer" && Memory.roomToClaim) {
         memory.targetRoom = Memory.roomToClaim;
-        // NICHT löschen - wird erst gelöscht wenn Raum RCL 3 erreicht hat
+        // Do not clear - will be cleared when room reaches RCL 3
       } else if (role === "claimer") {
-        // Warnung wenn Claimer ohne targetRoom erstellt wird
+        // Warn when a claimer is created without targetRoom
         Log.warn(`⚠️ Claimer ${theName} created without targetRoom (Memory.roomToClaim not set)`, "createCreep");
       }
 
-      // Spezielle Behandlung für Supporter: Setze Zielraum im Memory (nutzt roomToClaim)
+      // Special handling for supporters: set target room in memory (uses roomToClaim)
       if (role === "supporter" && Memory.roomToClaim) {
         memory.targetRoom = Memory.roomToClaim;
-        // NICHT löschen - roomToClaim wird erst gelöscht wenn Raum RCL 3 erreicht hat
+        // Do not clear - roomToClaim is cleared when room reaches RCL 3
       } else if (role === "supporter") {
-        // Warnung wenn Supporter ohne targetRoom erstellt wird
+        // Warn when a supporter is created without targetRoom
         Log.warn(`⚠️ Supporter ${theName} created without targetRoom (Memory.roomToClaim not set)`, "createCreep");
       }
 

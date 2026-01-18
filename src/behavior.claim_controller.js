@@ -10,28 +10,28 @@ class ClaimControllerBehavior extends Behavior {
   }
 
   when(creep, rc) {
-    // Wenn Zielraum im Memory gespeichert ist und wir noch nicht dort sind, reise dorthin
+    // If target room is set and we are not there yet, travel there
     if (creep.memory.targetRoom && creep.memory.targetRoom !== creep.room.name) {
-      return true; // Wir müssen noch zum Zielraum reisen
+      return true; // We still need to travel to the target room
     }
-    // Wenn wir im Zielraum sind, prüfe ob Controller geclaimt werden muss
-    // Oder ob wir noch einen Spawn platzieren müssen
+    // If we are in the target room, check if we need to claim the controller
+    // Or if we still need to place a spawn
     const needsClaiming = creep.room.controller && !creep.room.controller.my;
     const needsSpawnPlacing = this._shouldPlaceSpawn(creep, rc);
     return needsClaiming || needsSpawnPlacing;
   }
 
   completed(creep, rc) {
-    // Fertig wenn Controller geclaimt ist und Spawn platziert wurde (oder nicht nötig)
+    // Done when controller is claimed and spawn is placed (or not needed)
     const controllerClaimed = creep.room.controller && creep.room.controller.my;
     const spawnPlaced = !this._shouldPlaceSpawn(creep, rc);
     return controllerClaimed && spawnPlaced;
   }
 
   work(creep, rc) {
-    // Wenn wir noch nicht im Zielraum sind, reise dorthin
+    // If we are not in the target room yet, travel there
     if (creep.memory.targetRoom && creep.memory.targetRoom !== creep.room.name) {
-      // Log einmalig wenn wir zum Zielraum reisen
+      // Log once when traveling to the target room
       if (!creep.memory.travelingToTarget) {
         Log.success(`🏰 ${creep} traveling to target room ${creep.memory.targetRoom}`, "claim_controller");
         creep.memory.travelingToTarget = true;
@@ -50,9 +50,9 @@ class ClaimControllerBehavior extends Behavior {
       return;
     }
 
-    // Wenn wir im Zielraum angekommen sind, lösche Travel-Flag
+    // When we arrive in the target room, clear travel flag
     if (creep.memory.travelingToTarget) {
-      Log.success(`🏰 ${creep} arrived at target room ${creep.room.name}`, "claim_controller");
+      Log.success(`🏰 ${creep} arrived at target room ${creep.room}`, "claim_controller");
       delete creep.memory.travelingToTarget;
     }
 
@@ -61,9 +61,9 @@ class ClaimControllerBehavior extends Behavior {
       if (creep.pos.isNearTo(creep.room.controller)) {
         const result = creep.claimController(creep.room.controller);
         if (result === OK) {
-          Log.success(`🏰 ${creep} successfully claimed controller in ${creep.room.name}`, "claim_controller");
+          Log.success(`🏰 ${creep} successfully claimed controller in ${creep.room}`, "claim_controller");
         } else {
-          Log.error(`🏰 ${creep} failed to claim controller in ${creep.room.name}. Error: ${global.getErrorString(result)}`, "claim_controller");
+          Log.error(`🏰 ${creep} failed to claim controller in ${creep.room}. Error: ${global.getErrorString(result)}`, "claim_controller");
         }
       } else {
         creep.travelTo(creep.room.controller);
@@ -102,7 +102,7 @@ class ClaimControllerBehavior extends Behavior {
     const centerPos = planner._calculateOptimalCenter();
 
     if (!centerPos) {
-      Log.error(`Could not find optimal center position in ${creep.room.name}`, "claim_controller");
+      Log.error(`Could not find optimal center position in ${creep.room}`, "claim_controller");
       return;
     }
 
@@ -112,15 +112,15 @@ class ClaimControllerBehavior extends Behavior {
 
     if (result === ERR_RCL_NOT_ENOUGH) {
       // RCL not enough yet - claimer can suicide after placing spawn
-      Log.warn(`Cannot place spawn in ${creep.room.name} - RCL not enough. Claimer will suicide.`, "claim_controller");
+      Log.warn(`Cannot place spawn in ${creep.room} - RCL not enough. Claimer will suicide.`, "claim_controller");
       creep.suicide();
       return;
     }
     
     if (result === OK) {
-      Log.success(`🏗️ Build a new construction site for Spawn "${planetName}" in ${creep.room.name} at (${position.x}, ${position.y})`, "claim_controller");
+      Log.success(`🏗️ Build a new construction site for Spawn "${planetName}" in ${creep.room} at (${position.x}, ${position.y})`, "claim_controller");
     } else {
-      Log.error(`Could not build Spawn in ${creep.room.name} at (${position.x}, ${position.y}). Error: ${global.getErrorString(result)}`, "claim_controller");
+      Log.error(`Could not build Spawn in ${creep.room} at (${position.x}, ${position.y}). Error: ${global.getErrorString(result)}`, "claim_controller");
     }
   }
 }

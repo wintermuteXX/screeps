@@ -147,7 +147,7 @@ class Traveler {
       state.cpu = _.round(cpuUsed + state.cpu);
       if (state.cpu > REPORT_CPU_THRESHOLD) {
         // see note at end of file for more info on this
-        Log.warn(`${Game.shard.name  } TRAVELER: heavy cpu use: ${  creep.name  }, cpu: ${  state.cpu  } origin: ${  creep.pos  }, dest: ${  destination}`);
+        Log.warn(`${Game.shard.name  } TRAVELER: heavy cpu use: ${  creep  }, cpu: ${  state.cpu  } origin: ${  creep.pos  }, dest: ${  destination}`);
         creep.memory._trav = {};
       }
       let color = "orange";
@@ -753,11 +753,11 @@ class Traveler {
   static addStructuresToMatrix(room, matrix, roadCost, options = {}) {
     for (const structure of room.find(FIND_STRUCTURES)) {
       if (structure.structureType === STRUCTURE_RAMPART) {
-        // Ramparts sind begehbar, außer fremde Ramparts (nicht my und nicht public)
+        // Ramparts are walkable, except hostile ramparts (not my and not public)
         if (!structure.my && !structure.isPublic) {
           matrix.set(structure.pos.x, structure.pos.y, 0xff);
         }
-        // Eigene oder öffentliche Ramparts sind begehbar (werden ignoriert)
+        // Own or public ramparts are walkable (ignored)
       } else if (structure.structureType === STRUCTURE_ROAD) {
         // Roads sind begehbar mit reduzierten Kosten
         if (matrix.get(structure.pos.x, structure.pos.y) < 0xff) {
@@ -774,11 +774,11 @@ class Traveler {
     }
     for (const site of room.find(FIND_MY_CONSTRUCTION_SITES)) {
       if (options.ignoreConstructionSites) {
-        continue; // Creeps können über alle ConstructionSites laufen (wenn explizit erlaubt)
+        continue; // Creeps can walk over construction sites (when explicitly allowed)
       }
       // Begehbare ConstructionSites: ROAD, CONTAINER, RAMPART (entsprechen fertigen Strukturen)
       if (site.structureType === STRUCTURE_ROAD) {
-        // Roads sind begehbar - optional könnten wir hier roadCost setzen, aber für ConstructionSites ignorieren wir sie
+        // Roads are walkable - we could set roadCost here, but ignore for construction sites
         continue;
       } else if (site.structureType === STRUCTURE_CONTAINER) {
         // Container sind begehbar
@@ -987,7 +987,8 @@ class Traveler {
     }
 
     if (!xferroom) return false;
-    Log.info(`TRAVELER: ${  creep.name  } found best move to ${  shard  } destination of ${  room  } through ${  nextShard  } - ${  nextRoom  } cpu ${  Game.cpu.getUsed() - count}`);
+    const roomLabel = Game.rooms[room] || room;
+    Log.info(`TRAVELER: ${  creep  } found best move to ${  shard  } destination of ${  roomLabel  } through ${  nextShard  } - ${  nextRoom  } cpu ${  Game.cpu.getUsed() - count}`);
     creep.memory._trav.ISM = {
       currentShard: Game.shard.name,
       shard: shard,

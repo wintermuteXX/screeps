@@ -12,7 +12,7 @@ class ControllerTower {
    * @param {StructureTower} tower - The tower to operate
    */
   _fire(tower) {
-    const targetList = this.room.getEnemys();
+    const targetList = this.room.getEnemies();
     if (targetList.length === 0) {
       return;
     }
@@ -29,7 +29,7 @@ class ControllerTower {
    */
   _repair(tower) {
     // Don't repair if enemies are present
-    if (this.room.getEnemys().length > 0) {
+    if (this.room.getEnemies().length > 0) {
       return;
     }
     if (tower.store[RESOURCE_ENERGY] <= CONSTANTS.STRUCTURE_ENERGY.TOWER_MIN) {

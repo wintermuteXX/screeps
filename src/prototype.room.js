@@ -21,7 +21,7 @@ Room.prototype.getRoomThreshold = function (resource, structure = "all") {
   return ResourceManager.getRoomThreshold(resource, structure);
 };
 
-// Wrapper für Fälle ohne Room-Kontext (z.B. in _initGlobal.js)
+// Wrapper for cases without room context (e.g. in _initGlobal.js)
 global.getRoomThreshold = function (resource, structure = "all") {
   return ResourceManager.getRoomThreshold(resource, structure);
 };
@@ -93,7 +93,7 @@ Room.prototype.toString = function (htmlLink = true) {
 };
 
 /**
- * Prüft ob ein Raum bereits geclaimt ist
+ * Check if a room is already claimed
  * @param {string} roomName - Name des Raums
  * @returns {boolean} True wenn Raum bereits geclaimt ist
  */
@@ -116,10 +116,10 @@ Room.isRoomClaimed = function (roomName) {
 };
 
 /**
- * Prüft ob bereits ein Claimer für einen Raum existiert
+ * Check if a claimer already exists for a room
  * @param {string} roomName - Name des Raums
  * @param {Array} existingClaimers - Array von existierenden Claimer Creeps
- * @returns {boolean} True wenn bereits ein Claimer für den Raum existiert
+ * @returns {boolean} True if a claimer already exists for the room
  */
 Room.hasClaimerForRoom = function (roomName, existingClaimers) {
   return existingClaimers.some(c => 
@@ -128,9 +128,9 @@ Room.hasClaimerForRoom = function (roomName, existingClaimers) {
 };
 
 /**
- * Prüft ob ein Raum für Claiming geeignet ist
+ * Check if a room is valid for claiming
  * @param {string} roomName - Name des Raums
- * @returns {boolean} True wenn Raum für Claiming geeignet ist
+ * @returns {boolean} True if the room is valid for claiming
  */
 Room.isRoomValidForClaiming = function (roomName) {
   if (!Memory.rooms || !Memory.rooms[roomName]) {
@@ -150,14 +150,14 @@ Room.isRoomValidForClaiming = function (roomName) {
     }
   }
   
-  // Prüfe ob Raum bereits von jemand anderem geclaimt ist
+  // Check if the room is already claimed by someone else
   if (controllerMemory && controllerMemory.owner && !controllerMemory.my) {
     return false;
   }
   
-  // Prüfe ob Layout-Generierung fehlgeschlagen ist
-  // layoutGenerated === false bedeutet: geprüft und kann nicht generiert werden
-  // layoutGenerated === undefined bedeutet: noch nicht geprüft (erlauben)
+  // Check if layout generation failed
+  // layoutGenerated === false means: checked and cannot be generated
+  // layoutGenerated === undefined means: not checked yet (allow)
   // layoutGenerated === true bedeutet: Layout existiert (erlauben)
   if (roomMemory.planner && roomMemory.planner.layoutGenerated === false) {
     return false;
@@ -330,12 +330,12 @@ Room.prototype.signController = function (creep) {
     // If pathfinding fails, mark as signed to avoid getting stuck
     if (moveResult !== OK && moveResult !== ERR_TIRED && moveResult !== ERR_NO_PATH) {
       roomMemory.controllerSigned = true;
-      Log.warn(`⚠️ ${creep} cannot reach controller in ${roomName} (pathfinding error: ${global.getErrorString(moveResult)}), marking as signed`, "sign_controller");
+      Log.warn(`⚠️ ${creep} cannot reach controller in ${this} (pathfinding error: ${global.getErrorString(moveResult)}), marking as signed`, "sign_controller");
       return true;
     } else if (moveResult === ERR_NO_PATH) {
       // If no path exists, mark as signed to avoid infinite retries
       roomMemory.controllerSigned = true;
-      Log.warn(`⚠️ ${creep} no path to controller in ${roomName}, marking as signed`, "sign_controller");
+      Log.warn(`⚠️ ${creep} no path to controller in ${this}, marking as signed`, "sign_controller");
       return true;
     }
     return true; // Movement initiated

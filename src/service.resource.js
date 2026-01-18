@@ -1,6 +1,6 @@
 /**
- * ResourceManager - Zentrale Klasse für alle Ressourcenberechnungen
- * Konsolidiert alle Funktionen, die Ressourcen in Räumen berechnen
+ * ResourceManager - Central class for all resource calculations
+ * Consolidates all functions that compute room resources
  */
 class ResourceManager {
   constructor() {

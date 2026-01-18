@@ -56,7 +56,7 @@ module.exports = {
       return assignedSources < sources.length;
     },
   },
-  // LONGTERM miner - create moving miner
+  // Long-term miner - create moving miner
 
   miner_mineral: {
     priority: 5,
@@ -132,8 +132,8 @@ module.exports = {
     wait4maxEnergy: true,
     namePrefix: "Spice_Refiner",
 
-    // Dynamischer Body basierend auf RCL
-    // RCL 8: Max energy per tick limit (CONSTANTS.CREEP_ENERGY.RCL8_MAX_PER_TICK), daher kleinerer Body
+    // Dynamic body based on RCL
+    // RCL 8: Max energy per tick limit (CONSTANTS.CREEP_ENERGY.RCL8_MAX_PER_TICK), so smaller body
     // RCL 1-7: Larger body for faster upgrading
     getUpgraderBody: function (rc) {
       const level = rc.getLevel();
@@ -180,7 +180,7 @@ module.exports = {
         return amount;
       }
 
-      // RCL 8: Nur 1 Upgrader (wegen 15 Energy/tick Limit)
+      // RCL 8: Only 1 upgrader (15 energy/tick limit)
       if (level === 8) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_RCL8;
       }
@@ -190,7 +190,7 @@ module.exports = {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_LOW;
       }
 
-      // RCL 5: Mittlere Anzahl
+      // RCL 5: Medium amount
       if (level === 5) {
         return upgraders.length < CONSTANTS.CREEP_LIMITS.UPGRADER_MID;
       }
@@ -210,7 +210,7 @@ module.exports = {
     minParts: 4,
     wait4maxEnergy: true,
     namePrefix: "Repair_Crawler",
-    body:generateBody([MOVE, CARRY, MOVE, WORK], 8),
+    body: generateBody([MOVE, CARRY, MOVE, WORK], 8),
     behaviors: ["renew:emergency", "build_structures", "repair"],
 
     canBuild: function (rc) {
@@ -230,7 +230,7 @@ module.exports = {
   attacker: {
     produceGlobal: false,
     priority: 3,
-    minLevel: 4,
+    levelMin: 4,
     minParts: 6,
     wait4maxEnergy: true,
     namePrefix: "Sardaukar",
@@ -247,7 +247,7 @@ module.exports = {
   defender: {
     produceGlobal: false,
     priority: 3,
-    minLevel: 2,
+    levelMin: 2,
     minParts: 6,
     wait4maxEnergy: true,
     namePrefix: "Shield_Wall",
@@ -265,7 +265,7 @@ module.exports = {
       const hasTowers = rc.room.towers && rc.room.towers.length > 0;
     
       // Check for hostile creeps
-      const hostiles = rc.getEnemys();
+      const hostiles = rc.getEnemies();
       const hasHostiles = hostiles.length > 0;
       
       // Check for boosted hostile creeps
@@ -282,7 +282,7 @@ module.exports = {
   supporter: {
     produceGlobal: false,
     priority: 6,
-    minLevel: 3,
+    levelMin: 3,
     minParts: 8,
     wait4maxEnergy: true,
     namePrefix: "Support_Crawler",
@@ -290,13 +290,13 @@ module.exports = {
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
     behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "upgrade_controller"],
     canBuild: function (rc) {
-      // Prüfe ob bereits genug Supporter existieren
+      // Check if enough supporters already exist
       const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");
       if (existingSupporters.length >= CONSTANTS.CREEP_LIMITS.SUPPORTER_MAX) {
         return false;
       }
 
-      // Prüfe ob roomToClaim gesetzt ist
+      // Check if roomToClaim is set
       if (!Memory.roomToClaim || !Memory.rooms || !Memory.rooms[Memory.roomToClaim]) {
         return false;
       }
@@ -305,12 +305,12 @@ module.exports = {
       const roomMemory = Memory.rooms[targetRoomName];
       const gameRoom = Game.rooms[targetRoomName];
 
-      // Prüfe ob Raum geclaimt ist
+      // Check if room is claimed
       if (!Room.isRoomClaimed(targetRoomName)) {
         return false;
       }
 
-      // Aktualisiere Memory falls nötig (wenn Game.rooms aktueller ist)
+      // Update memory when Game.rooms has newer data
       if (gameRoom && gameRoom.controller && gameRoom.controller.my) {
         // Use new unified structure: structures.controllers[controllerId]
         if (!roomMemory.structures) roomMemory.structures = {};
@@ -323,7 +323,7 @@ module.exports = {
         roomMemory.structures.controllers[controllerId].level = gameRoom.controller.level;
       }
 
-      // Prüfe ob Raum noch RCL < 3 hat
+      // Check if room is still below RCL 3
       // Use new structure
       let controllerLevel = null;
       if (roomMemory.structures && roomMemory.structures.controllers) {
@@ -339,12 +339,12 @@ module.exports = {
         return false;
       }
 
-      // Zähle wie viele Supporter bereits zu diesem Raum unterwegs sind oder dort sind
+      // Count supporters already assigned to or in this room
       const supportersForRoom = existingSupporters.filter(s => 
         s.memory.targetRoom === targetRoomName || (s.room && s.room.name === targetRoomName)
       );
 
-      // Max 2 Supporter pro Raum
+      // Max 2 supporters per room
       return supportersForRoom.length < 2;
     },
   },
@@ -352,7 +352,7 @@ module.exports = {
   claimer: {
     produceGlobal: false,
     priority: 6,
-    minLevel: 3,
+    levelMin: 3,
     minParts: 4,
     wait4maxEnergy: true,
     namePrefix: "Colonizer",
@@ -360,15 +360,15 @@ module.exports = {
     behaviors: ["claim_controller"],
 
     canBuild: function (rc) {
-      //temp
+      // Temporary: disable claimer spawning
       return false;
-      // Prüfe ob bereits ein Claimer existiert
+      // Check if a claimer already exists
       const existingClaimers = _.filter(Game.creeps, (c) => c.memory.role === "claimer");
       if (existingClaimers.length >= CONSTANTS.CREEP_LIMITS.CLAIMER_MAX) {
         return false;
       }
 
-      // Wenn roomToClaim gesetzt ist, prüfe ob Spawning erlaubt ist
+      // If roomToClaim is set, check if spawning is allowed
       if (Memory.roomToClaim) {
         if (Room.hasClaimerForRoom(Memory.roomToClaim, existingClaimers)) {
           return false;
@@ -385,7 +385,7 @@ module.exports = {
     minParts: 1,
     wait4maxEnergy: false,
     namePrefix: "Explorer",
-    body: [MOVE], // Nur 1 MOVE part
+    body: [MOVE], // Only 1 MOVE part
     behaviors: ["scout", "sign_controller", "recycle"],
 
     canBuild: function (rc) {
@@ -398,7 +398,7 @@ module.exports = {
         return false;
       }
 
-      // Maximal 1 Scout pro HomeRoom - check if scout with this homeRoom already exists
+      // Max 1 scout per home room - check if scout already exists
       const homeRoom = rc.room.name;
       const existingScouts = _.filter(Game.creeps, (c) => {
         return c.memory.role === "scout" && c.memory.home === homeRoom;
@@ -407,8 +407,8 @@ module.exports = {
         return false;
       }
 
-      // Prüfe ob überhaupt ein Raum besucht werden muss
-      // Erstelle ein Mock-Creep-Objekt für findUnvisitedRoom
+      // Check if a room still needs scouting
+      // Create a mock creep object for findUnvisitedRoom
       const mockCreep = {
         room: rc.room,
         memory: { home: homeRoom },

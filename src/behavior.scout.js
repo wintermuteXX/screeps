@@ -44,6 +44,7 @@ class ScoutBehavior extends Behavior {
 
   work(creep, rc) {
     const roomName = creep.room.name;
+    const roomLabel = creep.room;
     Room.ensureMemory(roomName);
 
     // Track current room for next tick
@@ -87,7 +88,7 @@ class ScoutBehavior extends Behavior {
 
     // Analyze room if it needs analysis (only if we're not on exit tile)
     if (!isOnExitTile && Room.needsAnalysis(roomName)) {
-      Log.success(`🔍 ${creep} Analyzing room ${roomName}`, "scout");
+      Log.success(`🔍 ${creep} Analyzing room ${roomLabel}`, "scout");
       global.analyzeRoom(creep.room, true);
       
       // Versuche Layout zu generieren wenn Raum gerade betreten wurde
@@ -96,12 +97,12 @@ class ScoutBehavior extends Behavior {
           const planner = new RoomPlanner(creep.room);
           const layoutGenerated = planner.tryGenerateLayout();
           if (layoutGenerated) {
-            Log.success(`✅ ${creep} Layout für ${roomName} erfolgreich generiert`, "scout");
+            Log.success(`✅ ${creep} layout for ${roomLabel} generated successfully`, "scout");
           } else {
-            Log.warn(`⚠️ ${creep} Layout-Generierung für ${roomName} fehlgeschlagen`, "scout");
+            Log.warn(`⚠️ ${creep} layout generation failed for ${roomLabel}`, "scout");
           }
         } catch (error) {
-          Log.error(`❌ ${creep} Fehler bei Layout-Generierung für ${roomName}: ${error}`, "scout");
+          Log.error(`❌ ${creep} error during layout generation for ${roomLabel}: ${error}`, "scout");
         }
       }
     }
@@ -115,7 +116,8 @@ class ScoutBehavior extends Behavior {
       if (nextRoom) {
         targetRoom = nextRoom.roomName;
         creep.memory.scoutTarget = targetRoom;
-        Log.success(`🔍 ${creep} starting analysis journey to ${Game.rooms[targetRoom]} (${nextRoom.distance} hops away)`, "scout");
+        const targetRoomLabel = Game.rooms[targetRoom] || targetRoom;
+        Log.success(`🔍 ${creep} starting analysis journey to ${targetRoomLabel} (${nextRoom.distance} hops away)`, "scout");
       } else {
         // No more unvisited rooms - return to home room
         const homeRoom = creep.memory.home;

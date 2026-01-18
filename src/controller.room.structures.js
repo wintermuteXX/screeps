@@ -7,6 +7,10 @@ class StructuresManager {
     this.rc = roomController;
   }
 
+  /**
+   * Find structures that need repair (sorted by hits)
+   * @returns {Structure[]} Array of structures
+   */
   findStructuresToRepair() {
     return this.rc.cache.get("structuresToRepair", () => {
       const structures = _.filter(this.rc.find(FIND_STRUCTURES), (s) => s.needsRepair());
@@ -14,7 +18,11 @@ class StructuresManager {
     });
   }
 
-  getEnemys() {
+  /**
+   * Find hostile creeps in the room
+   * @returns {Creep[]} Array of hostile creeps
+   */
+  getEnemies() {
     return this.rc.cache.get("enemies", () => {
       const allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_", "xylist"];
       const allowedSet = new Set(allowedNameList); // O(1) lookup
@@ -24,6 +32,14 @@ class StructuresManager {
     });
   }
 
+  /**
+   * Build a list of structures that need a resource
+   * @param {Structure[]} structures - Structures to evaluate
+   * @param {ResourceConstant} resource - Resource type
+   * @param {number} prio - Priority value
+   * @param {number} threshold - Minimum free capacity
+   * @returns {Array} Needs array
+   */
   structuresNeedResource(structures, resource, prio, threshold) {
     // Filter out null/undefined structures and those with enough resources
     const filtered = _.filter(structures, (s) => s && s.store && s.store.getFreeCapacity(resource) > (threshold || 0));
@@ -82,13 +98,17 @@ class StructuresManager {
    * Adjusts wall hits target based on available energy in terminal
    * Increases wallHits when terminal has excess energy
    */
+  /**
+   * Adjust wall hits target based on available energy
+   * @returns {void}
+   */
   adjustWallHits() {
     const {room} = this.rc;
     if (!room.terminal || !room.terminal.my) {
       return null;
     }
     if (ResourceManager.getResourceAmount(room, RESOURCE_ENERGY, "terminal") > room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
-      Log.success(`Increased the wallHits in room ${room.name}`);
+      Log.success(`Increased wallHits in ${room}`);
       room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
     }
   }

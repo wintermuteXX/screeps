@@ -408,8 +408,8 @@ class LogisticsManager {
    * PARAMETER EXPLANATION:
    * - currentAmount: IST-Zustand - wie viel Ressourcen aktuell im Storage sind (z.B. 15000)
    * - fillLevel: SOLL-Zustand - wie viel Ressourcen im Storage sein SOLLTEN (Zielwert aus Konfiguration)
-   *              Beispiel: 30000 für Energy, 21000 für Mineralien
-   *              Wird über room.getRoomThreshold(resourceType, "storage") berechnet
+   *              Example: 30000 for energy, 21000 for minerals
+   *              Computed via room.getRoomThreshold(resourceType, "storage")
    * 
    * PRIORITY LOGIC:
    * - Energy: 
@@ -855,7 +855,7 @@ class LogisticsManager {
     if (!this.rc.room.controller || !this.rc.room.controller.my) return;
 
     // Determine tower priority based on enemies
-    const towerPriority = this.rc.structures.getEnemys().length > 0
+    const towerPriority = this.rc.structures.getEnemies().length > 0
       ? CONSTANTS.PRIORITY.TOWER_ENEMY
       : CONSTANTS.PRIORITY.TOWER_NORMAL;
 

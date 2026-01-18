@@ -7,7 +7,7 @@ const Log = require("./lib.log");
  * Brings the creep to a spawn to recycle it and recover energy
  *
  * Usage: Add as last behavior in the list
- * z.B.: behaviors: ["miner_harvest_mineral", "recycle"]
+ * e.g.: behaviors: ["miner_harvest_mineral", "recycle"]
  */
 class RecycleBehavior extends Behavior {
   constructor() {
@@ -46,7 +46,7 @@ class RecycleBehavior extends Behavior {
 
   work(creep, rc) {
     // First: Try to find spawn in current room (only own spawns)
-    let spawn = rc.getIdleSpawnObject();
+    let spawn = rc.getIdleSpawn();
     if (spawn && !spawn.my) {
       spawn = null; // Not our spawn, ignore it
     }
@@ -97,7 +97,7 @@ class RecycleBehavior extends Behavior {
           creep.travelTo(spawn);
           break;
         default:
-          Log.warn(`${creep} Recycle-Fehler: ${global.getErrorString(result)}`, "recycle");
+          Log.warn(`${creep} recycle error: ${global.getErrorString(result)}`, "recycle");
       }
     } else {
       creep.travelTo(spawn);

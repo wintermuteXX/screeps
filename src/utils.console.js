@@ -844,12 +844,12 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
     
     const scorePos = new RoomPosition(xOffsetLeft, 6, roomName);
     Game.map.visual.text(scoreText, scorePos, {
-      size: 0.20,  // 30% der ursprünglichen Größe (0.2 * 0.3 = 0.06)
+      size: 0.20,  // 30% of the original size (0.2 * 0.3 = 0.06)
       color: scoreColor,
       align: "left",
       opacity: 0.8,
     });
-    xOffsetLeft += scoreText.length * 0.05 + 0.2; // Space after score (angepasst für kleinere Schrift)
+    xOffsetLeft += scoreText.length * 0.05 + 0.2; // Space after score (adjusted for smaller text)
     hasInfo = true;
   }
 
@@ -917,12 +917,12 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
     
     const mineralPos = new RoomPosition(xOffsetLeft, 15, roomName);
     Game.map.visual.text(mineralShort, mineralPos, {
-      size: 0.20,  // 30% der ursprünglichen Größe (0.2 * 0.3 = 0.06), passend zur Score-Größe
+      size: 0.20,  // 30% of the original size (0.2 * 0.3 = 0.06), matching score size
       color: mineralColor,
       align: "left",
       opacity: 0.8,
     });
-    xOffsetLeft += mineralShort.length * 0.05 + 0.2; // Space after mineral (angepasst für kleinere Schrift)
+    xOffsetLeft += mineralShort.length * 0.05 + 0.2; // Space after mineral (adjusted for smaller text)
     hasInfo = true;
   }
 
@@ -932,7 +932,7 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   if (sourceDots) {
     const dotsPos = new RoomPosition(49, 5, roomName);
     Game.map.visual.text(sourceDots, dotsPos, {
-      size: 1.5,  // Doppelt so groß (0.25 * 2 = 0.5)
+      size: 1.5,  // Double size (0.25 * 2 = 0.5)
       color: "#ffff00",
       align: "right",
       opacity: 0.9,
@@ -953,9 +953,9 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
     });
     // Background for right side (sources) if present
     if (sourceDots) {
-      const bgWidthRight = sourceDots.length * 0.3 + 0.5;  // Angepasst für größere Schrift (0.15 * 2 = 0.3)
+      const bgWidthRight = sourceDots.length * 0.3 + 0.5;  // Adjusted for larger text (0.15 * 2 = 0.3)
       const bgPosRight = new RoomPosition(49 - bgWidthRight + 0.3, 0.3, roomName);
-      Game.map.visual.rect(bgPosRight, bgWidthRight, 0.7, {  // Höhe leicht erhöht für größere Schrift
+      Game.map.visual.rect(bgPosRight, bgWidthRight, 0.7, {  // Height slightly increased for larger text
         fill: "#000000",
         opacity: 0.6,
         stroke: "#000000",

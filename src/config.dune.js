@@ -1,5 +1,5 @@
 // Dune-Universum Konfiguration
-// Liste aller verfügbaren Planetennamen
+// List of all available planet names
 
 const DUNE_PLANETS = [
   "Arrakis",
@@ -56,7 +56,7 @@ const DUNE_MESSAGES = [
 ];
 
 /**
- * Wählt einen zufälligen Planetennamen aus allen verfügbaren Planeten
+ * Choose a random planet name from all available planets
  * @returns {string} Planetname
  */
 function getRandomPlanet() {

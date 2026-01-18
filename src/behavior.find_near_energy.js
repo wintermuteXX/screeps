@@ -8,12 +8,12 @@ class FindNearEnergyBehavior extends Behavior {
   }
 
   when(creep) {
-    Log.info(`${creep.room.name} ${creep.name} is checking "when" condition`, "find_near_energy");
+    Log.info(`${creep.room} ${creep} is checking "when" condition`, "find_near_energy");
     return creep.store[RESOURCE_ENERGY] === 0;
   }
 
   completed(creep, rc) {
-    Log.info(`${creep.room.name} ${creep.name} is checking "completed" condition`, "find_near_energy");
+    Log.info(`${creep.room} ${creep} is checking "completed" condition`, "find_near_energy");
     // Completed when creep has energy
     if (creep.store[RESOURCE_ENERGY] > 0) return true;
 
@@ -27,7 +27,7 @@ class FindNearEnergyBehavior extends Behavior {
   }
 
   work(creep, rc) {
-    Log.info(`${creep.room.name} ${creep.name} is performing "work" condition`, "find_near_energy");
+    Log.info(`${creep.room} ${creep} is performing "work" condition`, "find_near_energy");
     let target = creep.getTarget();
     const {controller} = rc.room;
 
@@ -62,11 +62,11 @@ class FindNearEnergyBehavior extends Behavior {
         if (target.structureType) {
           result = creep.withdraw(target, RESOURCE_ENERGY);
         } else {
-          // DroppedResource - prüfe ob es wirklich Energy ist
+          // Dropped resource - check if it is actually energy
           if (target.resourceType === RESOURCE_ENERGY) {
             result = creep.pickup(target);
           } else {
-            // Falsche Ressourcenart - Target löschen
+            // Wrong resource type - clear target
             creep.target = null;
             result = ERR_INVALID_ARGS;
           }

@@ -18,7 +18,7 @@ module.exports = {
 
   // CPU Analysis Configuration
   CPU_ANALYSIS: {
-    HISTORY_SIZE: 500,              // Anzahl Ticks für rollierenden Durchschnitt
+    HISTORY_SIZE: 500,              // Number of ticks for rolling average
     CHECK_INTERVAL: 100,            // CPU-Analyse alle N Ticks
     CONQUER_THRESHOLD_AVG: 0.8,     // Max 80% CPU-Durchschnitt
     CONQUER_THRESHOLD_BUCKET: 2000, // Min Bucket-Level

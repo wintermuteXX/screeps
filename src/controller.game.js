@@ -46,22 +46,22 @@ class ControllerGame {
   }
 
   /**
-   * Findet den besten Raum für Claiming und setzt Memory.roomToClaim
-   * Wird zyklisch alle 100 Ticks ausgeführt
+   * Find the best room to claim and set Memory.roomToClaim
+   * Runs every 100 ticks
    */
   findBestRoomForClaiming() {
-    // Nur ausführen wenn roomToClaim nicht bereits gesetzt ist
+    // Only run if roomToClaim is not already set
     if (Memory.roomToClaim) {
       return;
     }
 
-    // Prüfe CPU-Analyse
+    // Check CPU analysis
     const decision = cpuAnalyzer.canConquerNewRoom();
     if (!decision.canConquer) {
       return;
     }
 
-    // Finde den Raum mit der höchsten Bewertung, der noch nicht geclaimt ist
+    // Find the highest scored room that is not yet claimed
     if (!Memory.rooms) {
       return;
     }
@@ -72,31 +72,31 @@ class ControllerGame {
     for (const roomName in Memory.rooms) {
       const roomMemory = Memory.rooms[roomName];
 
-      // Prüfe ob Raum einen Score hat
+      // Check if room has a score
       if (!roomMemory.score || !roomMemory.score.total) {
         continue;
       }
 
-      // Prüfe ob Raum für Claiming geeignet ist
+      // Check if room is valid for claiming
       if (!Room.isRoomValidForClaiming(roomName)) {
         continue;
       }
 
-      // Prüfe ob Score höher ist als bisheriger bester Score
+      // Check if score is higher than current best
       if (roomMemory.score.total > bestScore) {
         bestScore = roomMemory.score.total;
         bestRoom = roomName;
       }
     }
 
-    // Wenn ein geeigneter Raum gefunden wurde, setze roomToClaim
+    // If a suitable room was found, set roomToClaim
     if (bestRoom) {
       Memory.roomToClaim = bestRoom;
     }
   }
 
   processRooms() {
-    // Finde besten Raum für Claiming zyklisch (alle 100 Ticks)
+    // Find best room for claiming periodically (every 100 ticks)
     if (Game.time % CONSTANTS.TICKS.FIND_CLAIM_ROOM === 0) {
       this.findBestRoomForClaiming();
     }

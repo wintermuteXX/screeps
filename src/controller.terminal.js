@@ -129,7 +129,7 @@ class ControllerTerminal {
       // Adjust Price
       const newPrice = this.calcHighestSellingPrice(theMineralType, terminal.store[theMineralType]);
       if (Math.abs(existingOrder.price - newPrice) > 0.01) {
-        Log.info(`${terminal.room.name} changed sell price from ${existingOrder.price} to ${newPrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
+        Log.info(`${terminal.room} changed sell price from ${existingOrder.price} to ${newPrice} for ${global.resourceImg(theMineralType)}`, "sellRoomMineral");
         Game.market.changeOrderPrice(existingOrder.id, newPrice);
       }
 
