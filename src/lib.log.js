@@ -153,7 +153,7 @@ class Log {
    * @param {string} [tag] - Optional tag for filtering logs
    */
   static toConsole(msg, color, tag) {
-    if (tag) console.log(`<font color=${color}>[${Game.time}][${tag}] ${msg}</font>`);
+    if (tag) console.logUnsafe(`<font color=${color}>[${Game.time}][${tag}] ${msg}</font>`);
     else console.log(`<font color=${color}>[${Game.time}] ${msg}</font>`);
   }
 

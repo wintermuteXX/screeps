@@ -69,6 +69,10 @@ class LogisticsManager {
         // Get give object (only if we have a valid match)
         const giveObj = Game.getObjectById(give.id);
         if (!giveObj) continue;
+        if (giveObj.store) {
+          const currentAmount = giveObj.store[give.resourceType] || 0;
+          if (currentAmount <= 0) continue;
+        }
 
         // Calculate distances using cached objects
         const giveDistance = creepPos.getRangeTo(giveObj);
@@ -1004,18 +1008,18 @@ class LogisticsManager {
           }
         }
       } else {
-        // Minerals - only add need if terminal has free capacity and we actually need this mineral
-        // Skip if terminal is full or if we don't need this specific mineral
+        // Non-energy resources: fill to target, then overflow to free capacity
         if (freeCapacity <= 0) {
           continue;
         }
-        // Only add mineral need if we're below fill level or terminal is empty
         const fillLevel = this.rc.room.getRoomThreshold(resourceType, "terminal");
-        if (currentAmount < fillLevel || currentAmount === 0) {
+        if (currentAmount < fillLevel) {
           priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
           neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
         } else {
-          continue; // Skip if already at fill level
+          // Overflow for all resources
+          priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+          neededAmount = freeCapacity;
         }
       }
 

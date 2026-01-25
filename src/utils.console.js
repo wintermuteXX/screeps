@@ -94,7 +94,7 @@ function help(category = "all") {
   result.push(`<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: ${categories}</p>`);
 
   const resultString = result.join("");
-  console.log(resultString);
+  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -118,7 +118,7 @@ function showTerminals() {
     result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No terminals found in owned rooms</td></tr>');
     result.push("</table>");
     const resultString = result.join("");
-    console.log(resultString);
+    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -138,7 +138,7 @@ function showTerminals() {
     result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">All terminals are empty</td></tr>');
     result.push("</table>");
     const resultString = result.join("");
-    console.log(resultString);
+    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -174,7 +174,7 @@ function showTerminals() {
 
   result.push("</table>");
   const resultString = result.join("");
-  console.log(resultString);
+  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -224,7 +224,7 @@ function showLabs() {
     result.push('<tr><td colspan="7" style="padding: 5px; color: #888;">No labs found in owned rooms</td></tr>');
     result.push("</table>");
     const resultString = result.join("");
-    console.log(resultString);
+    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -307,7 +307,7 @@ function showLabs() {
 
   result.push("</table>");
   const resultString = result.join("");
-  console.log(resultString);
+  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -496,10 +496,10 @@ function recursiveMemoryProfile(memoryObject, sizes, currentDepth) {
  */
 function profileMemory(root = Memory, depth = 1) {
   const sizes = {};
-  console.log(`Profiling memory...`);
+  console.logUnsafe(`Profiling memory...`);
   const start = Game.cpu.getUsed();
   recursiveMemoryProfile(root, sizes, depth);
-  console.log(`Time elapsed: ${Game.cpu.getUsed() - start}`);
+  console.logUnsafe(`Time elapsed: ${Game.cpu.getUsed() - start}`);
   return JSON.stringify(sizes, undefined, "\t");
 }
 
@@ -535,7 +535,7 @@ function cleanMemory(memoryType, propertyName) {
     ? `Cleaned memory: Removed "${propertyName}" from ${cleaned} ${memoryType.slice(0, -1)}(s)`
     : `No "${propertyName}" entries found in ${memoryType}`;
   
-  console.log(message);
+  console.logUnsafe(message);
   return message;
 }
 
@@ -699,7 +699,7 @@ function showLogistic(roomName = null) {
 
   result.push("</table>");
   const resultString = result.join("");
-  console.log(resultString);
+  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -709,14 +709,14 @@ function showLogistic(roomName = null) {
  */
 function showCPU() {
   if (!Memory.cpuHistory || Memory.cpuHistory.length < 2) {
-    console.log("No CPU data - Insufficient CPU history data (need at least 2 samples)");
+    console.logUnsafe("No CPU data - Insufficient CPU history data (need at least 2 samples)");
     return;
   }
 
   const stats = cpuAnalyzer.getStatistics(100);
   const decision = cpuAnalyzer.canConquerNewRoom();
 
-  console.log(`CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`);
+  console.logUnsafe(`CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`);
 }
 
 /**
@@ -982,7 +982,7 @@ function showScout(centerRoom = null, duration = null) {
     if (Memory.scoutVisualization) {
       delete Memory.scoutVisualization;
       Game.map.visual.clear();
-      console.log("✅ Scout visualization disabled");
+      console.logUnsafe("✅ Scout visualization disabled");
     }
     return;
   }
@@ -1007,13 +1007,13 @@ function showScout(centerRoom = null, duration = null) {
   }
 
   if (!centerRoom) {
-    console.log("No owned room found for center. Usage: showScout('W1N1')");
+    console.logUnsafe("No owned room found for center. Usage: showScout('W1N1')");
     return;
   }
 
   // Iterate through all rooms in memory
   if (!Memory.rooms) {
-    console.log("No room memory found. Scout needs to explore rooms first.");
+    console.logUnsafe("No room memory found. Scout needs to explore rooms first.");
     return;
   }
 
@@ -1031,10 +1031,10 @@ function showScout(centerRoom = null, duration = null) {
     enabled: true,
   };
 
-  console.log(`✅ Scout data visualized: ${roomsVisualized} rooms shown on world map (center: ${centerRoom})`);
-  console.log(`   Visualization will persist for ${visualizationDuration} ticks (until tick ${Game.time + visualizationDuration})`);
-  console.log("   Use showScout(false) to disable early");
-  console.log("Legend: ✓=Owned, ○=Free, ★=Core(3s), ●=2s, ⚠=Hostile, ·=Explored, ?=Old data");
+  console.logUnsafe(`✅ Scout data visualized: ${roomsVisualized} rooms shown on world map (center: ${centerRoom})`);
+  console.logUnsafe(`   Visualization will persist for ${visualizationDuration} ticks (until tick ${Game.time + visualizationDuration})`);
+  console.logUnsafe("   Use showScout(false) to disable early");
+  console.logUnsafe("Legend: ✓=Owned, ○=Free, ★=Core(3s), ●=2s, ⚠=Hostile, ·=Explored, ?=Old data");
 }
 
 /**
@@ -1107,7 +1107,7 @@ function showRclUpgradeTimes() {
     result.push('<tr><td colspan="9" style="padding: 5px; color: #888;">No owned rooms found</td></tr>');
     result.push("</table>");
     const resultString = result.join("");
-    console.log(resultString);
+    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -1132,7 +1132,7 @@ function showRclUpgradeTimes() {
     result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No RCL upgrade time data available</td></tr>');
     result.push("</table>");
     const resultString = result.join("");
-    console.log(resultString);
+    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -1235,7 +1235,7 @@ function showRclUpgradeTimes() {
   result.push('<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>');
   
   const resultString = result.join("");
-  console.log(resultString);
+  console.logUnsafe(resultString);
   return resultString;
 }
 
