@@ -17,7 +17,7 @@ class TransportBehavior extends Behavior {
   }
 
   /**
-   * When: Active if creep has resources OR has a pending target OR there might be work
+   * When: Active if creep has resources OR has a pending target OR is a transporter role
    */
   when(creep, rc) {
     // If creep has resources, always active (need to deliver)
@@ -28,8 +28,11 @@ class TransportBehavior extends Behavior {
     if (creep.memory.transportTarget) {
       return true;
     }
-    // Check if there are any resources to transport (cheap check)
-    // Don't call expensive getTransportOrder() here - let work() handle it
+    // For transporter role, always check for work (let work() handle finding orders)
+    if (creep.memory.role === "transporter") {
+      return true;
+    }
+    // Fallback: check if givesResources cache exists and has items
     return rc._givesResources && rc._givesResources.length > 0;
   }
 
