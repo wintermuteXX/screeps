@@ -40,19 +40,13 @@ class MinerHarvestMineralBehavior extends Behavior {
       return;
     }
 
-    // Setup: store destination and target (if in correct room with mineral)
-    if (creep.room.mineral) {
-      // Always update target to current room's mineral
-      if (!creep.memory.target) {
-        creep.memory.target = creep.room.mineral.id;
-      }
-      // Set destination if not yet set
-      if (!creep.memory.mineralDest) {
-        const dest = (creep.room.extractor && creep.room.extractor.container)
-          ? creep.room.extractor.container.pos
-          : creep.room.mineral.pos;
-        creep.memory.mineralDest = { x: dest.x, y: dest.y, room: dest.roomName };
-      }
+    // First time setup: store destination position (works across rooms!)
+    if (!creep.memory.mineralDest && creep.room.mineral) {
+      const dest = (creep.room.extractor && creep.room.extractor.container)
+        ? creep.room.extractor.container.pos
+        : creep.room.mineral.pos;
+      creep.memory.mineralDest = { x: dest.x, y: dest.y, room: dest.roomName };
+      creep.memory.target = creep.room.mineral.id;
     }
 
     const dest = creep.memory.mineralDest;
@@ -67,12 +61,11 @@ class MinerHarvestMineralBehavior extends Behavior {
       return;
     }
 
-    // At destination - harvest mineral
+    // At destination - harvest on cooldown
     const target = Game.getObjectById(creep.memory.target);
-    if (target) {
+    if (target && Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
       const result = creep.harvest(target);
-      // Only warn on unexpected errors (not cooldown or range issues)
-      if (result !== OK && result !== ERR_NOT_IN_RANGE && result !== ERR_TIRED && result !== ERR_BUSY) {
+      if (result !== OK && result !== ERR_NOT_IN_RANGE) {
         Log.warn(`${creep} harvest mineral error: ${global.getErrorString(result)}`, "Creep");
       }
     }
