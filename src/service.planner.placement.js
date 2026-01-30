@@ -9,9 +9,7 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
    */
   RoomPlanner.prototype._detectExistingSpecialStructures = function () {
     // Detect containers and links at sources
-    const sources = this.cache.get("sources", () => {
-      return this.room.find(FIND_SOURCES);
-    });
+    const sources = this.room.find(FIND_SOURCES);
     for (let i = 0; i < sources.length; i++) {
       const source = sources[i];
       const containerIdentifier = `source_${i}`;
@@ -89,9 +87,7 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
    * Platziert Construction Sites basierend auf RCL
    */
   RoomPlanner.prototype._placeConstructionSites = function (rcl) {
-    const existingSites = this.cache.get("constructionSites", () => {
-      return this.room.find(FIND_CONSTRUCTION_SITES);
-    });
+    const existingSites = this.room.find(FIND_CONSTRUCTION_SITES);
 
     // Limit for Construction Sites (max 100 per room, but we limit to fewer for efficiency)
     if (existingSites.length >= CONSTANTS.PLANNER.MAX_CONSTRUCTION_SITES) {
@@ -263,9 +259,7 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
    * Platziert Extractor beim Mineral
    */
   RoomPlanner.prototype._placeExtractor = function () {
-    const minerals = this.cache.get("minerals", () => {
-      return this.room.find(FIND_MINERALS);
-    });
+    const minerals = this.room.find(FIND_MINERALS);
     if (minerals.length === 0) return;
 
     const mineral = minerals[0];
@@ -296,9 +290,7 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
    * Platziert Container bei Sources
    */
   RoomPlanner.prototype._placeSourceContainers = function () {
-    const sources = this.cache.get("sources", () => {
-      return this.room.find(FIND_SOURCES);
-    });
+    const sources = this.room.find(FIND_SOURCES);
 
     for (let i = 0; i < sources.length; i++) {
       const source = sources[i];
@@ -335,9 +327,7 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
    * Platziert Links bei Sources
    */
   RoomPlanner.prototype._placeSourceLinks = function () {
-    const sources = this.cache.get("sources", () => {
-      return this.room.find(FIND_SOURCES);
-    });
+    const sources = this.room.find(FIND_SOURCES);
 
     for (let i = 0; i < sources.length; i++) {
       const source = sources[i];

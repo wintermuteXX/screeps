@@ -64,18 +64,14 @@ module.exports = function applyPlannerMemory(RoomPlanner) {
     this._structureCounts = {};
 
     // Count structures by type
-    const structures = this.cache.get("structures", () => {
-      return this.room.find(FIND_STRUCTURES);
-    });
+    const structures = this.room.find(FIND_STRUCTURES);
     for (const s of structures) {
       const type = s.structureType;
       this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;
     }
 
     // Count construction sites by type
-    const sites = this.cache.get("constructionSites", () => {
-      return this.room.find(FIND_CONSTRUCTION_SITES);
-    });
+    const sites = this.room.find(FIND_CONSTRUCTION_SITES);
     for (const s of sites) {
       const type = s.structureType;
       this._structureCounts[type] = (this._structureCounts[type] || 0) + 1;

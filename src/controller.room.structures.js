@@ -12,10 +12,8 @@ class StructuresManager {
    * @returns {Structure[]} Array of structures
    */
   findStructuresToRepair() {
-    return this.rc.cache.get("structuresToRepair", () => {
-      const structures = _.filter(this.rc.find(FIND_STRUCTURES), (s) => s.needsRepair());
-      return _.sortBy(structures, (s) => s.hits);
-    });
+    const structures = _.filter(this.rc.find(FIND_STRUCTURES), (s) => s.needsRepair());
+    return _.sortBy(structures, (s) => s.hits);
   }
 
   /**
@@ -23,12 +21,10 @@ class StructuresManager {
    * @returns {Creep[]} Array of hostile creeps
    */
   getEnemies() {
-    return this.rc.cache.get("enemies", () => {
-      const allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_", "xylist"];
-      const allowedSet = new Set(allowedNameList); // O(1) lookup
-      return this.rc.room.find(FIND_HOSTILE_CREEPS, {
-        filter: (foundCreep) => !allowedSet.has(foundCreep.owner.username),
-      });
+    const allowedNameList = ["lur", "starwar15432", "leonyx", "lisp", "rubra", "thekraken", "apemanzilla", "iskillet", "Tada_", "xylist"];
+    const allowedSet = new Set(allowedNameList); // O(1) lookup
+    return this.rc.room.find(FIND_HOSTILE_CREEPS, {
+      filter: (foundCreep) => !allowedSet.has(foundCreep.owner.username),
     });
   }
 

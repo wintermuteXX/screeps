@@ -68,9 +68,7 @@ module.exports = function applyPlannerLayout(RoomPlanner) {
    * Findet das Zentrum basierend auf dem ersten Spawn
    */
   RoomPlanner.prototype._findCenter = function () {
-    const spawns = this.cache.get("mySpawns", () => {
-      return this.room.find(FIND_MY_SPAWNS);
-    });
+    const spawns = this.room.find(FIND_MY_SPAWNS);
 
     if (spawns.length > 0) {
       // Use first spawn as center
@@ -102,9 +100,7 @@ module.exports = function applyPlannerLayout(RoomPlanner) {
    * Calculates the optimal center position
    */
   RoomPlanner.prototype._calculateOptimalCenter = function () {
-    const sources = this.cache.get("sources", () => {
-      return this.room.find(FIND_SOURCES);
-    });
+    const sources = this.room.find(FIND_SOURCES);
     const { controller } = this.room;
 
     if (!controller) return null;

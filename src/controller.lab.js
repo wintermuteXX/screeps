@@ -126,6 +126,9 @@ class ControllerLab {
     if (!lab1 || !lab2 || !lab3) {
       return false;
     }
+    if (!lab1.pos || !lab2.pos || !lab3.pos) {
+      return false;
+    }
     return lab1.pos.inRangeTo(lab2.pos, CONSTANTS.LAB.RANGE) &&
            lab1.pos.inRangeTo(lab3.pos, CONSTANTS.LAB.RANGE);
   }

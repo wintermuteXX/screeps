@@ -7,14 +7,22 @@ class MinerHarvestMineralBehavior extends Behavior {
   }
 
   when(creep, rc) {
-    return creep.room.extractor && creep.room.mineral.mineralAmount > 0;
+    return (
+      creep.room.extractor &&
+      creep.room.mineral &&
+      creep.room.mineral.mineralAmount > 0
+    );
   }
 
   completed(creep) {
-    return creep.room.mineral.mineralAmount === 0;
+    return !creep.room.mineral || creep.room.mineral.mineralAmount === 0;
   }
 
   work(creep, rc) {
+    if (!creep.room.mineral) {
+      return;
+    }
+
     let target = creep.getTarget();
 
     if (target === null) {

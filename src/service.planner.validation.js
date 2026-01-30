@@ -80,9 +80,7 @@ module.exports = function applyPlannerValidation(RoomPlanner) {
    * Helper: Checks if position is too close to sources (Range=2)
    */
   RoomPlanner.prototype._isTooCloseToSource = function (x, y) {
-    const sources = this.cache.get("sources", () => {
-      return this.room.find(FIND_SOURCES);
-    });
+    const sources = this.room.find(FIND_SOURCES);
     return this._isTooCloseToTargets(x, y, sources, 2);
   };
 
@@ -101,9 +99,7 @@ module.exports = function applyPlannerValidation(RoomPlanner) {
    * Helper: Checks if position is too close to mineral (Range=2)
    */
   RoomPlanner.prototype._isTooCloseToMineral = function (x, y) {
-    const minerals = this.cache.get("minerals", () => {
-      return this.room.find(FIND_MINERALS);
-    });
+    const minerals = this.room.find(FIND_MINERALS);
     return this._isTooCloseToTargets(x, y, minerals, 2);
   };
 

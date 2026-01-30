@@ -9,14 +9,12 @@ const CreepManager = require("./controller.room.creeps");
 const LogisticsManager = require("./controller.room.logistics");
 const StructuresManager = require("./controller.room.structures");
 const RoomPlanner = require("./service.planner");
-const CacheManager = require("./utils.cache");
 const Log = require("./lib.log");
 
 class ControllerRoom {
   constructor(room, controllerGame) {
     this.room = room;
     this.controllerGame = controllerGame;
-    this.cache = new CacheManager();
 
     this._creepsByRole = null;
     this._givesResources = null;
@@ -177,9 +175,7 @@ class ControllerRoom {
    * @returns {Array} Found objects
    */
   find(type) {
-    return this.cache.get(`find_${type}`, () => {
-      return this.room.find(type);
-    });
+    return this.room.find(type);
   }
 
   /**
@@ -248,13 +244,11 @@ class ControllerRoom {
    * @returns {number} Total amount
    */
   getDroppedResourcesAmount() {
-    return this.cache.get("droppedResourcesAmount", () => {
-      let amount = 0;
-      for (const s of this.find(FIND_DROPPED_RESOURCES)) {
-        amount += s.amount;
-      }
-      return amount;
-    });
+    let amount = 0;
+    for (const s of this.find(FIND_DROPPED_RESOURCES)) {
+      amount += s.amount;
+    }
+    return amount;
   }
 
   /**
@@ -262,22 +256,20 @@ class ControllerRoom {
    * @returns {StructureContainer|null} Container or null
    */
   getControllerNotFull() {
-    return this.cache.get("controllerNotFull", () => {
-      const controllerz = this.room.controller;
-      if (controllerz) {
-        // Access via controller.memory (now uses structures.controllers[controllerId])
-        const containerId = controllerz.memory.containerID || null;
-        if (containerId != null) {
-          const container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));
-          if (container != null) {
-            if (container.store && container.store[RESOURCE_ENERGY] + CONSTANTS.RESOURCES.CONTROLLER_ENERGY_BUFFER < container.store.getCapacity(RESOURCE_ENERGY)) {
-              return container;
-            }
+    const controllerz = this.room.controller;
+    if (controllerz) {
+      // Access via controller.memory (now uses structures.controllers[controllerId])
+      const containerId = controllerz.memory.containerID || null;
+      if (containerId != null) {
+        const container = /** @type {StructureContainer | null} */ (Game.getObjectById(containerId));
+        if (container != null) {
+          if (container.store && container.store[RESOURCE_ENERGY] + CONSTANTS.RESOURCES.CONTROLLER_ENERGY_BUFFER < container.store.getCapacity(RESOURCE_ENERGY)) {
+            return container;
           }
         }
       }
-      return null;
-    });
+    }
+    return null;
   }
 
   /**
@@ -293,13 +285,11 @@ class ControllerRoom {
    * @returns {number} Mineral amount
    */
   getMineralAmount() {
-    return this.cache.get("mineralAmount", () => {
-      const minerals = this.find(FIND_MINERALS);
-      if (!minerals || minerals.length === 0) {
-        return 0;
-      }
-      return minerals[0].mineralAmount;
-    });
+    const minerals = this.find(FIND_MINERALS);
+    if (!minerals || minerals.length === 0) {
+      return 0;
+    }
+    return minerals[0].mineralAmount;
   }
 
   /**
@@ -307,16 +297,13 @@ class ControllerRoom {
    * @returns {Source[]} Array of sources
    */
   getSourcesNotEmpty() {
-    return this.cache.get("sourcesNotEmpty", () => {
-      // Use cached find() instead of getSources()
-      const sources = this.find(FIND_SOURCES);
-      if (sources && sources.length > 0) {
-        return _.filter(sources, (s) => {
-          return s.energy > 0;
-        });
-      }
-      return [];
-    });
+    const sources = this.find(FIND_SOURCES);
+    if (sources && sources.length > 0) {
+      return _.filter(sources, (s) => {
+        return s.energy > 0;
+      });
+    }
+    return [];
   }
 
   /**

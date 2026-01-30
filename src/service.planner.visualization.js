@@ -69,10 +69,8 @@ module.exports = function applyPlannerVisualization(RoomPlanner) {
       // STRUCTURE_ROAD - excluded from orphaned check
     ];
 
-    const structures = this.cache.get("structures_filtered", () => {
-      return this.room.find(FIND_STRUCTURES, {
-        filter: (s) => plannerStructureTypes.includes(s.structureType),
-      });
+    const structures = this.room.find(FIND_STRUCTURES, {
+      filter: (s) => plannerStructureTypes.includes(s.structureType),
     });
 
     for (const structure of structures) {

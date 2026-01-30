@@ -10,7 +10,6 @@
  */
 
 const Log = require("./lib.log");
-const CacheManager = require("./utils.cache");
 const applyPlannerLayout = require("./service.planner.layout");
 const applyPlannerMemory = require("./service.planner.memory");
 const applyPlannerPlacement = require("./service.planner.placement");
@@ -49,7 +48,6 @@ function RoomPlanner(room) {
   this.roomName = room.name;
   this.memory = this._initMemory();
   this._structureCounts = null; // Cache for structure counts
-  this.cache = new CacheManager(); // Cache for expensive find() operations
 }
 
 /**

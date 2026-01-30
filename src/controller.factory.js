@@ -98,7 +98,7 @@ class ControllerFactory {
     if (powerCreeps.length === 0) {
       // No Power Creep available - log and wait
       if (Game.time % CONSTANTS.TICKS.FACTORY_POWER_CHECK === 0) {
-        Log.warn(`${this.factory.room} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory.id} needs level ${level}`, "FactoryLevel");
+        Log.warn(`${this.factory.room} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory} needs level ${level}`, "FactoryLevel");
       }
       return false;
     }

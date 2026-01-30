@@ -349,40 +349,11 @@ Array.prototype.selectBestSource = function(creep, rc) {
  * @returns {Resource[]} Array of dropped energy resources within range
  */
 Structure.prototype.findNearbyDroppedEnergy = function (range = 3) {
-  // Use cache if available (from ControllerRoom or analysis)
-  let dropped;
-  if (this.room._analysisCache && this.room._analysisCache._tick === Game.time) {
-    // Reuse analysis cache if available
-    dropped = this.room._analysisCache.get('droppedEnergy', () => {
-      return this.room.find(FIND_DROPPED_RESOURCES, {
-        filter: {
-          resourceType: RESOURCE_ENERGY,
-        },
-      });
-    });
-  } else if (this.room._structureCache && this.room._structureCache._tick === Game.time) {
-    // Use structure cache if available
-    dropped = this.room._structureCache.get('droppedEnergy', () => {
-      return this.room.find(FIND_DROPPED_RESOURCES, {
-        filter: {
-          resourceType: RESOURCE_ENERGY,
-        },
-      });
-    });
-  } else {
-    // Create temporary cache for this tick
-    if (!this.room._structureCache || this.room._structureCache._tick !== Game.time) {
-      const CacheManager = require("./utils.cache");
-      this.room._structureCache = new CacheManager();
-    }
-    dropped = this.room._structureCache.get('droppedEnergy', () => {
-      return this.room.find(FIND_DROPPED_RESOURCES, {
-        filter: {
-          resourceType: RESOURCE_ENERGY,
-        },
-      });
-    });
-  }
+  const dropped = this.room.find(FIND_DROPPED_RESOURCES, {
+    filter: {
+      resourceType: RESOURCE_ENERGY,
+    },
+  });
   return this.pos.findInRange(dropped, range);
 };
 
