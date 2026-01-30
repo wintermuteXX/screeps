@@ -40,13 +40,19 @@ class MinerHarvestMineralBehavior extends Behavior {
       return;
     }
 
-    // First time setup: store destination position (works across rooms!)
-    if (!creep.memory.mineralDest && creep.room.mineral) {
-      const dest = (creep.room.extractor && creep.room.extractor.container)
-        ? creep.room.extractor.container.pos
-        : creep.room.mineral.pos;
-      creep.memory.mineralDest = { x: dest.x, y: dest.y, room: dest.roomName };
-      creep.memory.target = creep.room.mineral.id;
+    // Setup: ensure target and destination are set
+    if (creep.room.mineral) {
+      // Always ensure target is set when we have vision of the mineral
+      if (!creep.memory.target) {
+        creep.memory.target = creep.room.mineral.id;
+      }
+      // Store destination position if not set (works across rooms!)
+      if (!creep.memory.mineralDest) {
+        const dest = (creep.room.extractor && creep.room.extractor.container)
+          ? creep.room.extractor.container.pos
+          : creep.room.mineral.pos;
+        creep.memory.mineralDest = { x: dest.x, y: dest.y, room: dest.roomName };
+      }
     }
 
     const dest = creep.memory.mineralDest;

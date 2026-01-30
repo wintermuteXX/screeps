@@ -2,7 +2,7 @@ const { getCreepConfig } = require("./utils.creeps");
 const Log = require("./lib.log");
 
 // CPU threshold for behavior warning (temporary debugging)
-const BEHAVIOR_CPU_THRESHOLD = 0.5;
+const BEHAVIOR_CPU_THRESHOLD = 2.0;
 
 class ControllerCreep {
   constructor(ControllerRoom) {
