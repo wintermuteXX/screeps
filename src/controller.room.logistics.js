@@ -42,10 +42,11 @@ class LogisticsManager {
     const creepPos = Creep.pos;
 
     // Pre-compute blocked give sources (empty creeps collecting resources)
+    // Check both old 'target' and new 'transportTarget' memory keys
     const blockedGiveIds = new Set(
       allCreeps
-        .filter(c => c.memory.target && c.store.getUsedCapacity() === 0)
-        .map(c => c.memory.target),
+        .filter(c => (c.memory.target || c.memory.transportTarget) && c.store.getUsedCapacity() === 0)
+        .map(c => c.memory.transportTarget || c.memory.target),
     );
 
     const matchingOrders = [];
@@ -112,7 +113,6 @@ class LogisticsManager {
     // Return first matching order
     const order = matchingOrders[0];
     order.give.orderType = "G";
-    this._updateCreepResourceMemory(Creep, order.give.resourceType, order.give.id, order.give.orderType, 0);
 
     return order.give;
   }
@@ -127,23 +127,8 @@ class LogisticsManager {
     // const givesResources = this.givesResources(); // Need to check priority
     const needsResources = this.needsResources();
 
-    // Get resources the creep is carrying
-    const carriedResources = [];
-    if (Creep.memory.resources && Array.isArray(Creep.memory.resources)) {
-      for (const res of Creep.memory.resources) {
-        if (Creep.store[res.resourceType] > 0) {
-          carriedResources.push(res.resourceType);
-        }
-      }
-    } else {
-      // Fallback: find all resources in store if memory.resources not set
-      // Use Object.keys() for better performance than for...in
-      for (const resType of Object.keys(Creep.store)) {
-        if (Creep.store[resType] > 0) {
-          carriedResources.push(resType);
-        }
-      }
-    }
+    // Get resources the creep is carrying (directly from store)
+    const carriedResources = Object.keys(Creep.store).filter(resType => Creep.store[resType] > 0);
 
     if (carriedResources.length === 0) {
       return null;
@@ -175,7 +160,8 @@ class LogisticsManager {
 
         // Only block if a creep WITH RESOURCES is already targeting this destination (creeps with resources deliver)
         // Use cached allCreeps instead of calling getAllCreeps() again
-        if (allCreeps.some(c => c.memory.target === need.id && c.store.getUsedCapacity() > 0)) continue;
+        // Check both old 'target' and new 'transportTarget' memory keys
+        if (allCreeps.some(c => (c.memory.transportTarget === need.id || c.memory.target === need.id) && c.store.getUsedCapacity() > 0)) continue;
 
         // Check if target still exists and has capacity
         const targetValidation = this._validateResourceTarget(need.id, resType);
@@ -188,9 +174,6 @@ class LogisticsManager {
         // Found matching order - set orderType and add to list with distance
         need.orderType = "D";
         need._sortDistance = needDistance; // Store distance for sorting
-
-        // Update Creep.memory.resources with orderType
-        this._updateCreepResourceMemory(Creep, resType, need.id, need.orderType, Creep.store[resType] || 0);
 
         matchingOrders.push(need);
       }
@@ -298,29 +281,6 @@ class LogisticsManager {
 
     // No store (e.g., controller) - assume valid
     return { obj: targetObj, freeCapacity: Infinity };
-  }
-
-  /**
-   * Update creep memory with resource order information
-   */
-  _updateCreepResourceMemory(creep, resourceType, targetId, orderType, amount) {
-    if (!creep.memory.resources) {
-      creep.memory.resources = [];
-    }
-
-    const resourceEntry = creep.memory.resources.find(r => r.resourceType === resourceType);
-    if (resourceEntry) {
-      resourceEntry.orderType = orderType;
-      if (targetId) resourceEntry.target = targetId;
-      if (amount !== undefined) resourceEntry.amount = amount;
-    } else {
-      creep.memory.resources.push({
-        resourceType: resourceType,
-        amount: amount !== undefined ? amount : 0,
-        target: targetId || null,
-        orderType: orderType,
-      });
-    }
   }
 
   /**

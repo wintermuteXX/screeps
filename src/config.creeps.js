@@ -22,7 +22,7 @@ module.exports = {
     wait4maxEnergy: false,
     namePrefix: "Construction_Crawler",
     body: [MOVE, WORK, CARRY, MOVE],
-    behaviors: ["get_resources", "harvest", "transfer_resources", "build_structures", "upgrade_controller"],
+    behaviors: ["transport", "harvest", "build_structures", "upgrade_controller"],
 
     canBuild: function (rc) {
       if (rc.getLevel() > 2) {
@@ -96,7 +96,7 @@ module.exports = {
     wait4maxEnergy: false,
     namePrefix: "Ornithopter",
     body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
-    behaviors: ["renew:emergency", "get_resources", "transfer_resources", "renew"],
+    behaviors: ["renew:emergency", "transport", "renew"],
 
     canBuild: function (rc) {
       const transporters = rc.getAllCreeps("transporter");
@@ -288,7 +288,7 @@ module.exports = {
     namePrefix: "Support_Crawler",
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_target_room", "clear_enemy_buildings", "get_resources", "harvest", "build_structures", "upgrade_controller"],
+    behaviors: ["goto_target_room", "clear_enemy_buildings", "transport", "harvest", "build_structures", "upgrade_controller"],
     canBuild: function (rc) {
       // Check if enough supporters already exist
       const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");
