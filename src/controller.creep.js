@@ -1,4 +1,8 @@
 const { getCreepConfig } = require("./utils.creeps");
+const Log = require("./lib.log");
+
+// CPU threshold for behavior warning (temporary debugging)
+const BEHAVIOR_CPU_THRESHOLD = 0.5;
 
 class ControllerCreep {
   constructor(ControllerRoom) {
@@ -23,7 +27,12 @@ class ControllerCreep {
           creep.behavior = behavior.name;
         }
 
+        const start = Game.cpu.getUsed();
         behavior.work(creep, this.ControllerRoom);
+        const delta = Game.cpu.getUsed() - start;
+        if (delta > BEHAVIOR_CPU_THRESHOLD) {
+          Log.warn(`[CPU] ${creep.room} ${creep} behavior "${behavior.name}": ${delta.toFixed(2)} CPU`, "CPU");
+        }
 
       } else {
         creep.behavior = null;

@@ -47,6 +47,7 @@ function initGlobal() {
   global.help = utilsConsole.help;
   global.showLogistic = utilsConsole.showLogistic;
   global.showCPU = utilsConsole.showCPU;
+  global.showCPUProfile = utilsConsole.showCPUProfile;
   global.showScout = utilsConsole.showScout;
   global.showRclUpgradeTimes = utilsConsole.showRclUpgradeTimes;
   global.cleanMemory = utilsConsole.cleanMemory;

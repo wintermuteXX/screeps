@@ -33,9 +33,9 @@ class MinerHarvestMineralBehavior extends Behavior {
     if (target !== null) {
       if (creep.room.extractor && creep.room.extractor.container) {
         const {container} = creep.room.extractor;
-        creep.travelTo(container);
+        creep.travelTo(container, { maxRooms: 1 });
       } else if (!creep.pos.isNearTo(target)) {
-        creep.travelTo(target);
+        creep.travelTo(target, { maxRooms: 1 });
       }
       if (Game.time % (EXTRACTOR_COOLDOWN + 1) === 0) {
         const result = creep.harvest(target);
