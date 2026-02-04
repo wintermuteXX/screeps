@@ -110,17 +110,87 @@ class Log {
 
   /**
    * Generate HTML table for console display
-   * @param {string[]} headers - Array of column headers
-   * @param {Array[]} rows - Array of row arrays
+   * @param {string[]} headers - Array of column headers (or empty if using row descriptors)
+   * @param {Array[]} rows - Array of row arrays or row descriptors
+   *   - Array: normal row e.g. ['a','b','c']
+   *   - { type:'section', content, colspan, style? }: section/group header row
+   *   - { type:'subheading', content, colspan, style? }: subheading row
+   *   - { type:'header', cells, headerStyle? }: header row with <th> cells
+   * @param {Object} [options] - Table options
+   * @param {string} [options.caption] - Table caption
+   * @param {string} [options.tableStyle] - Inline styles for <table>
+   * @param {string} [options.headerStyle] - Inline styles for <th> headers
+   * @param {string|function(number, *)} [options.rowStyle] - Styles for <tr> (string or (rowIndex, row)=>string)
+   * @param {function(number, number, *)} [options.cellStyle] - Styles for <td> (rowIndex, colIndex, value)=>string
+   * @param {Array} [options.footer] - Footer row cell values
+   * @param {string} [options.footerRowStyle] - Styles for footer <tr>
+   * @param {string|function(number, *)} [options.footerCellStyle] - Styles for footer <td> (colIndex, value)=>string
    * @returns {string} HTML table string
    * @example Log.table(['a','b'], [[1,2],[3,4]])
+   * @example Log.table(['x'], [], { caption: 'Empty', captionStyle: 'font-weight: bold' })
    */
-  static table(headers, rows) {
-    let msg = "<table>";
-    _.each(headers, (h) => (msg += `<th width="50px">${  h  }</th>`));
-    _.each(rows, (row) => (msg += `<tr>${  _.map(row, (el) => `<th>${el}</th>`)  }</tr>`));
+  static table(headers, rows, options = {}) {
+    const tableStyle = options.tableStyle || "border-collapse: collapse;";
+    const headerStyle = options.headerStyle || "padding: 5px; background-color: #333;";
+    const defaultRowStyle = "background-color: #1a1a1a;";
+
+    let msg = `<table border="1" style="${tableStyle}">`;
+    if (options.caption) {
+      const captionStyle = options.captionStyle || "";
+      msg += `<caption${captionStyle ? ` style="${captionStyle}"` : ""}>${options.caption}</caption>`;
+    }
+
+    const colCount = Array.isArray(headers) ? headers.length : 1;
+
+    if (headers && headers.length > 0) {
+      msg += "<tr>";
+      _.each(headers, (h) => (msg += `<th style="${headerStyle}">${h}</th>`));
+      msg += "</tr>";
+    }
+
+    let bodyRowIndex = 0;
+    _.each(rows || [], (row) => {
+      if (Array.isArray(row)) {
+        const trStyle = typeof options.rowStyle === "function"
+          ? options.rowStyle(bodyRowIndex, row)
+          : (options.rowStyle || defaultRowStyle);
+        msg += `<tr style="${trStyle}">`;
+        _.each(row, (el, colIdx) => {
+          const cellStyle = options.cellStyle
+            ? options.cellStyle(bodyRowIndex, colIdx, el)
+            : "padding: 5px;";
+          msg += `<td style="${cellStyle}">${el}</td>`;
+        });
+        msg += "</tr>";
+        bodyRowIndex++;
+      } else if (row && typeof row === "object" && row.type) {
+        if (row.type === "header" && Array.isArray(row.cells)) {
+          const hdrStyle = row.headerStyle || headerStyle;
+          msg += "<tr>";
+          _.each(row.cells, (cell) => (msg += `<th style="${hdrStyle}">${cell}</th>`));
+          msg += "</tr>";
+        } else {
+          const colspan = row.colspan || colCount;
+          const style = row.style || "padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;";
+          msg += `<tr><td colspan="${colspan}" style="${style}">${row.content}</td></tr>`;
+        }
+      }
+    });
+
+    if (options.footer && options.footer.length > 0) {
+      const footerRowStyle = options.footerRowStyle || "background-color: #333;";
+      const defaultFooterCellStyle = "padding: 5px; font-weight: bold; color: #00ff00;";
+      msg += `<tr style="${footerRowStyle}">`;
+      _.each(options.footer, (el, colIdx) => {
+        const cellStyle = typeof options.footerCellStyle === "function"
+          ? options.footerCellStyle(colIdx, el)
+          : (options.footerStyle || defaultFooterCellStyle);
+        msg += `<td style="${cellStyle}">${el}</td>`;
+      });
+      msg += "</tr>";
+    }
+
     msg += "</table>";
-    // console.log(msg);
     return msg;
   }
 

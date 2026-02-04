@@ -9,11 +9,32 @@ class StructuresManager {
 
   /**
    * Find structures that need repair (sorted by hits)
+   * Cached per-tick for performance
    * @returns {Structure[]} Array of structures
    */
   findStructuresToRepair() {
-    const structures = _.filter(this.rc.find(FIND_STRUCTURES), (s) => s.needsRepair());
-    return _.sortBy(structures, (s) => s.hits);
+    // Per-tick cache to avoid redundant find() and filter operations
+    if (this._repairStructuresCache && this._repairStructuresCacheTick === Game.time) {
+      return this._repairStructuresCache;
+    }
+
+    // Use native for loop instead of _.filter for better performance
+    const allStructures = this.rc.find(FIND_STRUCTURES);
+    const structures = [];
+    for (const s of allStructures) {
+      if (s.needsRepair()) {
+        structures.push(s);
+      }
+    }
+
+    // Sort by hits (ascending) - structures with lowest hits first
+    structures.sort((a, b) => a.hits - b.hits);
+
+    // Cache the result
+    this._repairStructuresCache = structures;
+    this._repairStructuresCacheTick = Game.time;
+
+    return structures;
   }
 
   /**

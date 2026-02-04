@@ -171,11 +171,26 @@ class ControllerRoom {
 
   /**
    * Cached room.find wrapper
+   * Caches find results per-tick to avoid redundant find() calls
+   * Cache is automatically cleared each tick (new ControllerRoom instance)
    * @param {number} type - Screeps find constant
    * @returns {Array} Found objects
    */
   find(type) {
-    return this.room.find(type);
+    // Initialize cache map if not exists
+    if (!this._findCache) {
+      this._findCache = new Map();
+    }
+
+    // Return cached result if available
+    if (this._findCache.has(type)) {
+      return this._findCache.get(type);
+    }
+
+    // Perform find and cache result
+    const result = this.room.find(type);
+    this._findCache.set(type, result);
+    return result;
   }
 
   /**

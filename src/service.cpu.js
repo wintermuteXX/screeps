@@ -23,11 +23,14 @@ class CpuAnalyzer {
     const cpuUsed = Game.cpu.getUsed();
     const cpuLimit = Game.cpu.limit;
 
-    // Count owned rooms
-    const ownedRooms = Object.values(Game.rooms).filter(
-      (room) => room.controller && room.controller.my,
-    );
-    const roomCount = ownedRooms.length;
+    // Count owned rooms (use for loop instead of filter for better performance)
+    let roomCount = 0;
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      if (room.controller && room.controller.my) {
+        roomCount++;
+      }
+    }
     const cpuPerRoom = roomCount > 0 ? cpuUsed / roomCount : cpuUsed;
 
     const entry = {
@@ -45,8 +48,11 @@ class CpuAnalyzer {
 
     Memory.cpuHistory.push(entry);
 
-    // Cleanup old history to maintain rolling window
-    this.cleanupOldHistory();
+    // Cleanup old history periodically (every 100 ticks instead of every tick)
+    // This saves CPU since array.filter() on large arrays is expensive
+    if (Game.time % 100 === 0) {
+      this.cleanupOldHistory();
+    }
   }
 
   /**

@@ -967,12 +967,22 @@ class LogisticsManager {
     for (const res of Object.keys(storage.store)) {
       if (!resourcesToCheck.includes(res)) resourcesToCheck.push(res);
     }
+    // Add resources from labs (e.g. status "empty") so storage registers a need and transport is scheduled
+    if (this.rc.room.labs) {
+      for (const lab of this.rc.room.labs) {
+        if (!lab.store) continue;
+        for (const res of Object.keys(lab.store)) {
+          if (res !== RESOURCE_ENERGY && (lab.store[res] || 0) > 0 && !resourcesToCheck.includes(res)) {
+            resourcesToCheck.push(res);
+          }
+        }
+      }
+    }
 
     for (const resourceType of resourcesToCheck) {
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "storage");
       const currentAmount = storage.store[resourceType] || 0;
       const priorityInfo = this._getStorageNeedsPriority(resourceType, currentAmount, fillLevel);
-
       if (priorityInfo) {
         this._addNeedsResource({
           priority: priorityInfo.priority,

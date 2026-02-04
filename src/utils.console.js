@@ -50,50 +50,42 @@ function help(category = "all") {
     ],
   };
 
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse;">');
-  result.push("<caption><strong>SCREEPS HELPER FUNCTIONS</strong></caption>");
-  result.push("<tr>");
-  result.push('<th style="padding: 5px; background-color: #333;">FUNCTION</th>');
-  result.push('<th style="padding: 5px; background-color: #333;">DESCRIPTION</th>');
-  result.push('<th style="padding: 5px; background-color: #333;">EXAMPLE</th>');
-  result.push("</tr>");
+  const headers = ["FUNCTION", "DESCRIPTION", "EXAMPLE"];
+  const rows = [];
 
-  // Helper to render a single function entry
   const renderFunc = (func) => {
     if (func.sub) {
-      // Subheading row
-      result.push(`<tr><td colspan="3" style="padding: 3px 5px 3px 15px; background-color: #1a1a1a; color: #888; font-style: italic; font-size: 11px;">── ${func.sub} ──</td></tr>`);
+      rows.push({ type: "subheading", content: `── ${func.sub} ──`, colspan: 3, style: "padding: 3px 5px 3px 15px; background-color: #1a1a1a; color: #888; font-style: italic; font-size: 11px;" });
     } else {
-      // Normal function row
-      result.push("<tr>");
-      result.push(`<td style="padding: 5px; color: #00ff00;">${func.name}</td>`);
-      result.push(`<td style="padding: 5px; color: #cccccc;">${func.desc}</td>`);
-      result.push(`<td style="padding: 5px; color: #888; font-family: monospace;">${func.example}</td>`);
-      result.push("</tr>");
+      rows.push([func.name, func.desc, func.example]);
     }
   };
 
   if (category === "all" || !category) {
-    // Show all categories
     for (const [cat, funcs] of Object.entries(functions)) {
-      result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${cat.toUpperCase()}</td></tr>`);
+      rows.push({ type: "section", content: cat.toUpperCase(), colspan: 3, style: "padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;" });
       funcs.forEach(renderFunc);
     }
   } else if (functions[category]) {
-    // Show specific category
-    result.push(`<tr><td colspan="3" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">${category.toUpperCase()}</td></tr>`);
+    rows.push({ type: "section", content: category.toUpperCase(), colspan: 3, style: "padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;" });
     functions[category].forEach(renderFunc);
   } else {
-    result.push(`<tr><td colspan="3" style="padding: 5px; color: #ff0000;">Unknown category: ${category}</td></tr>`);
-    result.push(`<tr><td colspan="3" style="padding: 5px; color: #cccccc;">Available: ${Object.keys(functions).join(", ")}</td></tr>`);
+    rows.push({ type: "section", content: `Unknown category: ${category}`, colspan: 3, style: "padding: 5px; color: #ff0000;" });
+    rows.push({ type: "section", content: `Available: ${Object.keys(functions).join(", ")}`, colspan: 3, style: "padding: 5px; color: #cccccc;" });
   }
 
-  result.push("</table>");
-  const categories = Object.keys(functions).join(", ");
-  result.push(`<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: ${categories}</p>`);
+  const options = {
+    caption: "<strong>SCREEPS HELPER FUNCTIONS</strong>",
+    tableStyle: "border-collapse: collapse;",
+    headerStyle: "padding: 5px; background-color: #333;",
+    rowStyle: () => "background-color: #1a1a1a;",
+    cellStyle: (_rowIdx, colIdx) => {
+      const colors = ["color: #00ff00;", "color: #cccccc;", "color: #888; font-family: monospace;"];
+      return `padding: 5px; ${colors[colIdx] || ""}`;
+    },
+  };
 
-  const resultString = result.join("");
+  const resultString = Log.table(headers, rows, options) + `<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: ${Object.keys(functions).join(", ")}</p>`;
   console.logUnsafe(resultString);
   return resultString;
 }
@@ -104,76 +96,64 @@ function help(category = "all") {
  * @returns {string} HTML table string
  */
 function showTerminals() {
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push("<caption><strong>TERMINAL CONTENTS</strong></caption>");
-
   const roomData = {};
   const sums = {};
-  const rooms = _.filter(Game.rooms, (r) => {
-    return r.controller && r.controller.my && r.terminal;
-  });
+  const rooms = _.filter(Game.rooms, (r) => r.controller && r.controller.my && r.terminal);
 
   if (rooms.length === 0) {
-    result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No terminals found in owned rooms</td></tr>');
-    result.push("</table>");
-    const resultString = result.join("");
+    const resultString = Log.table(
+      ["ROOM"],
+      [{ type: "section", content: "No terminals found in owned rooms", colspan: 1, style: "padding: 5px; color: #888;" }],
+      { caption: "<strong>TERMINAL CONTENTS</strong>", tableStyle: "border-collapse: collapse; width: 100%;", headerStyle: "padding: 5px; background-color: #333;" }
+    );
     console.logUnsafe(resultString);
     return resultString;
   }
 
-  // Collect all resource types
   const resourceTypes = new Set();
   _.forEach(rooms, (r) => {
     roomData[r.name] = roomData[r.name] || {};
     _.forEach(r.terminal.store, (quantity, item) => {
       resourceTypes.add(item);
       sums[item] = sums[item] || 0;
-      sums[item] = sums[item] + quantity;
+      sums[item] += quantity;
       roomData[r.name][item] = quantity;
     });
   });
 
   if (resourceTypes.size === 0) {
-    result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">All terminals are empty</td></tr>');
-    result.push("</table>");
-    const resultString = result.join("");
+    const resultString = Log.table(
+      ["ROOM"],
+      [{ type: "section", content: "All terminals are empty", colspan: 1, style: "padding: 5px; color: #888;" }],
+      { caption: "<strong>TERMINAL CONTENTS</strong>", tableStyle: "border-collapse: collapse; width: 100%;", headerStyle: "padding: 5px; background-color: #333;" }
+    );
     console.logUnsafe(resultString);
     return resultString;
   }
 
-  // Table headers
-  result.push('<tr style="background-color: #333;">');
-  result.push('<th style="padding: 5px;">ROOM</th>');
   const sortedResources = Array.from(resourceTypes).sort();
-  sortedResources.forEach(res => {
-    result.push(`<th style="padding: 5px;">${utilsResources.resourceImg(res)}</th>`);
-  });
-  result.push("</tr>");
+  const headers = ["ROOM", ...sortedResources.map((res) => utilsResources.resourceImg(res))];
+  const rows = rooms.map((room) => [
+    room.name,
+    ...sortedResources.map((res) => (roomData[room.name][res] || 0).toLocaleString()),
+  ]);
+  const footer = ["TOTAL", ...sortedResources.map((res) => (sums[res] || 0).toLocaleString())];
 
-  // Room rows
-  _.forEach(rooms, (room) => {
-    result.push('<tr style="background-color: #1a1a1a;">');
-    result.push(`<td style="padding: 5px; color: #00ffff; font-weight: bold;">${room.name}</td>`);
-    sortedResources.forEach(res => {
-      const amount = roomData[room.name][res] || 0;
-      const color = amount > 0 ? "#cccccc" : "#888";
-      result.push(`<td style="padding: 5px; text-align: right; color: ${color};">${amount.toLocaleString()}</td>`);
-    });
-    result.push("</tr>");
-  });
+  const options = {
+    caption: "<strong>TERMINAL CONTENTS</strong>",
+    tableStyle: "border-collapse: collapse; width: 100%;",
+    headerStyle: "padding: 5px; background-color: #333;",
+    rowStyle: () => "background-color: #1a1a1a;",
+    cellStyle: (_rowIdx, colIdx, value) => {
+      if (colIdx === 0) return "padding: 5px; color: #00ffff; font-weight: bold;";
+      return `padding: 5px; text-align: right; color: ${parseInt(value, 10) > 0 ? "#cccccc" : "#888"};`;
+    },
+    footer,
+    footerRowStyle: "background-color: #333;",
+    footerCellStyle: (colIdx) => (colIdx === 0 ? "padding: 5px; font-weight: bold; color: #00ff00;" : "padding: 5px; text-align: right; font-weight: bold; color: #00ff00;"),
+  };
 
-  // Totals row
-  result.push('<tr style="background-color: #333;">');
-  result.push('<td style="padding: 5px; font-weight: bold; color: #00ff00;">TOTAL</td>');
-  sortedResources.forEach(res => {
-    const total = sums[res] || 0;
-    result.push(`<td style="padding: 5px; text-align: right; font-weight: bold; color: #00ff00;">${total.toLocaleString()}</td>`);
-  });
-  result.push("</tr>");
-
-  result.push("</table>");
-  const resultString = result.join("");
+  const resultString = Log.table(headers, rows, options);
   console.logUnsafe(resultString);
   return resultString;
 }
@@ -197,116 +177,82 @@ function numberOfTerminals() {
  * @returns {string} HTML table string
  */
 function showLabs() {
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push("<caption><strong>LAB STATUS AND REACTIONS</strong></caption>");
-
-  let hasLabs = false;
   const roomsWithLabs = [];
-
-  // Collect all rooms with labs
   for (const roomName in Game.rooms) {
     const room = Game.rooms[roomName];
     if (!room.controller || !room.controller.my) continue;
-
     const labs = room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return "structureType" in structure && structure.structureType === STRUCTURE_LAB;
-      },
+      filter: (s) => "structureType" in s && s.structureType === STRUCTURE_LAB,
     });
-
-    if (labs.length > 0) {
-      roomsWithLabs.push({ room, roomName, labs });
-    }
+    if (labs.length > 0) roomsWithLabs.push({ room, roomName, labs });
   }
+
+  const headers = ["ROOM", "STATUS", "RESULT", "CENTER LAB", "REAGENT A", "REAGENT B", "PARTNER LABS"];
+  const rows = [];
 
   if (roomsWithLabs.length === 0) {
-    result.push('<tr><td colspan="7" style="padding: 5px; color: #888;">No labs found in owned rooms</td></tr>');
-    result.push("</table>");
-    const resultString = result.join("");
-    console.logUnsafe(resultString);
-    return resultString;
-  }
+    rows.push({ type: "section", content: "No labs found in owned rooms", colspan: 7, style: "padding: 5px; color: #888;" });
+  } else {
+    let hasLabs = false;
+    for (const { room, roomName, labs } of roomsWithLabs) {
+      let roomHeaderAdded = false;
+      for (const labIdx in labs) {
+        const labC = labs[labIdx];
+        const labMemory = labC && labC.memory;
+        if (!labC || !labMemory || !labMemory.partnerA) continue;
 
-  // Table headers
-  result.push('<tr style="background-color: #333;">');
-  result.push('<th style="padding: 5px;">ROOM</th>');
-  result.push('<th style="padding: 5px;">STATUS</th>');
-  result.push('<th style="padding: 5px;">RESULT</th>');
-  result.push('<th style="padding: 5px;">CENTER LAB</th>');
-  result.push('<th style="padding: 5px;">REAGENT A</th>');
-  result.push('<th style="padding: 5px;">REAGENT B</th>');
-  result.push('<th style="padding: 5px;">PARTNER LABS</th>');
-  result.push("</tr>");
-
-  // Process each room
-  for (const { room, roomName, labs } of roomsWithLabs) {
-    let roomHeaderAdded = false;
-
-    for (const labIdx in labs) {
-      const labC = labs[labIdx];
-      const labMemory = labC.memory;
-
-      if (labC && labMemory && labMemory.partnerA) {
         hasLabs = true;
-
-        // Add room header for first lab in room
-        if (!roomHeaderAdded) {
-          result.push(`<tr><td colspan="7" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">ROOM: ${roomName}</td></tr>`);
-          roomHeaderAdded = true;
-        }
-
-        result.push('<tr style="background-color: #1a1a1a;">');
-
         const partnerA = Game.getObjectById(labMemory.partnerA);
         const partnerB = Game.getObjectById(labMemory.partnerB);
         const partnerAMemory = partnerA && partnerA.memory ? partnerA.memory : null;
+        if (!partnerA || !partnerAMemory) continue;
 
-        if (partnerA && partnerAMemory) {
-          // Room name (only for first row per room, handled by header)
-          result.push('<td style="padding: 5px; color: #888;"></td>');
-
-          // Status
-          const status = partnerAMemory.status || "UNKNOWN";
-          const statusColor = status === "OK" ? "#00ff00" : status === "ERROR" ? "#ff0000" : "#ffaa00";
-          result.push(`<td style="padding: 5px; color: ${statusColor}; font-weight: bold;">${status}</td>`);
-
-          // Result resource (center lab output)
-          result.push(`<td style="padding: 5px; text-align: center;">${utilsResources.resourceImg(labMemory.resource)}</td>`);
-
-          // Center lab
-          result.push(`<td style="padding: 5px; color: #00ffff;">${labC}</td>`);
-
-          // Reagent A
-          result.push(`<td style="padding: 5px; text-align: center;">${utilsResources.resourceImg(partnerAMemory.resource)}</td>`);
-
-          // Reagent B
-          const partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
-          if (partnerB && partnerBMemory) {
-            result.push(`<td style="padding: 5px; text-align: center;">${utilsResources.resourceImg(partnerBMemory.resource)}</td>`);
-          } else {
-            result.push('<td style="padding: 5px; color: #888; text-align: center;">-</td>');
-          }
-
-          // Partner labs
-          const partnerNames = [partnerA.toString()];
-          if (partnerB) {
-            partnerNames.push(partnerB.toString());
-          }
-          result.push(`<td style="padding: 5px; color: #cccccc;">${partnerNames.join(", ")}</td>`);
-
-          result.push("</tr>");
+        if (!roomHeaderAdded) {
+          rows.push({ type: "section", content: `ROOM: ${roomName}`, colspan: 7, style: "padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;" });
+          roomHeaderAdded = true;
         }
+
+        const status = partnerAMemory.status || "UNKNOWN";
+        const partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
+        const reagentB = partnerB && partnerBMemory ? utilsResources.resourceImg(partnerBMemory.resource) : "-";
+        const partnerNames = [partnerA.toString()];
+        if (partnerB) partnerNames.push(partnerB.toString());
+
+        rows.push([
+          "",
+          status,
+          utilsResources.resourceImg(labMemory.resource),
+          labC.toString(),
+          utilsResources.resourceImg(partnerAMemory.resource),
+          reagentB,
+          partnerNames.join(", "),
+        ]);
       }
+    }
+    if (!hasLabs) {
+      rows.push({ type: "section", content: "No active lab reactions found", colspan: 7, style: "padding: 5px; color: #888;" });
     }
   }
 
-  if (!hasLabs) {
-    result.push('<tr><td colspan="7" style="padding: 5px; color: #888;">No active lab reactions found</td></tr>');
-  }
+  const options = {
+    caption: "<strong>LAB STATUS AND REACTIONS</strong>",
+    tableStyle: "border-collapse: collapse; width: 100%;",
+    headerStyle: "padding: 5px; background-color: #333;",
+    rowStyle: () => "background-color: #1a1a1a;",
+    cellStyle: (_rowIdx, colIdx, value) => {
+      if (colIdx === 0) return "padding: 5px; color: #888;";
+      if (colIdx === 1) {
+        const statusColor = value === "OK" ? "#00ff00" : value === "ERROR" ? "#ff0000" : "#ffaa00";
+        return `padding: 5px; color: ${statusColor}; font-weight: bold;`;
+      }
+      if (colIdx === 2 || colIdx === 4 || colIdx === 5) return "padding: 5px; text-align: center;";
+      if (colIdx === 3) return "padding: 5px; color: #00ffff;";
+      if (colIdx === 6) return "padding: 5px; color: #cccccc;";
+      return "padding: 5px;";
+    },
+  };
 
-  result.push("</table>");
-  const resultString = result.join("");
+  const resultString = Log.table(headers, rows, options);
   console.logUnsafe(resultString);
   return resultString;
 }
@@ -317,72 +263,55 @@ function showLabs() {
  * @returns {string} HTML table string
  */
 function showResources(hide = false) {
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse; border-color: #fff; font-family: monospace;">');
-  result.push('<caption style="padding: 5px; font-weight: bold; font-size: 1.1em;">RESOURCES</caption>');
-  result.push('<tr style="background-color: #333;">');
-  result.push('<th style="padding: 8px; text-align: left;">RESOURCE</th>');
-  result.push('<th style="padding: 8px; text-align: right;">AMOUNT</th>');
-  result.push('<th style="padding: 8px; text-align: right;">OFFSET TO PERFECT</th>');
-  result.push("</tr>");
+  const formatNumber = (num) => {
+    const numStr = Math.floor(num).toString();
+    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
 
   let numberOfRooms = 0;
   for (const roomName in Game.rooms) {
     if (Game.rooms[roomName].storage) numberOfRooms += 1;
   }
 
-  // Helper function to format numbers with thousand separators
-  const formatNumber = (num) => {
-    // Convert to integer and format with thousand separators (dots)
-    const numStr = Math.floor(num).toString();
-    return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
+  const headers = ["RESOURCE", "AMOUNT", "OFFSET TO PERFECT"];
+  const rows = [];
+  const offsets = [];
 
-  let rowCount = 0;
   for (const resource of RESOURCES_ALL) {
     const amount = utilsResources.globalResourcesAmount(resource);
     const threshold = numberOfRooms * global.getRoomThreshold(resource, "all");
     const offset = amount - threshold;
 
-    // Skip if hide is true and amount is 0
-    if (hide && amount === 0) {
-      continue;
-    }
+    if (hide && amount === 0) continue;
 
-    // Alternate row colors for better readability
-    const rowBgColor = rowCount % 2 === 0 ? "#1a1a1a" : "#222";
-    result.push(`<tr style="background-color: ${rowBgColor};">`);
-    
-    // Resource icon/name
-    result.push(`<td style="padding: 5px;">${utilsResources.resourceImg(resource)}</td>`);
-    
-    // Amount with formatting
-    result.push(`<td style="padding: 5px; text-align: right; color: #fff;">${formatNumber(amount)}</td>`);
-    
-    // Offset with color coding
-    let offsetColor = "#888";
-    let offsetSymbol = "";
-    if (offset > 0) {
-      offsetColor = "#4CAF50"; // Green for positive
-      offsetSymbol = "+";
-    } else if (offset < 0) {
-      offsetColor = "#F44336"; // Red for negative
-    } else {
-      offsetColor = "#FFC107"; // Yellow/Orange for zero
-    }
-    
-    result.push(`<td style="padding: 5px; text-align: right; color: ${offsetColor}; border-color: #fff; font-weight: bold;">${offsetSymbol}${formatNumber(offset)}</td>`);
-    
-    result.push("</tr>");
-    rowCount++;
+    const offsetSymbol = offset > 0 ? "+" : "";
+    rows.push([utilsResources.resourceImg(resource), formatNumber(amount), `${offsetSymbol}${formatNumber(offset)}`]);
+    offsets.push(offset);
   }
 
-  if (rowCount === 0) {
-    result.push('<tr><td colspan="3" style="padding: 10px; text-align: center; color: #888;">No resources found</td></tr>');
+  const options = {
+    caption: "RESOURCES",
+    captionStyle: "padding: 5px; font-weight: bold; font-size: 1.1em;",
+    tableStyle: "border-collapse: collapse; border-color: #fff; font-family: monospace;",
+    headerStyle: "padding: 8px; background-color: #333;",
+    rowStyle: (rowIdx) => `background-color: ${rowIdx % 2 === 0 ? "#1a1a1a" : "#222"};`,
+    cellStyle: (rowIdx, colIdx) => {
+      const style = "padding: 5px;";
+      if (colIdx === 1) return `${style} text-align: right; color: #fff;`;
+      if (colIdx === 2) {
+        const offset = offsets[rowIdx] != null ? offsets[rowIdx] : 0;
+        const color = offset > 0 ? "#4CAF50" : offset < 0 ? "#F44336" : "#FFC107";
+        return `${style} text-align: right; color: ${color}; border-color: #fff; font-weight: bold;`;
+      }
+      return style;
+    },
+  };
+
+  if (rows.length === 0) {
+    return Log.table(headers, [{ type: "section", content: "No resources found", colspan: 3, style: "padding: 10px; text-align: center; color: #888;" }], options);
   }
 
-  result.push("</table>");
-  return result.join("");
+  return Log.table(headers, rows, options);
 }
 
 /**
@@ -390,28 +319,12 @@ function showResources(hide = false) {
  * @returns {string} HTML table string
  */
 function showMarket() {
-  const result = [];
-  result.push('<table border="1">');
-  result.push("<caption> MARKET\n</caption>");
-  result.push("<tr>");
-  result.push("<th></th>");
-  result.push("<th> MIN SELL PRICE </th>");
-  result.push("<th> AMOUNT ON SELL </th>");
-  result.push("<th> MAX SELL PRICE </th>");
-  result.push("<th> AMOUNT SELL ORDERS </th>");
-  result.push("<th></th>");
-  result.push("<th> MIN BUY PRICE </th>");
-  result.push("<th> AMOUNT ON BUY </th>");
-  result.push("<th> MAX BUY PRICE </th>");
-  result.push("<th> AMOUNT BUY ORDERS </th>");
-  result.push("</tr>");
-
+  const headers = ["", "MIN SELL PRICE", "AMOUNT ON SELL", "MAX SELL PRICE", "AMOUNT SELL ORDERS", "", "MIN BUY PRICE", "AMOUNT ON BUY", "MAX BUY PRICE", "AMOUNT BUY ORDERS"];
+  const rows = [];
   const orders = Game.market.getAllOrders();
 
   for (const resources of RESOURCES_ALL) {
-
     const orderMinerals = orders.filter((order) => order.resourceType === resources);
-
     const ordersSell = orderMinerals.filter((order) => order.type === "sell");
     const ordersBuy = orderMinerals.filter((order) => order.type === "buy");
 
@@ -435,30 +348,30 @@ function showMarket() {
     let amountSell = " - ";
     if (ordersSell[0] && ordersSell[0].amount) {
       amountSell = ordersSell[0].amount;
-      if (amountSell > 1000) amountSell = `${amountSell / 1000  }K`;
+      if (amountSell > 1000) amountSell = `${amountSell / 1000}K`;
     }
 
     let amountBuy = " - ";
     if (ordersBuy[0] && ordersBuy[0].amount) {
       amountBuy = ordersBuy[ordersBuy.length - 1].amount;
-      if (amountBuy > 1000) amountBuy = `${amountBuy / 1000  }K`;
+      if (amountBuy > 1000) amountBuy = `${amountBuy / 1000}K`;
     }
 
-    result.push("<tr>");
-    result.push(`<td> ${  utilsResources.resourceImg(resources)  } </td>`);
-    result.push(`<td> ${  priceSell  } </td>`);
-    result.push(`<td> ${  amountSell  } </td>`);
-    result.push(`<td> ${  lastPriceSell  } </td>`);
-    result.push(`<td> ${  ordersSell.length  } </td>`);
-    result.push(`<td> ${  utilsResources.resourceImg(resources)  } </td>`);
-    result.push(`<td> ${  priceBuy  } </td>`);
-    result.push(`<td> ${  amountBuy  } </td>`);
-    result.push(`<td> ${  lastPriceBuy  } </td>`);
-    result.push(`<td> ${  ordersBuy.length  } </td>`);
-    result.push("</tr>");
+    rows.push([
+      utilsResources.resourceImg(resources),
+      priceSell,
+      amountSell,
+      lastPriceSell,
+      ordersSell.length,
+      utilsResources.resourceImg(resources),
+      priceBuy,
+      amountBuy,
+      lastPriceBuy,
+      ordersBuy.length,
+    ]);
   }
 
-  return result.join("");
+  return Log.table(headers, rows, { caption: " MARKET\n", tableStyle: "border-collapse: collapse;" });
 }
 
 /**
@@ -545,96 +458,67 @@ function cleanMemory(memoryType, propertyName) {
  * @returns {string} HTML table string
  */
 function showLogistic(roomName = null) {
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push("<caption><strong>TRANSPORT ORDERS (LOGISTICS)</strong></caption>");
-
-  // Get rooms to process
   const roomsToProcess = [];
   if (roomName) {
     const room = Game.rooms[roomName];
     if (room && room.controller && room.controller.my) {
       roomsToProcess.push(room);
     } else {
-      result.push(`<tr><td colspan="8" style="color: #ff0000;">Room "${roomName}" not found or not owned</td></tr>`);
-      result.push("</table>");
-      return result.join("");
+      const resultString = Log.table([], [{ type: "section", content: `Room "${roomName}" not found or not owned`, colspan: 10, style: "color: #ff0000;" }], {
+        caption: "<strong>TRANSPORT ORDERS (LOGISTICS)</strong>",
+        tableStyle: "border-collapse: collapse; width: 100%;",
+      });
+      return resultString;
     }
   } else {
-    // All owned rooms
     for (const name in Game.rooms) {
       const room = Game.rooms[name];
-      if (room && room.controller && room.controller.my) {
-        roomsToProcess.push(room);
-      }
+      if (room && room.controller && room.controller.my) roomsToProcess.push(room);
     }
   }
 
   if (roomsToProcess.length === 0) {
-    result.push('<tr><td colspan="8" style="color: #ff0000;">No owned rooms found</td></tr>');
-    result.push("</table>");
-    return result.join("");
+    const resultString = Log.table([], [{ type: "section", content: "No owned rooms found", colspan: 10, style: "color: #ff0000;" }], {
+      caption: "<strong>TRANSPORT ORDERS (LOGISTICS)</strong>",
+      tableStyle: "border-collapse: collapse; width: 100%;",
+    });
+    console.logUnsafe(resultString);
+    return resultString;
   }
 
-  // Create a temporary ControllerGame instance to create ControllerRoom instances
+  const logisticsHeaders = ["RESOURCE", "FROM (SOURCE)", "AMOUNT", "PRIORITY", "TO (TARGET)", "AMOUNT", "PRIORITY", "SOURCE OBJ", "TARGET OBJ", "STATUS"];
+  const rows = [];
   const tempControllerGame = new ControllerGame();
 
   for (const room of roomsToProcess) {
     const rc = tempControllerGame._rooms[room.name];
     if (!rc) continue;
 
-    // Room header
-    result.push(`<tr><td colspan="10" style="padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;">ROOM: ${room.name}</td></tr>`);
+    rows.push({ type: "section", content: `ROOM: ${room.name}`, colspan: 10, style: "padding: 5px; background-color: #222; color: #00ffff; font-weight: bold;" });
+    rows.push({ type: "header", cells: logisticsHeaders, headerStyle: "padding: 5px; background-color: #333;" });
 
-    // Table headers
-    result.push('<tr style="background-color: #333;">');
-    result.push('<th style="padding: 5px;">RESOURCE</th>');
-    result.push('<th style="padding: 5px;">FROM (SOURCE)</th>');
-    result.push('<th style="padding: 5px;">AMOUNT</th>');
-    result.push('<th style="padding: 5px;">PRIORITY</th>');
-    result.push('<th style="padding: 5px;">TO (TARGET)</th>');
-    result.push('<th style="padding: 5px;">AMOUNT</th>');
-    result.push('<th style="padding: 5px;">PRIORITY</th>');
-    result.push('<th style="padding: 5px;">SOURCE OBJ</th>');
-    result.push('<th style="padding: 5px;">TARGET OBJ</th>');
-    result.push('<th style="padding: 5px;">STATUS</th>');
-    result.push("</tr>");
-
-    // Get givesResources and needsResources
     const givesResources = rc.givesResources();
     const needsResources = rc.needsResources();
-
-    // Find matching transport orders (need.priority < give.priority)
     const transportOrders = [];
     for (const give of givesResources) {
       for (const need of needsResources) {
-        // Check if same resource type and need priority is less than give priority
-        if (give.resourceType === need.resourceType && need.priority < give.priority && need.id !== give.id) {
-          // Verify target still exists and has capacity
-          const targetObj = Game.getObjectById(need.id);
-          if (!targetObj) continue;
-
-          if (targetObj.store) {
-            const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
-            if (freeCap <= 0) continue;
-          }
-
-          // Verify source still exists
-          const sourceObj = Game.getObjectById(give.id);
-          if (!sourceObj) continue;
-
-          transportOrders.push({ give, need });
+        if (give.resourceType !== need.resourceType || need.priority >= give.priority || need.id === give.id) continue;
+        const targetObj = Game.getObjectById(need.id);
+        if (!targetObj) continue;
+        if (targetObj.store) {
+          const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
+          if (freeCap <= 0) continue;
         }
+        const sourceObj = Game.getObjectById(give.id);
+        if (!sourceObj) continue;
+        transportOrders.push({ give, need });
       }
     }
-
-    // Sort by priority (need.priority) from smallest to largest
     transportOrders.sort((a, b) => (a.need.priority || 0) - (b.need.priority || 0));
 
     if (transportOrders.length > 0) {
       for (const order of transportOrders) {
         const { give, need } = order;
-
         const sourceObj = Game.getObjectById(give.id);
         const targetObj = Game.getObjectById(need.id);
         const sourceName = sourceObj ? sourceObj.toString() : "NOT FOUND";
@@ -644,61 +528,51 @@ function showLogistic(roomName = null) {
         if (!sourceObj || !targetObj) {
           status = "INVALID";
         } else {
-          // Calculate source available amount
           let sourceAvailable = 0;
-          if (sourceObj.store) {
-            // Structure with store (container, storage, terminal, etc.)
-            sourceAvailable = sourceObj.store[give.resourceType] || 0;
-          } else if (sourceObj.amount !== undefined && sourceObj.resourceType === give.resourceType) {
-            // Dropped resource
-            sourceAvailable = sourceObj.amount || 0;
-          } else if (sourceObj.store && sourceObj.store.getUsedCapacity) {
-            // Tombstone or ruin
-            sourceAvailable = sourceObj.store[give.resourceType] || 0;
-          }
+          if (sourceObj.store) sourceAvailable = sourceObj.store[give.resourceType] || 0;
+          else if (sourceObj.amount !== undefined && sourceObj.resourceType === give.resourceType) sourceAvailable = sourceObj.amount || 0;
+          else if (sourceObj.store && sourceObj.store.getUsedCapacity) sourceAvailable = sourceObj.store[give.resourceType] || 0;
 
-          // Calculate target free capacity
           let targetFreeStr = "0";
-          if (targetObj.store) {
-            // Structure with store
-            const freeCap = targetObj.store.getFreeCapacity(need.resourceType) || 0;
-            targetFreeStr = String(freeCap);
-          } else if (targetObj.store && targetObj.store.getFreeCapacity) {
-            // Tombstone or ruin (can't receive, but has store)
-            targetFreeStr = "0";
-          } else {
-            // Object without store (e.g., Controller) - assume it can receive
-            targetFreeStr = "∞";
-          }
+          if (targetObj.store) targetFreeStr = String(targetObj.store.getFreeCapacity(need.resourceType) || 0);
+          else if (!targetObj.store || !targetObj.store.getFreeCapacity) targetFreeStr = "∞";
 
           status = `${sourceAvailable} available → ${targetFreeStr} free`;
         }
 
-        result.push('<tr style="background-color: #1a1a1a;">');
-        result.push(`<td style="padding: 5px;">${utilsResources.resourceImg(give.resourceType)}</td>`);
-        result.push(`<td style="padding: 5px; color: #00ff00;">${sourceName}</td>`);
-        result.push(`<td style="padding: 5px; text-align: right;">${give.amount || 0}</td>`);
-        result.push(`<td style="padding: 5px; text-align: right;">${give.priority || 0}</td>`);
-        result.push(`<td style="padding: 5px; color: #ff8800;">${targetName}</td>`);
-        result.push(`<td style="padding: 5px; text-align: right;">${need.amount || 0}</td>`);
-        result.push(`<td style="padding: 5px; text-align: right;">${need.priority || 0}</td>`);
-        result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${give.id}</td>`);
-        result.push(`<td style="padding: 5px; font-family: monospace; font-size: 10px;">${need.id}</td>`);
-        result.push(`<td style="padding: 5px;">${status}</td>`);
-        result.push("</tr>");
+        rows.push([
+          utilsResources.resourceImg(give.resourceType),
+          sourceName,
+          give.amount || 0,
+          give.priority || 0,
+          targetName,
+          need.amount || 0,
+          need.priority || 0,
+          give.id,
+          need.id,
+          status,
+        ]);
       }
     } else {
-      result.push('<tr><td colspan="10" style="padding: 5px; color: #888;">No transport orders available (no matching pairs with need.priority < give.priority)</td></tr>');
+      rows.push({ type: "section", content: "No transport orders available (no matching pairs with need.priority < give.priority)", colspan: 10, style: "padding: 5px; color: #888;" });
     }
-
-    // Summary row
-    result.push('<tr style="background-color: #333;">');
-    result.push(`<td colspan="10" style="padding: 5px; color: #cccccc;">Summary: ${transportOrders.length} transport order(s) from ${givesResources.length} gives and ${needsResources.length} needs</td>`);
-    result.push("</tr>");
+    rows.push({ type: "section", content: `Summary: ${transportOrders.length} transport order(s) from ${givesResources.length} gives and ${needsResources.length} needs`, colspan: 10, style: "padding: 5px; background-color: #333; color: #cccccc;" });
   }
 
-  result.push("</table>");
-  const resultString = result.join("");
+  const options = {
+    caption: "<strong>TRANSPORT ORDERS (LOGISTICS)</strong>",
+    tableStyle: "border-collapse: collapse; width: 100%;",
+    rowStyle: () => "background-color: #1a1a1a;",
+    cellStyle: (_rowIdx, colIdx) => {
+      if (colIdx === 1) return "padding: 5px; color: #00ff00;";
+      if (colIdx === 4) return "padding: 5px; color: #ff8800;";
+      if (colIdx === 2 || colIdx === 3 || colIdx === 5 || colIdx === 6) return "padding: 5px; text-align: right;";
+      if (colIdx === 7 || colIdx === 8) return "padding: 5px; font-family: monospace; font-size: 10px;";
+      return "padding: 5px;";
+    },
+  };
+
+  const resultString = Log.table([], rows, options);
   console.logUnsafe(resultString);
   return resultString;
 }
@@ -1083,158 +957,109 @@ function _drawScoutVisualization(centerRoom) {
  * @returns {string} HTML table string
  */
 function showRclUpgradeTimes() {
-  const result = [];
-  result.push('<table border="1" style="border-collapse: collapse; width: 100%;">');
-  result.push("<caption><strong>RCL UPGRADE TIMES</strong></caption>");
+  const formatTime = (ticks) => (ticks === undefined || ticks === null ? "-" : ticks.toLocaleString());
 
-  // Get all owned rooms
+  const getTimeColor = (ticks, level) => {
+    if (ticks === undefined || ticks === null) return "#888";
+    const goodTimes = { 1: 1000, 2: 2000, 3: 5000, 4: 10000, 5: 20000, 6: 40000, 7: 80000, 8: 150000 };
+    const goodTime = goodTimes[level] || 100000;
+    if (ticks <= goodTime) return "#00ff00";
+    if (ticks <= goodTime * 1.5) return "#ffaa00";
+    return "#ff0000";
+  };
+
   const ownedRooms = [];
   for (const roomName in Game.rooms) {
     const room = Game.rooms[roomName];
-    if (room.controller && room.controller.my) {
-      ownedRooms.push({ roomName, room });
-    }
+    if (room.controller && room.controller.my) ownedRooms.push({ roomName, room });
   }
-
-  // Sort rooms by RCL level (descending - highest first)
-  ownedRooms.sort((a, b) => {
-    const rclA = a.room.controller ? a.room.controller.level : 0;
-    const rclB = b.room.controller ? b.room.controller.level : 0;
-    return rclB - rclA; // Descending order (8, 7, 6, ...)
-  });
+  ownedRooms.sort((a, b) => (b.room.controller ? b.room.controller.level : 0) - (a.room.controller ? a.room.controller.level : 0));
 
   if (ownedRooms.length === 0) {
-    result.push('<tr><td colspan="9" style="padding: 5px; color: #888;">No owned rooms found</td></tr>');
-    result.push("</table>");
-    const resultString = result.join("");
+    const resultString = Log.table([], [{ type: "section", content: "No owned rooms found", colspan: 9, style: "padding: 5px; color: #888;" }], {
+      caption: "<strong>RCL UPGRADE TIMES</strong>",
+      tableStyle: "border-collapse: collapse; width: 100%;",
+    }) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
     console.logUnsafe(resultString);
     return resultString;
   }
 
-  // Collect all RCL levels that have data
   const allLevels = new Set();
   ownedRooms.forEach(({ roomName }) => {
     const roomMemory = Memory.rooms && Memory.rooms[roomName];
     if (roomMemory && roomMemory.rclUpgradeTimes) {
-      Object.keys(roomMemory.rclUpgradeTimes).forEach(level => {
-        // Skip tracking fields
-        if (level !== "lastLevel" && level !== "lastLevelTick") {
-          allLevels.add(parseInt(level));
-        }
+      Object.keys(roomMemory.rclUpgradeTimes).forEach((level) => {
+        if (level !== "lastLevel" && level !== "lastLevelTick") allLevels.add(parseInt(level));
       });
     }
   });
-
-  // Sort levels
   const sortedLevels = Array.from(allLevels).sort((a, b) => a - b);
 
   if (sortedLevels.length === 0) {
-    result.push('<tr><td colspan="2" style="padding: 5px; color: #888;">No RCL upgrade time data available</td></tr>');
-    result.push("</table>");
-    const resultString = result.join("");
+    const resultString = Log.table([], [{ type: "section", content: "No RCL upgrade time data available", colspan: 2, style: "padding: 5px; color: #888;" }], {
+      caption: "<strong>RCL UPGRADE TIMES</strong>",
+      tableStyle: "border-collapse: collapse; width: 100%;",
+    }) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
     console.logUnsafe(resultString);
     return resultString;
   }
 
-  // Table headers
-  result.push('<tr style="background-color: #333;">');
-  result.push('<th style="padding: 5px;">ROOM</th>');
-  result.push('<th style="padding: 5px;">CURRENT RCL</th>');
-  sortedLevels.forEach(level => {
-    result.push(`<th style="padding: 5px;">RCL ${level}</th>`);
-  });
-  result.push("</tr>");
-
-  // Helper function to format time (display ticks directly)
-  const formatTime = (ticks) => {
-    if (ticks === undefined || ticks === null) return "-";
-    return ticks.toLocaleString(); // Display ticks with thousand separators
-  };
-
-  // Helper function to get color based on time (shorter = better = green)
-  const getTimeColor = (ticks, level) => {
-    if (ticks === undefined || ticks === null) return "#888";
-    
-    // Rough estimates for "good" upgrade times per level
-    const goodTimes = {
-      1: 1000,   // ~16 minutes
-      2: 2000,   // ~33 minutes
-      3: 5000,   // ~83 minutes
-      4: 10000,  // ~2.7 hours
-      5: 20000,  // ~5.5 hours
-      6: 40000,  // ~11 hours
-      7: 80000,  // ~22 hours
-      8: 150000, // ~41 hours
-    };
-    
-    const goodTime = goodTimes[level] || 100000;
-    if (ticks <= goodTime) {
-      return "#00ff00"; // Green - good time
-    } else if (ticks <= goodTime * 1.5) {
-      return "#ffaa00"; // Orange - acceptable
-    } else {
-      return "#ff0000"; // Red - slow
-    }
-  };
-
-  // Room rows
-  ownedRooms.forEach(({ roomName, room }) => {
+  const headers = ["ROOM", "CURRENT RCL", ...sortedLevels.map((l) => `RCL ${l}`)];
+  const rawValues = [];
+  const rows = ownedRooms.map(({ roomName, room }) => {
     const roomMemory = Memory.rooms && Memory.rooms[roomName];
     const currentRcl = room.controller ? room.controller.level : 0;
-    const upgradeTimes = roomMemory && roomMemory.rclUpgradeTimes ? roomMemory.rclUpgradeTimes : {};
-
-    result.push('<tr style="background-color: #1a1a1a;">');
-    
-    // Room name
-    result.push(`<td style="padding: 5px; color: #00ffff; font-weight: bold;">${roomName}</td>`);
-    
-    // Current RCL
-    result.push(`<td style="padding: 5px; text-align: center; color: #ffff00; font-weight: bold;">${currentRcl}</td>`);
-    
-    // Upgrade times for each level
-    sortedLevels.forEach(level => {
+    const upgradeTimes = (roomMemory && roomMemory.rclUpgradeTimes) || {};
+    const rawRow = [null, null];
+    const cells = [roomName, currentRcl];
+    sortedLevels.forEach((level) => {
       const upgradeTime = upgradeTimes[level.toString()];
-      const timeStr = formatTime(upgradeTime);
-      const color = getTimeColor(upgradeTime, level);
-      
-      result.push(`<td style="padding: 5px; text-align: center; color: ${color};">${timeStr}</td>`);
+      rawRow.push(upgradeTime);
+      cells.push(formatTime(upgradeTime));
     });
-    
-    result.push("</tr>");
+    rawValues.push(rawRow);
+    return cells;
   });
 
-  // Summary row (average times per level)
-  result.push('<tr style="background-color: #333;">');
-  result.push('<td style="padding: 5px; font-weight: bold; color: #00ff00;">AVERAGE</td>');
-  result.push('<td style="padding: 5px;"></td>');
-  
-  sortedLevels.forEach(level => {
-    const times = [];
-    ownedRooms.forEach(({ roomName }) => {
-      const roomMemory = Memory.rooms && Memory.rooms[roomName];
-      const upgradeTimes = roomMemory && roomMemory.rclUpgradeTimes ? roomMemory.rclUpgradeTimes : {};
-      const time = upgradeTimes[level.toString()];
-      if (time !== undefined && time !== null) {
-        times.push(time);
+  const footerTimes = sortedLevels.map((level) => {
+    const times = ownedRooms
+      .map(({ roomName }) => (Memory.rooms && Memory.rooms[roomName] && Memory.rooms[roomName].rclUpgradeTimes) || {})
+      .map((ut) => ut[level.toString()])
+      .filter((t) => t !== undefined && t !== null);
+    return times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
+  });
+  const footer = ["AVERAGE", "", ...footerTimes.map((t) => formatTime(t))];
+
+  const options = {
+    caption: "<strong>RCL UPGRADE TIMES</strong>",
+    tableStyle: "border-collapse: collapse; width: 100%;",
+    headerStyle: "padding: 5px; background-color: #333;",
+    rowStyle: () => "background-color: #1a1a1a;",
+    cellStyle: (rowIdx, colIdx, value) => {
+      const style = "padding: 5px;";
+      if (colIdx === 0) return `${style} color: #00ffff; font-weight: bold;`;
+      if (colIdx === 1) return `${style} text-align: center; color: #ffff00; font-weight: bold;`;
+      if (colIdx >= 2) {
+        const raw = rowIdx < rawValues.length ? rawValues[rowIdx][colIdx] : (footerTimes[colIdx - 2] != null ? footerTimes[colIdx - 2] : null);
+        const level = sortedLevels[colIdx - 2];
+        const color = getTimeColor(raw, level);
+        return `${style} text-align: center; color: ${color};${rowIdx >= rows.length ? " font-weight: bold;" : ""}`;
       }
-    });
-    
-    if (times.length > 0) {
-      const avgTime = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-      const timeStr = formatTime(avgTime);
-      const color = getTimeColor(avgTime, level);
-      result.push(`<td style="padding: 5px; text-align: center; font-weight: bold; color: ${color};">${timeStr}</td>`);
-    } else {
-      result.push('<td style="padding: 5px; text-align: center; color: #888;">-</td>');
-    }
-  });
-  
-  result.push("</tr>");
+      return style;
+    },
+    footer,
+    footerRowStyle: "background-color: #333;",
+    footerCellStyle: (colIdx, value) => {
+      if (colIdx === 0) return "padding: 5px; font-weight: bold; color: #00ff00;";
+      if (colIdx === 1) return "padding: 5px;";
+      const level = sortedLevels[colIdx - 2];
+      const raw = footerTimes[colIdx - 2];
+      const color = getTimeColor(raw, level);
+      return `padding: 5px; text-align: center; font-weight: bold; color: ${color};`;
+    },
+  };
 
-  result.push("</table>");
-  result.push('<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>');
-  
-  const resultString = result.join("");
+  const resultString = Log.table(headers, rows, options) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
   console.logUnsafe(resultString);
   return resultString;
 }

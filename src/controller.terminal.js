@@ -242,16 +242,24 @@ class ControllerTerminal {
           continue;
         }
 
+        // Ensure only one terminal sends this resource to this room this tick
+        const sentKey = `${resourceType}_${targetRoom.name}`;
+        if (Memory.internalTradeSent && Memory.internalTradeSent[sentKey]) {
+          continue;
+        }
+
         // Send the minimum of: available amount, needed amount
         const sendAmount = Math.min(availableAmount, needed);
 
         if (sendAmount > 0) {
           const result = terminal.send(resourceType, sendAmount, targetRoom.name, "internal");
           if (result === OK) {
+            if (!Memory.internalTradeSent) Memory.internalTradeSent = {};
+            Memory.internalTradeSent[sentKey] = true;
             cancelTrading = true;
-            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to ${targetRoom}`, "internalTrade");
+            Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}`, "internalTrade");
           } else {
-            Log.warn(`${terminal.room} failed to transfer ${sendAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to ${targetRoom}: ${global.getErrorString(result)}`, "internalTrade");
+            Log.warn(`${terminal.room} failed to transfer ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}: ${global.getErrorString(result)}`, "internalTrade");
           }
           break;
         }
@@ -266,9 +274,9 @@ class ControllerTerminal {
           const result = Game.market.deal(order.id, dealAmount, terminal.room.name);
           if (result === OK) {
             cancelTrading = true;
-            Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} (${resourceType}) for ${order.price}`, "internalTrade");
+            Log.success(`${terminal.room} sells ${dealAmount} of ${global.resourceImg(resourceType)} for ${order.price}`, "internalTrade");
           } else {
-            Log.warn(`${terminal.room} failed to sell ${dealAmount} of ${global.resourceImg(resourceType)} (${resourceType}) to market: ${global.getErrorString(result)}`, "internalTrade");
+            Log.warn(`${terminal.room} failed to sell ${dealAmount} of ${global.resourceImg(resourceType)} to market: ${global.getErrorString(result)}`, "internalTrade");
           }
         }
       }

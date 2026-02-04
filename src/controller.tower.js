@@ -25,9 +25,12 @@ class ControllerTower {
 
   /**
    * Repairs structures
+   * Coordinates with other towers to avoid multiple towers repairing the same structure
+   * (saves 0.2 CPU per avoided redundant intent)
    * @param {StructureTower} tower - The tower to operate
+   * @param {Set<string>} repairedThisTick - Set of structure IDs already being repaired this tick
    */
-  _repair(tower) {
+  _repair(tower, repairedThisTick) {
     // Don't repair if enemies are present
     if (this.room.getEnemies().length > 0) {
       return;
@@ -38,8 +41,14 @@ class ControllerTower {
 
     // Use cached structures from ControllerRoom
     const structures = this.room.findStructuresToRepair();
-    if (structures.length > 0) {
-      tower.repair(structures[0]);
+    
+    // Find first structure not already being repaired by another tower
+    for (const structure of structures) {
+      if (!repairedThisTick.has(structure.id)) {
+        tower.repair(structure);
+        repairedThisTick.add(structure.id);
+        return;
+      }
     }
   }
 
@@ -76,11 +85,15 @@ class ControllerTower {
    * @param {boolean} shouldRepair - Whether to perform repair operations
    */
   run(shouldRepair) {
+    // Track structures being repaired this tick to avoid multiple towers
+    // repairing the same structure (saves 0.2 CPU per redundant intent)
+    const repairedThisTick = new Set();
+
     for (const tower of this.towers) {
       this._fire(tower);
       this._heal(tower);
       if (shouldRepair) {
-        this._repair(tower);
+        this._repair(tower, repairedThisTick);
       }
     }
   }
