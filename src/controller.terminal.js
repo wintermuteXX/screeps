@@ -271,6 +271,9 @@ class ControllerTerminal {
         if (order) {
           // Use availableAmount instead of amount to respect threshold
           const dealAmount = Math.min(order.amount, availableAmount);
+          if (dealAmount <= 0) {
+            continue; // deal(0) returns ERR_INVALID_ARGS
+          }
           const result = Game.market.deal(order.id, dealAmount, terminal.room.name);
           if (result === OK) {
             cancelTrading = true;

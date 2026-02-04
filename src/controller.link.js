@@ -7,16 +7,22 @@ class ControllerLink {
   }
 
   /**
-   * Helper function to get links near sources (senders) or away from sources (receivers)
-   * @param {boolean} nearSource - If true, returns links near sources (senders), otherwise receivers
+   * Helper function to get links near sources (senders) or links that receive energy (receivers).
+   * Base links are always receivers so they get supplied even when in range of a source.
+   * @param {boolean} nearSource - If true, returns sender links (near source, not base link), otherwise receivers
    * @returns {StructureLink[]} Array of links
    */
   _getLinksBySourceProximity(nearSource) {
-    // Nutzt gecachten find() Cache statt getSources()
     const sources = this.room.find(FIND_SOURCES);
     return _.filter(this.links, (link) => {
       const hasNearbySource = link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length > 0;
-      return nearSource ? hasNearbySource : !hasNearbySource;
+      const isBase = this._isBaseLink(link);
+      if (nearSource) {
+        // Sender: near source and not a base link (base links are supplied, they don't send from source)
+        return hasNearbySource && !isBase;
+      }
+      // Receiver: not near source, or base link (base link is always supplied)
+      return !hasNearbySource || isBase;
     });
   }
 
