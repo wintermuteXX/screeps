@@ -13,8 +13,9 @@ class ControllerLink {
    * @returns {StructureLink[]} Array of links
    */
   _getLinksBySourceProximity(nearSource) {
+    const links = this.links || [];
     const sources = this.room.find(FIND_SOURCES);
-    return _.filter(this.links, (link) => {
+    return _.filter(links, (link) => {
       const hasNearbySource = link.pos.findInRange(sources, CONSTANTS.LINK.RANGE_TO_SOURCE).length > 0;
       const isBase = this._isBaseLink(link);
       if (nearSource) {
@@ -104,6 +105,9 @@ class ControllerLink {
     if (Game.time % CONSTANTS.TICKS.CHECK_LINKS !== 0) {
       return;
     }
+    if (!this.room || !this.room.room) {
+      return;
+    }
 
     // Get ready senders (filtered and ready to transfer)
     const readySenders = _.filter(this.senders, (s) => this._isSenderReady(s));
@@ -147,8 +151,11 @@ class ControllerLink {
 
       const sender = readySenders[0];
       if (this._isSenderReady(sender)) {
-        sender.transferEnergy(receiver);
-        readySenders.shift(); // Remove used sender from array
+        const result = sender.transferEnergy(receiver);
+        if (result === OK) {
+          readySenders.shift(); // Only remove sender after successful transfer
+        }
+        // On ERR_FULL etc. keep sender in list for next receiver
       }
     }
   }

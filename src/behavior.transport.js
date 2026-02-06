@@ -121,8 +121,9 @@ class TransportBehavior extends Behavior {
   _handleCollectResult(creep, target, resourceType, result) {
     switch (result) {
       case OK:
-        // Success - clear target, keep resource type for delivery
+        // Success - clear target, remember source so we don't deliver back to it
         creep.memory.transportTarget = null;
+        creep.memory.transportCollectSourceId = target.id;
         break;
 
       case ERR_NOT_IN_RANGE:
@@ -136,8 +137,9 @@ class TransportBehavior extends Behavior {
         break;
 
       case ERR_FULL:
-        // Creep is full, proceed to delivery
+        // Creep is full, proceed to delivery (don't deliver back to this source)
         creep.memory.transportTarget = null;
+        creep.memory.transportCollectSourceId = target.id;
         break;
 
       default:
@@ -162,7 +164,7 @@ class TransportBehavior extends Behavior {
       const order = this._findDeliveryOrder(creep, rc);
       if (!order) {
         // Try fallbacks (no amount limit for fallbacks)
-        const fallback = this._getFallbackTarget(creep);
+        const fallback = this._getFallbackTarget(creep, this);
         if (!fallback) {
           return;
         }
@@ -189,35 +191,53 @@ class TransportBehavior extends Behavior {
 
   /**
    * Find best delivery order using logistics
+   * Excludes the structure we just collected from (avoid delivering back to terminal etc.)
    */
   _findDeliveryOrder(creep, rc) {
-    const orders = rc.getDeliveryOrder(creep);
+    let orders = rc.getDeliveryOrder(creep);
 
     if (!orders || (Array.isArray(orders) && orders.length === 0)) {
       return null;
     }
 
-    // Single or first order
-    return Array.isArray(orders) ? orders[0] : orders;
+    const list = Array.isArray(orders) ? orders : [orders];
+    const collectSourceId = creep.memory.transportCollectSourceId;
+    const filtered = collectSourceId
+      ? list.filter(o => o.id !== collectSourceId)
+      : list;
+
+    if (filtered.length === 0) {
+      return null;
+    }
+    return filtered[0];
   }
 
   /**
    * Fallback targets: Terminal → Storage → Drop
+   * @param {Creep} creep
+   * @param {TransportBehavior} [behavior] - Optional, for clearing memory when dropping
    */
-  _getFallbackTarget(creep) {
-    // Terminal
+  _getFallbackTarget(creep, behavior) {
+    if (!creep.room) return null;
+
+    const collectSourceId = creep.memory.transportCollectSourceId;
+
+    // Terminal (skip if we just collected from it)
     const terminal = creep.room.terminal;
-    if (terminal && terminal.my && terminal.store.getFreeCapacity() > 0) {
+    if (terminal && terminal.my && terminal.store.getFreeCapacity() > 0 && terminal.id !== collectSourceId) {
       return terminal;
     }
 
-    // Storage
+    // Storage (skip if we just collected from it)
     const storage = creep.room.storage;
-    if (storage && storage.my && storage.store.getFreeCapacity() > 0) {
+    if (storage && storage.my && storage.store.getFreeCapacity() > 0 && storage.id !== collectSourceId) {
       return storage;
     }
 
-    // Last resort: drop
+    // Last resort: drop (clear memory so creep does not treat old target as collect source next tick)
+    if (behavior && typeof behavior._clearTransportMemory === "function") {
+      behavior._clearTransportMemory(creep);
+    }
     Log.warn(`${creep} dropping resources - no delivery target`, "transport");
     for (const resourceType of Object.keys(creep.store)) {
       if (creep.store[resourceType] > 0) {
@@ -274,8 +294,18 @@ class TransportBehavior extends Behavior {
       switch (result) {
         case OK:
           totalTransferred += transferAmount;
-          // Continue with next resource if no amount limit or not yet fulfilled
-          break;
+          // One action per tick: apply end-of-transfer logic and return
+          {
+            const expectedRemaining = totalCarriedBefore - totalTransferred;
+            // Only full clear when creep will be empty after this tick (store updates at tick end)
+            if (expectedRemaining <= 0) {
+              this._clearTransportMemory(creep);
+            } else if (orderAmount != null && totalTransferred >= orderAmount) {
+              creep.memory.transportTarget = null;
+              creep.memory.transportAmount = null;
+            }
+          }
+          return;
 
         case ERR_NOT_IN_RANGE:
           creep.travelTo(target, { maxRooms: 1 });
@@ -356,12 +386,14 @@ class TransportBehavior extends Behavior {
   }
 
   /**
-   * Clear transport-related memory
+   * Clear all transport-related memory (used when creep is empty or collect failed).
+   * After a successful delivery we call this when expectedRemaining <= 0 so the creep can take a new order next tick.
    */
   _clearTransportMemory(creep) {
     creep.memory.transportTarget = null;
     creep.memory.transportResource = null;
     creep.memory.transportAmount = null;
+    creep.memory.transportCollectSourceId = null;
   }
 }
 

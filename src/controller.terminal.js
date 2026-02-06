@@ -101,11 +101,19 @@ class ControllerTerminal {
       skipToday = 0;
     }
     const history = Game.market.getHistory(resourceType);
-    let totalPrice = 0;
-    for (let index = skipToday; index <= days; index += 1) {
-      totalPrice += history[index].avgPrice;
+    if (!history || history.length === 0) {
+      return 0;
     }
-    return totalPrice / days;
+    const endIndex = Math.min(days, history.length - 1);
+    let totalPrice = 0;
+    let count = 0;
+    for (let index = skipToday; index <= endIndex; index += 1) {
+      if (history[index] && typeof history[index].avgPrice === "number") {
+        totalPrice += history[index].avgPrice;
+        count += 1;
+      }
+    }
+    return count > 0 ? totalPrice / count : 0;
   }
 
   sellRoomMineral() {
@@ -113,6 +121,9 @@ class ControllerTerminal {
       return null;
     }
     const {terminal} = this;
+    if (!terminal.room.mineral) {
+      return null;
+    }
     const theMineralType = terminal.room.mineral.mineralType;
 
     // Check if we have enough global resources before selling
@@ -159,6 +170,9 @@ class ControllerTerminal {
       return null;
     }
     const {terminal} = this;
+    if (!terminal.room.mineral) {
+      return null;
+    }
     const theMineralType = terminal.room.mineral.mineralType;
 
     if (terminal.store[theMineralType] <= CONSTANTS.MARKET.MAX_ORDER_AMOUNT) {
@@ -192,13 +206,17 @@ class ControllerTerminal {
     const {terminal} = this;
     const roomsWithTerminal = _.filter(Game.rooms, (r) => r.terminal && r.terminal.my && r.terminal.isActive());
 
-    // Pre-calculate helper array once
-    const sellableResources = MarketCal.TIER_1_COMPOUNDS.concat(
-      MarketCal.TIER_2_COMPOUNDS,
-      MarketCal.TIER_3_COMPOUNDS,
-      MarketCal.BASE_COMPOUNDS,
-      MarketCal.COMPRESSED_RESOURCES,
-    );
+    // Pre-calculate helper array once (room-to-room transfer works without MarketCal)
+    let sellableResources = [];
+    if (typeof global.MarketCal !== "undefined") {
+      const MarketCal = global.MarketCal;
+      sellableResources = MarketCal.TIER_1_COMPOUNDS.concat(
+        MarketCal.TIER_2_COMPOUNDS,
+        MarketCal.TIER_3_COMPOUNDS,
+        MarketCal.BASE_COMPOUNDS,
+        MarketCal.COMPRESSED_RESOURCES,
+      );
+    }
 
     let cancelTrading = false;
 
@@ -294,9 +312,9 @@ class ControllerTerminal {
     const {terminal} = this;
     const energyInTerminal = ResourceManager.getResourceAmount(terminal.room, RESOURCE_ENERGY, "terminal");
     const threshold = terminal.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
-
+    // Only place buy order if we have at least that many credits (reuse threshold as min. credits heuristic)
     if (Game.market.credits < threshold) {
-      Log.warn(`There are less than ${threshold} credits available. Skipping...`, "buyEnergyOrder");
+      Log.warn(`Credits (${Game.market.credits}) below minimum (${threshold}). Skipping energy buy.`, "buyEnergyOrder");
       return false;
     }
 
@@ -359,7 +377,10 @@ class ControllerTerminal {
       return bestOrder;
     }
 
-    // Calculate profit with transaction costs
+    // Calculate profit with transaction costs (requires terminal for fee calculation)
+    if (!this.terminal) {
+      return null;
+    }
     const {terminal} = this;
     const ordersWithProfit = orders
       .filter(order => order.remainingAmount > 0)
