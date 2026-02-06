@@ -312,24 +312,22 @@ module.exports = {
 
       // Update memory when Game.rooms has newer data
       if (gameRoom && gameRoom.controller && gameRoom.controller.my) {
-        // Use new unified structure: structures.controllers[controllerId]
         if (!roomMemory.structures) roomMemory.structures = {};
-        if (!roomMemory.structures.controllers) roomMemory.structures.controllers = {};
-        const controllerId = gameRoom.controller.id;
-        if (!roomMemory.structures.controllers[controllerId]) {
-          roomMemory.structures.controllers[controllerId] = {};
-        }
-        roomMemory.structures.controllers[controllerId].my = true;
-        roomMemory.structures.controllers[controllerId].level = gameRoom.controller.level;
+        if (!roomMemory.structures.controller) roomMemory.structures.controller = {};
+        roomMemory.structures.controller.my = true;
+        roomMemory.structures.controller.level = gameRoom.controller.level;
       }
 
       // Check if room is still below RCL 3
-      // Use new structure
       let controllerLevel = null;
-      if (roomMemory.structures && roomMemory.structures.controllers) {
-        const controllerIds = Object.keys(roomMemory.structures.controllers);
-        if (controllerIds.length > 0) {
-          controllerLevel = roomMemory.structures.controllers[controllerIds[0]].level;
+      if (roomMemory.structures) {
+        if (roomMemory.structures.controller) {
+          controllerLevel = roomMemory.structures.controller.level;
+        } else if (roomMemory.structures.controllers) {
+          const controllerIds = Object.keys(roomMemory.structures.controllers);
+          if (controllerIds.length > 0) {
+            controllerLevel = roomMemory.structures.controllers[controllerIds[0]].level;
+          }
         }
       }
       if (!controllerLevel && gameRoom && gameRoom.controller) {

@@ -14,7 +14,8 @@ function calculateRoomScore(room, memory) {
   const breakdown = {};
 
   // 0. Check if room has a controller - no controller = 0 points
-  const hasController = (room && room.controller) || (memory.controller !== undefined);
+  const controllerMem = memory.structures && memory.structures.controller;
+  const hasController = (room && room.controller) || (controllerMem !== undefined);
   if (!hasController) {
     // Room has no controller - return 0 points
     return {
@@ -31,8 +32,8 @@ function calculateRoomScore(room, memory) {
 
   // 1. Is the room free? (highest priority - 1000 points)
   // Only check if controller exists (already verified above)
-  const isFree = memory.controller &&
-                 (!memory.controller.owner && !memory.controller.reservation);
+  const isFree = controllerMem &&
+                 (!controllerMem.owner && !controllerMem.reservation);
   if (isFree) {
     score += 1000;
     breakdown.isFree = 1000;
@@ -89,12 +90,15 @@ function calculateRoomScore(room, memory) {
       for (const roomName in Memory.rooms) {
         const roomMemory = Memory.rooms[roomName];
         // Only count rooms we own or have claimed
-        // Use new structure: structures.controllers[controllerId]
+        // Single controller per room: structures.controller
         let controllerMemory = null;
-        if (roomMemory.structures && roomMemory.structures.controllers) {
-          const controllerIds = Object.keys(roomMemory.structures.controllers);
-          if (controllerIds.length > 0) {
-            controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+        if (roomMemory.structures) {
+          controllerMemory = roomMemory.structures.controller || null;
+          if (!controllerMemory && roomMemory.structures.controllers) {
+            const controllerIds = Object.keys(roomMemory.structures.controllers);
+            if (controllerIds.length > 0) {
+              controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+            }
           }
         }
         if (controllerMemory && controllerMemory.my) {
@@ -288,17 +292,11 @@ function analyzeRoom(room, fullAnalysis = false) {
 
     // ===== Dynamic Data (updated on full analysis) =====
     if (fullAnalysis) {
-      // Controller information
+      // Controller information (single controller per room: structures.controller)
       if (room.controller) {
-        // Use new unified structure: Memory.rooms[room.name].structures.controllers[controllerId]
         if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
-        if (!Memory.rooms[room.name].structures.controllers) Memory.rooms[room.name].structures.controllers = {};
-        
-        const controllerId = room.controller.id;
-        const existingController = Memory.rooms[room.name].structures.controllers[controllerId] || {};
-        
-        // Store in new structure
-        Memory.rooms[room.name].structures.controllers[controllerId] = {
+        const existingController = Memory.rooms[room.name].structures.controller || {};
+        Memory.rooms[room.name].structures.controller = {
           level: room.controller.level,
           progress: room.controller.progress,
           progressTotal: room.controller.progressTotal,
@@ -311,9 +309,6 @@ function analyzeRoom(room, fullAnalysis = false) {
           my: room.controller.my,
           containerID: existingController.containerID || null, // Preserve for controller.memory.containerID
         };
-        
-        // Store in memory.controller for analyzeRoom/Scout
-        memory.controller = Memory.rooms[room.name].structures.controllers[controllerId];
       }
 
       // Important structures
@@ -368,12 +363,15 @@ function analyzeRoom(room, fullAnalysis = false) {
       };
       
       // Restore nested structure after setting flat structure (since they share the same object)
-      // The nested structure is used by Structure.prototype.memory: structures[structureType + 's'][id]
+      // The nested structure is used by Structure.prototype.memory: structures[structureType + 's'][id], and structures.controller
       if (existingStructures && Object.keys(existingStructures).length > 0) {
-        // Restore nested structure keys (labs, extractors, controllers, etc.)
         for (const key in existingStructures) {
-          if (key.endsWith('s') && typeof existingStructures[key] === 'object' && !Array.isArray(existingStructures[key])) {
-            Memory.rooms[room.name].structures[key] = existingStructures[key];
+          const val = existingStructures[key];
+          const isNestedObject = typeof val === 'object' && val !== null && !Array.isArray(val);
+          if (key === 'controller' && isNestedObject) {
+            Memory.rooms[room.name].structures.controller = val;
+          } else if (key.endsWith('s') && isNestedObject) {
+            Memory.rooms[room.name].structures[key] = val;
           }
         }
       }
@@ -440,15 +438,16 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   }
 
   // Controller info (if full analysis)
-  if (fullAnalysis && memory.controller) {
-    if (memory.controller.my) {
-      parts.push(`Controller: RCL${memory.controller.level} (OWNED)`);
-    } else if (memory.controller.owner) {
-      parts.push(`Controller: RCL${memory.controller.level} (${memory.controller.owner})`);
-    } else if (memory.controller.reservation) {
-      parts.push(`Controller: Reserved by ${memory.controller.reservation.username}`);
+  const ctrl = memory.structures && memory.structures.controller;
+  if (fullAnalysis && ctrl) {
+    if (ctrl.my) {
+      parts.push(`Controller: RCL${ctrl.level} (OWNED)`);
+    } else if (ctrl.owner) {
+      parts.push(`Controller: RCL${ctrl.level} (${ctrl.owner})`);
+    } else if (ctrl.reservation) {
+      parts.push(`Controller: Reserved by ${ctrl.reservation.username}`);
     } else {
-      parts.push(`Controller: RCL${memory.controller.level} (Available)`);
+      parts.push(`Controller: RCL${ctrl.level} (Available)`);
     }
   }
 
@@ -472,7 +471,7 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   }
 
   // Structures (if full analysis and own room)
-  if (fullAnalysis && memory.structures && memory.controller && memory.controller.my) {
+  if (fullAnalysis && memory.structures && ctrl && ctrl.my) {
     const structParts = [];
     const structures = memory.structures || {};
     if (structures.spawn > 0) structParts.push(`${structures.spawn}S`);
@@ -486,7 +485,7 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   }
 
   // Room score (if full analysis and room is not owned)
-  if (fullAnalysis && memory.score && (!memory.controller || !memory.controller.my)) {
+  if (fullAnalysis && memory.score && (!ctrl || !ctrl.my)) {
     const scoreParts = [];
     if (memory.score.breakdown.isFree > 0) scoreParts.push("✅ Free");
     if (memory.score.breakdown.hasTwoSources > 0) scoreParts.push("2 Sources");

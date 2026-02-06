@@ -613,12 +613,15 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
   const roomStatus = Game.map.getRoomStatus(roomName);
   if (roomStatus.status !== "normal") return false;
   
-  // Get data from new structure
+  // Get data from structures.controller (single controller per room)
   let controllerMemory = null;
-  if (roomMemory.structures && roomMemory.structures.controllers) {
-    const controllerIds = Object.keys(roomMemory.structures.controllers);
-    if (controllerIds.length > 0) {
-      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+  if (roomMemory.structures) {
+    controllerMemory = roomMemory.structures.controller || null;
+    if (!controllerMemory && roomMemory.structures.controllers) {
+      const controllerIds = Object.keys(roomMemory.structures.controllers);
+      if (controllerIds.length > 0) {
+        controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+      }
     }
   }
   
@@ -742,12 +745,15 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
         if (otherRoomName === roomName) continue;
         
         const otherRoomMemory = Memory.rooms[otherRoomName];
-        // Only count rooms we own - use new structure
+        // Only count rooms we own - structures.controller
         let otherControllerMemory = null;
-        if (otherRoomMemory.structures && otherRoomMemory.structures.controllers) {
-          const controllerIds = Object.keys(otherRoomMemory.structures.controllers);
-          if (controllerIds.length > 0) {
-            otherControllerMemory = otherRoomMemory.structures.controllers[controllerIds[0]];
+        if (otherRoomMemory.structures) {
+          otherControllerMemory = otherRoomMemory.structures.controller || null;
+          if (!otherControllerMemory && otherRoomMemory.structures.controllers) {
+            const controllerIds = Object.keys(otherRoomMemory.structures.controllers);
+            if (controllerIds.length > 0) {
+              otherControllerMemory = otherRoomMemory.structures.controllers[controllerIds[0]];
+            }
           }
         }
         if (otherControllerMemory && otherControllerMemory.my) {

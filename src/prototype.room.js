@@ -68,19 +68,28 @@ Object.defineProperty(Room.prototype, "mineral", {
 });
 
 // Add memory property to StructureController (accessed via room.controller.memory)
-// In Screeps, StructureController is the type for room.controller
+// Single controller per room: Memory.rooms[roomName].structures.controller
 if (typeof StructureController !== 'undefined') {
   Object.defineProperty(StructureController.prototype, "memory", {
     get: function () {
-      if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
-      if (!Memory.rooms[this.room.name].structures.controllers) Memory.rooms[this.room.name].structures.controllers = {};
-      if (!Memory.rooms[this.room.name].structures.controllers[this.id]) Memory.rooms[this.room.name].structures.controllers[this.id] = {};
-      return Memory.rooms[this.room.name].structures.controllers[this.id];
+      const structures = Memory.rooms[this.room.name].structures;
+      if (!structures) Memory.rooms[this.room.name].structures = { controller: {} };
+      const str = Memory.rooms[this.room.name].structures;
+      if (!str.controller) {
+        // Migrate from legacy structures.controllers[id]
+        if (str.controllers && str.controllers[this.id]) {
+          str.controller = str.controllers[this.id];
+          delete str.controllers;
+        } else {
+          str.controller = {};
+        }
+      }
+      return str.controller;
     },
     set: function (v) {
       if (!Memory.rooms[this.room.name].structures) Memory.rooms[this.room.name].structures = {};
-      if (!Memory.rooms[this.room.name].structures.controllers) Memory.rooms[this.room.name].structures.controllers = {};
-      return (Memory.rooms[this.room.name].structures.controllers[this.id] = v);
+      Memory.rooms[this.room.name].structures.controller = v;
+      return v;
     },
   });
 }
@@ -101,13 +110,16 @@ Room.isRoomClaimed = function (roomName) {
   const roomMemory = Memory.rooms && Memory.rooms[roomName];
   const gameRoom = Game.rooms[roomName];
   
-  // Use new structure (structures.controllers)
+  // Single controller per room: structures.controller
   let controllerMemory = null;
-  if (roomMemory && roomMemory.structures && roomMemory.structures.controllers) {
-    // Get first controller from structures.controllers
-    const controllerIds = Object.keys(roomMemory.structures.controllers);
-    if (controllerIds.length > 0) {
-      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+  if (roomMemory && roomMemory.structures) {
+    if (roomMemory.structures.controller) {
+      controllerMemory = roomMemory.structures.controller;
+    } else if (roomMemory.structures.controllers) {
+      const controllerIds = Object.keys(roomMemory.structures.controllers);
+      if (controllerIds.length > 0) {
+        controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+      }
     }
   }
   
@@ -141,12 +153,16 @@ Room.isRoomValidForClaiming = function (roomName) {
   }
   const roomMemory = Memory.rooms[roomName];
   
-  // Use new structure (structures.controllers)
+  // Single controller per room: structures.controller
   let controllerMemory = null;
-  if (roomMemory.structures && roomMemory.structures.controllers) {
-    const controllerIds = Object.keys(roomMemory.structures.controllers);
-    if (controllerIds.length > 0) {
-      controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+  if (roomMemory.structures) {
+    if (roomMemory.structures.controller) {
+      controllerMemory = roomMemory.structures.controller;
+    } else if (roomMemory.structures.controllers) {
+      const controllerIds = Object.keys(roomMemory.structures.controllers);
+      if (controllerIds.length > 0) {
+        controllerMemory = roomMemory.structures.controllers[controllerIds[0]];
+      }
     }
   }
   
