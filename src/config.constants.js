@@ -46,6 +46,7 @@ module.exports = {
     ROOM_PLANNER: 50,                // Run room planner every N ticks
     FACTORY_POWER_CHECK: 100,        // Check factory power level every N ticks
     SCOUT_VISUALIZATION_DURATION: 100, // World map visualization duration in ticks
+    BUY_MISSING_MINERALS: 1000,        // Buy missing minerals every N ticks
   },
 
   // Resource Thresholds

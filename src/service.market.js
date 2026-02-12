@@ -574,4 +574,5 @@
   };
   // Mount to the global object.
   global.MarketCal = MC;
+  module.exports = MC;
 })();

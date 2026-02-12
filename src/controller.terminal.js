@@ -1,6 +1,7 @@
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 const ResourceManager = require("./service.resource");
+const BASE_MINERALS_WITHOUT_ENERGY = require("./service.market").BASE_MINERALS_WITHOUT_ENERGY;
 
 class ControllerTerminal {
   constructor(rc) {
@@ -23,6 +24,9 @@ class ControllerTerminal {
     }
     if (Game.time % CONSTANTS.TICKS.SELL_MINERAL === 0) {
       this.sellRoomMineral();
+    }
+    if (Game.time % CONSTANTS.TICKS.BUY_MISSING_MINERALS === 0) {
+      this.buyMissingMinerals();
     }
   }
 
@@ -65,6 +69,33 @@ class ControllerTerminal {
       }
     }
     return null;
+  }
+
+  
+  buyMissingMinerals() {
+    if (!this._isTerminalValid()) {
+      return null;
+    }
+    const {terminal} = this;
+    const mineralsForThisRoom = _.shuffle(BASE_MINERALS_WITHOUT_ENERGY);
+    for (const mineralType of mineralsForThisRoom) {
+      const globalAmount = global.globalResourcesAmount(mineralType);
+      const threshold = global.numberOfTerminals() * global.getRoomThreshold(mineralType, "all");
+      if (globalAmount >= threshold) {
+        continue;
+      }
+      const bestOrder = this.findBestSellOrder(mineralType);
+      if (!bestOrder) {
+        Log.test(`No best order found for ${mineralType}`, "buyMissingMinerals");
+        continue;
+      }
+      let amount = Math.min(bestOrder.amount, threshold - globalAmount);
+      Log.test(`Buying ${amount} of ${mineralType}`, "buyMissingMinerals");
+      const result = Game.market.deal(bestOrder.id, amount, terminal.room.name);
+      this._handleOrderResult(result, "BuyOrder", mineralType, terminal.room, "buyMissingMinerals");
+      // exit after first successful buy
+      break;
+    }
   }
 
   calcHighestSellingPrice(resourceType, amount) {
@@ -349,6 +380,14 @@ class ControllerTerminal {
     this._handleOrderResult(result, "CreateOrder", RESOURCE_ENERGY, terminal.room, "buyEnergyOrder");
   }
 
+  findBestSellOrder(resourceType) {
+    const orders = Game.market.getAllOrders({
+      type: ORDER_SELL,
+      resourceType: resourceType,
+    });
+    return _.min(orders, "price");
+  }
+
   /**
    * Finds the best buy order for a resource type
    * @param {string} resourceType - The resource type to find orders for
@@ -412,3 +451,4 @@ class ControllerTerminal {
 }
 
 module.exports = ControllerTerminal;
+
