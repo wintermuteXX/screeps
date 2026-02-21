@@ -8,7 +8,7 @@ const Log = require("./lib.log");
  */
 class EnableRoomBehavior extends Behavior {
   constructor() {
-    super("enable_room");
+    super("pc.enable_room");
   }
 
   when(pc, _rc) {

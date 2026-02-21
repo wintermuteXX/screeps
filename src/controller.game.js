@@ -114,10 +114,10 @@ class ControllerGame {
   }
 
   /**
-   * Run Power Creep behaviors in order: enable_room first, then operate_factory.
+   * Run Power Creep behaviors in order: pc.enable_room first, then pc.operate_factory.
    */
   runPowerCreeps() {
-    const behaviorNames = ["enable_room", "operate_factory"];
+    const behaviorNames = ["pc.enable_room", "pc.operate_factory"];
 
     for (const name in Game.powerCreeps) {
       const pc = Game.powerCreeps[name];
@@ -128,7 +128,7 @@ class ControllerGame {
         if (!behavior || !behavior.when(pc, null)) continue;
 
         if (behavior.completed(pc, null)) {
-          if (behaviorName === "operate_factory" && pc.memory && pc.memory.targetFactoryId) {
+          if (behaviorName === "pc.operate_factory" && pc.memory && pc.memory.targetFactoryId) {
             pc.memory.targetFactoryId = null;
           }
           break;

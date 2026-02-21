@@ -99,6 +99,9 @@ module.exports = {
     behaviors: ["renew:emergency", "transport", "renew"],
 
     canBuild: function (rc) {
+      if (rc.room.name == "E28S26") {
+        return false;
+      }
       const transporters = rc.getAllCreeps("transporter");
       const droppedAmount = rc.getDroppedResourcesAmount();
       let modifier = 0;
@@ -122,6 +125,48 @@ module.exports = {
       }
 
       return transporters.length < limit + modifier;
+    },
+  },
+
+  ornithopter: {
+    priority: 4,
+    levelMin: 2,
+    minParts: 6,
+    wait4maxEnergy: false,
+    namePrefix: "OrnithopterV2",
+    body: generateBody([MOVE, CARRY], 16), // 16 MOVE, 16 CARRY
+    behaviors: ["renew:emergency", "logistic", "renew"],
+
+    canBuild: function (rc) {
+      if (rc.room.name !== "E28S26") {
+        return false;
+      }
+      const ornithopters = rc.getAllCreeps("ornithopter");
+      if (ornithopters.length >= 1) {
+        return false;
+      }
+      const droppedAmount = rc.getDroppedResourcesAmount();
+      let modifier = 0;
+      const level = rc.getLevel();
+      let limit;
+
+      if (level < 4) {
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_BASE;
+      } else if (level < 7) {
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_MID;
+      } else {
+        limit = CONSTANTS.CREEP_LIMITS.TRANSPORTER_HIGH;
+      }
+
+      if (droppedAmount > CONSTANTS.RESOURCES.DROPPED_MIN * CONSTANTS.RESOURCES.DROPPED_MULTIPLIER) {
+        modifier = 1;
+        // Only warn if we can actually build an additional transporter
+        if (ornithopters.length < limit + modifier) {
+          Log.warn(`High amount of Dropped resources in ${rc.room}. Amount: ${droppedAmount}. Build additional ornithopter.`, "ornithopter");
+        }
+      }
+
+      return ornithopters.length < limit + modifier;
     },
   },
 

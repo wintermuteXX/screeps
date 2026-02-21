@@ -8,7 +8,7 @@ const Log = require("./lib.log");
  */
 class OperateFactoryBehavior extends Behavior {
   constructor() {
-    super("operate_factory");
+    super("pc.operate_factory");
   }
 
   /**

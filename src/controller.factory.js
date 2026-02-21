@@ -33,7 +33,7 @@ class ControllerFactory {
     // Check if this factory already has a level assigned in memory
     const assignedLevel = Memory.factoryLevels[this.factory.id];
     if (assignedLevel !== undefined) {
-      // Level already assigned; actual level is set by Power Creep behavior (operate_factory)
+      // Level already assigned; actual level is set by Power Creep behavior (pc.operate_factory)
       return true;
     }
 
@@ -55,7 +55,7 @@ class ControllerFactory {
       return false;
     }
 
-    // Assign the level to this factory in memory; Power Creep behavior (operate_factory) will set the actual level
+    // Assign the level to this factory in memory; Power Creep behavior (pc.operate_factory) will set the actual level
     Memory.factoryLevels[this.factory.id] = nextLevel;
     Log.success(`${this.factory.room} Assigned factory level ${nextLevel} to factory ${this.factory.id}`, "FactoryLevel");
     return true;
