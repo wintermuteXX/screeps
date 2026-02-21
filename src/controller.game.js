@@ -109,6 +109,34 @@ class ControllerGame {
     for (const i in this._rooms) {
       this._rooms[i].run();
     }
+
+    this.runPowerCreeps();
+  }
+
+  /**
+   * Run Power Creep behaviors in order: enable_room first, then operate_factory.
+   */
+  runPowerCreeps() {
+    const behaviorNames = ["enable_room", "operate_factory"];
+
+    for (const name in Game.powerCreeps) {
+      const pc = Game.powerCreeps[name];
+      if (!pc.room) continue; // not spawned
+
+      for (const behaviorName of behaviorNames) {
+        const behavior = global.getBehavior(behaviorName);
+        if (!behavior || !behavior.when(pc, null)) continue;
+
+        if (behavior.completed(pc, null)) {
+          if (behaviorName === "operate_factory" && pc.memory && pc.memory.targetFactoryId) {
+            pc.memory.targetFactoryId = null;
+          }
+          break;
+        }
+        behavior.work(pc, null);
+        break; // only one behavior per tick
+      }
+    }
   }
 }
 

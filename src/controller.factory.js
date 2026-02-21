@@ -1,5 +1,4 @@
 const Log = require("./lib.log");
-const CONSTANTS = require("./config.constants");
 const ResourceManager = require("./service.resource");
 
 class ControllerFactory {
@@ -34,12 +33,8 @@ class ControllerFactory {
     // Check if this factory already has a level assigned in memory
     const assignedLevel = Memory.factoryLevels[this.factory.id];
     if (assignedLevel !== undefined) {
-      // Level already assigned - verify it matches the actual factory level
-      if (this.factory.level !== assignedLevel) {
-        // Factory level doesn't match memory - try to set it again
-        return this.setFactoryLevel(assignedLevel);
-      }
-      return true; // Level already assigned and matches
+      // Level already assigned; actual level is set by Power Creep behavior (operate_factory)
+      return true;
     }
 
     // Find the next available level (1-5)
@@ -60,75 +55,10 @@ class ControllerFactory {
       return false;
     }
 
-    // Assign the level to this factory in memory
+    // Assign the level to this factory in memory; Power Creep behavior (operate_factory) will set the actual level
     Memory.factoryLevels[this.factory.id] = nextLevel;
     Log.success(`${this.factory.room} Assigned factory level ${nextLevel} to factory ${this.factory.id}`, "FactoryLevel");
-
-    // Set the factory level using Power Creep
-    return this.setFactoryLevel(nextLevel);
-  }
-
-  /**
-   * Sets the factory level using a Power Creep with OPERATE_FACTORY power.
-   */
-  setFactoryLevel(level) {
-    if (!this.factory || !this.factory.my) {
-      return false;
-    }
-
-    // Check if factory already has the correct level
-    if (this.factory.level === level) {
-      return true;
-    }
-
-    // Find a Power Creep with OPERATE_FACTORY power in this room
-    const powerCreeps = [];
-    for (const pcName in Game.powerCreeps) {
-      const pc = Game.powerCreeps[pcName];
-      // Power Creep must be spawned and in the same room
-      if (!pc.room || pc.room.name !== this.factory.room.name) {
-        continue;
-      }
-      // Check if Power Creep has OPERATE_FACTORY power
-      if (pc.powers && pc.powers[PWR_OPERATE_FACTORY] && pc.powers[PWR_OPERATE_FACTORY].level > 0) {
-        powerCreeps.push(pc);
-      }
-    }
-
-    if (powerCreeps.length === 0) {
-      // No Power Creep available - log and wait
-      if (Game.time % CONSTANTS.TICKS.FACTORY_POWER_CHECK === 0) {
-        Log.warn(`${this.factory.room} No Power Creep with OPERATE_FACTORY power found. Factory ${this.factory} needs level ${level}`, "FactoryLevel");
-      }
-      return false;
-    }
-
-    // Use the first available Power Creep
-    const powerCreep = powerCreeps[0];
-
-    // Move Power Creep to factory if not in range
-    if (powerCreep.pos.getRangeTo(this.factory) > 1) {
-      powerCreep.moveTo(this.factory, { visualizePathStyle: { stroke: "#ffaa00" } });
-      return false;
-    }
-
-    // Use OPERATE_FACTORY power to set the level
-    const result = powerCreep.usePower(PWR_OPERATE_FACTORY, this.factory);
-
-    switch (result) {
-      case OK:
-        Log.success(`${this.factory.room} Power Creep ${powerCreep} set factory ${this.factory.id} to level ${level}`, "FactoryLevel");
-        return true;
-      case ERR_TIRED:
-        // Power Creep is tired, will try again next tick
-        return false;
-      case ERR_NOT_ENOUGH_RESOURCES:
-        Log.warn(`${this.factory.room} Power Creep ${powerCreep} doesn't have enough resources to use OPERATE_FACTORY`, "FactoryLevel");
-        return false;
-      default:
-        Log.warn(`${this.factory.room} Failed to set factory level: ${global.getErrorString(result)}`, "FactoryLevel");
-        return false;
-    }
+    return true;
   }
 
   produceInFactory(ResourcesArray, check) {

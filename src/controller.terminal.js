@@ -26,7 +26,7 @@ class ControllerTerminal {
       this.sellRoomMineral();
     }
     if (Game.time % CONSTANTS.TICKS.BUY_MISSING_MINERALS === 0) {
-      this.buyMissingMinerals();
+      // this.buyMissingMinerals();
     }
   }
 

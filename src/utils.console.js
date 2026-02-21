@@ -86,7 +86,6 @@ function help(category = "all") {
   };
 
   const resultString = Log.table(headers, rows, options) + `<p style="color: #888; font-size: 12px;">Usage: help() or help("category") | Categories: ${Object.keys(functions).join(", ")}</p>`;
-  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -106,7 +105,6 @@ function showTerminals() {
       [{ type: "section", content: "No terminals found in owned rooms", colspan: 1, style: "padding: 5px; color: #888;" }],
       { caption: "<strong>TERMINAL CONTENTS</strong>", tableStyle: "border-collapse: collapse; width: 100%;", headerStyle: "padding: 5px; background-color: #333;" }
     );
-    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -127,7 +125,6 @@ function showTerminals() {
       [{ type: "section", content: "All terminals are empty", colspan: 1, style: "padding: 5px; color: #888;" }],
       { caption: "<strong>TERMINAL CONTENTS</strong>", tableStyle: "border-collapse: collapse; width: 100%;", headerStyle: "padding: 5px; background-color: #333;" }
     );
-    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -154,7 +151,6 @@ function showTerminals() {
   };
 
   const resultString = Log.table(headers, rows, options);
-  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -253,7 +249,6 @@ function showLabs() {
   };
 
   const resultString = Log.table(headers, rows, options);
-  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -409,11 +404,10 @@ function recursiveMemoryProfile(memoryObject, sizes, currentDepth) {
  */
 function profileMemory(root = Memory, depth = 1) {
   const sizes = {};
-  console.logUnsafe(`Profiling memory...`);
   const start = Game.cpu.getUsed();
   recursiveMemoryProfile(root, sizes, depth);
-  console.logUnsafe(`Time elapsed: ${Game.cpu.getUsed() - start}`);
-  return JSON.stringify(sizes, undefined, "\t");
+  const elapsed = Game.cpu.getUsed() - start;
+  return `Profiling memory...\nTime elapsed: ${elapsed}\n${JSON.stringify(sizes, undefined, "\t")}`;
 }
 
 /**
@@ -448,7 +442,6 @@ function cleanMemory(memoryType, propertyName) {
     ? `Cleaned memory: Removed "${propertyName}" from ${cleaned} ${memoryType.slice(0, -1)}(s)`
     : `No "${propertyName}" entries found in ${memoryType}`;
   
-  console.logUnsafe(message);
   return message;
 }
 
@@ -482,7 +475,6 @@ function showLogistic(roomName = null) {
       caption: "<strong>TRANSPORT ORDERS (LOGISTICS)</strong>",
       tableStyle: "border-collapse: collapse; width: 100%;",
     });
-    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -573,7 +565,6 @@ function showLogistic(roomName = null) {
   };
 
   const resultString = Log.table([], rows, options);
-  console.logUnsafe(resultString);
   return resultString;
 }
 
@@ -583,14 +574,13 @@ function showLogistic(roomName = null) {
  */
 function showCPU() {
   if (!Memory.cpuHistory || Memory.cpuHistory.length < 2) {
-    console.logUnsafe("No CPU data - Insufficient CPU history data (need at least 2 samples)");
-    return;
+    return "No CPU data - Insufficient CPU history data (need at least 2 samples)";
   }
 
   const stats = cpuAnalyzer.getStatistics(100);
   const decision = cpuAnalyzer.canConquerNewRoom();
 
-  console.logUnsafe(`CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`);
+  return `CPU: Avg ${stats.average.cpuUsed.toFixed(2)}/${stats.average.cpuLimit.toFixed(0)} (${((stats.average.cpuUsed / stats.average.cpuLimit) * 100).toFixed(1)}%) | CPU/Room ${stats.average.cpuPerRoom.toFixed(2)} | Can Conquer ${decision.canConquer ? "YES" : "NO"}${!decision.canConquer ? ` (${decision.reason})` : ""}`;
 }
 
 /**
@@ -862,7 +852,7 @@ function showScout(centerRoom = null, duration = null) {
     if (Memory.scoutVisualization) {
       delete Memory.scoutVisualization;
       Game.map.visual.clear();
-      console.logUnsafe("✅ Scout visualization disabled");
+      return "✅ Scout visualization disabled";
     }
     return;
   }
@@ -887,14 +877,12 @@ function showScout(centerRoom = null, duration = null) {
   }
 
   if (!centerRoom) {
-    console.logUnsafe("No owned room found for center. Usage: showScout('W1N1')");
-    return;
+    return "No owned room found for center. Usage: showScout('W1N1')";
   }
 
   // Iterate through all rooms in memory
   if (!Memory.rooms) {
-    console.logUnsafe("No room memory found. Scout needs to explore rooms first.");
-    return;
+    return "No room memory found. Scout needs to explore rooms first.";
   }
 
   let roomsVisualized = 0;
@@ -911,10 +899,7 @@ function showScout(centerRoom = null, duration = null) {
     enabled: true,
   };
 
-  console.logUnsafe(`✅ Scout data visualized: ${roomsVisualized} rooms shown on world map (center: ${centerRoom})`);
-  console.logUnsafe(`   Visualization will persist for ${visualizationDuration} ticks (until tick ${Game.time + visualizationDuration})`);
-  console.logUnsafe("   Use showScout(false) to disable early");
-  console.logUnsafe("Legend: ✓=Owned, ○=Free, ★=Core(3s), ●=2s, ⚠=Hostile, ·=Explored, ?=Old data");
+  return `✅ Scout data visualized: ${roomsVisualized} rooms shown on world map (center: ${centerRoom})\n   Visualization will persist for ${visualizationDuration} ticks (until tick ${Game.time + visualizationDuration})\n   Use showScout(false) to disable early\nLegend: ✓=Owned, ○=Free, ★=Core(3s), ●=2s, ⚠=Hostile, ·=Explored, ?=Old data`;
 }
 
 /**
@@ -986,7 +971,6 @@ function showRclUpgradeTimes() {
       caption: "<strong>RCL UPGRADE TIMES</strong>",
       tableStyle: "border-collapse: collapse; width: 100%;",
     }) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
-    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -1006,7 +990,6 @@ function showRclUpgradeTimes() {
       caption: "<strong>RCL UPGRADE TIMES</strong>",
       tableStyle: "border-collapse: collapse; width: 100%;",
     }) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
-    console.logUnsafe(resultString);
     return resultString;
   }
 
@@ -1066,7 +1049,6 @@ function showRclUpgradeTimes() {
   };
 
   const resultString = Log.table(headers, rows, options) + '<p style="color: #888; font-size: 12px;">Legend: Green = Good time, Orange = Acceptable, Red = Slow | Values shown in ticks</p>';
-  console.logUnsafe(resultString);
   return resultString;
 }
 
