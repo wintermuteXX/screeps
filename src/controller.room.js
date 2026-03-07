@@ -94,7 +94,7 @@ class ControllerRoom {
     }
 
     // Factory: Assign level (no CPU check needed)
-    if (this.room.factory) {
+    if (this.room.factory && Game.time % 500 === 0) {
       this.factory.assignLevel();
     }
     // Factory: Produce commodities (low CPU threshold)

@@ -99,9 +99,11 @@ module.exports = {
     behaviors: ["renew:emergency", "transport", "renew"],
 
     canBuild: function (rc) {
+      /*
       if (rc.room.name == "E28S26") {
         return false;
-      }
+      }*/
+     
       const transporters = rc.getAllCreeps("transporter");
       const droppedAmount = rc.getDroppedResourcesAmount();
       let modifier = 0;
@@ -138,9 +140,10 @@ module.exports = {
     behaviors: ["renew:emergency", "logistic", "renew"],
 
     canBuild: function (rc) {
-      if (rc.room.name !== "E28S26") {
+      /*if (rc.room.name !== "E28S26") {
         return false;
-      }
+      }*/
+     return false
       const ornithopters = rc.getAllCreeps("ornithopter");
       if (ornithopters.length >= 1) {
         return false;
@@ -333,7 +336,7 @@ module.exports = {
     namePrefix: "Support_Crawler",
     // 12x [MOVE, CARRY, MOVE, WORK] + [MOVE, WORK] = 25 MOVE, 12 CARRY, 13 WORK
     body: [...generateBody([MOVE, CARRY, MOVE, WORK], 12), MOVE, WORK],
-    behaviors: ["goto_target_room", "clear_enemy_buildings", "transport", "harvest", "build_structures", "upgrade_controller"],
+    behaviors: ["goto_target_room", "clear_enemy_buildings", "harvest", "build_structures", "upgrade_controller"],
     canBuild: function (rc) {
       // Check if enough supporters already exist
       const existingSupporters = _.filter(Game.creeps, (c) => c.memory.role === "supporter");

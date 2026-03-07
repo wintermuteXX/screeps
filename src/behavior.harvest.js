@@ -19,7 +19,7 @@ class HarvestBehavior extends Behavior {
     if (target.energy === 0) {
       return true;
     }
-    return creep.store.getUsedCapacity() === creep.store.getCapacity(RESOURCE_ENERGY);
+    return creep.store.getUsedCapacity() === creep.store.getCapacity();
   }
 
   work(creep, rc) {
