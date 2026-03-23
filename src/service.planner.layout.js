@@ -44,9 +44,9 @@ const BUNKER_LAYOUT = {
     { x: 1, y: -1, priority: 6 },
   ],
 
-  // Links in strategic positions
+  // Links in strategic positions (core / “spawn link” — not the storage-fed base receiver)
   links: [
-    { x: -1, y: -1, priority: 86 },
+    { x: -1, y: -1, priority: 86, specialIdentifier: "spawn_link" },
     // Additional links are placed dynamically at Sources/Controller
   ],
 
@@ -329,7 +329,7 @@ module.exports = function applyPlannerLayout(RoomPlanner) {
     this._detectExistingSpecialStructures();
 
     // Helper function to add a structure
-    const addStructure = (offsetX, offsetY, structureType, priority) => {
+    const addStructure = (offsetX, offsetY, structureType, priority, specialIdentifier) => {
       const x = centerX + offsetX;
       const y = centerY + offsetY;
 
@@ -343,12 +343,19 @@ module.exports = function applyPlannerLayout(RoomPlanner) {
             y: altPos.y,
             structureType,
             priority,
+            ...(specialIdentifier ? { specialIdentifier } : {}),
           });
         }
         return;
       }
 
-      plannedStructures.push({ x, y, structureType, priority });
+      plannedStructures.push({
+        x,
+        y,
+        structureType,
+        priority,
+        ...(specialIdentifier ? { specialIdentifier } : {}),
+      });
     };
 
     // Add all core structures from layout
@@ -372,7 +379,7 @@ module.exports = function applyPlannerLayout(RoomPlanner) {
       if (!BUNKER_LAYOUT[key]) continue;
 
       BUNKER_LAYOUT[key].forEach((pos) => {
-        addStructure(pos.x, pos.y, structureType, pos.priority);
+        addStructure(pos.x, pos.y, structureType, pos.priority, pos.specialIdentifier);
       });
     }
 

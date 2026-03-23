@@ -5,6 +5,7 @@
 const ResourceManager = require("./service.resource");
 const Log = require("./lib.log");
 const duneConfig = require("./config.dune");
+const linkMemory = require("./utils.linkMemory");
 
 Room.prototype.getResourceAmount = function (res, structure = "all") {
   return ResourceManager.getResourceAmount(this, res, structure);
@@ -91,6 +92,47 @@ if (typeof StructureController !== 'undefined') {
       Memory.rooms[this.room.name].structures.controller = v;
       return v;
     },
+  });
+
+  /**
+   * Upgrade link at controller: Memory.rooms[room].structures.controller.linkID
+   * Resolution order: memory ID → planner tile controller_link → nearby search.
+   */
+  Object.defineProperty(StructureController.prototype, "link", {
+    get: function () {
+      if (this.memory.linkID) {
+        const link = Game.getObjectById(this.memory.linkID);
+        if (link && link.structureType === STRUCTURE_LINK) {
+          return link;
+        }
+        this.memory.linkID = null;
+      }
+
+      const room = Game.rooms[this.room.name];
+      if (!room) {
+        return null;
+      }
+
+      const tile = linkMemory.getPlannedLinkTile(this.room.name, "controller_link");
+      if (tile) {
+        const plannedLink = linkMemory.getLinkStructureAt(room, tile.x, tile.y);
+        if (plannedLink) {
+          this.memory.linkID = plannedLink.id;
+          return plannedLink;
+        }
+      }
+
+      const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+        filter: { structureType: STRUCTURE_LINK },
+      });
+      if (found) {
+        this.memory.linkID = found.id;
+        return found;
+      }
+      return null;
+    },
+    enumerable: false,
+    configurable: true,
   });
 }
 

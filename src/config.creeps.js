@@ -45,15 +45,18 @@ module.exports = {
     canBuild: function (rc) {
       // Nutzt gecachten find() Cache statt getSources()
       const sources = rc.find(FIND_SOURCES);
-      // Count how many sources already have a miner assigned
+      // Count how many sources already have a miner assigned (memory.target === source.id)
       let assignedSources = 0;
       for (const source of sources) {
         if (rc.getCreeps("miner", source.id).length > 0) {
           assignedSources++;
         }
       }
-      // Only spawn if there are sources without miners
-      return assignedSources < sources.length;
+      // Miner ohne target zählen noch keiner Source zu (z. B. frisch gespawnt oder getAvailableSource lief null).
+      // Trotzdem mitzählen, sonst wird immer wieder nachgespawnt.
+      const minersWithoutTarget = rc.getAllCreeps("miner").filter((c) => !c.memory.target).length;
+      const effectiveCoverage = assignedSources + minersWithoutTarget;
+      return effectiveCoverage < sources.length;
     },
   },
   // Long-term miner - create moving miner

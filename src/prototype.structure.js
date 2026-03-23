@@ -4,6 +4,7 @@
 
 const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
+const linkMemory = require("./utils.linkMemory");
 
 Object.defineProperty(Structure.prototype, "container", {
   get: function () {
@@ -164,33 +165,42 @@ Object.defineProperty(Source.prototype, "container", {
 
 Object.defineProperty(Source.prototype, "link", {
   get: function () {
-    if (this._link === undefined) {
-      // Check if link ID is stored in memory
-      if (this.memory.linkID) {
-        const link = Game.getObjectById(this.memory.linkID);
-        if (link) {
-          this._link = link;
-          return this._link;
-        } else {
-          // Link no longer exists, delete ID from memory
-          this.memory.linkID = null;
+    // 1) Persisted ID in Memory.rooms[room].structures.sources[id].linkID
+    if (this.memory.linkID) {
+      const link = Game.getObjectById(this.memory.linkID);
+      if (link && link.structureType === STRUCTURE_LINK) {
+        return link;
+      }
+      this.memory.linkID = null;
+    }
+
+    const room = Game.rooms[this.room.name];
+    if (!room) {
+      return null;
+    }
+
+    // 2) Planned tile from RoomPlanner (specialIdentifier source_link_N)
+    const identifier = linkMemory.getSourceLinkPlannerIdentifier(this);
+    if (identifier) {
+      const tile = linkMemory.getPlannedLinkTile(this.room.name, identifier);
+      if (tile) {
+        const plannedLink = linkMemory.getLinkStructureAt(room, tile.x, tile.y);
+        if (plannedLink) {
+          this.memory.linkID = plannedLink.id;
+          return plannedLink;
         }
       }
-
-      // Search for existing link nearby (range 2, same as container)
-      const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
-        filter: { structureType: STRUCTURE_LINK },
-      });
-
-      if (found) {
-        this.memory.linkID = found.id;
-        this._link = found;
-      } else {
-        // No link present
-        this._link = null;
-      }
     }
-    return this._link;
+
+    // 3) Legacy: any link near the source (same range as container)
+    const [found] = this.pos.findInRange(FIND_STRUCTURES, 2, {
+      filter: { structureType: STRUCTURE_LINK },
+    });
+    if (found) {
+      this.memory.linkID = found.id;
+      return found;
+    }
+    return null;
   },
   enumerable: false,
   configurable: true,

@@ -561,7 +561,12 @@ class LogisticsManager {
   _processLinks() {
     if (!this.rc.links.receivers) return;
 
+    const sourceLinkIds = this.rc.links.collectSourceLinkIds();
+
     for (const link of this.rc.links.receivers) {
+      if (sourceLinkIds.has(link.id)) {
+        continue;
+      }
       if (link.energy > 0 && !this._isTooCloseToController(link.pos)) {
         this._addGivesResource({
           priority: CONSTANTS.PRIORITY.LINK,

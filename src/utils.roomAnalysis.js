@@ -308,6 +308,7 @@ function analyzeRoom(room, fullAnalysis = false) {
           upgradeBlocked: room.controller.upgradeBlocked,
           my: room.controller.my,
           containerID: existingController.containerID || null, // Preserve for controller.memory.containerID
+          linkID: existingController.linkID || null,
         };
       }
 
@@ -316,6 +317,7 @@ function analyzeRoom(room, fullAnalysis = false) {
       // Memory.rooms[room.name].structures[structureType + 's'][id] is the nested structure
       // We store a flat summary in structures, but keep the nested structure intact
       const existingStructures = Memory.rooms[room.name].structures || {};
+      const preserveSpawnLinkId = existingStructures.spawnLinkID;
       
       // Ensure nested structure exists for Structure.prototype.memory compatibility
       if (!Memory.rooms[room.name].structures || typeof Memory.rooms[room.name].structures !== 'object' || Array.isArray(Memory.rooms[room.name].structures)) {
@@ -374,6 +376,10 @@ function analyzeRoom(room, fullAnalysis = false) {
             Memory.rooms[room.name].structures[key] = val;
           }
         }
+      }
+
+      if (preserveSpawnLinkId !== undefined) {
+        Memory.rooms[room.name].structures.spawnLinkID = preserveSpawnLinkId;
       }
 
       // Invader cores
