@@ -13,7 +13,8 @@ class SignControllerBehavior extends Behavior {
 
     // Check if room has been analyzed (has lastCheck) but controller not signed
     const hasBeenAnalyzed = roomMemory.lastCheck !== undefined;
-    const needsSigning = roomMemory.controllerSigned !== true;
+    const ctrlMem = roomMemory.structures && roomMemory.structures.controller;
+    const needsSigning = !(ctrlMem && ctrlMem.signed === true);
 
     // Only activate if room has been analyzed and controller needs signing
     if (!hasBeenAnalyzed || !needsSigning) {
@@ -34,8 +35,8 @@ class SignControllerBehavior extends Behavior {
     Room.ensureMemory(roomName);
     const roomMemory = Memory.rooms[roomName];
 
-    // Completed if controller is signed
-    return roomMemory.controllerSigned === true;
+    const done = roomMemory.structures && roomMemory.structures.controller;
+    return done && done.signed === true;
   }
 
   work(creep, rc) {

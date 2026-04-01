@@ -1,6 +1,11 @@
 const Log = require("./lib.log");
 const CONSTANTS = require("./config.constants");
+require("./prototype.room");
 
+function countStructuresSources(memory) {
+  const src = memory.structures && memory.structures.sources;
+  return src ? Object.keys(src).length : 0;
+}
 
 /**
  * Calculates a score for a room based on various factors
@@ -42,7 +47,7 @@ function calculateRoomScore(room, memory) {
   }
 
   // 2. Has 2 sources? (500 points)
-  if (memory.sources && memory.sources.length === 2) {
+  if (countStructuresSources(memory) === 2) {
     score += 500;
     breakdown.hasTwoSources = 500;
   } else {
@@ -155,7 +160,12 @@ function analyzeRoom(room, fullAnalysis = false) {
   if (!room || !room.memory) return;
 
   const {memory} = room;
-  
+
+  if (memory.sources !== undefined) {
+    delete memory.sources;
+  }
+  Room.migrateLegacyControllerRoomMemory(memory);
+
   // Initialize Memory.rooms if needed
   if (!Memory.rooms) {
     Memory.rooms = {};
@@ -192,37 +202,21 @@ function analyzeRoom(room, fullAnalysis = false) {
         memory.roomType = "ROOMTYPE_ALLEY";
       }
 
-      // Source information (static)
-      // Use new unified structure: Memory.rooms[room.name].structures.sources[sourceId]
+      // Source information (static): Memory.rooms[room.name].structures.sources[sourceId]
       if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
       if (!Memory.rooms[room.name].structures.sources) Memory.rooms[room.name].structures.sources = {};
-      
-      const existingSourcesMemory = Memory.rooms[room.name].structures.sources;
-      
-      // Create array with all source information
-      memory.sources = sources.map(s => {
-        const sourceMemory = existingSourcesMemory[s.id] || {};
-        return {
-          id: s.id,
-          x: s.pos.x,
-          y: s.pos.y,
-          freeSpaces: s.freeSpacesCount,
-          containerID: sourceMemory.containerID || null,
-          linkID: sourceMemory.linkID || null,
-        };
-      });
-      
-      // Ensure object structure exists for Source.prototype.memory
+
+      const structuresSources = Memory.rooms[room.name].structures.sources;
       for (const source of sources) {
-        if (!Memory.rooms[room.name].structures.sources[source.id]) {
-          Memory.rooms[room.name].structures.sources[source.id] = {};
-        }
-        // Preserve existing containerID/linkID if they exist
-        const existing = existingSourcesMemory[source.id];
-        if (existing) {
-          if (existing.containerID) Memory.rooms[room.name].structures.sources[source.id].containerID = existing.containerID;
-          if (existing.linkID) Memory.rooms[room.name].structures.sources[source.id].linkID = existing.linkID;
-        }
+        const existing = structuresSources[source.id] || {};
+        structuresSources[source.id] = {
+          id: source.id,
+          x: source.pos.x,
+          y: source.pos.y,
+          freeSpaces: source.freeSpacesCount,
+          containerID: existing.containerID || null,
+          linkID: existing.linkID || null,
+        };
       }
 
       // Mineral information (static)
@@ -296,7 +290,7 @@ function analyzeRoom(room, fullAnalysis = false) {
       if (room.controller) {
         if (!Memory.rooms[room.name].structures) Memory.rooms[room.name].structures = {};
         const existingController = Memory.rooms[room.name].structures.controller || {};
-        Memory.rooms[room.name].structures.controller = {
+        const nextController = {
           level: room.controller.level,
           progress: room.controller.progress,
           progressTotal: room.controller.progressTotal,
@@ -310,6 +304,10 @@ function analyzeRoom(room, fullAnalysis = false) {
           containerID: existingController.containerID || null, // Preserve for controller.memory.containerID
           linkID: existingController.linkID || null,
         };
+        if (existingController.signed === true) {
+          nextController.signed = true;
+        }
+        Memory.rooms[room.name].structures.controller = nextController;
       }
 
       // Important structures
@@ -428,8 +426,9 @@ function logAnalysisSummary(room, memory, fullAnalysis) {
   parts.push(`Type: ${memory.roomType}`);
 
   // Sources
-  if (memory.sources && memory.sources.length > 0) {
-    parts.push(`Sources: ${memory.sources.length}`);
+  const sourceCount = countStructuresSources(memory);
+  if (sourceCount > 0) {
+    parts.push(`Sources: ${sourceCount}`);
   }
 
   // Mineral

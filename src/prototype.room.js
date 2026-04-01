@@ -281,6 +281,34 @@ Room.prototype.findFlagByColor = function (color) {
 };
 
 /**
+ * Moves legacy Memory.rooms[r].controller / .controllerSigned into structures.controller
+ * @param {Object} roomMemory - Memory.rooms[roomName]
+ */
+Room.migrateLegacyControllerRoomMemory = function (roomMemory) {
+  if (!roomMemory) return;
+  const hasLegacy = roomMemory.controller !== undefined || roomMemory.controllerSigned !== undefined;
+  if (!hasLegacy) return;
+  if (!roomMemory.structures) roomMemory.structures = {};
+  const legacy = roomMemory.controller;
+  if (legacy !== undefined && typeof legacy === "object" && legacy !== null && !Array.isArray(legacy)) {
+    roomMemory.structures.controller = Object.assign({}, legacy, roomMemory.structures.controller || {});
+  } else if (!roomMemory.structures.controller) {
+    roomMemory.structures.controller = {};
+  }
+  if (roomMemory.controllerSigned === true) {
+    roomMemory.structures.controller.signed = true;
+  }
+  delete roomMemory.controller;
+  delete roomMemory.controllerSigned;
+};
+
+Room.setControllerSignedFlag = function (roomMemory) {
+  if (!roomMemory.structures) roomMemory.structures = {};
+  if (!roomMemory.structures.controller) roomMemory.structures.controller = {};
+  roomMemory.structures.controller.signed = true;
+};
+
+/**
  * Ensures Memory.rooms[roomName] exists and is initialized (global memory)
  * Static method - can be called without a room instance
  * @param {string} roomName - Name of the room
@@ -292,6 +320,7 @@ Room.ensureMemory = function (roomName) {
   if (!Memory.rooms[roomName]) {
     Memory.rooms[roomName] = {};
   }
+  Room.migrateLegacyControllerRoomMemory(Memory.rooms[roomName]);
 };
 
 /**
@@ -365,7 +394,8 @@ Room.prototype.signController = function (creep) {
   const roomName = this.name;
   Room.ensureMemory(roomName);
   const roomMemory = Memory.rooms[roomName];
-  if (roomMemory.controllerSigned === true) {
+  const ctrlMem = roomMemory.structures && roomMemory.structures.controller;
+  if (ctrlMem && ctrlMem.signed === true) {
     return false;
   }
 
@@ -373,7 +403,7 @@ Room.prototype.signController = function (creep) {
   const signResult = creep.signController(controller, randomMessage);
 
   if (signResult === OK) {
-    roomMemory.controllerSigned = true;
+    Room.setControllerSignedFlag(roomMemory);
     Log.success(`✍️ ${creep} signed controller in ${this} with: "${randomMessage}"`, "sign_controller");
     return true;
   } else if (signResult === ERR_NOT_IN_RANGE) {
@@ -387,12 +417,12 @@ Room.prototype.signController = function (creep) {
 
     // If pathfinding fails, mark as signed to avoid getting stuck
     if (moveResult !== OK && moveResult !== ERR_TIRED && moveResult !== ERR_NO_PATH) {
-      roomMemory.controllerSigned = true;
+      Room.setControllerSignedFlag(roomMemory);
       Log.warn(`⚠️ ${creep} cannot reach controller in ${this} (pathfinding error: ${global.getErrorString(moveResult)}), marking as signed`, "sign_controller");
       return true;
     } else if (moveResult === ERR_NO_PATH) {
       // If no path exists, mark as signed to avoid infinite retries
-      roomMemory.controllerSigned = true;
+      Room.setControllerSignedFlag(roomMemory);
       Log.warn(`⚠️ ${creep} no path to controller in ${this}, marking as signed`, "sign_controller");
       return true;
     }

@@ -53,6 +53,7 @@ function initGlobal() {
   global.cleanMemory = utilsConsole.cleanMemory;
   global.profileMemory = utilsConsole.profileMemory;
   global.cc = utilsConsole.cc;
+  global.helpBuy = utilsConsole.helpBuy;
 
   // ===== RoomPlanner Helpers =====
   global.plannerVisualize = utilsRoomPlanner.plannerVisualize;

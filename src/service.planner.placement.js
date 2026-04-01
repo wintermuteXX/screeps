@@ -249,8 +249,12 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
       this._placeSourceLinks();
     }
 
-    // Link beim Controller (RCL 5+)
     if (rcl >= 5) {
+      this._placeSpawnLink();
+    }
+
+    // Link beim Controller (RCL 5+)
+    if (rcl >= 6) {
       this._placeControllerLink();
     }
   };
@@ -345,6 +349,75 @@ module.exports = function applyPlannerPlacement(RoomPlanner) {
         // Container does not exist yet - place a link near the source (fallback)
         this._placeLinkNear(source.pos, "source", identifier, source.id);
       }
+    }
+  };
+
+  /**
+   * Places the bunker spawn_link at the planned tile (BUNKER_LAYOUT specialIdentifier "spawn_link").
+   */
+  RoomPlanner.prototype._placeSpawnLink = function () {
+    const spawns = this.room.find(FIND_MY_SPAWNS);
+    if (spawns.length === 0) return;
+
+    const spawn = spawns[0];
+    const list = this.memory.plannedStructures && this.memory.plannedStructures.list;
+    if (!list || list.length === 0) return;
+
+    const planned = list.find(
+      (s) => s.specialIdentifier === "spawn_link" && s.structureType === STRUCTURE_LINK,
+    );
+    if (!planned || planned.x === undefined || planned.y === undefined) return;
+
+    if (!this.room.controller || !this._canBuildStructure(STRUCTURE_LINK, this.room.controller.level)) {
+      return;
+    }
+
+    const {x, y} = planned;
+    const pos = new RoomPosition(x, y, this.roomName);
+    const identifier = "spawn_link";
+    const allowRoads = true;
+
+    const structures = pos.lookFor(LOOK_STRUCTURES);
+    const sites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+
+    const hasLink = structures.some((s) => s.structureType === STRUCTURE_LINK);
+    const hasLinkSite = sites.some((s) => s.structureType === STRUCTURE_LINK);
+    if (hasLink || hasLinkSite) {
+      this._storeSpecialStructure(identifier, x, y, STRUCTURE_LINK, spawn.id);
+      return;
+    }
+
+    const terrain = this.room.getTerrain();
+    if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+      Log.warn(
+        `RoomPlanner: spawn_link planned position (${x},${y}) is wall in ${this.roomName}`,
+        "RoomPlanner",
+      );
+      return;
+    }
+
+    const blockingStructures = structures.filter((s) =>
+      allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true,
+    );
+    const blockingSites = sites.filter((s) =>
+      allowRoads ? s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART : true,
+    );
+    if (blockingStructures.length > 0 || blockingSites.length > 0) {
+      Log.warn(
+        `RoomPlanner: spawn_link tile (${x},${y}) blocked in ${this.roomName}`,
+        "RoomPlanner",
+      );
+      return;
+    }
+
+    const result = this.room.createConstructionSite(x, y, STRUCTURE_LINK);
+    if (result === OK) {
+      this._storeSpecialStructure(identifier, x, y, STRUCTURE_LINK, spawn.id);
+    } else if (result !== ERR_FULL && result !== ERR_RCL_NOT_ENOUGH && result !== ERR_INVALID_TARGET) {
+      Log.warn(
+        `RoomPlanner: Could not place spawn_link at (${x},${y}) in ${this.roomName}: ${global.getErrorString(result)}`,
+        "RoomPlanner",
+      );
     }
   };
 

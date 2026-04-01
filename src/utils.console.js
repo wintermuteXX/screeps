@@ -39,6 +39,7 @@ function help(category = "all") {
     ],
     market: [
       { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
+      { name: "helpBuy(room, amount, price)", desc: "Create a buy order for every tradeable resource (uses RESOURCES_ALL)", example: 'helpBuy("W1N1", 50000, 0.01)' },
     ],
     creeps: [
       { name: "cc(spawn, role, memory?)", desc: "Create a creep manually at a specific spawn", example: 'cc("Spawn3", "supporter")' },
@@ -615,15 +616,16 @@ function _drawScoutRoom(roomName, roomMemory, centerRoom) {
     }
   }
   
-  // Get sources array from new structure or flat structure (set by analyzeRoom)
+  // Sources from analyzeRoom: Memory.rooms[name].structures.sources
   let sourcesArray = null;
-  if (roomMemory.sources && Array.isArray(roomMemory.sources)) {
-    sourcesArray = roomMemory.sources;
-  } else if (roomMemory.structures && roomMemory.structures.sources) {
-    sourcesArray = Object.keys(roomMemory.structures.sources).map(sourceId => {
+  if (roomMemory.structures && roomMemory.structures.sources) {
+    sourcesArray = Object.keys(roomMemory.structures.sources).map((sourceId) => {
       const sourceMem = roomMemory.structures.sources[sourceId];
       return {
         id: sourceId,
+        x: sourceMem.x,
+        y: sourceMem.y,
+        freeSpaces: sourceMem.freeSpaces,
         containerID: sourceMem.containerID || null,
         linkID: sourceMem.linkID || null,
       };
@@ -1060,6 +1062,59 @@ function showRclUpgradeTimes() {
  * @param {Object} [extraMemory={}] - Additional memory properties to set on the creep
  * @returns {string} Result message
  */
+/**
+ * Create buy orders for every resource type (RESOURCES_ALL) from a room terminal.
+ * @param {string} roomName - Room with your terminal (e.g. "W1N1")
+ * @param {number} amount - totalAmount per order (clamped to market limits)
+ * @param {number} price - Price per unit (credits)
+ * @returns {string} Summary of results
+ */
+function helpBuy(roomName, amount, price) {
+  if (!roomName || typeof amount !== "number" || typeof price !== "number") {
+    return 'Usage: helpBuy("RoomName", amount, price) — e.g. helpBuy("W1N1", 50000, 0.01)';
+  }
+  if (amount < 1 || price <= 0 || !Number.isFinite(amount) || !Number.isFinite(price)) {
+    return "Invalid amount (>= 1) or price (> 0)";
+  }
+
+  const room = Game.rooms[roomName];
+  if (!room || !room.controller || !room.controller.my) {
+    return `Room "${roomName}" not found or not owned`;
+  }
+  if (!room.terminal) {
+    return `No terminal in ${roomName}`;
+  }
+  if (!room.terminal.isActive()) {
+    return `Terminal in ${roomName} is not active`;
+  }
+
+  const maxOrder =
+    typeof MARKET_MAX_ORDER_AMOUNT === "number" ? MARKET_MAX_ORDER_AMOUNT : CONSTANTS.MARKET.MAX_ORDER_AMOUNT;
+  const totalAmount = Math.floor(Math.min(Math.max(amount, 1), maxOrder));
+
+  let ok = 0;
+  const errors = {};
+
+  for (const resourceType of RESOURCES_ALL) {
+    const result = Game.market.createOrder({
+      type: ORDER_BUY,
+      resourceType,
+      price,
+      totalAmount,
+      roomName,
+    });
+    if (result === OK) {
+      ok += 1;
+    } else {
+      errors[result] = (errors[result] || 0) + 1;
+    }
+  }
+
+  const errParts = Object.keys(errors).map((code) => `${code}: ${errors[code]}`);
+  const errStr = errParts.length ? ` | errors (${errParts.join(", ")})` : "";
+  return `helpBuy ${roomName}: ${ok}/${RESOURCES_ALL.length} orders created (amount ${totalAmount}, price ${price})${errStr}`;
+}
+
 function cc(spawnName, role, extraMemory = {}) {
   // Validate spawn
   const spawn = Game.spawns[spawnName];
@@ -1150,6 +1205,7 @@ module.exports = {
   cleanMemory,
   profileMemory,
   cc,
+  helpBuy,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 

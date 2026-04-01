@@ -156,6 +156,8 @@ module.exports = function applyPlannerMemory(RoomPlanner) {
         // Other source links (source_link_2, source_link_3, etc.) - after source_link_1
         const linkIndex = parseInt(identifier.split("_")[2]) || 0;
         priority = 88 + (linkIndex - 2); // 88, 89, etc. for source_link_2, source_link_3...
+      } else if (identifier === "spawn_link") {
+        priority = 86; // Bunker core link (BUNKER_LAYOUT)
       } else if (identifier === "controller_link") {
         priority = 95; // Controller link - after all source links (increased from 90 to ensure it's last)
       } else {
