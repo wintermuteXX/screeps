@@ -1,10 +1,14 @@
-use ECMA Script 2017---
+---
+description: General JavaScript rules. Local tooling runs on Node.js v24; Screeps in-game code must remain compatible with the Screeps runtime.
 alwaysApply: true
 ---
-- Use const for all requires and module exports
+- Node.js v24 is the baseline for local tooling (scripts, CI, deploy).
+- Screeps in-game code (under src/) must stay compatible with the Screeps runtime; prefer conservative syntax unless confirmed supported in-game.
+- Use const for requires and module exports (CommonJS)
 - Prefer const/let over var
 - Use arrow functions for callbacks
 - Use template literals for string interpolation
 - Use destructuring when appropriate
 - Use classes for controllers and behaviors
 - Use JSDoc comments for all public methods with @param and @returns
+- For Node-only scripts, prefer WHATWG URL APIs (URL / URLSearchParams) over deprecated url.parse()

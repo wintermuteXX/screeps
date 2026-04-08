@@ -2,7 +2,7 @@ Error handling and validation---
 alwaysApply: true
 ---
 - Always check for null/undefined before accessing properties
-- Never use optional chaining (?.)
+- Avoid optional chaining (?.) in src/ code unless you have confirmed the Screeps runtime supports it
 - Validate room exists before processing
 - Check creep exists and is not null before operations
 - Use Log.error() for critical errors

@@ -2,6 +2,9 @@
   "name": "screeps",
   "version": "1.0.0",
   "description": "Screeps AI codebase",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "deploy": "node upload.js"
   },
