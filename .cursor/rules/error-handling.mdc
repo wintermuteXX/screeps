@@ -2,13 +2,13 @@ Error handling and validation---
 alwaysApply: true
 ---
 - Always check for null/undefined before accessing properties
-- Avoid optional chaining (?.) in src/ code unless you have confirmed the Screeps runtime supports it
 - Validate room exists before processing
 - Check creep exists and is not null before operations
 - Use Log.error() for critical errors
 - Use Log.warn() for warnings
+- Use Log.debug() for Development/debugging information (e.g., detailed state, intermediate values)
+- Use Log.info() for Important operational events (e.g., successful actions, state changes)
+- Use Log.success() for Successful completion of important operations
+- Use Log.test() for Test messages for development/debugging (always displayed, bypasses level checks)
 - Handle structure destruction gracefully
-- Check structure energy before operations
 - Validate structure type before casting
-- Check if creep has required body parts before actions
-- Verify target exists and is in range before actions

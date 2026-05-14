@@ -7,7 +7,7 @@ alwaysApply: true
 - Cache expensive operations per tick using utils.cache
 - Use memhack for memory optimization
 - All magic numbers and thresholds must be in config.constants.js
-- Use Log utility for all logging (Log.success, Log.error, Log.warn)
+- Use Log utility for all logging (Log.success, Log.error, Log.warn etc.)
 - Use Traveler.js for pathfinding, not built-in pathfinding
 - Check CPU bucket before expensive operations
 - Use prototype extensions (room.towers, room.spawns, etc.) for efficient structure access

@@ -9,7 +9,6 @@ alwaysApply: true
 - Check CPU bucket before processing rooms
 - Skip ticks when bucket is critically low
 - Use prototype extensions instead of find() when possible
-- Minimize memory writes - batch updates when possible
 - Use CONSTANTS for all thresholds to avoid magic numbers
 - Move requires outside loops to prevent re-loading
 - Use efficient structure access via prototype extensions (room.towers, room.spawns)
