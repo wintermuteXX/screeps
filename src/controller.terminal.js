@@ -291,20 +291,12 @@ class ControllerTerminal {
           continue;
         }
 
-        // Ensure only one terminal sends this resource to this room this tick
-        const sentKey = `${resourceType}_${targetRoom.name}`;
-        if (Memory.internalTradeSent && Memory.internalTradeSent[sentKey]) {
-          continue;
-        }
-
         // Send the minimum of: available amount, needed amount
         const sendAmount = Math.min(availableAmount, needed);
 
         if (sendAmount > 0) {
           const result = terminal.send(resourceType, sendAmount, targetRoom.name, "internal");
           if (result === OK) {
-            if (!Memory.internalTradeSent) Memory.internalTradeSent = {};
-            Memory.internalTradeSent[sentKey] = true;
             cancelTrading = true;
             Log.success(`${terminal.room} transfers ${sendAmount} of ${global.resourceImg(resourceType)} to ${targetRoom}`, "internalTrade");
           } else {

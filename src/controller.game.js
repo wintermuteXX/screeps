@@ -101,9 +101,9 @@ class ControllerGame {
       this.findBestRoomForClaiming();
     }
 
-    // Reset internal-trade "already sent" map so only one terminal sends per (resource, targetRoom) per tick
-    if (Game.time % CONSTANTS.TICKS.INTERNAL_TRADE === 0) {
-      Memory.internalTradeSent = {};
+    // Drop legacy internal-trade dedup map (no longer used)
+    if (Memory.internalTradeSent) {
+      delete Memory.internalTradeSent;
     }
 
     for (const i in this._rooms) {
