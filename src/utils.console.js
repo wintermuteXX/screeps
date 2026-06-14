@@ -40,7 +40,6 @@ function help(category = "all") {
     market: [
       { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
       { name: "helpBuy(room, amount, price)", desc: "Create a buy order for every tradeable resource (uses RESOURCES_ALL)", example: 'helpBuy("W1N1", 50000, 0.01)' },
-      { name: "helpBuyAll(room, price?)", desc: "Create a buy order for every tradeable resource (default price 0.03, amount from MARKET.MIN_ORDER_AMOUNT)", example: 'helpBuyAll("W1N1")' },
     ],
     creeps: [
       { name: "cc(spawn, role, memory?)", desc: "Create a creep manually at a specific spawn", example: 'cc("Spawn3", "supporter")' },
@@ -1116,22 +1115,6 @@ function helpBuy(roomName, amount, price) {
   return `helpBuy ${roomName}: ${ok}/${RESOURCES_ALL.length} orders created (amount ${totalAmount}, price ${price})${errStr}`;
 }
 
-/**
- * Create buy orders for every tradeable resource (RESOURCES_ALL) at a single price.
- * @param {string} roomName - Room with your terminal (e.g. "W1N1")
- * @param {number} [price=0.03] - Price per unit (credits)
- * @returns {string} Summary of results
- */
-function helpBuyAll(roomName, price = 0.03) {
-  if (!roomName) {
-    return 'Usage: helpBuyAll("RoomName", price?) — e.g. helpBuyAll("W1N1") or helpBuyAll("W1N1", 0.03)';
-  }
-  if (typeof price !== "number" || price <= 0 || !Number.isFinite(price)) {
-    return "Invalid price (> 0)";
-  }
-  return helpBuy(roomName, CONSTANTS.MARKET.MIN_ORDER_AMOUNT, price);
-}
-
 function cc(spawnName, role, extraMemory = {}) {
   // Validate spawn
   const spawn = Game.spawns[spawnName];
@@ -1223,7 +1206,6 @@ module.exports = {
   profileMemory,
   cc,
   helpBuy,
-  helpBuyAll,
   _redrawScoutVisualization, // Internal function for automatic redraw
 };
 
