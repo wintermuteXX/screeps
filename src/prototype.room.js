@@ -11,13 +11,6 @@ Room.prototype.getResourceAmount = function (res, structure = "all") {
   return ResourceManager.getResourceAmount(this, res, structure);
 };
 
-Room.prototype.roomNeedResources = function () {
-  if (!this._needResources) {
-    this._needResources = ResourceManager.getRoomNeeds(this);
-  }
-  return this._needResources;
-};
-
 Room.prototype.getRoomThreshold = function (resource, structure = "all") {
   return ResourceManager.getRoomThreshold(resource, structure);
 };

@@ -1263,18 +1263,10 @@ Creep.prototype.travelTo = function (destination, options) {
 };
 
 PowerCreep.prototype.travelTo = Creep.prototype.travelTo;
-// call this in every room to update it's status
-Room.prototype.UpdateRoomStatus = function () {
-  Traveler.updateRoomStatus(this);
-};
 // Get a path to a destiniation... Good for building roads.
 RoomPosition.prototype.FindPathTo = function (destination, options) {
   const ret = Traveler.findTravelPath(this, destination, options);
   return ret.path;
-};
-// Get the route distance to a room instead of linear distance
-Room.prototype.GetDistanceToRoom = function (destination) {
-  return Traveler.routeDistance(this.name, destination);
 };
 // Moves to a target / Add you own code here to interface with traveler
 Creep.prototype.Move = function (target, range, priority, opts = {}) {

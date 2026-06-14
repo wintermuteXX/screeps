@@ -13,7 +13,6 @@ module.exports = {
     BUCKET_MEDIUM: 2000,            // Medium bucket threshold
     BUCKET_HIGH: 9999,              // Generate pixel if above this
     PIXEL_GENERATION_THRESHOLD: 9999,
-    NO_ANALYSE_LIMIT: 100,            // Don't analyze if CPU tick limit below this
   },
 
   // CPU Analysis Configuration
@@ -29,14 +28,11 @@ module.exports = {
   TICKS: {
     LOG_INTERVAL: 100,              // Log every N ticks
     MEMHACK_CLEANUP_ROOMS: 100,     // Clean up room memory every N ticks
-    MEMHACK_CLEANUP_STRUCTURES: 10000, // Clean up structure memory every N ticks
     LAB_CHECK_STATUS: 10,            // Check lab status every N ticks
     FIND_CLAIM_ROOM: 100,            // Find best room for claiming every N ticks
     ROOM_EXPIRE_TIME: 30000,         // Room memory expires after N ticks (~25 days)
     CHECK_POPULATION: 10,            // Check population every N ticks
-    CHECK_CONSTRUCTIONS: 100,        // Check constructions every N ticks
     CHECK_LINKS: 5,                  // Check links every N ticks
-    CHECK_RESOURCES_QUEUE: 1,        // Check resources queue every N ticks
     REPAIR_TOWER: 8,                 // Repair tower every N ticks
     INTERNAL_TRADE: 25,              // Internal trade every N ticks
     BUY_ENERGY_ORDER: 20,            // Buy energy order every N ticks
@@ -227,11 +223,6 @@ module.exports = {
     RENEW_NORMAL: 500,                // Normal renew threshold
     RECYCLE_THRESHOLD: 200,           // Recycle if ticks to live below this
     CONSTRUCTOR_CAPACITY_THRESHOLD: 0.5, // Constructor needs energy if more than this % of capacity is free
-  },
-  
-  // Logistics System Constants
-  LOGISTICS: {
-    MAX_DISTANCE_FALLBACK: 999,      // Maximum distance value used as fallback when target object not found
   },
 
   // Link Ranges

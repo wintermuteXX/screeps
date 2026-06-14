@@ -243,18 +243,6 @@ class ControllerRoom {
   }
 
   /**
-   * Build a needs list for structures
-   * @param {Structure[]} structures - Structures to evaluate
-   * @param {ResourceConstant} resource - Resource type
-   * @param {number} prio - Priority value
-   * @param {number} threshold - Minimum free capacity
-   * @returns {Array} Needs array
-   */
-  structuresNeedResource(structures, resource, prio, threshold) {
-    return this.structures.structuresNeedResource(structures, resource, prio, threshold);
-  }
-
-  /**
    * Get total dropped resource amount
    * @returns {number} Total amount
    */

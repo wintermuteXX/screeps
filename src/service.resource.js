@@ -144,52 +144,6 @@ class ResourceManager {
     this._cache[cacheKey] = amount;
     return amount;
   }
-
-  /**
-   * Gets resources that a room needs (has < threshold)
-   * @param {Room} room - The room to check
-   * @returns {Array} Array of {resourceType, amount, room} objects
-   */
-  getRoomNeeds(room) {
-    this._ensureCache();
-    const cacheKey = `needs_${room.name}`;
-
-    if (this._cache[cacheKey] !== undefined) {
-      return this._cache[cacheKey];
-    }
-
-    const needs = [];
-
-    if (room.terminal) {
-      for (const res of RESOURCES_ALL) {
-        const has = this.getResourceAmount(room, res);
-        const want = this.getRoomThreshold(res);
-        if (has < want) {
-          needs.push({
-            resourceType: res,
-            amount: has - want,
-            room: room.name,
-          });
-        }
-      }
-    }
-
-    this._cache[cacheKey] = needs;
-    return needs;
-  }
-
-  /**
-   * Checks if room has enough of a resource
-   * @param {Room} room - The room to check
-   * @param {string} resource - Resource type
-   * @param {string} structure - Structure type
-   * @returns {boolean} True if room has enough resources
-   */
-  hasEnoughResource(room, resource, structure = "all") {
-    const has = this.getResourceAmount(room, resource, structure);
-    const threshold = this.getRoomThreshold(resource, structure);
-    return has >= threshold;
-  }
 }
 
 // Export singleton instance

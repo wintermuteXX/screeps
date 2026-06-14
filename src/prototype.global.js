@@ -19,7 +19,6 @@ function initGlobal() {
   global.fillLevel = utilsResources.fillLevelConfig;
   global.resourceImg = utilsResources.resourceImg;
   global.globalResourcesAmount = utilsResources.globalResourcesAmount;
-  global.reorderResources = utilsResources.reorderResources;
 
   // ===== Behavior Registry =====
   const behaviorRegistry = createBehaviorRegistry();

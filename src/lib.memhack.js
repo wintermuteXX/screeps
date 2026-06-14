@@ -35,11 +35,6 @@ MemHack.prototype.run = function() {
   if (Game.time % CONSTANTS.TICKS.MEMHACK_CLEANUP_ROOMS === 0) {
     this.cleanupRooms();
   }
-
-  // Clean up structure memory periodically
-  if (Game.time % CONSTANTS.TICKS.MEMHACK_CLEANUP_STRUCTURES === 0) {
-    this.cleanupStructures();
-  }
 };
 
 MemHack.prototype.cleanupCreeps = function() {
@@ -79,23 +74,6 @@ MemHack.prototype.cleanupRooms = function() {
 
   if (cleaned > 0) {
     Log.info(`Cleaned up ${cleaned} old room memories`, "MemHack");
-  }
-};
-
-MemHack.prototype.cleanupStructures = function() {
-  // Clean up structure memory if it exists
-  if (!Memory.structures) return;
-
-  let cleaned = 0;
-  for (const id in Memory.structures) {
-    if (!Game.getObjectById(id)) {
-      delete Memory.structures[id];
-      cleaned++;
-    }
-  }
-
-  if (cleaned > 0) {
-    Log.info(`Cleaned up ${cleaned} dead structure memories`, "MemHack");
   }
 };
 
