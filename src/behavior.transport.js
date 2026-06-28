@@ -6,6 +6,7 @@ const TRAVEL_OPTS = { maxRooms: 1 };
 /**
  * Unified transport: collect from logistics gives, deliver to needs.
  * Active object id is creep.target (memory.target) for logistics dedup.
+ * exact orders (need.exact) withdraw and deliver only need.amount to need.id.
  */
 class TransportBehavior extends Behavior {
   constructor() {
@@ -57,13 +58,19 @@ class TransportBehavior extends Behavior {
    */
   _collectResources(creep, rc) {
     if (!creep.target) {
-      const order = rc.getTransportOrder(creep);
-      if (!order) {
+      const match = rc.getTransportOrder(creep);
+      if (!match) {
         return;
       }
-      creep.target = order.id;
-      creep.memory.transportResource = order.resourceType;
-      creep.memory.transportAmount = order.amount;
+
+      const {give, need} = match;
+      const isExact = !!need.exact;
+
+      creep.target = give.id;
+      creep.memory.transportResource = give.resourceType;
+      creep.memory.transportExact = isExact;
+      creep.memory.transportNeedId = need.id;
+      creep.memory.transportAmount = isExact ? need.amount : give.amount;
     }
 
     const target = creep.getTarget();
@@ -76,7 +83,13 @@ class TransportBehavior extends Behavior {
     let result;
 
     if (target.store !== undefined) {
-      const amount = this._getWithdrawAmount(creep, target, resourceType, creep.memory.transportAmount);
+      const amount = this._getWithdrawAmount(
+        creep,
+        target,
+        resourceType,
+        creep.memory.transportAmount,
+        !!creep.memory.transportExact,
+      );
       if (amount <= 0) {
         this._clearTransportMemory(creep);
         return;
@@ -129,6 +142,9 @@ class TransportBehavior extends Behavior {
       if (order) {
         creep.target = order.id;
         orderAmount = order.amount;
+      } else if (creep.memory.transportExact) {
+        this._clearTransportMemory(creep);
+        return;
       } else {
         const fallback = this._getFallbackTarget(creep);
         if (!fallback) {
@@ -146,7 +162,8 @@ class TransportBehavior extends Behavior {
       return;
     }
 
-    this._transferResources(creep, target, orderAmount);
+    const limitAmount = creep.memory.transportExact ? creep.memory.transportAmount : orderAmount;
+    this._transferResources(creep, target, limitAmount);
   }
 
   /**
@@ -159,6 +176,11 @@ class TransportBehavior extends Behavior {
     const list = !orders ? [] : (Array.isArray(orders) ? orders : [orders]);
     if (list.length === 0) {
       return null;
+    }
+
+    if (creep.memory.transportExact && creep.memory.transportNeedId) {
+      const paired = list.find(o => o.id === creep.memory.transportNeedId);
+      return paired || null;
     }
 
     const collectSourceId = creep.memory.transportCollectSourceId;
@@ -234,7 +256,7 @@ class TransportBehavior extends Behavior {
       if (orderAmount != null) {
         const remaining = orderAmount - totalTransferred;
         if (remaining <= 0) {
-          this._clearDeliveryTarget(creep);
+          this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred);
           return;
         }
         transferAmount = Math.min(transferAmount, remaining);
@@ -245,7 +267,7 @@ class TransportBehavior extends Behavior {
       switch (result) {
         case OK:
           totalTransferred += transferAmount;
-          this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
+          this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
           return;
 
         case ERR_NOT_IN_RANGE:
@@ -265,21 +287,33 @@ class TransportBehavior extends Behavior {
       }
     }
 
-    this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
+    this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
   }
 
   /**
    * @param {Creep} creep
    * @param {number} totalCarriedBefore
    * @param {number} totalTransferred
-   * @param {number|null} orderAmount
+   * @param {number|null} [orderAmount]
    */
-  _finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount) {
+  _finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount) {
     const expectedRemaining = totalCarriedBefore - totalTransferred;
 
     if (expectedRemaining <= 0) {
       this._clearTransportMemory(creep);
-    } else if (totalTransferred === 0 || (orderAmount != null && totalTransferred >= orderAmount)) {
+      return;
+    }
+
+    if (creep.memory.transportExact) {
+      if (orderAmount != null && totalTransferred >= orderAmount) {
+        this._clearTransportMemory(creep);
+      } else {
+        this._clearDeliveryTarget(creep);
+      }
+      return;
+    }
+
+    if (totalTransferred === 0 || (orderAmount != null && totalTransferred >= orderAmount)) {
       this._clearDeliveryTarget(creep);
     }
   }
@@ -289,12 +323,22 @@ class TransportBehavior extends Behavior {
    * @param {RoomObject} target
    * @param {ResourceConstant} resourceType
    * @param {number|null} orderAmount
+   * @param {boolean} [isExact]
    * @returns {number}
    */
-  _getWithdrawAmount(creep, target, resourceType, orderAmount) {
+  _getWithdrawAmount(creep, target, resourceType, orderAmount, isExact = false) {
     const available = target.store[resourceType] || 0;
     const freeCapacity = creep.store.getFreeCapacity(resourceType) || 0;
-    const requested = this._isGreedyContainer(target) ? available : (orderAmount || available);
+
+    let requested;
+    if (isExact && orderAmount != null) {
+      requested = orderAmount;
+    } else if (this._isGreedyContainer(target)) {
+      requested = available;
+    } else {
+      requested = orderAmount || available;
+    }
+
     return Math.min(available, freeCapacity, requested);
   }
 
@@ -347,7 +391,9 @@ class TransportBehavior extends Behavior {
    */
   _clearDeliveryTarget(creep) {
     creep.target = null;
-    creep.memory.transportAmount = null;
+    if (!creep.memory.transportExact) {
+      creep.memory.transportAmount = null;
+    }
   }
 
   /**
@@ -357,6 +403,8 @@ class TransportBehavior extends Behavior {
     creep.target = null;
     creep.memory.transportResource = null;
     creep.memory.transportAmount = null;
+    creep.memory.transportExact = null;
+    creep.memory.transportNeedId = null;
     creep.memory.transportCollectSourceId = null;
   }
 }

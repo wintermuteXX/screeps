@@ -39,7 +39,7 @@ function help(category = "all") {
     ],
     market: [
       { name: "showMarket()", desc: "Table with market info (prices, amounts, orders)", example: "showMarket()" },
-      { name: "helpBuy(room, amount, price)", desc: "Create a buy order for every tradeable resource (uses RESOURCES_ALL)", example: 'helpBuy("W1N1", 50000, 0.01)' },
+      { name: "helpBuy(room, amount, price [, resource])", desc: "Create buy order(s) from terminal; all RESOURCES_ALL or one resource", example: 'helpBuy("W1N1", 50000, 0.01, RESOURCE_ENERGY)' },
     ],
     creeps: [
       { name: "cc(spawn, role, memory?)", desc: "Create a creep manually at a specific spawn", example: 'cc("Spawn3", "supporter")' },
@@ -1063,18 +1063,28 @@ function showRclUpgradeTimes() {
  * @returns {string} Result message
  */
 /**
- * Create buy orders for every resource type (RESOURCES_ALL) from a room terminal.
+ * Create buy orders from a room terminal for every resource type (RESOURCES_ALL)
+ * or a single resource when resourceType is given.
  * @param {string} roomName - Room with your terminal (e.g. "W1N1")
  * @param {number} amount - totalAmount per order (clamped to market limits)
  * @param {number} price - Price per unit (credits)
+ * @param {string} [resourceType] - Optional single resource (e.g. RESOURCE_ENERGY)
  * @returns {string} Summary of results
  */
-function helpBuy(roomName, amount, price) {
+function helpBuy(roomName, amount, price, resourceType) {
   if (!roomName || typeof amount !== "number" || typeof price !== "number") {
-    return 'Usage: helpBuy("RoomName", amount, price) — e.g. helpBuy("W1N1", 50000, 0.01)';
+    return 'Usage: helpBuy("RoomName", amount, price [, resourceType]) — e.g. helpBuy("W1N1", 50000, 0.01) or helpBuy("W1N1", 50000, 0.01, RESOURCE_ENERGY)';
   }
   if (amount < 1 || price <= 0 || !Number.isFinite(amount) || !Number.isFinite(price)) {
     return "Invalid amount (>= 1) or price (> 0)";
+  }
+
+  let resourceTypes = RESOURCES_ALL;
+  if (resourceType !== undefined && resourceType !== null && resourceType !== "") {
+    if (!RESOURCES_ALL.includes(resourceType)) {
+      return `Invalid resourceType "${resourceType}" — must be a RESOURCES_ALL constant`;
+    }
+    resourceTypes = [resourceType];
   }
 
   const room = Game.rooms[roomName];
@@ -1095,10 +1105,10 @@ function helpBuy(roomName, amount, price) {
   let ok = 0;
   const errors = {};
 
-  for (const resourceType of RESOURCES_ALL) {
+  for (const resType of resourceTypes) {
     const result = Game.market.createOrder({
       type: ORDER_BUY,
-      resourceType,
+      resourceType: resType,
       price,
       totalAmount,
       roomName,
@@ -1112,7 +1122,8 @@ function helpBuy(roomName, amount, price) {
 
   const errParts = Object.keys(errors).map((code) => `${code}: ${errors[code]}`);
   const errStr = errParts.length ? ` | errors (${errParts.join(", ")})` : "";
-  return `helpBuy ${roomName}: ${ok}/${RESOURCES_ALL.length} orders created (amount ${totalAmount}, price ${price})${errStr}`;
+  const scope = resourceTypes.length === 1 ? global.resourceImg(resourceTypes[0]) : `${resourceTypes.length} resources`;
+  return `helpBuy ${roomName}: ${ok}/${resourceTypes.length} orders created for ${scope} (amount ${totalAmount}, price ${price})${errStr}`;
 }
 
 function cc(spawnName, role, extraMemory = {}) {

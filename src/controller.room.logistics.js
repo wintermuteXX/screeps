@@ -6,6 +6,10 @@ class LogisticsManager {
     this.rc = roomController;
   }
 
+  /**
+   * @param {Creep} Creep
+   * @returns {{ give: object, need: object }|null}
+   */
   getTransportOrder(Creep) {
     const givesResources = this.givesResources();
     const needsResources = this.needsResources();
@@ -52,9 +56,11 @@ class LogisticsManager {
     // Sort by need.priority (lowest first, same as visualizeLogistic)
     matchingOrders.sort((a, b) => (a.priority || 0) - (b.priority || 0));
 
-    // Return first matching order
     if (matchingOrders.length > 0) {
-      return matchingOrders[0].give;
+      return {
+        give: matchingOrders[0].give,
+        need: matchingOrders[0].need,
+      };
     }
 
     return null;
@@ -463,6 +469,29 @@ class LogisticsManager {
     this.rc._needsResources.push(entry);
   }
 
+  /**
+   * @returns {boolean}
+   */
+  _hasOwnedController() {
+    return !!(this.rc.room.controller && this.rc.room.controller.my);
+  }
+
+  /**
+   * @param {Structure[]} structures
+   * @param {string} resourceType
+   * @param {number} priority
+   * @param {number} [threshold]
+   * @returns {void}
+   */
+  _addStructureNeeds(structures, resourceType, priority, threshold) {
+    if (!this._hasOwnedController()) return;
+
+    const needs = this.rc.structures.structuresNeedResource(structures, resourceType, priority, threshold);
+    for (const need of needs) {
+      this._addNeedsResource(need);
+    }
+  }
+
   _getControllerPriority() {
     if (!this.rc.room.controller) {
       return CONSTANTS.PRIORITY.STORAGE_ENERGY_HIGH;
@@ -552,63 +581,42 @@ class LogisticsManager {
     }
   }
 
-  _processStructures() {
-    if (!this.rc.room.controller || !this.rc.room.controller.my) return;
+  _processTowerNeeds() {
+    if (!this._hasOwnedController()) return;
 
-    // Determine tower priority based on enemies
     const towerPriority = this.rc.structures.getEnemies().length > 0
       ? CONSTANTS.PRIORITY.TOWER_ENEMY
       : CONSTANTS.PRIORITY.TOWER_NORMAL;
 
-    // Process towers
-    const towerNeeds = this.rc.structures.structuresNeedResource(this.rc.room.towers, RESOURCE_ENERGY, towerPriority, 400);
-    for (const need of towerNeeds) {
-      this._addNeedsResource(need);
-    }
+    this._addStructureNeeds(this.rc.room.towers, RESOURCE_ENERGY, towerPriority, 400);
+  }
 
-    // Process spawns
-    const spawnNeeds = this.rc.structures.structuresNeedResource(this.rc.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
-    for (const need of spawnNeeds) {
-      this._addNeedsResource(need);
-    }
+  _processSpawnNeeds() {
+    this._addStructureNeeds(this.rc.room.spawns, RESOURCE_ENERGY, CONSTANTS.PRIORITY.SPAWN);
+  }
 
-    // Process extensions
-    const extensionNeeds = this.rc.structures.structuresNeedResource(this.rc.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
-    for (const need of extensionNeeds) {
-      this._addNeedsResource(need);
-    }
+  _processExtensionNeeds() {
+    this._addStructureNeeds(this.rc.room.extensions, RESOURCE_ENERGY, CONSTANTS.PRIORITY.EXTENSION);
+  }
 
-    // Process labs (for energy)
-    const labNeeds = this.rc.structures.structuresNeedResource(this.rc.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
-    for (const need of labNeeds) {
-      this._addNeedsResource(need);
-    }
+  _processLabEnergyNeeds() {
+    this._addStructureNeeds(this.rc.room.labs, RESOURCE_ENERGY, CONSTANTS.PRIORITY.LAB);
+  }
 
-    // Process power spawn
-    if (this.rc.room.powerSpawn) {
-      const powerSpawnEnergyNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
-      for (const need of powerSpawnEnergyNeeds) {
-        this._addNeedsResource(need);
-      }
+  _processPowerSpawnNeeds() {
+    if (!this._hasOwnedController() || !this.rc.room.powerSpawn) return;
 
-      const powerSpawnPowerNeeds = this.rc.structures.structuresNeedResource([this.rc.room.powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
-      for (const need of powerSpawnPowerNeeds) {
-        this._addNeedsResource(need);
-      }
-    }
+    const {powerSpawn} = this.rc.room;
+    this._addStructureNeeds([powerSpawn], RESOURCE_ENERGY, CONSTANTS.PRIORITY.POWER_SPAWN_ENERGY, 400);
+    this._addStructureNeeds([powerSpawn], RESOURCE_POWER, CONSTANTS.PRIORITY.POWER_SPAWN_POWER, 90);
+  }
 
-    // Process nuker
-    if (this.rc.room.nuker) {
-      const nukerEnergyNeeds = this.rc.structures.structuresNeedResource([this.rc.room.nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
-      for (const need of nukerEnergyNeeds) {
-        this._addNeedsResource(need);
-      }
+  _processNukerNeeds() {
+    if (!this._hasOwnedController() || !this.rc.room.nuker) return;
 
-      const nukerGhodiumNeeds = this.rc.structures.structuresNeedResource([this.rc.room.nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
-      for (const need of nukerGhodiumNeeds) {
-        this._addNeedsResource(need);
-      }
-    }
+    const {nuker} = this.rc.room;
+    this._addStructureNeeds([nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NUKER_ENERGY);
+    this._addStructureNeeds([nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NUKER_GHODIUM);
   }
 
   _processFactoryNeeds() {
@@ -684,19 +692,15 @@ class LogisticsManager {
           }
         }
       } else {
-        // Minerals - only add need if terminal has free capacity and we actually need this mineral
-        // Skip if terminal is full or if we don't need this specific mineral
-        if (freeCapacity <= 0) {
+        // Surplus sink: accept any mineral into terminal when space is available.
+        // Priority TERMINAL_MINERAL (130) is below labs, factory, storage, etc., so those
+        // needs win first; remainder flows here for internalTrade and market sell.
+        const freeForType = terminal.store.getFreeCapacity(resourceType);
+        if (freeForType <= 0) {
           continue;
         }
-        // Only add mineral need if we're below fill level or terminal is empty
-        const fillLevel = this.rc.room.getRoomThreshold(resourceType, "terminal");
-        if (currentAmount < fillLevel || currentAmount === 0) {
-          priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
-          neededAmount = Math.min(fillLevel - currentAmount, freeCapacity);
-        } else {
-          continue; // Skip if already at fill level
-        }
+        priority = CONSTANTS.PRIORITY.TERMINAL_MINERAL;
+        neededAmount = freeForType;
       }
 
       // Only add if we actually need something
@@ -724,7 +728,12 @@ class LogisticsManager {
       this._processController(controllerPriority);
       this._processConstructors();
       this._processLabsNeeds();
-      this._processStructures();
+      this._processTowerNeeds();
+      this._processSpawnNeeds();
+      this._processExtensionNeeds();
+      this._processLabEnergyNeeds();
+      this._processPowerSpawnNeeds();
+      this._processNukerNeeds();
       this._processFactoryNeeds();
       this._processStorageNeeds();
       this._processTerminalNeeds();

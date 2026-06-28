@@ -113,6 +113,7 @@ module.exports = {
    * 2. NEEDS priorities: 10-145 (structures that need resources)
    * 3. GIVES priorities: 40-200 (sources that can give resources)
    * 4. MATCHING RULE: need.priority < give.priority (prevents low-priority needs from being served by high-priority sources)
+   * 5. EXACT ORDERS: need.exact limits withdraw and transfer to need.amount and delivers only to need.id (no fallback)
    * 
    * PRIORITY GROUPS:
    * - CRITICAL (10-30): Life-or-death situations (controller downgrade, spawning)
@@ -141,7 +142,7 @@ module.exports = {
    *   * STORAGE_MINERAL (105): Storage minerals
    *   * NUKER_ENERGY (110): Nuker energy
    *   * STORAGE_ENERGY_OVERFLOW (120): Storage energy overflow
-   *   * TERMINAL_MINERAL (130): Terminal minerals
+   *   * TERMINAL_MINERAL (130): Terminal mineral sink (surplus after labs/factory/storage)
    *   * TERMINAL_ENERGY_OVERFLOW (145): Terminal energy overflow
    * 
    * GIVES PRIORITIES:
@@ -192,7 +193,7 @@ module.exports = {
     STORAGE_MINERAL: 105,             // [NEEDS] Storage minerals
     NUKER_ENERGY: 110,                // [NEEDS] Nuker energy
     STORAGE_ENERGY_OVERFLOW: 120,     // [NEEDS/GIVES] Storage energy overflow (used in both)
-    TERMINAL_MINERAL: 130,            // [NEEDS/GIVES] Terminal minerals (used in both)
+    TERMINAL_MINERAL: 130,            // [NEEDS/GIVES] Terminal mineral sink / surplus source (used in both)
     TERMINAL_ENERGY_OVERFLOW: 145,    // [NEEDS] Terminal energy overflow
 
     // ===== GIVES (givesResources) - Sources that can give resources =====

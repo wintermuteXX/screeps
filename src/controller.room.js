@@ -113,7 +113,7 @@ class ControllerRoom {
   /**
    * Get a transport order for a creep
    * @param {Creep} creep - The creep
-   * @returns {Object|null} Transport order or null
+   * @returns {{ give: object, need: object }|null} Matched give/need pair or null
    */
   getTransportOrder(creep) {
     return this.logistics.getTransportOrder(creep);
