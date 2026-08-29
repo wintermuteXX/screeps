@@ -125,7 +125,7 @@ class StructuresManager {
       return null;
     }
     if (ResourceManager.getResourceAmount(room, RESOURCE_ENERGY, "terminal") > room.getRoomThreshold(RESOURCE_ENERGY, "terminal") + 20000) {
-      Log.success(`Increased wallHits in ${room}`);
+      Log.success(`Increased wallHits in ${room}`, "wallHits");
       room.memory.wallHits += CONSTANTS.RESOURCES.WALL_HITS_INCREMENT;
     }
   }

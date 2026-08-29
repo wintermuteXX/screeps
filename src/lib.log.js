@@ -223,8 +223,9 @@ class Log {
    * @param {string} [tag] - Optional tag for filtering logs
    */
   static toConsole(msg, color, tag) {
-    if (tag) console.logUnsafe(`<font color=${color}>[${Game.time}][${tag}] ${msg}</font>`);
-    else console.log(`<font color=${color}>[${Game.time}] ${msg}</font>`);
+    // logUnsafe: room/creep toString() embeds <a> links; console.log would escape them
+    const prefix = tag ? `[${Game.time}][${tag}]` : `[${Game.time}]`;
+    console.logUnsafe(`<font color=${color}>${prefix} ${msg}</font>`);
   }
 
   /**

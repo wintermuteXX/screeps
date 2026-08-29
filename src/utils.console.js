@@ -211,16 +211,24 @@ function showLabs() {
 
         const status = partnerAMemory.status || "UNKNOWN";
         const partnerBMemory = partnerB && partnerB.memory ? partnerB.memory : null;
-        const reagentB = partnerB && partnerBMemory ? utilsResources.resourceImg(partnerBMemory.resource) : "-";
+        const resultRes = labMemory.resource
+          ? utilsResources.resourceImg(labMemory.resource)
+          : "-";
+        const reagentA = partnerAMemory.resource
+          ? utilsResources.resourceImg(partnerAMemory.resource)
+          : "-";
+        const reagentB = partnerB && partnerBMemory && partnerBMemory.resource
+          ? utilsResources.resourceImg(partnerBMemory.resource)
+          : "-";
         const partnerNames = [partnerA.toString()];
         if (partnerB) partnerNames.push(partnerB.toString());
 
         rows.push([
           "",
           status,
-          utilsResources.resourceImg(labMemory.resource),
+          resultRes,
           labC.toString(),
-          utilsResources.resourceImg(partnerAMemory.resource),
+          reagentA,
           reagentB,
           partnerNames.join(", "),
         ]);
