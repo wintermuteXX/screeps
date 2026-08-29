@@ -17,7 +17,7 @@ function isNotAtBorder(creep) {
 const FLAG_CONFIGS = {
   red: {
     color: COLOR_RED,
-    travelOptions: { ignoreDestructibleStructures: true },
+    travelOptions: { ignoreDestructibleStructures: true, avoidObstacleStructures: false },
     whenCondition: function (creep, flag) {
       return flag.room !== creep.room;
     },

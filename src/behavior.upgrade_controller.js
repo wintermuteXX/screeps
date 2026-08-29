@@ -24,7 +24,7 @@ class UpgradeControllerBehavior extends Behavior {
         case OK:
           break;
         case ERR_NOT_IN_RANGE:
-          creep.travelTo(target);
+          creep.travelTo(target, { range: 3 });
           break;
         case ERR_NOT_OWNER:
         case ERR_INVALID_TARGET:

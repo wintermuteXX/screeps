@@ -29,7 +29,7 @@ function handleIdleRepair(creep, container) {
         }
       } else {
         // Move to container to withdraw energy
-        creep.travelTo(container);
+        creep.travelTo(container, { range: 0 });
         return true;
       }
     } else {
@@ -55,7 +55,7 @@ function handleIdleRepair(creep, container) {
 function handleIdleResourceManagement(creep, container) {
   // Ensure creep is at container position first
   if (!creep.pos.isEqualTo(container.pos)) {
-    creep.travelTo(container);
+    creep.travelTo(container, { range: 0 });
     return true;
   }
 
@@ -125,7 +125,7 @@ function handleLinkTransfer(creep, link, container) {
 function handleHarvesting(creep, source, container) {
   // Move to container position first (mining position)
   if (container && !creep.pos.isEqualTo(container.pos)) {
-    creep.travelTo(container);
+    creep.travelTo(container, { range: 0 });
     return;
   }
 

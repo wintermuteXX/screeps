@@ -47,7 +47,7 @@ class SignControllerBehavior extends Behavior {
     const isOnExitTile = creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49;
     if (isOnExitTile) {
       const centerPos = new RoomPosition(25, 25, roomName);
-      creep.moveTo(centerPos, {
+      creep.travelTo(centerPos, {
         range: 20,
         maxRooms: 1,
         reusePath: 5,

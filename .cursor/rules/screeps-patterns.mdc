@@ -8,7 +8,7 @@ alwaysApply: true
 - Use memhack for memory optimization
 - All magic numbers and thresholds must be in config.constants.js
 - Use Log utility for all logging (Log.success, Log.error, Log.warn etc.)
-- Use Traveler.js for pathfinding, not built-in pathfinding
+- Use Cartographer (utils.movement / creep.travelTo) for pathfinding and traffic, not built-in moveTo
 - Check CPU bucket before expensive operations
 - Use prototype extensions (room.towers, room.spawns, etc.) for efficient structure access
 - Creep roles and properties are defined in config.creeps.js

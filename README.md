@@ -65,7 +65,7 @@ src/
 ├── controller.*.js         # Room and structure controllers
 ├── behavior.*.js           # Creep behavior modules
 ├── service.*.js            # Services (planner, market, etc.)
-├── lib.*.js                # Libraries (traveler, logging)
+├── lib.*.js                # Libraries (cartographer, logging)
 └── prototype.*.js          # Prototype extensions
 ```
 
@@ -113,7 +113,7 @@ The codebase includes an automatic room planner with bunker layout:
 - **Memhack**: Prevents memory re-parsing
 - **Tick-level caching**: Expensive operations cached per tick
 - **Prototype extensions**: Efficient structure access
-- **Smart pathfinding**: Traveler.js for movement
+- **Smart pathfinding**: screeps-cartographer (traffic + move intents)
 
 ## License
 

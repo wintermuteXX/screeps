@@ -29,14 +29,13 @@ class MinerHarvestMineralBehavior extends Behavior {
 
   work(creep, rc) {
     // CRITICAL: If on exit tile, move toward room center IMMEDIATELY
-    // This prevents the oscillation problem described in the wiki
+    // (use travelTo so Cartographer traffic manager tracks the intent)
     const { x, y } = creep.pos;
     if (x === 0 || x === 49 || y === 0 || y === 49) {
-      // Calculate direction toward room center (25, 25)
-      const dx = x === 0 ? 1 : (x === 49 ? -1 : 0);
-      const dy = y === 0 ? 1 : (y === 49 ? -1 : 0);
-      const direction = this._getDirection(dx, dy);
-      creep.move(direction);
+      creep.travelTo(new RoomPosition(25, 25, creep.room.name), {
+        range: 20,
+        maxRooms: 1,
+      });
       return;
     }
 
@@ -63,7 +62,7 @@ class MinerHarvestMineralBehavior extends Behavior {
 
     // Move to destination if not there
     if (!creep.pos.isEqualTo(destPos)) {
-      creep.travelTo(destPos, { maxRooms: 1 });
+      creep.travelTo(destPos, { maxRooms: 1, range: 0 });
       return;
     }
 
@@ -75,19 +74,6 @@ class MinerHarvestMineralBehavior extends Behavior {
         Log.warn(`${creep} harvest mineral error: ${global.getErrorString(result)}`, "Creep");
       }
     }
-  }
-
-  // Helper: Convert dx/dy to direction constant
-  _getDirection(dx, dy) {
-    if (dx === 0 && dy === -1) return TOP;
-    if (dx === 1 && dy === -1) return TOP_RIGHT;
-    if (dx === 1 && dy === 0) return RIGHT;
-    if (dx === 1 && dy === 1) return BOTTOM_RIGHT;
-    if (dx === 0 && dy === 1) return BOTTOM;
-    if (dx === -1 && dy === 1) return BOTTOM_LEFT;
-    if (dx === -1 && dy === 0) return LEFT;
-    if (dx === -1 && dy === -1) return TOP_LEFT;
-    return RIGHT; // fallback
   }
 }
 

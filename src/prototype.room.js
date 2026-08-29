@@ -336,13 +336,13 @@ Room.needsAnalysis = function (roomName) {
 
 /**
  * Checks if a room is hostile and should be avoided
- * Uses multiple sources: Traveler memory, room memory, and direct controller check
+ * Uses room memory and direct controller check when vision exists
  * Static method - can be called without a room instance
  * @param {string} roomName - Name of the room to check
  * @returns {boolean} True if room should be avoided
  */
 Room.isHostile = function (roomName) {
-  // 1. Check room memory (most reliable, updated by Traveler.updateRoomStatus)
+  // 1. Check room memory (updated when we have vision / scout)
   if (Memory.rooms && Memory.rooms[roomName]) {
     const roomMemory = Memory.rooms[roomName];
     if (roomMemory.avoid === 1 || roomMemory.isHostile === true) {
@@ -359,7 +359,6 @@ Room.isHostile = function (roomName) {
     const isHostile = (room.controller.owner && !room.controller.my) ||
                      (room.controller.reservation && myUsername && room.controller.reservation.username !== myUsername);
 
-    // Update room memory (same logic as Traveler.updateRoomStatus)
     if (isHostile) {
       Memory.rooms[roomName].avoid = 1;
       Memory.rooms[roomName].isHostile = true;
@@ -400,9 +399,8 @@ Room.prototype.signController = function (creep) {
     Log.success(`✍️ ${creep} signed controller in ${this} with: "${randomMessage}"`, "sign_controller");
     return true;
   } else if (signResult === ERR_NOT_IN_RANGE) {
-    // Use moveTo instead of travelTo to ensure we stay in the current room
-    // travelTo can find paths outside the room even with maxRooms: 1
-    const moveResult = creep.moveTo(controller, {
+    const moveResult = creep.travelTo(controller, {
+      range: 1,
       visualizePathStyle: { stroke: "#ffffff", lineStyle: "dashed" },
       maxRooms: 1,
       reusePath: 5,
