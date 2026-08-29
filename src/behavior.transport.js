@@ -5,8 +5,9 @@ const TRAVEL_OPTS = { maxRooms: 1 };
 
 /**
  * Unified transport: collect from logistics gives, deliver to needs.
+ * Amounts come from give.amount / need.amount.
+ * Exception: energy at source containers or dropped resources — take maximum.
  * Active object id is creep.target (memory.target) for logistics dedup.
- * exact orders (need.exact) withdraw and deliver only need.amount to need.id.
  */
 class TransportBehavior extends Behavior {
   constructor() {
@@ -23,9 +24,6 @@ class TransportBehavior extends Behavior {
       return true;
     }
     if (creep.target) {
-      return true;
-    }
-    if (creep.memory.role === "transporter") {
       return true;
     }
     return rc.givesResources().length > 0;
@@ -63,14 +61,12 @@ class TransportBehavior extends Behavior {
         return;
       }
 
-      const {give, need} = match;
-      const isExact = !!need.exact;
-
+      const {give} = match;
       creep.target = give.id;
       creep.memory.transportResource = give.resourceType;
-      creep.memory.transportExact = isExact;
-      creep.memory.transportNeedId = need.id;
-      creep.memory.transportAmount = isExact ? need.amount : give.amount;
+      creep.memory.transportAmount = this._isGreedyEnergyPickup(give)
+        ? null
+        : give.amount;
     }
 
     const target = creep.getTarget();
@@ -83,13 +79,7 @@ class TransportBehavior extends Behavior {
     let result;
 
     if (target.store !== undefined) {
-      const amount = this._getWithdrawAmount(
-        creep,
-        target,
-        resourceType,
-        creep.memory.transportAmount,
-        !!creep.memory.transportExact,
-      );
+      const amount = this._getWithdrawAmount(creep, target, resourceType, creep.memory.transportAmount);
       if (amount <= 0) {
         this._clearTransportMemory(creep);
         return;
@@ -135,25 +125,16 @@ class TransportBehavior extends Behavior {
    * @param {import("./controller.room")} rc
    */
   _deliverResources(creep, rc) {
-    let orderAmount = creep.memory.transportAmount;
-
     if (!creep.target) {
-      const order = this._findDeliveryOrder(creep, rc);
-      if (order) {
-        creep.target = order.id;
-        orderAmount = order.amount;
-      } else if (creep.memory.transportExact) {
-        this._clearTransportMemory(creep);
+      const order = rc.getDeliveryOrder(creep, {
+        excludeId: creep.memory.transportCollectSourceId || null,
+      });
+      if (!order) {
+        this._dropAllResources(creep);
         return;
-      } else {
-        const fallback = this._getFallbackTarget(creep);
-        if (!fallback) {
-          return;
-        }
-        creep.target = fallback.id;
-        orderAmount = null;
       }
-      creep.memory.transportAmount = orderAmount;
+      creep.target = order.id;
+      creep.memory.transportAmount = order.amount;
     }
 
     const target = creep.getTarget();
@@ -162,58 +143,7 @@ class TransportBehavior extends Behavior {
       return;
     }
 
-    const limitAmount = creep.memory.transportExact ? creep.memory.transportAmount : orderAmount;
-    this._transferResources(creep, target, limitAmount);
-  }
-
-  /**
-   * @param {Creep} creep
-   * @param {import("./controller.room")} rc
-   * @returns {Object|null}
-   */
-  _findDeliveryOrder(creep, rc) {
-    const orders = rc.getDeliveryOrder(creep);
-    const list = !orders ? [] : (Array.isArray(orders) ? orders : [orders]);
-    if (list.length === 0) {
-      return null;
-    }
-
-    if (creep.memory.transportExact && creep.memory.transportNeedId) {
-      const paired = list.find(o => o.id === creep.memory.transportNeedId);
-      return paired || null;
-    }
-
-    const collectSourceId = creep.memory.transportCollectSourceId;
-    const filtered = collectSourceId
-      ? list.filter(o => o.id !== collectSourceId)
-      : list;
-
-    return filtered.length > 0 ? filtered[0] : null;
-  }
-
-  /**
-   * Terminal → storage → drop.
-   * @param {Creep} creep
-   * @returns {Structure|null}
-   */
-  _getFallbackTarget(creep) {
-    if (!creep.room) {
-      return null;
-    }
-
-    const skipId = creep.memory.transportCollectSourceId;
-    const terminal = creep.room.terminal;
-    if (terminal && terminal.my && terminal.store.getFreeCapacity() > 0 && terminal.id !== skipId) {
-      return terminal;
-    }
-
-    const storage = creep.room.storage;
-    if (storage && storage.my && storage.store.getFreeCapacity() > 0 && storage.id !== skipId) {
-      return storage;
-    }
-
-    this._dropAllResources(creep);
-    return null;
+    this._transferResources(creep, target, creep.memory.transportAmount);
   }
 
   /**
@@ -256,7 +186,7 @@ class TransportBehavior extends Behavior {
       if (orderAmount != null) {
         const remaining = orderAmount - totalTransferred;
         if (remaining <= 0) {
-          this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred);
+          this._finishTransfer(creep, totalCarriedBefore, totalTransferred);
           return;
         }
         transferAmount = Math.min(transferAmount, remaining);
@@ -267,7 +197,7 @@ class TransportBehavior extends Behavior {
       switch (result) {
         case OK:
           totalTransferred += transferAmount;
-          this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
+          this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
           return;
 
         case ERR_NOT_IN_RANGE:
@@ -287,7 +217,7 @@ class TransportBehavior extends Behavior {
       }
     }
 
-    this._finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
+    this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
   }
 
   /**
@@ -296,20 +226,11 @@ class TransportBehavior extends Behavior {
    * @param {number} totalTransferred
    * @param {number|null} [orderAmount]
    */
-  _finishExactTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount) {
+  _finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount) {
     const expectedRemaining = totalCarriedBefore - totalTransferred;
 
     if (expectedRemaining <= 0) {
       this._clearTransportMemory(creep);
-      return;
-    }
-
-    if (creep.memory.transportExact) {
-      if (orderAmount != null && totalTransferred >= orderAmount) {
-        this._clearTransportMemory(creep);
-      } else {
-        this._clearDeliveryTarget(creep);
-      }
       return;
     }
 
@@ -323,45 +244,47 @@ class TransportBehavior extends Behavior {
    * @param {RoomObject} target
    * @param {ResourceConstant} resourceType
    * @param {number|null} orderAmount
-   * @param {boolean} [isExact]
    * @returns {number}
    */
-  _getWithdrawAmount(creep, target, resourceType, orderAmount, isExact = false) {
+  _getWithdrawAmount(creep, target, resourceType, orderAmount) {
     const available = target.store[resourceType] || 0;
     const freeCapacity = creep.store.getFreeCapacity(resourceType) || 0;
-
-    let requested;
-    if (isExact && orderAmount != null) {
-      requested = orderAmount;
-    } else if (this._isGreedyContainer(target)) {
-      requested = available;
-    } else {
-      requested = orderAmount || available;
-    }
-
+    const requested = orderAmount != null ? orderAmount : available;
     return Math.min(available, freeCapacity, requested);
   }
 
   /**
-   * @param {Creep} creep
-   * @returns {ResourceConstant[]}
+   * Take max energy from source/extractor containers or dropped energy.
+   * @param {{ resourceType: string, id?: string, structureType?: string }} give
+   * @returns {boolean}
    */
-  _getSortedCarriedResources(creep) {
-    return Object.keys(creep.store)
-      .filter(r => creep.store[r] > 0)
-      .sort((a, b) => (a === RESOURCE_ENERGY ? -1 : b === RESOURCE_ENERGY ? 1 : 0));
+  _isGreedyEnergyPickup(give) {
+    if (give.resourceType !== RESOURCE_ENERGY) {
+      return false;
+    }
+
+    const obj = give.id ? Game.getObjectById(give.id) : null;
+    if (!obj) {
+      return false;
+    }
+
+    if (obj.resourceType === RESOURCE_ENERGY) {
+      return true;
+    }
+
+    return this._isSourceSideContainer(obj);
   }
 
   /**
    * @param {RoomObject} target
    * @returns {boolean}
    */
-  _isGreedyContainer(target) {
+  _isSourceSideContainer(target) {
     if (!target.structureType || target.structureType !== STRUCTURE_CONTAINER) {
       return false;
     }
 
-    const { room } = target;
+    const {room} = target;
     if (!room) {
       return false;
     }
@@ -379,6 +302,16 @@ class TransportBehavior extends Behavior {
 
   /**
    * @param {Creep} creep
+   * @returns {ResourceConstant[]}
+   */
+  _getSortedCarriedResources(creep) {
+    return Object.keys(creep.store)
+      .filter(r => creep.store[r] > 0)
+      .sort((a, b) => (a === RESOURCE_ENERGY ? -1 : b === RESOURCE_ENERGY ? 1 : 0));
+  }
+
+  /**
+   * @param {Creep} creep
    * @param {string} sourceId
    */
   _rememberCollectSource(creep, sourceId) {
@@ -391,9 +324,7 @@ class TransportBehavior extends Behavior {
    */
   _clearDeliveryTarget(creep) {
     creep.target = null;
-    if (!creep.memory.transportExact) {
-      creep.memory.transportAmount = null;
-    }
+    creep.memory.transportAmount = null;
   }
 
   /**
@@ -403,8 +334,6 @@ class TransportBehavior extends Behavior {
     creep.target = null;
     creep.memory.transportResource = null;
     creep.memory.transportAmount = null;
-    creep.memory.transportExact = null;
-    creep.memory.transportNeedId = null;
     creep.memory.transportCollectSourceId = null;
   }
 }

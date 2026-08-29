@@ -122,11 +122,11 @@ class ControllerRoom {
   /**
    * Get a delivery order for a creep
    * @param {Creep} creep - The creep
-   * @param {string|null} resourceType - Optional resource filter
-   * @returns {Object|null} Delivery order or null
+   * @param {{ resourceType?: string|null, excludeId?: string|null }} [options]
+   * @returns {Object|null} Delivery need or null
    */
-  getDeliveryOrder(creep, resourceType = null) {
-    return this.logistics.getDeliveryOrder(creep, resourceType);
+  getDeliveryOrder(creep, options = {}) {
+    return this.logistics.getDeliveryOrder(creep, options);
   }
 
   /**

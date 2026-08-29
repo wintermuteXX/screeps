@@ -11,7 +11,6 @@ module.exports = {
     BUCKET_CRITICAL: 100,           // Skip tick if bucket below this
     BUCKET_LOW: 1000,               // Low bucket threshold
     BUCKET_MEDIUM: 2000,            // Medium bucket threshold
-    BUCKET_HIGH: 9999,              // Generate pixel if above this
     PIXEL_GENERATION_THRESHOLD: 9999,
   },
 
@@ -20,8 +19,6 @@ module.exports = {
     HISTORY_SIZE: 500,              // Number of ticks for rolling average
     CHECK_INTERVAL: 100,            // CPU-Analyse alle N Ticks
     CONQUER_THRESHOLD_AVG: 0.8,     // Max 80% CPU-Durchschnitt
-    CONQUER_THRESHOLD_BUCKET: 2000, // Min Bucket-Level
-    CONQUER_THRESHOLD_PEAK: 0.95,   // Max 95% CPU-Spitze
   },
 
   // Tick Intervals
@@ -40,7 +37,6 @@ module.exports = {
     SELL_MINERAL: 200,               // Sell mineral every N ticks
     ADJUST_WALL_HITS: 1000,          // Adjust wall hits every N ticks
     ROOM_PLANNER: 50,                // Run room planner every N ticks
-    FACTORY_POWER_CHECK: 100,        // Check factory power level every N ticks
     SCOUT_VISUALIZATION_DURATION: 100, // World map visualization duration in ticks
     BUY_MISSING_MINERALS: 1000,        // Buy missing minerals every N ticks
   },
@@ -51,7 +47,6 @@ module.exports = {
     DROPPED_MIN: 100,               // Minimum dropped resource amount to collect
     DROPPED_MULTIPLIER: 50,         // Multiplier for dropped resources threshold (DROPPED_MIN * MULTIPLIER)
     CONTAINER_MIN: 750,              // Minimum amount in container to consider
-    TERMINAL_MIN_SELL: 10000,       // Minimum mineral amount before selling
     TERMINAL_MAX_STORE: 270000,     // Maximum terminal storage before stopping mining
     LAB_REACTION_MIN: 9000,         // Minimum resources needed for lab reaction
     CONTROLLER_ENERGY_BUFFER: 800,  // Energy buffer for controller container
@@ -76,9 +71,7 @@ module.exports = {
     DEFENDER_MAX: 2,                 // Max defender creeps
     SUPPORTER_MAX: 3,                // Max supporter creeps
     CLAIMER_MAX: 1,                  // Max claimer creeps
-    MINER_PER_SOURCE: 1,             // Miners per source
     MINER_MINERAL_MAX: 1,            // Max mineral miners
-    MINER_COMMODITY_MAX: 1,          // Max commodity miners
   },
 
   // Creep Energy Limits
@@ -107,115 +100,88 @@ module.exports = {
   /**
    * PRIORITY SYSTEM DOCUMENTATION
    * ==============================
-   * 
+   *
+   * Schema: PRIORITY.NEED|GIVE.<RESOURCE>.<TARGET>
+   * Resources: ENERGY, MINERAL, GHODIUM, POWER, ALL (any/mixed resource)
+   *
    * PRIORITY RULES:
    * 1. Lower number = Higher priority (10 is more urgent than 100)
-   * 2. NEEDS priorities: 10-145 (structures that need resources)
-   * 3. GIVES priorities: 40-200 (sources that can give resources)
-   * 4. MATCHING RULE: need.priority < give.priority (prevents low-priority needs from being served by high-priority sources)
-   * 5. EXACT ORDERS: need.exact limits withdraw and transfer to need.amount and delivers only to need.id (no fallback)
-   * 
-   * PRIORITY GROUPS:
-   * - CRITICAL (10-30): Life-or-death situations (controller downgrade, spawning)
-   *   * CONTROLLER_CRITICAL (10): Controller about to downgrade (< 100 ticks)
-   *   * SPAWN (15): Spawns (must be filled for new creeps)
-   *   * EXTENSION (20): Extensions (needed for spawning)
-   *   * CONTROLLER_LOW (25): Controller low on time (< 5000 ticks)
-   * 
-   * - HIGH (30-50): Important operational needs
-   *   * TOWER_ENEMY (30): Towers when enemies present (defensive priority)
-   *   * TERMINAL_ENERGY_LOW (35): Terminal energy very low (critical for trading)
-   * 
-   * - MEDIUM (50-80): Normal operational needs
-   *   * STORAGE_ENERGY_MID (55): Storage energy medium
-   *   * TOWER_NORMAL (60): Towers when no enemies
-   *   * CONSTRUCTOR (62): Constructors
-   *   * LAB (65): Labs
-   *   * LAB_FILL (70): Labs filling
-   *   * FACTORY_ENERGY (75): Factory energy
-   * 
-   * - LOW (80-145): Non-critical needs
-   *   * POWER_SPAWN_ENERGY (80): Power spawn energy
-   *   * FACTORY_MINERAL (85): Factory minerals
-   *   * POWER_SPAWN_POWER (90): Power spawn power
-   *   * NUKER_GHODIUM (95): Nuker ghodium
-   *   * STORAGE_MINERAL (105): Storage minerals
-   *   * NUKER_ENERGY (110): Nuker energy
-   *   * STORAGE_ENERGY_OVERFLOW (120): Storage energy overflow
-   *   * TERMINAL_MINERAL (130): Terminal mineral sink (surplus after labs/factory/storage)
-   *   * TERMINAL_ENERGY_OVERFLOW (145): Terminal energy overflow
-   * 
-   * GIVES PRIORITIES:
-   * - Start at 40 to ensure need.priority < give.priority works for all needs
-   * - Higher numbers = lower priority sources (containers, links are last resort)
-   * - STORAGE_ENERGY_LOW (40): Storage energy low (can give)
-   * - STORAGE_ENERGY_HIGH (100): Storage energy high (can give)
-   * - STORAGE_MINERAL_HIGH (110): Storage mineral high (can give)
-   * - TERMINAL_ENERGY_HIGH (140): Terminal energy high (can give)
-   * - STORAGE_MINERAL_OVERFLOW (150): Storage mineral overflow (can give)
-   * - TOMBSTONE (165): Tombstones (can give)
-   * - RUIN (166): Ruins (destroyed structures, can give)
-   * - DROPPED_RESOURCE (170): Dropped resources (can give)
-   * - FACTORY_OVERFLOW (180): Factory overflow (can give)
-   * - LAB_EMPTY (185): Labs with resources to empty (can give)
-   * - CONTAINER (195): Containers (can give)
-   * - LINK (200): Links (can give)
-   * 
-   * DYNAMIC PRIORITIES:
-   * - Controller: Changes based on ticksToDowngrade (10 = critical, 25 = low)
-   * - Tower: Changes based on enemy presence (30 = enemy, 60 = normal)
-   * - Storage/Terminal: Changes based on fill level (see _getStorageGivesPriority, _getStorageNeedsPriority)
-   * 
-   * SORTING LOGIC:
-   * - Primary: Priority (lowest first = highest priority)
-   * - Secondary: Distance (closest first) - applied when priorities are equal
-   * - This ensures efficient resource distribution and minimizes travel time
+   * 2. NEED priorities: 10-145 (structures that need resources)
+   * 3. GIVE priorities: 35-200 (sources that can give resources)
+   * 4. MATCHING RULE: need.priority < give.priority
+   *
+   * NEED.ENERGY: CONTROLLER_CRITICAL(10), SPAWN(15), EXTENSION(20), CONTROLLER_LOW(25),
+   *   TOWER_ENEMY(30), TERMINAL_LOW(45), STORAGE_MID(55), TOWER_NORMAL(60), CONSTRUCTOR(62),
+   *   LAB(65), FACTORY(75), POWER_SPAWN(80), NUKER(110),
+   *   TERMINAL_HIGH(115), STORAGE_OVERFLOW(125), CONTROLLER_NORMAL(127)
+   * NEED.MINERAL: LAB_FILL(70), FACTORY(85), STORAGE(105), TERMINAL(135)
+   * NEED.GHODIUM: NUKER(95)
+   * NEED.POWER: POWER_SPAWN(90)
+   *
+   * GIVE.ENERGY: TERMINAL_LOW(35), STORAGE_LOW(40), STORAGE_OVERFLOW(120),
+   *   TERMINAL_OVERFLOW(140), LINK(200)
+   * GIVE.MINERAL: STORAGE_HIGH(100), TERMINAL(130), STORAGE_OVERFLOW(150)
+   * GIVE.ALL: TOMBSTONE(165), RUIN(166), DROPPED(170), FACTORY_OVERFLOW(180),
+   *   LAB_EMPTY(185), CONTAINER(195)
+   *
+   * DYNAMIC: Controller by ticksToDowngrade; Tower by enemies; Storage/Terminal by fill level
    */
   // Priority Values (lower = higher priority)
   PRIORITY: {
-    // ===== NEEDS (needsResources) - Structures that need resources =====
-    CONTROLLER_CRITICAL: 10,          // [NEEDS] Controller about to downgrade
-    SPAWN: 15,                        // [NEEDS] Spawns
-    EXTENSION: 20,                    // [NEEDS] Extensions
-    CONTROLLER_LOW: 25,               // [NEEDS] Controller low on time
-    TOWER_ENEMY: 30,                  // [NEEDS] Towers when enemies present
-    TERMINAL_ENERGY_LOW: 35,          // [NEEDS/GIVES] Terminal energy very low (used in both)
-    STORAGE_ENERGY_MID: 55,           // [NEEDS] Storage energy medium
-    TOWER_NORMAL: 60,                 // [NEEDS] Towers when no enemies
-    CONSTRUCTOR: 62,                  // [NEEDS] Constructors
-    LAB: 65,                          // [NEEDS] Labs
-    LAB_FILL: 70,                     // [NEEDS] Labs filling
-    FACTORY_ENERGY: 75,               // [NEEDS] Factory energy
-    POWER_SPAWN_ENERGY: 80,           // [NEEDS] Power spawn energy
-    FACTORY_MINERAL: 85,              // [NEEDS] Factory minerals
-    POWER_SPAWN_POWER: 90,            // [NEEDS] Power spawn power
-    NUKER_GHODIUM: 95,                // [NEEDS] Nuker ghodium
-    STORAGE_MINERAL: 105,             // [NEEDS] Storage minerals
-    NUKER_ENERGY: 110,                // [NEEDS] Nuker energy
-    STORAGE_ENERGY_OVERFLOW: 120,     // [NEEDS/GIVES] Storage energy overflow (used in both)
-    TERMINAL_MINERAL: 130,            // [NEEDS/GIVES] Terminal mineral sink / surplus source (used in both)
-    TERMINAL_ENERGY_OVERFLOW: 145,    // [NEEDS] Terminal energy overflow
-
-    // ===== GIVES (givesResources) - Sources that can give resources =====
-    STORAGE_ENERGY_LOW: 40,           // [GIVES] Storage energy low (can give)
-    STORAGE_ENERGY_HIGH: 100,         // [GIVES] Storage energy high (can give)
-    STORAGE_MINERAL_HIGH: 110,        // [GIVES] Storage mineral high (can give)
-    TERMINAL_ENERGY_HIGH: 140,        // [GIVES] Terminal energy high (can give)
-    STORAGE_MINERAL_OVERFLOW: 150,    // [GIVES] Storage mineral overflow (can give)
-    TOMBSTONE: 165,                   // [GIVES] Tombstones (can give)
-    RUIN: 166,                        // [GIVES] Ruins (destroyed structures, can give)
-    DROPPED_RESOURCE: 170,            // [GIVES] Dropped resources (can give)
-    FACTORY_OVERFLOW: 180,            // [GIVES] Factory overflow (can give)
-    LAB_EMPTY: 185,                   // [GIVES] Labs with resources to empty (can give)
-    CONTAINER: 195,                   // [GIVES] Containers (can give)
-    LINK: 200,                        // [GIVES] Links (can give)
-  },
-
-  // Pathfinding
-  PATHFINDING: {
-    MAX_OPS: 4000,                   // Maximum pathfinding operations
-    SWAMP_COST: 2,                    // Cost multiplier for swamps
-    PLAIN_COST: 2,                    // Cost multiplier for plains
+    NEED: {
+      ENERGY: {
+        CONTROLLER_CRITICAL: 10,
+        SPAWN: 15,
+        EXTENSION: 20,
+        CONTROLLER_LOW: 25,
+        TOWER_ENEMY: 30,
+        TERMINAL_LOW: 45,
+        STORAGE_MID: 55,
+        TOWER_NORMAL: 60,
+        CONSTRUCTOR: 62,
+        LAB: 65,
+        FACTORY: 75,
+        POWER_SPAWN: 80,
+        NUKER: 110,
+        TERMINAL_HIGH: 115,             // Fill terminal toward MAX_ENERGY when storage is overfull
+        STORAGE_OVERFLOW: 125,
+        CONTROLLER_NORMAL: 127,
+      },
+      MINERAL: {
+        LAB_FILL: 70,
+        FACTORY: 85,
+        STORAGE: 105,
+        TERMINAL: 135,
+      },
+      GHODIUM: {
+        NUKER: 95,
+      },
+      POWER: {
+        POWER_SPAWN: 90,
+      },
+    },
+    GIVE: {
+      ENERGY: {
+        TERMINAL_LOW: 35,
+        STORAGE_LOW: 40,
+        STORAGE_OVERFLOW: 120,
+        TERMINAL_OVERFLOW: 140,
+        LINK: 200,
+      },
+      MINERAL: {
+        STORAGE_HIGH: 100,
+        TERMINAL: 130,
+        STORAGE_OVERFLOW: 150,
+      },
+      ALL: {
+        TOMBSTONE: 165,
+        RUIN: 166,
+        DROPPED: 170,
+        FACTORY_OVERFLOW: 180,
+        LAB_EMPTY: 185,
+        CONTAINER: 195,
+      },
+    },
   },
 
   // Creep Lifecycle
@@ -223,7 +189,6 @@ module.exports = {
     RENEW_EMERGENCY: 100,             // Renew if ticks to live below this
     RENEW_NORMAL: 500,                // Normal renew threshold
     RECYCLE_THRESHOLD: 200,           // Recycle if ticks to live below this
-    CONSTRUCTOR_CAPACITY_THRESHOLD: 0.5, // Constructor needs energy if more than this % of capacity is free
   },
 
   // Link Ranges
@@ -245,25 +210,26 @@ module.exports = {
 
   // Room Analysis
   ROOM: {
-    FREE_RANGE: 3,                    // Free range for center point calculation
     SOURCE_COUNT_CORE: 3,             // Source count for core room type
     BORDER_MIN: 1,                    // Minimum coordinate (avoid edge)
     BORDER_MAX: 48,                   // Maximum coordinate (avoid edge)
-    EDGE_MIN: 0,                      // Room edge minimum
-    EDGE_MAX: 49,                     // Room edge maximum
     CENTER_POSITION_X: 25,            // Default X coordinate for room center (used for travel targeting)
     CENTER_POSITION_Y: 25,            // Default Y coordinate for room center (used for travel targeting)
   },
 
   // Defense
   DEFENSE: {
-    MAX_HITS: 2155000,                // Maximum hits for defense structures
     REPAIR_LIMIT: 0.95,               // Repair limit (95% of max hits)
   },
 
   // Storage
   STORAGE: {
     MAX_ENERGY_THRESHOLD: 100000,     // Maximum energy threshold for storage
+  },
+
+  // Terminal
+  TERMINAL: {
+    MAX_ENERGY: 100000,               // Soft cap: fill toward this only if storage energy is above STORAGE.MAX_ENERGY_THRESHOLD
   },
 
   // Market
@@ -282,10 +248,6 @@ module.exports = {
     PROFIT_THRESHOLD: 0.05,           // Profit threshold
   },
 
-  // Fill Levels for Resources (storage, terminal, factory)
-  // Note: This is a large object, kept here for reference but assigned to global in _initGlobal.js
-  FILL_LEVEL: null, // Will be assigned from _initGlobal.js
-
   // Room Planner Configuration
   PLANNER: {
     // Construction Site Limits
@@ -295,7 +257,6 @@ module.exports = {
     MIN_RCL_FOR_ROADS: 5,
 
     // Center Calculation
-    CENTER_FREE_RANGE: 5,
     CENTER_SEARCH_MIN: 6,
     CENTER_SEARCH_MAX: 44,
     CONTROLLER_WEIGHT: 0.5,
@@ -314,13 +275,10 @@ module.exports = {
     // Room Boundaries
     ROOM_MIN: 2,
     ROOM_MAX: 47,
-    ROOM_EDGE_MIN: 2,
-    ROOM_EDGE_MAX: 47,
   },
 
   // Transport System Configuration
   TRANSPORT: {
-    ORNITHOPTER_BATCH_DISTANCE: 10,    // Maximum distance for batching nearby orders
     SCOUT_MAX_DISTANCE: 10,            // Maximum distance for scout visualization (room hops)
     SCOUT_OLD_THRESHOLD: 100000,       // Ticks since check to consider data "old"
     SCOUT_SCORE_THRESHOLD: 500,        // Minimum score to display on scout visualization
