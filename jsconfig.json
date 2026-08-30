@@ -7,14 +7,13 @@
         "noImplicitAny": false,
         "strict": false,
         "skipLibCheck": true,
-        "typeRoots": ["./node_modules/@types"],
-        "types": ["screeps"],
         "baseUrl": ".",
         "paths": {
             "*": ["src/*", "node_modules/*"]
         },
         "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "ignoreDeprecations": "6.0"
     },
     "include": [
         "src/**/*"

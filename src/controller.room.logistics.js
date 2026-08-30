@@ -30,12 +30,13 @@ class LogisticsManager {
 
   /**
    * @param {Creep} creep
-   * @param {{ resourceType?: string|null, excludeId?: string|null }} [options]
+   * @param {{ resourceType?: string|null, excludeId?: string|null, preferId?: string|null }} [options]
    * @returns {object|null}
    */
   getDeliveryOrder(creep, options = {}) {
     const resourceType = options.resourceType != null ? options.resourceType : null;
     const excludeId = options.excludeId || null;
+    const preferId = options.preferId || null;
 
     const carried = new Set();
     for (const t of Object.keys(creep.store)) {
@@ -45,17 +46,34 @@ class LogisticsManager {
     if (resourceType != null && !carried.has(resourceType)) return null;
 
     const claimedNeedIds = this._claimedTargetIds(false);
+    const needs = this.needsResources();
 
-    for (const need of this.needsResources()) {
+    /**
+     * @param {object} need
+     * @returns {boolean}
+     */
+    const isValidNeed = (need) => {
       if (resourceType != null) {
-        if (need.resourceType !== resourceType) continue;
+        if (need.resourceType !== resourceType) return false;
       } else if (!carried.has(need.resourceType)) {
-        continue;
+        return false;
       }
-      if (need.id === creep.id) continue;
-      if (excludeId && need.id === excludeId) continue;
-      if (claimedNeedIds.has(need.id)) continue;
-      if (!this._validateResourceTarget(need.id, need.resourceType)) continue;
+      if (need.id === creep.id) return false;
+      if (excludeId && need.id === excludeId) return false;
+      if (claimedNeedIds.has(need.id)) return false;
+      return !!this._validateResourceTarget(need.id, need.resourceType);
+    };
+
+    if (preferId) {
+      for (const need of needs) {
+        if (need.id !== preferId) continue;
+        if (isValidNeed(need)) return need;
+        break;
+      }
+    }
+
+    for (const need of needs) {
+      if (!isValidNeed(need)) continue;
       return need;
     }
 
@@ -269,6 +287,7 @@ class LogisticsManager {
           resourceType: resource.resourceType,
           amount: resource.amount,
           id: resource.id,
+          greedy: resource.resourceType === RESOURCE_ENERGY,
         });
       }
     }
@@ -303,6 +322,7 @@ class LogisticsManager {
             structureType: container.structureType,
             amount: amount,
             id: container.id,
+            greedy: resourceType === RESOURCE_ENERGY,
           });
         }
       }

@@ -101,7 +101,7 @@ class ControllerGame {
       this.findBestRoomForClaiming();
     }
 
-    // Drop legacy internal-trade dedup map (no longer used)
+    // Legacy key from old internal-trade dedup (replaced by per-tick global reservation)
     if (Memory.internalTradeSent) {
       delete Memory.internalTradeSent;
     }

@@ -7,9 +7,5 @@
   },
   "scripts": {
     "deploy": "node upload.js"
-  },
-  "devDependencies": {
-    "@types/lodash": "3.10.1",
-    "@types/screeps": "^3.3.8"
   }
 }

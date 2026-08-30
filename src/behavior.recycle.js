@@ -2,9 +2,20 @@ const Behavior = require("./behavior.base");
 const CONSTANTS = require("./config.constants");
 const Log = require("./lib.log");
 
+/** Cheap long-range options — avoid ensurePath (can cost tens of CPU per tick). */
+const TRAVEL_HOME = {
+  preferHighway: true,
+  maxOps: 20000,
+};
+
+const TRAVEL_LOCAL = {
+  maxRooms: 1,
+  maxOps: 5000,
+};
+
 /**
- * Recycle behavior for creeps that are no longer needed
- * Brings the creep to a spawn to recycle it and recover energy
+ * Recycle behavior for creeps that are no longer needed.
+ * Brings the creep to a spawn to recycle it and recover energy.
  *
  * Usage: Add as last behavior in the list
  * e.g.: behaviors: ["miner_harvest_mineral", "recycle"]
@@ -14,97 +25,104 @@ class RecycleBehavior extends Behavior {
     super("recycle");
   }
 
+  /**
+   * @param {Creep} creep
+   * @param {import("./controller.room")} rc
+   * @returns {boolean}
+   */
   when(creep, rc) {
-    // Recycle when:
-    // 1. Scout has nothing more to scout
     if (creep.memory.role === "scout" && creep.memory.scoutCompleted) {
-      Log.info(`♻️ Scout ${creep} ready for recycling - scouting completed`, "recycle");
       return true;
     }
 
-    // 2. Miner_mineral has depleted mineral
-    const mineralDepleted = creep.room.mineral && creep.room.mineral.mineralAmount === 0;
-    if (creep.memory.role === "miner_mineral" && mineralDepleted) {
-      Log.info(`♻️ Miner ${creep} ready for recycling - mineral depleted`, "recycle");
+    if (
+      creep.memory.role === "miner_mineral" &&
+      creep.room.mineral &&
+      creep.room.mineral.mineralAmount === 0
+    ) {
       return true;
     }
 
-    // 3. Creep has few ticks left (always recycle before death)
-    const lowTicks = creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RECYCLE_THRESHOLD;
-    if (lowTicks) {
-      Log.info(`♻️ ${creep} ready for recycling - low ticks remaining (${creep.ticksToLive})`, "recycle");
-      return true;
-    }
-    Log.warn(`♻️ ${creep} not ready for recycling - no reason found`, "recycle");
+    return creep.ticksToLive < CONSTANTS.CREEP_LIFECYCLE.RECYCLE_THRESHOLD;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  completed() {
+    // Never completed — creep disappears when recycled
     return false;
   }
 
-  completed(creep, rc) {
-    // Never "completed" - Creep will be recycled and disappear
-    return false;
-  }
-
+  /**
+   * @param {Creep} creep
+   * @param {import("./controller.room")} rc
+   */
   work(creep, rc) {
-    // First: Try to find spawn in current room (only own spawns)
-    let spawn = rc.getIdleSpawn();
-    if (spawn && !spawn.my) {
-      spawn = null; // Not our spawn, ignore it
-    }
-
-    // If no spawn in current room, go to home room
+    const spawn = this._getRecycleSpawn(creep, rc);
     if (!spawn) {
-      const homeRoom = Game.rooms[creep.memory.home];
-      if (homeRoom) {
-        const homeSpawns = homeRoom.find(FIND_MY_SPAWNS);
-        if (homeSpawns.length > 0) {
-          const homeSpawn = homeSpawns[0];
-          // Verify it's our spawn
-          if (homeSpawn && homeSpawn.my) {
-            // If we're not in home room, travel there first
-            if (creep.room.name !== creep.memory.home) {
-              Log.info(`♻️ ${creep} returning to home room ${creep.memory.home} for recycling`, "recycle");
-              creep.travelTo(new RoomPosition(25, 25, creep.memory.home), {
-                preferHighway: true,
-                ensurePath: true,
-                useFindRoute: true,
-              });
-              creep.say("🏠♻️");
-              return;
-            }
-            spawn = homeSpawn;
-          }
-        }
+      const home = creep.memory.home;
+      if (home && creep.room.name !== home) {
+        creep.travelTo(new RoomPosition(25, 25, home), TRAVEL_HOME);
+        return;
       }
+      // No spawn and already home / no home — wait (avoid log spam)
+      return;
     }
 
-    // Verify spawn is ours before proceeding
-    if (!spawn || !spawn.my) {
-      Log.warn(`${creep} cannot be recycled - no own spawn found in current room or home room`, "recycle");
+    if (creep.room.name !== spawn.pos.roomName) {
+      creep.travelTo(spawn, TRAVEL_HOME);
       return;
     }
 
     if (creep.pos.isNearTo(spawn)) {
       const result = spawn.recycleCreep(creep);
-
-      switch (result) {
-        case OK:
-          Log.success(`♻️ ${creep} is being recycled at ${spawn} in ${creep.room}`, "recycle");
-          break;
-        case ERR_BUSY:
-          // Spawn is busy, waiting
-          break;
-        case ERR_NOT_IN_RANGE:
-          creep.travelTo(spawn);
-          break;
-        default:
-          Log.warn(`${creep} recycle error: ${global.getErrorString(result)}`, "recycle");
+      if (result === OK) {
+        Log.success(`♻️ ${creep} recycled at ${spawn} in ${creep.room}`, "recycle");
+      } else if (result !== ERR_BUSY && result !== ERR_NOT_IN_RANGE) {
+        Log.warn(`${creep} recycle error: ${global.getErrorString(result)}`, "recycle");
+      } else if (result === ERR_NOT_IN_RANGE) {
+        creep.travelTo(spawn, TRAVEL_LOCAL);
       }
-    } else {
-      creep.travelTo(spawn);
-      creep.say("♻️");
+      return;
     }
+
+    creep.travelTo(spawn, TRAVEL_LOCAL);
+  }
+
+  /**
+   * Resolve a spawn to recycle at (cached in creep memory).
+   * @param {Creep} creep
+   * @param {import("./controller.room")} rc
+   * @returns {StructureSpawn|null}
+   */
+  _getRecycleSpawn(creep, rc) {
+    if (creep.memory.recycleSpawnId) {
+      const cached = Game.getObjectById(creep.memory.recycleSpawnId);
+      if (cached && cached.my && cached.structureType === STRUCTURE_SPAWN) {
+        return cached;
+      }
+      delete creep.memory.recycleSpawnId;
+    }
+
+    let spawn = rc.getIdleSpawn();
+    if (spawn && spawn.my) {
+      creep.memory.recycleSpawnId = spawn.id;
+      return spawn;
+    }
+
+    const homeName = creep.memory.home;
+    const homeRoom = homeName ? Game.rooms[homeName] : null;
+    if (homeRoom) {
+      const homeSpawns = homeRoom.find(FIND_MY_SPAWNS);
+      if (homeSpawns.length > 0) {
+        creep.memory.recycleSpawnId = homeSpawns[0].id;
+        return homeSpawns[0];
+      }
+    }
+
+    return null;
   }
 }
 
 module.exports = new RecycleBehavior();
-

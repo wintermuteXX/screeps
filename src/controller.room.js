@@ -122,7 +122,7 @@ class ControllerRoom {
   /**
    * Get a delivery order for a creep
    * @param {Creep} creep - The creep
-   * @param {{ resourceType?: string|null, excludeId?: string|null }} [options]
+   * @param {{ resourceType?: string|null, excludeId?: string|null, preferId?: string|null }} [options]
    * @returns {Object|null} Delivery need or null
    */
   getDeliveryOrder(creep, options = {}) {

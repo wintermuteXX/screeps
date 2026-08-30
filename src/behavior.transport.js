@@ -4,9 +4,9 @@ const Log = require("./lib.log");
 const TRAVEL_OPTS = { maxRooms: 1 };
 
 /**
- * Unified transport: collect from logistics gives, deliver to needs.
+ * Unified transport: collect one resource from a give, deliver that resource to a need.
  * Amounts come from give.amount / need.amount.
- * Exception: energy at source containers or dropped resources — take maximum.
+ * Exception: greedy gives (source/extractor energy, dropped energy) — take maximum.
  * Active object id is creep.target (memory.target) for logistics dedup.
  */
 class TransportBehavior extends Behavior {
@@ -61,12 +61,11 @@ class TransportBehavior extends Behavior {
         return;
       }
 
-      const {give} = match;
+      const {give, need} = match;
       creep.target = give.id;
       creep.memory.transportResource = give.resourceType;
-      creep.memory.transportAmount = this._isGreedyEnergyPickup(give)
-        ? null
-        : give.amount;
+      creep.memory.transportNeedId = need.id;
+      creep.memory.transportAmount = give.greedy ? null : give.amount;
     }
 
     const target = creep.getTarget();
@@ -127,7 +126,9 @@ class TransportBehavior extends Behavior {
   _deliverResources(creep, rc) {
     if (!creep.target) {
       const order = rc.getDeliveryOrder(creep, {
+        resourceType: creep.memory.transportResource || null,
         excludeId: creep.memory.transportCollectSourceId || null,
+        preferId: creep.memory.transportNeedId || null,
       });
       if (!order) {
         this._dropAllResources(creep);
@@ -143,15 +144,22 @@ class TransportBehavior extends Behavior {
       return;
     }
 
-    this._transferResources(creep, target, creep.memory.transportAmount);
+    this._transferResource(creep, target, creep.memory.transportAmount);
   }
 
   /**
    * @param {Creep} creep
    */
   _dropAllResources(creep) {
+    const dropping = Object.keys(creep.store)
+      .filter((resourceType) => creep.store[resourceType] > 0)
+      .map((resourceType) => `${resourceType}×${creep.store[resourceType]}`)
+      .join(", ");
     this._clearTransportMemory(creep);
-    Log.warn(`${creep} dropping resources - no delivery target`, "transport");
+    Log.warn(
+      `${creep} dropping ${dropping || "nothing"} - no delivery target`,
+      "transport"
+    );
     for (const resourceType of Object.keys(creep.store)) {
       if (creep.store[resourceType] > 0) {
         creep.drop(resourceType);
@@ -160,82 +168,68 @@ class TransportBehavior extends Behavior {
   }
 
   /**
+   * Transfer only the collected resource type to the delivery target.
    * @param {Creep} creep
    * @param {RoomObject} target
    * @param {number|null} orderAmount
    */
-  _transferResources(creep, target, orderAmount) {
-    const totalCarriedBefore = creep.store.getUsedCapacity();
-    let totalTransferred = 0;
-
-    for (const resourceType of this._getSortedCarriedResources(creep)) {
-      const carried = creep.store[resourceType];
-      if (carried <= 0) {
-        continue;
-      }
-
-      let transferAmount = carried;
-      if (target.store) {
-        const free = target.store.getFreeCapacity(resourceType);
-        if (free <= 0) {
-          continue;
-        }
-        transferAmount = Math.min(transferAmount, free);
-      }
-
-      if (orderAmount != null) {
-        const remaining = orderAmount - totalTransferred;
-        if (remaining <= 0) {
-          this._finishTransfer(creep, totalCarriedBefore, totalTransferred);
-          return;
-        }
-        transferAmount = Math.min(transferAmount, remaining);
-      }
-
-      const result = creep.transfer(target, resourceType, transferAmount);
-
-      switch (result) {
-        case OK:
-          totalTransferred += transferAmount;
-          this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
-          return;
-
-        case ERR_NOT_IN_RANGE:
-          creep.travelTo(target, TRAVEL_OPTS);
-          return;
-
-        case ERR_FULL:
-        case ERR_INVALID_TARGET:
-        case ERR_NOT_ENOUGH_RESOURCES:
-          this._clearDeliveryTarget(creep);
-          return;
-
-        default:
-          Log.warn(`${creep} transfer error: ${global.getErrorString(result)}`, "transport");
-          this._clearDeliveryTarget(creep);
-          return;
-      }
+  _transferResource(creep, target, orderAmount) {
+    const resourceType = creep.memory.transportResource;
+    if (!resourceType) {
+      this._dropAllResources(creep);
+      return;
     }
 
-    this._finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount);
-  }
-
-  /**
-   * @param {Creep} creep
-   * @param {number} totalCarriedBefore
-   * @param {number} totalTransferred
-   * @param {number|null} [orderAmount]
-   */
-  _finishTransfer(creep, totalCarriedBefore, totalTransferred, orderAmount) {
-    const expectedRemaining = totalCarriedBefore - totalTransferred;
-
-    if (expectedRemaining <= 0) {
+    const carried = creep.store[resourceType] || 0;
+    if (carried <= 0) {
       this._clearTransportMemory(creep);
       return;
     }
 
-    if (totalTransferred === 0 || (orderAmount != null && totalTransferred >= orderAmount)) {
+    let transferAmount = carried;
+    if (target.store) {
+      const free = target.store.getFreeCapacity(resourceType) || 0;
+      if (free <= 0) {
+        this._clearDeliveryTarget(creep);
+        return;
+      }
+      transferAmount = Math.min(transferAmount, free);
+    }
+
+    if (orderAmount != null) {
+      transferAmount = Math.min(transferAmount, orderAmount);
+    }
+
+    if (transferAmount <= 0) {
       this._clearDeliveryTarget(creep);
+      return;
+    }
+
+    const result = creep.transfer(target, resourceType, transferAmount);
+
+    switch (result) {
+      case OK:
+        // Intent applies end-of-tick; if we sent everything carried, trip is done.
+        if (transferAmount >= carried) {
+          this._clearTransportMemory(creep);
+        } else {
+          this._clearDeliveryTarget(creep);
+        }
+        break;
+
+      case ERR_NOT_IN_RANGE:
+        creep.travelTo(target, TRAVEL_OPTS);
+        break;
+
+      case ERR_FULL:
+      case ERR_INVALID_TARGET:
+      case ERR_NOT_ENOUGH_RESOURCES:
+        this._clearDeliveryTarget(creep);
+        break;
+
+      default:
+        Log.warn(`${creep} transfer error: ${global.getErrorString(result)}`, "transport");
+        this._clearDeliveryTarget(creep);
     }
   }
 
@@ -251,63 +245,6 @@ class TransportBehavior extends Behavior {
     const freeCapacity = creep.store.getFreeCapacity(resourceType) || 0;
     const requested = orderAmount != null ? orderAmount : available;
     return Math.min(available, freeCapacity, requested);
-  }
-
-  /**
-   * Take max energy from source/extractor containers or dropped energy.
-   * @param {{ resourceType: string, id?: string, structureType?: string }} give
-   * @returns {boolean}
-   */
-  _isGreedyEnergyPickup(give) {
-    if (give.resourceType !== RESOURCE_ENERGY) {
-      return false;
-    }
-
-    const obj = give.id ? Game.getObjectById(give.id) : null;
-    if (!obj) {
-      return false;
-    }
-
-    if (obj.resourceType === RESOURCE_ENERGY) {
-      return true;
-    }
-
-    return this._isSourceSideContainer(obj);
-  }
-
-  /**
-   * @param {RoomObject} target
-   * @returns {boolean}
-   */
-  _isSourceSideContainer(target) {
-    if (!target.structureType || target.structureType !== STRUCTURE_CONTAINER) {
-      return false;
-    }
-
-    const {room} = target;
-    if (!room) {
-      return false;
-    }
-
-    const sources = room.sources || room.find(FIND_SOURCES);
-    for (const source of sources) {
-      if (target.pos.inRangeTo(source, 2)) {
-        return true;
-      }
-    }
-
-    const mineral = room.mineral;
-    return !!(mineral && target.pos.inRangeTo(mineral, 2));
-  }
-
-  /**
-   * @param {Creep} creep
-   * @returns {ResourceConstant[]}
-   */
-  _getSortedCarriedResources(creep) {
-    return Object.keys(creep.store)
-      .filter(r => creep.store[r] > 0)
-      .sort((a, b) => (a === RESOURCE_ENERGY ? -1 : b === RESOURCE_ENERGY ? 1 : 0));
   }
 
   /**
@@ -334,6 +271,7 @@ class TransportBehavior extends Behavior {
     creep.target = null;
     creep.memory.transportResource = null;
     creep.memory.transportAmount = null;
+    creep.memory.transportNeedId = null;
     creep.memory.transportCollectSourceId = null;
   }
 }
