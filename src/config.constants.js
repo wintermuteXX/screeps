@@ -111,9 +111,9 @@ module.exports = {
    * 4. MATCHING RULE: need.priority < give.priority
    *
    * NEED.ENERGY: CONTROLLER_CRITICAL(10), SPAWN(15), EXTENSION(20), CONTROLLER_LOW(25),
-   *   TOWER_ENEMY(30), TERMINAL_LOW(45), STORAGE_MID(55), TOWER_NORMAL(60), CONSTRUCTOR(62),
+   *   TOWER_ENEMY(30), STORAGE_MID(45), TERMINAL_LOW(55), TOWER_NORMAL(60), CONSTRUCTOR(62),
    *   LAB(65), FACTORY(75), POWER_SPAWN(80), NUKER(110),
-   *   TERMINAL_HIGH(115), STORAGE_OVERFLOW(125), CONTROLLER_NORMAL(127)
+   *   STORAGE_OVERFLOW(125), CONTROLLER_NORMAL(127), TERMINAL_HIGH(128)
    * NEED.MINERAL: LAB_FILL(70), FACTORY(85), STORAGE(105), TERMINAL(135)
    * NEED.GHODIUM: NUKER(95)
    * NEED.POWER: POWER_SPAWN(90)
@@ -135,17 +135,17 @@ module.exports = {
         EXTENSION: 20,
         CONTROLLER_LOW: 25,
         TOWER_ENEMY: 30,
-        TERMINAL_LOW: 45,
-        STORAGE_MID: 55,
+        STORAGE_MID: 45,
+        TERMINAL_LOW: 55,
         TOWER_NORMAL: 60,
         CONSTRUCTOR: 62,
         LAB: 65,
         FACTORY: 75,
         POWER_SPAWN: 80,
         NUKER: 110,
-        TERMINAL_HIGH: 115,             // Fill terminal toward MAX_ENERGY when storage is overfull
         STORAGE_OVERFLOW: 125,
         CONTROLLER_NORMAL: 127,
+        TERMINAL_HIGH: 128,             // Fill terminal toward MAX_ENERGY when above fill level
       },
       MINERAL: {
         LAB_FILL: 70,
@@ -229,7 +229,7 @@ module.exports = {
 
   // Terminal
   TERMINAL: {
-    MAX_ENERGY: 100000,               // Soft cap: fill toward this only if storage energy is above STORAGE.MAX_ENERGY_THRESHOLD
+    MAX_ENERGY: 100000,               // Soft cap for terminal energy needs (TERMINAL_HIGH)
   },
 
   // Market

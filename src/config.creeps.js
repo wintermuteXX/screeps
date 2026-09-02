@@ -393,6 +393,7 @@ module.exports = {
     canBuild: function (rc) {
       // Don't spawn scouts if room has an Observer
       // Use cached find() and filter manually (rc.find() doesn't support filter parameter)
+      return false;
       const observers = rc.find(FIND_MY_STRUCTURES).filter(s => 
         s.structureType === STRUCTURE_OBSERVER
       );

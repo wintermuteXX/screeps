@@ -13,13 +13,13 @@ class LogisticsManager {
   getTransportOrder(creep) {
     if (creep.store.getUsedCapacity() !== 0) return null;
 
-    const claimedGiveIds = this._claimedTargetIds(true);
+    const claimedGives = this._claimedTargetKeys(true);
     const gives = this.givesResources();
     const needs = this.needsResources();
 
     for (const need of needs) {
       for (const give of gives) {
-        if (claimedGiveIds.has(give.id)) continue;
+        if (claimedGives.has(this._claimKey(give.id, give.resourceType))) continue;
         if (!this._canMatch(give, need)) continue;
         return { give, need };
       }
@@ -45,7 +45,7 @@ class LogisticsManager {
     if (carried.size === 0) return null;
     if (resourceType != null && !carried.has(resourceType)) return null;
 
-    const claimedNeedIds = this._claimedTargetIds(false);
+    const claimedNeeds = this._claimedTargetKeys(false);
     const needs = this.needsResources();
 
     /**
@@ -60,7 +60,7 @@ class LogisticsManager {
       }
       if (need.id === creep.id) return false;
       if (excludeId && need.id === excludeId) return false;
-      if (claimedNeedIds.has(need.id)) return false;
+      if (claimedNeeds.has(this._claimKey(need.id, need.resourceType))) return false;
       return !!this._validateResourceTarget(need.id, need.resourceType);
     };
 
@@ -81,19 +81,30 @@ class LogisticsManager {
   }
 
   /**
-   * Target ids currently claimed by creeps (empty = collecting from give; non-empty = delivering to need).
+   * Claim key so one structure can be targeted for different resources in parallel.
+   * @param {string} id
+   * @param {string|null|undefined} resourceType
+   * @returns {string}
+   */
+  _claimKey(id, resourceType) {
+    return resourceType ? `${id}:${resourceType}` : id;
+  }
+
+  /**
+   * Claim keys for creeps (empty = collecting from give; non-empty = delivering to need).
    * @param {boolean} emptyOnly - true: empty creeps (give sources); false: creeps carrying resources (need sinks)
    * @returns {Set<string>}
    */
-  _claimedTargetIds(emptyOnly) {
-    const ids = new Set();
+  _claimedTargetKeys(emptyOnly) {
+    const keys = new Set();
     for (const c of this.rc.creeps.getAllCreeps()) {
       const used = c.store.getUsedCapacity();
       if (emptyOnly ? used !== 0 : used <= 0) continue;
       const id = this._creepTargetId(c);
-      if (id) ids.add(id);
+      if (!id) continue;
+      keys.add(this._claimKey(id, c.memory.transportResource));
     }
-    return ids;
+    return keys;
   }
 
   /**
@@ -200,29 +211,66 @@ class LogisticsManager {
     }
   }
 
-  _getTerminalGivesPriority(resourceType, amount, energyThreshold) {
+  /**
+   * @param {string} resourceType
+   * @param {number} amount
+   * @param {number} fillLevel
+   * @returns {{ priority: number, amount: number }|null}
+   */
+  _getTerminalGivesPriority(resourceType, amount, fillLevel) {
     if (resourceType === RESOURCE_ENERGY) {
-      if (amount <= energyThreshold) {
+      if (amount <= fillLevel) {
         return {
           priority: CONSTANTS.PRIORITY.GIVE.ENERGY.TERMINAL_LOW,
           amount: amount,
         };
-      } else {
-        return {
-          priority: CONSTANTS.PRIORITY.GIVE.ENERGY.TERMINAL_OVERFLOW,
-          amount: amount - energyThreshold,
-        };
       }
-    } else {
-      // Minerals
-      if (amount > 0) {
-        return {
-          priority: CONSTANTS.PRIORITY.GIVE.MINERAL.TERMINAL,
-          amount: amount,
-        };
-      }
-      return null; // Skip if no minerals
+      return {
+        priority: CONSTANTS.PRIORITY.GIVE.ENERGY.TERMINAL_OVERFLOW,
+        amount: amount - fillLevel,
+      };
     }
+
+    if (amount > 0) {
+      return {
+        priority: CONSTANTS.PRIORITY.GIVE.MINERAL.TERMINAL,
+        amount: amount,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * @param {string} resourceType
+   * @param {number} currentAmount
+   * @param {number} fillLevel
+   * @param {StructureTerminal} terminal
+   * @returns {{ priority: number, amount: number }|null}
+   */
+  _getTerminalNeedsPriority(resourceType, currentAmount, fillLevel, terminal) {
+    const freeForType = terminal.store.getFreeCapacity(resourceType) || 0;
+    if (freeForType <= 0) return null;
+
+    if (resourceType === RESOURCE_ENERGY) {
+      if (currentAmount < fillLevel) {
+        return {
+          priority: CONSTANTS.PRIORITY.NEED.ENERGY.TERMINAL_LOW,
+          amount: Math.min(fillLevel - currentAmount, freeForType),
+        };
+      }
+      const amount = Math.min(CONSTANTS.TERMINAL.MAX_ENERGY - currentAmount, freeForType);
+      if (amount <= 0) return null;
+      return {
+        priority: CONSTANTS.PRIORITY.NEED.ENERGY.TERMINAL_HIGH,
+        amount,
+      };
+    }
+
+    // Surplus sink for market / internalTrade (lowest mineral need priority).
+    return {
+      priority: CONSTANTS.PRIORITY.NEED.MINERAL.TERMINAL,
+      amount: freeForType,
+    };
   }
 
   _processStoreResources(findType, minAmount, priority, defaultStructureType) {
@@ -232,7 +280,7 @@ class LogisticsManager {
         const amount = item.store[resourceType];
         if (amount > minAmount) {
           const structureType = item.structureType ||
-                              (item.structure ? item.structure.structureType : defaultStructureType);
+            (item.structure ? item.structure.structureType : defaultStructureType);
           this._addGivesResource({
             priority: priority,
             resourceType: resourceType,
@@ -349,7 +397,7 @@ class LogisticsManager {
   }
 
   _processFactory() {
-    const {factory} = this.rc.room;
+    const { factory } = this.rc.room;
     if (!factory) return;
 
     for (const resourceType of RESOURCES_ALL) {
@@ -368,49 +416,70 @@ class LogisticsManager {
     }
   }
 
-  _processStorage() {
-    const {storage} = this.rc.room;
-    if (!storage) return;
+  /**
+   * @param {StructureStorage|StructureTerminal|undefined} structure
+   * @param {"storage"|"terminal"} scope
+   * @param {(resourceType: string, amount: number, fillLevel: number) => ({ priority: number, amount: number }|null)} getPriorityFn
+   */
+  _processStructureGives(structure, scope, getPriorityFn) {
+    if (!structure) return;
 
     for (const resourceType of RESOURCES_ALL) {
-      const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "storage");
+      const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, scope);
       if (amount === 0) continue;
 
-      const fillLevel = this.rc.room.getRoomThreshold(resourceType, "storage");
-      const priorityInfo = this._getStorageGivesPriority(resourceType, amount, fillLevel);
+      const fillLevel = this.rc.room.getRoomThreshold(resourceType, scope);
+      const priorityInfo = getPriorityFn(resourceType, amount, fillLevel);
+      if (!priorityInfo) continue;
 
-      if (priorityInfo) {
-        this._addGivesResource({
-          priority: priorityInfo.priority,
-          structureType: storage.structureType,
-          resourceType: resourceType,
-          amount: priorityInfo.amount,
-          id: storage.id,
-        });
-      }
+      this._addGivesResource({
+        priority: priorityInfo.priority,
+        structureType: structure.structureType,
+        resourceType: resourceType,
+        amount: priorityInfo.amount,
+        id: structure.id,
+      });
     }
   }
 
-  _processTerminal() {
-    const {terminal} = this.rc.room;
-    if (!terminal) return;
-
-    const energyThreshold = this.rc.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
+  /**
+   * @param {StructureStorage|StructureTerminal|undefined} structure
+   * @param {"storage"|"terminal"} scope
+   * @param {(resourceType: string, currentAmount: number, fillLevel: number, structure: Structure) => ({ priority: number, amount: number }|null)} getPriorityFn
+   */
+  _processStructureNeeds(structure, scope, getPriorityFn) {
+    if (!structure || structure.store.getFreeCapacity() === 0) return;
 
     for (const resourceType of RESOURCES_ALL) {
-      const amount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "terminal");
-      const priorityInfo = this._getTerminalGivesPriority(resourceType, amount, energyThreshold);
+      const fillLevel = this.rc.room.getRoomThreshold(resourceType, scope);
+      const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, scope);
+      const priorityInfo = getPriorityFn(resourceType, currentAmount, fillLevel, structure);
+      if (!priorityInfo) continue;
 
-      if (priorityInfo) {
-        this._addGivesResource({
-          priority: priorityInfo.priority,
-          structureType: terminal.structureType,
-          resourceType: resourceType,
-          amount: priorityInfo.amount,
-          id: terminal.id,
-        });
-      }
+      this._addNeedsResource({
+        priority: priorityInfo.priority,
+        structureType: structure.structureType,
+        resourceType: resourceType,
+        amount: priorityInfo.amount,
+        id: structure.id,
+      });
     }
+  }
+
+  _processStorage() {
+    this._processStructureGives(
+      this.rc.room.storage,
+      "storage",
+      (resourceType, amount, fillLevel) => this._getStorageGivesPriority(resourceType, amount, fillLevel),
+    );
+  }
+
+  _processTerminal() {
+    this._processStructureGives(
+      this.rc.room.terminal,
+      "terminal",
+      (resourceType, amount, fillLevel) => this._getTerminalGivesPriority(resourceType, amount, fillLevel),
+    );
   }
 
   givesResources() {
@@ -470,7 +539,7 @@ class LogisticsManager {
       return CONSTANTS.PRIORITY.NEED.ENERGY.CONTROLLER_NORMAL;
     }
 
-    const {ticksToDowngrade} = this.rc.room.controller;
+    const { ticksToDowngrade } = this.rc.room.controller;
     if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_CRITICAL) {
       return CONSTANTS.PRIORITY.NEED.ENERGY.CONTROLLER_CRITICAL;
     } else if (ticksToDowngrade < CONSTANTS.CONTROLLER.TICKS_TO_DOWNGRADE_LOW) {
@@ -584,7 +653,7 @@ class LogisticsManager {
   _processPowerSpawnNeeds() {
     if (!this._hasOwnedController() || !this.rc.room.powerSpawn) return;
 
-    const {powerSpawn} = this.rc.room;
+    const { powerSpawn } = this.rc.room;
     this._addStructureNeeds(
       [powerSpawn],
       RESOURCE_ENERGY,
@@ -602,18 +671,18 @@ class LogisticsManager {
   _processNukerNeeds() {
     if (!this._hasOwnedController() || !this.rc.room.nuker) return;
 
-    const {nuker} = this.rc.room;
+    const { nuker } = this.rc.room;
     this._addStructureNeeds([nuker], RESOURCE_ENERGY, CONSTANTS.PRIORITY.NEED.ENERGY.NUKER);
     this._addStructureNeeds([nuker], RESOURCE_GHODIUM, CONSTANTS.PRIORITY.NEED.GHODIUM.NUKER);
   }
 
   _processFactoryNeeds() {
-    const {factory} = this.rc.room;
+    const { factory } = this.rc.room;
     if (!factory || factory.store.getFreeCapacity() === 0) return;
 
     for (const resourceType of RESOURCES_ALL) {
       const fillLevel = this.rc.room.getRoomThreshold(resourceType, "factory");
-      const currentAmount = factory.store[resourceType] || 0;
+      const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "factory");
 
       if (currentAmount < fillLevel) {
         const priority = resourceType === RESOURCE_ENERGY
@@ -632,80 +701,21 @@ class LogisticsManager {
   }
 
   _processStorageNeeds() {
-    const {storage} = this.rc.room;
-    if (!storage || storage.store.getFreeCapacity() === 0) return;
-
-    for (const resourceType of RESOURCES_ALL) {
-      const fillLevel = this.rc.room.getRoomThreshold(resourceType, "storage");
-      const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "storage");
-      const priorityInfo = this._getStorageNeedsPriority(resourceType, currentAmount, fillLevel);
-
-      if (priorityInfo) {
-        this._addNeedsResource({
-          priority: priorityInfo.priority,
-          structureType: storage.structureType,
-          resourceType: resourceType,
-          amount: priorityInfo.amount,
-          id: storage.id,
-        });
-      }
-    }
+    this._processStructureNeeds(
+      this.rc.room.storage,
+      "storage",
+      (resourceType, currentAmount, fillLevel) =>
+        this._getStorageNeedsPriority(resourceType, currentAmount, fillLevel),
+    );
   }
 
   _processTerminalNeeds() {
-    const {terminal} = this.rc.room;
-    if (!terminal || terminal.store.getFreeCapacity() === 0) return;
-
-    const energyThreshold = this.rc.room.getRoomThreshold(RESOURCE_ENERGY, "terminal");
-    const freeCapacity = terminal.store.getFreeCapacity();
-
-    for (const resourceType of RESOURCES_ALL) {
-      const currentAmount = ResourceManager.getResourceAmount(this.rc.room, resourceType, "terminal");
-      let priority;
-      let neededAmount;
-
-      if (resourceType === RESOURCE_ENERGY) {
-        if (currentAmount < energyThreshold) {
-          priority = CONSTANTS.PRIORITY.NEED.ENERGY.TERMINAL_LOW;
-          neededAmount = Math.min(energyThreshold - currentAmount, freeCapacity);
-        } else {
-          const storageEnergy = ResourceManager.getResourceAmount(this.rc.room, RESOURCE_ENERGY, "storage");
-          if (
-            storageEnergy > CONSTANTS.STORAGE.MAX_ENERGY_THRESHOLD &&
-            currentAmount < CONSTANTS.TERMINAL.MAX_ENERGY
-          ) {
-            priority = CONSTANTS.PRIORITY.NEED.ENERGY.TERMINAL_HIGH;
-            neededAmount = Math.min(
-              CONSTANTS.TERMINAL.MAX_ENERGY - currentAmount,
-              freeCapacity,
-            );
-          } else {
-            continue;
-          }
-        }
-      } else {
-        // Surplus sink: accept any mineral into terminal when space is available.
-        // Priority NEED.MINERAL.TERMINAL is below labs, factory, storage, etc., so those
-        // needs win first; remainder flows here for internalTrade and market sell.
-        const freeForType = terminal.store.getFreeCapacity(resourceType);
-        if (freeForType <= 0) {
-          continue;
-        }
-        priority = CONSTANTS.PRIORITY.NEED.MINERAL.TERMINAL;
-        neededAmount = freeForType;
-      }
-
-      // Only add if we actually need something
-      if (neededAmount > 0) {
-        this._addNeedsResource({
-          priority: priority,
-          structureType: terminal.structureType,
-          resourceType: resourceType,
-          amount: neededAmount,
-          id: terminal.id,
-        });
-      }
-    }
+    this._processStructureNeeds(
+      this.rc.room.terminal,
+      "terminal",
+      (resourceType, currentAmount, fillLevel, terminal) =>
+        this._getTerminalNeedsPriority(resourceType, currentAmount, fillLevel, terminal),
+    );
   }
 
   needsResources() {
